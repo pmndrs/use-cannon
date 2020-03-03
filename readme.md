@@ -1,13 +1,1 @@
-node_modules/
-coverage/
-Thumbs.db
-ehthumbs.db
-Desktop.ini
-\$RECYCLE.BIN/
-.DS_Store
-.vscode
-.docz/
-package-lock.json
-coverage/
-.idea
-.rpt2_cache/
+    yarn add use-cannon
