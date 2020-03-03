@@ -17,7 +17,7 @@ import niceColors from 'nice-color-palettes'
 import { useCannon, useCannonInstanced, Physics } from 'use-cannon'
 
 function Plane({ position = [0, 0, 0], rotation = [0, 0, 0] }) {
-  const [ref] = useCannon({ mass: 0, type: 'Plane', position, rotation })
+  const [ref, api] = useCannon({ mass: 0, type: 'Plane', position, rotation })
   return (
     <mesh ref={ref} receiveShadow>
       <planeBufferGeometry attach="geometry" args={[5, 5]} />
