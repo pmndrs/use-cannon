@@ -9,7 +9,6 @@ const bodies = React.createRef()
 bodies.current = {}
 
 const context = React.createContext()
-const context = React.createContext()
 export function Physics({ children, refresh = 1 / 60 }) {
   const [worker, setWorker] = useState()
   const [count, setCount] = useState(0)
