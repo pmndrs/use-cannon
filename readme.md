@@ -10,7 +10,7 @@ Experimental web-worker based React hooks for cannon (using [cannon-es](https://
 
 How does it work? It subscribes the view part of a component to cannons physics world and unsubscribes on unmount. You don't put position/rotation/scale into the mesh any longer, you put it into the hooks, which takes care of forwarding all movements.
 
-Internally it communicates with the web worker via fixed-size array buffers, but it keeps track of how many physics based components you have mounted automatically.
+Internally it communicates with the web worker via fixed-size array buffers, but it keeps track of how many physics based components you have mounted automatically and adjusts these buffers when needed.
 
 ```jsx
 import * as THREE from 'three'
