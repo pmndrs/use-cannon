@@ -9,7 +9,7 @@ const bodies = React.createRef()
 bodies.current = {}
 
 const context = React.createContext()
-export function Physics({ children, refresh = 1 / 60 }) {
+export function Physics({ children }) {
   const [worker, setWorker] = useState()
   const [count, setCount] = useState(0)
 
@@ -18,10 +18,8 @@ export function Physics({ children, refresh = 1 / 60 }) {
       let positions = new Float32Array(count * 3)
       let quaternions = new Float32Array(count * 4)
       let currentWorker = new CannonWorker()
-      let sendTime
 
       function loop() {
-        sendTime = Date.now()
         if (positions.byteLength !== 0 && quaternions.byteLength !== 0) {
           currentWorker.postMessage({ op: 'step', positions, quaternions }, [positions.buffer, quaternions.buffer])
         }
@@ -33,11 +31,7 @@ export function Physics({ children, refresh = 1 / 60 }) {
             positions = e.data.positions
             quaternions = e.data.quaternions
             buffers.current = { positions, quaternions }
-
-            // If the worker was faster than the time step (dt seconds), we want to delay the next timestep
-            let delay = refresh * 1000 - (Date.now() - sendTime)
-            if (delay < 0) delay = 0
-            setTimeout(loop, delay)
+            requestAnimationFrame(loop)
             break
           }
           case 'sync': {
