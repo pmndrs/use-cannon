@@ -2,7 +2,6 @@ import path from 'path'
 import babel from 'rollup-plugin-babel'
 import resolve from 'rollup-plugin-node-resolve'
 import webWorkerLoader from 'rollup-plugin-web-worker-loader'
-import { terser } from 'rollup-plugin-terser'
 
 const external = ['react', 'react-three-fiber', 'three']
 const extensions = ['.js', '.jsx', '.ts', '.tsx', '.json']
