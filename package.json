@@ -1,6 +1,6 @@
 {
   "name": "use-cannon",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "cannon hooks for react-three-fiber",
   "keywords": [
     "cannon",
