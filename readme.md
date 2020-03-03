@@ -6,7 +6,7 @@
 
 Live demo: https://codesandbox.io/s/r3f-cannon-instanced-physics-g1s88
 
-Experimental web-worker based React hooks for cannon (using [cannon-es](https://github.com/drcmda/cannon-es)). Right now it only supports planes and boxes, and the public api can only set positions. If you need more, please submit your PR.
+Experimental web-worker based React hooks for cannon (using [cannon-es](https://github.com/drcmda/cannon-es)). Right now it only supports planes and boxes, for individual objects or instanced objects. The public api can only set positions for now. If you need more, please submit your PRs.
 
 ```jsx
 import * as THREE from 'three'
