@@ -10,9 +10,7 @@
   ],
   "author": "Paul Henschel",
   "license": "MIT",
-  "main": "./dist/web.cjs.js",
   "module": "./dist/web.js",
-  "types": "./types/index.d.ts",
   "sideEffects": false,
   "scripts": {
     "prebuild": "rimraf dist && rollup",

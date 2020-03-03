@@ -1,7 +1,7 @@
 import { Object3D } from 'three'
 import React, { useState, useEffect, useContext, useRef, useMemo } from 'react'
 import { useFrame } from 'react-three-fiber'
-import CannonWorker from 'web-worker:./worker'
+import CannonWorker from 'web-worker:../src/worker.js'
 
 const refs = {}
 const buffers = React.createRef()
