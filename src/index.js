@@ -1,7 +1,7 @@
 import { Object3D } from 'three'
 import React, { useState, useEffect, useContext, useRef, useMemo } from 'react'
 import { useFrame } from 'react-three-fiber'
-import WORKER_URL from 'omt:./worker.js'
+import CannonWorker from 'web-worker:../src/worker.js'
 
 const refs = {}
 const buffers = React.createRef()
@@ -17,7 +17,7 @@ export function Physics({ children }) {
     if (count) {
       let positions = new Float32Array(count * 3)
       let quaternions = new Float32Array(count * 4)
-      let currentWorker = new Worker(WORKER_URL)
+      let currentWorker = new CannonWorker()
 
       function loop() {
         if (positions.byteLength !== 0 && quaternions.byteLength !== 0) {
