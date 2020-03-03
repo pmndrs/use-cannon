@@ -1,4 +1,4 @@
-![Imgur](https://imgur.com/FpBsJPL)
+![Imgur](https://imgur.com/FpBsJPL.jpg)
 
 <br/>
 
