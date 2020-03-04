@@ -74,7 +74,7 @@ ReactDOM.render(
 
 # Api
 
-## <Physics />
+## Physics
 
 Keeps track of physics objects and serves as a provider.
 
@@ -106,6 +106,14 @@ return <mesh ref={ref} geometry={planeGeom} />
 }
 ```
 
+### api
+
+```jsx
+{
+  setPosition(pos: [number, number, number])
+}
+```
+
 ## [ref, api] = useCannonInstanced(props)
 
 Ties a referenced instanced-mesh to cannons physics world.
@@ -124,5 +132,13 @@ return <instancedMesh ref={ref} args={[geometry, material, count]} />
   rotations: [[0, 0, 0], ...],
   scales: [[1, 1, 1], ...]
   //... all serializable Body props
+}
+```
+
+### api
+
+```jsx
+{
+  setPositionAt(index, pos: [number, number, number])
 }
 ```

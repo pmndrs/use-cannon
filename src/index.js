@@ -144,6 +144,10 @@ export function useCannonInstanced(props, deps = []) {
 
   const api = useMemo(
     () => ({
+      // fallback, but setPositionAt is probably more in line with the instancedmesh api
+      setPosition(index, position) {
+        api.setPositionAt(index, position)
+      },
       setPositionAt(index, position) {
         if (worker) worker.postMessage({ op: 'setPosition', uuid: `${ref.current.uuid}_${index}`, position })
       },
