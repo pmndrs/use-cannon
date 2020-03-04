@@ -1,4 +1,4 @@
-import { World, NaiveBroadphase, Body, Plane, Box, Vec3 } from 'cannon-es'
+import { World, NaiveBroadphase, Body, Plane, Box, ConvexPolyhedron, Vec3 } from 'cannon-es'
 
 let bodies = {}
 let world = new World()
@@ -13,6 +13,7 @@ function task(e, sync = true) {
     mass,
     positions,
     quaternions,
+    mesh = null,
     position = [0, 0, 0],
     rotation = [0, 0, 0],
     uuids = [],
@@ -47,6 +48,29 @@ function task(e, sync = true) {
         case 'Box':
           body.addShape(new Box(new Vec3(...args)))
           break
+        case 'Convex':
+        case 'ConvexPolyhedron':
+          // 'mesh' must be a Three Geometry
+          // Convert from THREE.Vector3 to CANNON.Vec3.
+          const vertices = new Array(mesh.vertices.length)
+
+          for (let i = 0; i < vertices.length; i++) {
+            vertices[i] = new Vec3(
+              mesh.vertices[i].x,
+              mesh.vertices[i].y,
+              mesh.vertices[i].z
+            )
+          }
+
+          // Convert from THREE.Face3 to Cannon-compatible Array
+          const faces = new Array(mesh.faces.length)
+          for (let i = 0; i < mesh.faces.length; i++) {
+            faces[i] = [mesh.faces[i].a, mesh.faces[i].b, mesh.faces[i].c]
+          }
+
+          // NOTE: You can sometimes get away with *concave* meshes depending on what you are doing.
+          // non-convex meshs will however produce errors in inopportune collisions
+          body.addmesh(new ConvexPolyhedron(vertices, faces))
         default:
           break
       }
