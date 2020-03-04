@@ -71,3 +71,58 @@ ReactDOM.render(
   document.getElementById('root')
 )
 ```
+
+# Api
+
+## <Physics />
+
+Keeps track of physics objects and serves as a provider.
+
+```jsx
+<Physics
+  children,                     // ...
+  gravity = [0, -10, 0],        // default gravity
+  tolerance = 0.001 />          // default tolerance
+```
+
+## [ref, api] = useCannon(props)
+
+Ties a referenced object to cannons physics world.
+
+```jsx
+const [ref, api] = useCannon({ type: "Plane", mass: 0, position: [0, 0, 0], rotation: [0, 0, 0] })
+return <mesh ref={ref} geometry={planeGeom} />
+```
+
+### props
+
+```jsx
+{
+  type: "Plane" | "Body",
+  position: [0, 0, 0],
+  rotation: [0, 0, 0],
+  scale: [1, 1, 1]
+  //... all serializable Body props
+}
+```
+
+## [ref, api] = useCannonInstanced(props)
+
+Ties a referenced instanced-mesh to cannons physics world.
+
+```jsx
+const [ref, api] = useCannonInstanced({ type: "Box", mass: 1, positions: [...], rotations: [...] })
+return <instancedMesh ref={ref} args={[geometry, material, count]} />
+```
+
+### props
+
+```jsx
+{
+  type: "Plane" | "Body",
+  positions: [[0, 0, 0], ...],
+  rotations: [[0, 0, 0], ...],
+  scales: [[1, 1, 1], ...]
+  //... all serializable Body props
+}
+```

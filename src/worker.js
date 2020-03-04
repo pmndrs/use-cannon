@@ -3,14 +3,13 @@ import { World, NaiveBroadphase, Body, Plane, Box, ConvexPolyhedron, Vec3 } from
 let bodies = {}
 let world = new World()
 world.broadphase = new NaiveBroadphase(world)
-world.gravity.set(0, -9.8, 0)
+world.gravity.set(0, 10, 0)
 
 function task(e, sync = true) {
   const {
     op,
     uuid,
     type,
-    mass,
     positions,
     quaternions,
     mesh = null,
@@ -18,9 +17,15 @@ function task(e, sync = true) {
     rotation = [0, 0, 0],
     uuids = [],
     args = [],
+    ...props
   } = e.data
 
   switch (op) {
+    case 'init': {
+      world.gravity.set(props.gravity)
+      world.solver.tolerance = props.tolerance
+      break
+    }
     case 'step': {
       world.step(1 / 60)
       for (let i = 0; i < world.bodies.length; i++) {
@@ -39,7 +44,7 @@ function task(e, sync = true) {
       break
     }
     case 'addBody': {
-      const body = new Body({ mass })
+      const body = new Body(props)
       body.uuid = uuid
       switch (type) {
         case 'Plane':
@@ -55,11 +60,7 @@ function task(e, sync = true) {
           const vertices = new Array(mesh.vertices.length)
 
           for (let i = 0; i < vertices.length; i++) {
-            vertices[i] = new Vec3(
-              mesh.vertices[i].x,
-              mesh.vertices[i].y,
-              mesh.vertices[i].z
-            )
+            vertices[i] = new Vec3(mesh.vertices[i].x, mesh.vertices[i].y, mesh.vertices[i].z)
           }
 
           // Convert from THREE.Face3 to Cannon-compatible Array

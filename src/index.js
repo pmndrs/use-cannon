@@ -9,7 +9,7 @@ const bodies = React.createRef()
 bodies.current = {}
 
 const context = React.createContext()
-export function Physics({ children }) {
+export function Physics({ children, gravity = [0, -10, 0], tolerance = 0.001 }) {
   const [worker, setWorker] = useState()
   const [count, setCount] = useState(0)
 
@@ -17,7 +17,10 @@ export function Physics({ children }) {
     if (count) {
       let positions = new Float32Array(count * 3)
       let quaternions = new Float32Array(count * 4)
+
+      // Initialize worker
       let currentWorker = new CannonWorker()
+      currentWorker.postMessage({ op: 'init', gravity, tolerance })
 
       function loop() {
         if (positions.byteLength !== 0 && quaternions.byteLength !== 0) {
@@ -141,7 +144,7 @@ export function useCannonInstanced(props, deps = []) {
 
   const api = useMemo(
     () => ({
-      setPosition(index, position) {
+      setPositionAt(index, position) {
         if (worker) worker.postMessage({ op: 'setPosition', uuid: `${ref.current.uuid}_${index}`, position })
       },
     }),
