@@ -9,7 +9,7 @@ const bodies = React.createRef()
 bodies.current = {}
 
 const context = React.createContext()
-export function Physics({ children }) {
+export function Physics({ children, gravity = [0, -10, 0], tolerance = 0.001 }) {
   const [worker, setWorker] = useState()
   const [count, setCount] = useState(0)
 
@@ -17,7 +17,10 @@ export function Physics({ children }) {
     if (count) {
       let positions = new Float32Array(count * 3)
       let quaternions = new Float32Array(count * 4)
+
+      // Initialize worker
       let currentWorker = new CannonWorker()
+      currentWorker.postMessage({ op: 'init', gravity, tolerance })
 
       function loop() {
         if (positions.byteLength !== 0 && quaternions.byteLength !== 0) {
@@ -52,7 +55,7 @@ export function Physics({ children }) {
   return <context.Provider value={api} children={children} />
 }
 
-export function useCannon({ ...props }, deps = []) {
+export function useCannon(props, deps = []) {
   const ref = useRef()
   const { worker, setCount } = useContext(context)
 
@@ -98,7 +101,7 @@ export function useCannon({ ...props }, deps = []) {
 }
 
 const _object = new Object3D()
-export function useCannonInstanced(props, deps = []) {
+export function useCannonInstanced({ args, position, rotation, ...props }, deps = []) {
   const ref = useRef()
   const { worker, setCount } = useContext(context)
 
@@ -118,9 +121,20 @@ export function useCannonInstanced(props, deps = []) {
       ref.current.instanceMatrix.setUsage(35048)
       buffers.current = null
       bodies.current = {}
-      const uuids = new Array(ref.current.count).fill().map((_, i) => `${ref.current.uuid}_${i}`)
-      worker.postMessage({ op: 'addBodies', uuids, ...props })
-      return () => worker.postMessage({ op: 'removeBodies', uuids })
+      const uuid = new Array(ref.current.count).fill().map((_, i) => `${ref.current.uuid}_${i}`)
+      if (typeof position === 'function') position = uuid.map((_, i) => position(i))
+      if (typeof rotation === 'function') rotation = uuid.map((_, i) => rotation(i))
+      if (typeof args === 'function') args = uuid.map((_, i) => args(i))
+
+      worker.postMessage({
+        op: 'addBodies',
+        uuid,
+        ...props,
+        args,
+        position,
+        rotation,
+      })
+      return () => worker.postMessage({ op: 'removeBodies', uuid })
     }
   }, [worker, ...deps]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -141,7 +155,11 @@ export function useCannonInstanced(props, deps = []) {
 
   const api = useMemo(
     () => ({
+      // fallback, but setPositionAt is probably more in line with the instancedmesh api
       setPosition(index, position) {
+        api.setPositionAt(index, position)
+      },
+      setPositionAt(index, position) {
         if (worker) worker.postMessage({ op: 'setPosition', uuid: `${ref.current.uuid}_${index}`, position })
       },
     }),
