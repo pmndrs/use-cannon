@@ -82,7 +82,6 @@ function task(e, sync = true) {
           // non-convex meshes will however produce errors in inopportune collisions
           body.addmesh(new ConvexPolyhedron(vertices, faces))
           break
-        default:
         case 'Cylinder':
           body.addShape(new Cylinder(...args)) // { radiusTop, radiusBottom, height, numSegments } = args
           break
