@@ -46,6 +46,31 @@ type BoxProps = ShapeProps & {
   halfExtents?: number[]
 }
 
+type CylinderProps = ShapeProps & {
+  radiusTop?: number
+  radiusBottom?: number
+  height?: number
+  numSegments?: number
+}
+type HeightfieldProps = ShapeProps & {
+  data?: number[]
+  options: {
+    minValue?: number
+    maxValue?: number
+    elementSize?: number
+  }
+}
+type ParticleProps = ShapeProps & {}
+
+type SphereProps = ShapeProps & {
+  radius?: number
+}
+
+type TrimeshProps = ShapeProps & {
+  vertices?: number[]
+  indices?: number[]
+}
+
 type Api = [
   React.MutableRefObject<THREE.Object3D | undefined>,
   (
@@ -211,11 +236,24 @@ export function useBody({ create = () => undefined, ...props }: BodyProps, deps:
 
   return [ref, api]
 }
-
 export function usePlane(props: PlaneProps, deps: any[] = []) {
   return useBody({ type: 'Plane', ...props }, deps)
 }
-
 export function useBox(props: BoxProps, deps: any[] = []) {
   return useBody({ type: 'Box', ...props }, deps)
+}
+export function useCylinder(props: CylinderProps, deps: any[] = []) {
+  return useBody({ type: 'Cylinder', ...props }, deps)
+}
+export function useHeightfield(props: HeightfieldProps, deps: any[] = []) {
+  return useBody({ type: 'Heightfield', ...props }, deps)
+}
+export function useParticle(props: ParticleProps, deps: any[] = []) {
+  return useBody({ type: 'Particle', ...props }, deps)
+}
+export function useSphere(props: SphereProps, deps: any[] = []) {
+  return useBody({ type: 'Sphere', ...props }, deps)
+}
+export function useTrimesh(props: TrimeshProps, deps: any[] = []) {
+  return useBody({ type: 'Trimesh', ...props }, deps)
 }
