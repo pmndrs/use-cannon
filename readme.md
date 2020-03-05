@@ -48,7 +48,7 @@ return <mesh ref={ref} geometry={planeGeom} />
 
 ```jsx
 {
-  setPosition((pos: [number, number, number]))
+  setPosition(pos: [number, number, number])
 }
 ```
 
@@ -66,7 +66,7 @@ return <instancedMesh ref={ref} args={[geometry, material, count]} />
 ```jsx
 {
   type: "Plane" | "Box" | ...,
-  args: [...],
+  args: [[...]] | index => [...],
   position: [[number, number, number], ...] | index => [number, number, number],
   rotation: [[number, number, number], ...] | index => [number, number, number],
   //... all serializable Body props
@@ -77,6 +77,6 @@ return <instancedMesh ref={ref} args={[geometry, material, count]} />
 
 ```jsx
 {
-  setPositionAt(index, (pos: [number, number, number]))
+  setPositionAt(index, pos: [number, number, number])
 }
 ```

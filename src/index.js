@@ -101,7 +101,7 @@ export function useCannon(props, deps = []) {
 }
 
 const _object = new Object3D()
-export function useCannonInstanced({ position, rotation, ...props }, deps = []) {
+export function useCannonInstanced({ args, position, rotation, ...props }, deps = []) {
   const ref = useRef()
   const { worker, setCount } = useContext(context)
 
@@ -124,7 +124,16 @@ export function useCannonInstanced({ position, rotation, ...props }, deps = []) 
       const uuid = new Array(ref.current.count).fill().map((_, i) => `${ref.current.uuid}_${i}`)
       if (typeof position === 'function') position = uuid.map((_, i) => position(i))
       if (typeof rotation === 'function') rotation = uuid.map((_, i) => rotation(i))
-      worker.postMessage({ op: 'addBodies', uuid, ...props, position, rotation })
+      if (typeof args === 'function') args = uuid.map((_, i) => args(i))
+
+      worker.postMessage({
+        op: 'addBodies',
+        uuid,
+        ...props,
+        args,
+        position,
+        rotation,
+      })
       return () => worker.postMessage({ op: 'removeBodies', uuid })
     }
   }, [worker, ...deps]) // eslint-disable-line react-hooks/exhaustive-deps

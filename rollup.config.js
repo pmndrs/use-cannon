@@ -24,7 +24,7 @@ export default [
       webWorkerLoader(),
       resolve({ extensions }),
       babel(getBabelOptions({ useESModules: true }, '>1%, not dead, not ie 11, not op_mini all')),
-      terser(),
+      //terser(),
     ],
   },
 ]

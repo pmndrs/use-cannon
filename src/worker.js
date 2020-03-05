@@ -87,9 +87,9 @@ function task(e, sync = true) {
           {
             data: {
               op: 'addBody',
-              uuid: uuid[i],
-              args,
               type,
+              uuid: uuid[i],
+              args: args && args[i] || [],
               position: (position && position[i]) || [0, 0, 0],
               rotation: (rotation && rotation[i]) || [0, 0, 0],
               ...props,
