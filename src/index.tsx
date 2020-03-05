@@ -46,7 +46,19 @@ type BoxProps = ShapeProps & {
   halfExtents?: number[]
 }
 
+type Api = [
+  React.MutableRefObject<THREE.Object3D | undefined>,
+  (
+    | {
+        setPosition: (x: number, y: number, z: number) => void
+        setRotation: (x: number, y: number, z: number) => void
+      }
+    | undefined
+  )
+]
+
 const context = React.createContext<PhysicsContext>({} as PhysicsContext)
+const temp = new THREE.Object3D()
 
 export function Physics({
   children,
@@ -65,7 +77,6 @@ export function Physics({
       let quaternions = new Float32Array(count * 4)
 
       // Initialize worker
-
       worker.postMessage({ op: 'init', gravity, tolerance, step })
 
       function loop() {
@@ -81,9 +92,20 @@ export function Physics({
             quaternions = e.data.quaternions
 
             for (let i = 0; i < bodies.length; i++) {
-              const ref = refs[bodies[i]]
-              ref.position.fromArray(positions, i * 3)
-              ref.quaternion.fromArray(quaternions, i * 4)
+              const name = bodies[i]
+              const ref = refs[name]
+
+              if (ref instanceof THREE.InstancedMesh) {
+                const index = parseInt(name.split('/')[1])
+                temp.position.fromArray(positions, i * 3)
+                temp.quaternion.fromArray(quaternions, i * 4)
+                temp.updateMatrix()
+                ref.setMatrixAt(index, temp.matrix)
+                ref.instanceMatrix.needsUpdate = true
+              } else {
+                ref.position.fromArray(positions, i * 3)
+                ref.quaternion.fromArray(quaternions, i * 4)
+              }
             }
 
             requestAnimationFrame(loop)
@@ -107,34 +129,62 @@ export function Physics({
   return <context.Provider value={api}>{children}</context.Provider>
 }
 
-export function useBody({ create = () => undefined, ...props }: BodyProps, deps: any[] = []) {
+export function useBody({ create = () => undefined, ...props }: BodyProps, deps: any[] = []): Api {
   const ref = useRef<THREE.Object3D>()
   const { worker, setRef } = useContext(context)
 
   useEffect(() => {
     if (ref.current && worker) {
       const object = ref.current
-      const uuid = ref.current.uuid
       const currentWorker = worker
 
-      if (props.position) object.position.set(...(props.position as [number, number, number]))
-      if (props.rotation) object.rotation.set(...(props.rotation as [number, number, number]))
-      if (props.scale) object.scale.set(...(props.scale as [number, number, number]))
-
-      // Add body
-      currentWorker.postMessage({ op: 'addBody', uuid, ...props, ...create(ref.current) })
-      // Add ref to the collection
-      setRef(refs => ({ ...refs, [uuid]: object }))
-
-      return () => {
-        // Remove body from worker
-        currentWorker.postMessage({ op: 'removeBody', uuid })
-        // Remove ref from collection
-        setRef(refs => {
-          const temp = { ...refs }
-          delete temp[uuid]
-          return temp
-        })
+      if (object instanceof THREE.InstancedMesh) {
+        const uuid = new Array(object.count).fill(0).map((_, i) => `${object.uuid}/${i}`)
+        // Why? Because @mrdoob did it in his example ...
+        object.instanceMatrix.setUsage(THREE.DynamicDrawUsage)
+        // Set start-up position values
+        if (props.position) object.position.set(...(props.position as [number, number, number]))
+        if (props.rotation) object.rotation.set(...(props.rotation as [number, number, number]))
+        if (props.scale) object.scale.set(...(props.scale as [number, number, number]))
+        // Add bodies
+        currentWorker.postMessage({ op: 'addBodies', uuid, ...props, ...create(object) })
+        // Add refs to the collection
+        setRef(refs => ({
+          ...refs,
+          ...Object.keys(uuid).reduce((acc, i) => ({ ...acc, [`${object.uuid}/${i}`]: object }), {}),
+        }))
+        // Unmount ...
+        return () => {
+          // Remove body from worker
+          currentWorker.postMessage({ op: 'removeBodies', uuid })
+          // Remove ref from collection
+          setRef(refs => {
+            const temp = { ...refs }
+            uuid.forEach(id => delete temp[id])
+            return temp
+          })
+        }
+      } else {
+        const uuid = ref.current.uuid
+        // Set start-up position values
+        if (props.position) object.position.set(...(props.position as [number, number, number]))
+        if (props.rotation) object.rotation.set(...(props.rotation as [number, number, number]))
+        if (props.scale) object.scale.set(...(props.scale as [number, number, number]))
+        // Add body
+        currentWorker.postMessage({ op: 'addBody', uuid, ...props, ...create(object) })
+        // Add ref to the collection
+        setRef(refs => ({ ...refs, [uuid]: object }))
+        // Unmount ...
+        return () => {
+          // Remove body from worker
+          currentWorker.postMessage({ op: 'removeBody', uuid })
+          // Remove ref from collection
+          setRef(refs => {
+            const temp = { ...refs }
+            delete temp[uuid]
+            return temp
+          })
+        }
       }
     }
   }, [ref.current, worker, ...deps]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -142,8 +192,19 @@ export function useBody({ create = () => undefined, ...props }: BodyProps, deps:
   const api = useMemo(() => {
     if (worker)
       return {
-        setPosition(position: number[]) {
-          if (ref.current) worker.postMessage({ op: 'setPosition', uuid: ref.current.uuid, position })
+        setPosition(x: number, y: number, z: number) {
+          if (ref.current) worker.postMessage({ op: 'setPosition', uuid: ref.current.uuid, position: [x, y, z] })
+        },
+        setRotation(x: number, y: number, z: number) {
+          if (ref.current) worker.postMessage({ op: 'setRotation', uuid: ref.current.uuid, rotation: [x, y, z] })
+        },
+        setPositionAt(index: number, x: number, y: number, z: number) {
+          if (ref.current)
+            worker.postMessage({ op: 'setPosition', uuid: `${ref.current.uuid}_${index}`, position: [x, y, z] })
+        },
+        setRotationAt(index: number, x: number, y: number, z: number) {
+          if (ref.current)
+            worker.postMessage({ op: 'setRotation', uuid: `${ref.current.uuid}_${index}`, rotation: [x, y, z] })
         },
       }
   }, [worker])

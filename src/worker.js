@@ -117,6 +117,10 @@ function task(e, sync = true) {
       bodies[uuid].position.set(position[0], position[1], position[2])
       break
     }
+    case 'setRotation': {
+      bodies[uuid].rotation.set(rotation[0], rotation[1], rotation[2])
+      break
+    }
     default:
       break
   }
