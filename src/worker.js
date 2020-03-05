@@ -10,19 +10,18 @@ function task(e, sync = true) {
     op,
     uuid,
     type,
+    mesh = null,
     positions,
     quaternions,
-    mesh = null,
     position = [0, 0, 0],
     rotation = [0, 0, 0],
-    uuids = [],
     args = [],
     ...props
   } = e.data
 
   switch (op) {
     case 'init': {
-      world.gravity.set(props.gravity)
+      world.gravity.set(...props.gravity)
       world.solver.tolerance = props.tolerance
       break
     }
@@ -72,9 +71,11 @@ function task(e, sync = true) {
           // NOTE: You can sometimes get away with *concave* meshes depending on what you are doing.
           // non-convex meshs will however produce errors in inopportune collisions
           body.addmesh(new ConvexPolyhedron(vertices, faces))
+          break
         default:
           break
       }
+
       body.position.set(...position)
       body.quaternion.setFromEuler(...rotation)
       world.addBody(body)
@@ -82,17 +83,17 @@ function task(e, sync = true) {
       break
     }
     case 'addBodies': {
-      for (let i = 0; i < uuids.length; i++) {
+      for (let i = 0; i < uuid.length; i++) {
         task(
           {
             data: {
               op: 'addBody',
-              uuid: uuids[i],
-              mass,
+              uuid: uuid[i],
               args,
               type,
-              position: e.data.positions && e.data.positions[i],
-              rotation: e.data.rotations && e.data.rotations[i],
+              position: (position && position[i]) || [0, 0, 0],
+              rotation: (rotation && rotation[i]) || [0, 0, 0],
+              ...props,
             },
           },
           false
@@ -107,7 +108,7 @@ function task(e, sync = true) {
       break
     }
     case 'removeBodies': {
-      for (let i = 0; i < uuids.length; i++) task({ data: { op: 'removeBody', uuid: uuids[i] } })
+      for (let i = 0; i < uuid.length; i++) task({ data: { op: 'removeBody', uuid: uuid[i] } })
       syncBodies()
       break
     }

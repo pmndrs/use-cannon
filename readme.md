@@ -85,12 +85,12 @@ Keeps track of physics objects and serves as a provider.
   tolerance = 0.001 />          // default tolerance
 ```
 
-## [ref, api] = useCannon(props)
+## [ref, api] = useCannon(props, deps = [])
 
 Ties a referenced object to cannons physics world.
 
 ```jsx
-const [ref, api] = useCannon({ type: "Plane", mass: 0, position: [0, 0, 0], rotation: [0, 0, 0] })
+const [ref, api] = useCannon({ type: "Plane", mass: 0, position: [0, 0, 0] })
 return <mesh ref={ref} geometry={planeGeom} />
 ```
 
@@ -98,7 +98,8 @@ return <mesh ref={ref} geometry={planeGeom} />
 
 ```jsx
 {
-  type: "Plane" | "Body",
+  type: "Plane" | "Box",
+  args: [...],
   position: [0, 0, 0],
   rotation: [0, 0, 0],
   scale: [1, 1, 1]
@@ -114,12 +115,12 @@ return <mesh ref={ref} geometry={planeGeom} />
 }
 ```
 
-## [ref, api] = useCannonInstanced(props)
+## [ref, api] = useCannonInstanced(props, index => props, deps = [])
 
 Ties a referenced instanced-mesh to cannons physics world.
 
 ```jsx
-const [ref, api] = useCannonInstanced({ type: "Box", mass: 1, positions: [...], rotations: [...] })
+const [ref, api] = useCannonInstanced({ type: "Box", mass: 1 }, i => ({ position: position[i] }))
 return <instancedMesh ref={ref} args={[geometry, material, count]} />
 ```
 
@@ -127,11 +128,17 @@ return <instancedMesh ref={ref} args={[geometry, material, count]} />
 
 ```jsx
 {
-  type: "Plane" | "Body",
-  positions: [[0, 0, 0], ...],
-  rotations: [[0, 0, 0], ...],
-  scales: [[1, 1, 1], ...]
+  type: "Plane" | "Box",
+  args: [...],
+  position: [[0, 0, 0], ...],
+  rotation: [[0, 0, 0], ...],
   //... all serializable Body props
+},
+
+index => {
+  position: [0, 0, 0],
+  rotation: [0, 0, 0],
+  scale: [1, 1, 1]
 }
 ```
 
