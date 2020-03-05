@@ -1,4 +1,17 @@
-import { World, NaiveBroadphase, Body, Plane, Box, ConvexPolyhedron, Vec3 } from 'cannon-es'
+import {
+  World,
+  NaiveBroadphase,
+  Body,
+  Plane,
+  Box,
+  Vec3,
+  ConvexPolyhedron,
+  Cylinder,
+  Heightfield,
+  Particle,
+  Sphere,
+  Trimesh,
+} from 'cannon-es'
 
 let bodies = {}
 let world = new World()
@@ -46,13 +59,11 @@ function task(e, sync = true) {
       const body = new Body(props)
       body.uuid = uuid
       switch (type) {
-        case 'Plane':
-          body.addShape(new Plane())
-          break
         case 'Box':
-          body.addShape(new Box(new Vec3(...args)))
+          body.addShape(new Box(new Vec3(...args))) // halfExtents { x, y, z } = args
           break
         case 'Convex':
+          break
         case 'ConvexPolyhedron':
           // 'mesh' must contain data structured as THREE.Geometry vertex and faces arrays
           // Convert from THREE.Vector3 to CANNON.Vec3
@@ -72,6 +83,25 @@ function task(e, sync = true) {
           body.addmesh(new ConvexPolyhedron(vertices, faces))
           break
         default:
+        case 'Cylinder':
+          body.addShape(new Cylinder(...args)) // { radiusTop, radiusBottom, height, numSegments } = args
+          break
+        case 'Heightfield':
+          body.addShape(new Heightfield(...args)) // { Array data, options: {minValue, maxValue, elementSize}  } = args
+          break
+        case 'Particle':
+          body.addShape(new Particle()) // no args
+          break
+        case 'Plane':
+          body.addShape(new Plane()) // no args, infinite x and y
+          break
+        case 'Sphere':
+          body.addShape(new Sphere(...args)) // { radius } = args
+          break
+        case 'Trimesh':
+          body.addShape(new Trimesh(...args)) // { vertices, indices } = args
+          break
+        default:
           break
       }
 
@@ -89,7 +119,7 @@ function task(e, sync = true) {
               op: 'addBody',
               type,
               uuid: uuid[i],
-              args: args && args[i] || [],
+              args: (args && args[i]) || [],
               position: (position && position[i]) || [0, 0, 0],
               rotation: (rotation && rotation[i]) || [0, 0, 0],
               ...props,
