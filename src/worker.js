@@ -55,10 +55,9 @@ function task(e, sync = true) {
           break
         case 'Convex':
         case 'ConvexPolyhedron':
-          // 'mesh' must be a Three Geometry
-          // Convert from THREE.Vector3 to CANNON.Vec3.
+          // 'mesh' must contain data structured as THREE.Geometry vertex and faces arrays
+          // Convert from THREE.Vector3 to CANNON.Vec3
           const vertices = new Array(mesh.vertices.length)
-
           for (let i = 0; i < vertices.length; i++) {
             vertices[i] = new Vec3(mesh.vertices[i].x, mesh.vertices[i].y, mesh.vertices[i].z)
           }
@@ -70,7 +69,7 @@ function task(e, sync = true) {
           }
 
           // NOTE: You can sometimes get away with *concave* meshes depending on what you are doing.
-          // non-convex meshs will however produce errors in inopportune collisions
+          // non-convex meshes will however produce errors in inopportune collisions
           body.addmesh(new ConvexPolyhedron(vertices, faces))
         default:
           break
