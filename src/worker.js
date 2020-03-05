@@ -1,4 +1,17 @@
-import { World, NaiveBroadphase, Body, Plane, Box, ConvexPolyhedron, Vec3 } from 'cannon-es'
+import {
+  World,
+  NaiveBroadphase,
+  Body,
+  Plane,
+  Box,
+  Vec3,
+  ConvexPolyhedron,
+  Cylinder,
+  Heightfield,
+  Particle,
+  Sphere,
+  Trimesh,
+} from 'cannon-es'
 
 let bodies = {}
 let world = new World()
@@ -72,6 +85,24 @@ function task(e, sync = true) {
           // NOTE: You can sometimes get away with *concave* meshes depending on what you are doing.
           // non-convex meshes will however produce errors in inopportune collisions
           body.addmesh(new ConvexPolyhedron(vertices, faces))
+          break
+        case 'Cylinder':
+          body.addShape(new Cylinder(...args)) // { radiusTop, radiusBottom, height, numSegments } = args
+          break
+        case 'Heightfield':
+          body.addShape(new Heightfield(...args)) // { Array data, options: {minValue, maxValue, elementSize}  } = args
+          break
+        case 'Particle':
+          body.addShape(new Particle()) // no args
+          break
+        case 'Plane':
+          body.addShape(new Plane()) // no args, infinite x and y
+          break
+        case 'Sphere':
+          body.addShape(new Sphere(...args)) // { radius } = args
+          break
+        case 'Trimesh':
+          body.addShape(new Trimesh(...args)) // { vertices, indices } = args
           break
         default:
           break
