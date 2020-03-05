@@ -28,8 +28,17 @@ Keeps track of physics objects and serves as a provider.
 Ties a referenced object to cannons physics world.
 
 ```jsx
-const [ref, api] = useCannon({ type: 'Plane', mass: 0, position: [0, 0, 0] })
-return <mesh ref={ref} geometry={planeGeom} />
+const [ref, api] = useCannon({ 
+  type: 'Box', 
+  mass: 0, 
+  args: [0.5, 0.5, 0.5], // Half extends, see CANNON.Box
+  position: [0, 0, 0]
+})
+return (
+  <mesh ref={ref} geometry={planeGeom}>
+    <boxBufferGeometry attach="geometry" />
+  </mesh>
+)
 ```
 
 ### props
@@ -57,7 +66,12 @@ return <mesh ref={ref} geometry={planeGeom} />
 Ties a referenced instanced-mesh to cannons physics world.
 
 ```jsx
-const [ref, api] = useCannonInstanced({ type: "Box", mass: 1, position: i => positions[i] }))
+const [ref, api] = useCannonInstanced({ 
+  type: "Box", 
+  mass: 1, 
+  args: i => extends[i],
+  position: i => positions[i],
+})
 return <instancedMesh ref={ref} args={[geometry, material, count]} />
 ```
 
