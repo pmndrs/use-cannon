@@ -35,9 +35,10 @@ type ShapeProps = {
   mass?: number
 }
 
+type ShapeType = 'Plane' | 'Box'
+
 type BodyProps = ShapeProps & {
-  type: string
-  create?: (object: THREE.Object3D) => ShapeProps | void
+  create?: (object: THREE.Object3D, index: number | undefined) => ShapeProps | void
 }
 
 type PlaneProps = ShapeProps & {}
@@ -46,12 +47,18 @@ type BoxProps = ShapeProps & {
   halfExtents?: number[]
 }
 
+type BodyFn = (ref: THREE.Object3D, index?: number) => BodyProps
+type PlaneFn = (ref: THREE.Object3D, index?: number) => PlaneProps
+type BoxFn = (ref: THREE.Object3D, index?: number) => BoxProps
+
 type Api = [
   React.MutableRefObject<THREE.Object3D | undefined>,
   (
     | {
         setPosition: (x: number, y: number, z: number) => void
         setRotation: (x: number, y: number, z: number) => void
+        setPositionAt: (index: number, x: number, y: number, z: number) => void
+        setRotationAt: (index: number, x: number, y: number, z: number) => void
       }
     | undefined
   )
@@ -77,7 +84,7 @@ export function Physics({
       let quaternions = new Float32Array(count * 4)
 
       // Initialize worker
-      worker.postMessage({ op: 'init', gravity, tolerance, step })
+      worker.postMessage({ op: 'init', props: { gravity, tolerance, step } })
 
       function loop() {
         if (positions.byteLength !== 0 && quaternions.byteLength !== 0) {
@@ -94,6 +101,7 @@ export function Physics({
             for (let i = 0; i < bodies.length; i++) {
               const name = bodies[i]
               const ref = refs[name]
+              if (!ref) break
 
               if (ref instanceof THREE.InstancedMesh) {
                 const index = parseInt(name.split('/')[1])
@@ -129,7 +137,7 @@ export function Physics({
   return <context.Provider value={api}>{children}</context.Provider>
 }
 
-export function useBody({ create = () => undefined, ...props }: BodyProps, deps: any[] = []): Api {
+export function useBody(type: ShapeType, fn: BodyFn, deps: any[] = []): Api {
   const ref = useRef<THREE.Object3D>()
   const { worker, setRef } = useContext(context)
 
@@ -142,21 +150,28 @@ export function useBody({ create = () => undefined, ...props }: BodyProps, deps:
         const uuid = new Array(object.count).fill(0).map((_, i) => `${object.uuid}/${i}`)
         // Why? Because @mrdoob did it in his example ...
         object.instanceMatrix.setUsage(THREE.DynamicDrawUsage)
+        // Collect props
+        const props = uuid.map((id, i) => fn(object, i))
         // Set start-up position values
-        if (props.position) object.position.set(...(props.position as [number, number, number]))
-        if (props.rotation) object.rotation.set(...(props.rotation as [number, number, number]))
-        if (props.scale) object.scale.set(...(props.scale as [number, number, number]))
+        props.forEach(({ position, rotation, scale }, i) => {
+          if (position || rotation || scale) {
+            temp.position.set(...((position || [0, 0, 0]) as [number, number, number]))
+            temp.rotation.set(...((rotation || [0, 0, 0]) as [number, number, number]))
+            //temp.scale.set(...((scale || [1, 1, 1]) as [number, number, number]))
+            temp.updateMatrix()
+            object.setMatrixAt(i, temp.matrix)
+            object.instanceMatrix.needsUpdate = true
+          }
+        })
         // Add bodies
-        currentWorker.postMessage({ op: 'addBodies', uuid, ...props, ...create(object) })
+        console.log({ op: 'addBodies', uuid, type, props })
+        currentWorker.postMessage({ op: 'addBodies', uuid, type, props })
         // Add refs to the collection
-        setRef(refs => ({
-          ...refs,
-          ...Object.keys(uuid).reduce((acc, i) => ({ ...acc, [`${object.uuid}/${i}`]: object }), {}),
-        }))
+        setRef(refs => ({ ...refs, ...uuid.reduce((acc, i) => ({ ...acc, [i]: object }), {}) }))
         // Unmount ...
         return () => {
           // Remove body from worker
-          currentWorker.postMessage({ op: 'removeBodies', uuid })
+          currentWorker.postMessage({ op: 'removeBodies', uuid, type })
           // Remove ref from collection
           setRef(refs => {
             const temp = { ...refs }
@@ -165,13 +180,15 @@ export function useBody({ create = () => undefined, ...props }: BodyProps, deps:
           })
         }
       } else {
-        const uuid = ref.current.uuid
+        const uuid = object.uuid
+        // Collect props
+        const props = fn(object)
         // Set start-up position values
         if (props.position) object.position.set(...(props.position as [number, number, number]))
         if (props.rotation) object.rotation.set(...(props.rotation as [number, number, number]))
         if (props.scale) object.scale.set(...(props.scale as [number, number, number]))
         // Add body
-        currentWorker.postMessage({ op: 'addBody', uuid, ...props, ...create(object) })
+        currentWorker.postMessage({ op: 'addBody', type, uuid, props })
         // Add ref to the collection
         setRef(refs => ({ ...refs, [uuid]: object }))
         // Unmount ...
@@ -193,18 +210,28 @@ export function useBody({ create = () => undefined, ...props }: BodyProps, deps:
     if (worker)
       return {
         setPosition(x: number, y: number, z: number) {
-          if (ref.current) worker.postMessage({ op: 'setPosition', uuid: ref.current.uuid, position: [x, y, z] })
+          if (ref.current)
+            worker.postMessage({ op: 'setPosition', uuid: ref.current.uuid, props: { position: [x, y, z] } })
         },
         setRotation(x: number, y: number, z: number) {
-          if (ref.current) worker.postMessage({ op: 'setRotation', uuid: ref.current.uuid, rotation: [x, y, z] })
+          if (ref.current)
+            worker.postMessage({ op: 'setRotation', uuid: ref.current.uuid, props: { rotation: [x, y, z] } })
         },
         setPositionAt(index: number, x: number, y: number, z: number) {
           if (ref.current)
-            worker.postMessage({ op: 'setPosition', uuid: `${ref.current.uuid}_${index}`, position: [x, y, z] })
+            worker.postMessage({
+              op: 'setPosition',
+              uuid: `${ref.current.uuid}/${index}`,
+              props: { position: [x, y, z] },
+            })
         },
         setRotationAt(index: number, x: number, y: number, z: number) {
           if (ref.current)
-            worker.postMessage({ op: 'setRotation', uuid: `${ref.current.uuid}_${index}`, rotation: [x, y, z] })
+            worker.postMessage({
+              op: 'setRotation',
+              uuid: `${ref.current.uuid}/${index}`,
+              props: { rotation: [x, y, z] },
+            })
         },
       }
   }, [worker])
@@ -212,10 +239,10 @@ export function useBody({ create = () => undefined, ...props }: BodyProps, deps:
   return [ref, api]
 }
 
-export function usePlane(props: PlaneProps, deps: any[] = []) {
-  return useBody({ type: 'Plane', ...props }, deps)
+export function usePlane(fn: PlaneFn, deps: any[] = []) {
+  return useBody('Plane', fn, deps)
 }
 
-export function useBox(props: BoxProps, deps: any[] = []) {
-  return useBody({ type: 'Box', ...props }, deps)
+export function useBox(fn: BoxFn, deps: any[] = []) {
+  return useBody('Box', fn, deps)
 }

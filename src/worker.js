@@ -7,22 +7,12 @@ world.broadphase = new NaiveBroadphase(world)
 world.gravity.set(0, 10, 0)
 
 function task(e, sync = true) {
-  const {
-    op,
-    uuid,
-    type,
-    mesh = null,
-    positions,
-    quaternions,
-    position = [0, 0, 0],
-    rotation = [0, 0, 0],
-    scale = [1, 1, 1],
-    ...props
-  } = e.data
+  const { op, uuid, type, positions, quaternions, props } = e.data
 
   switch (op) {
     case 'init': {
-      world.gravity.set(...props.gravity)
+      const { gravity, tolerance, step } = props
+      world.gravity.set(gravity[0], gravity[1], gravity[2])
       world.solver.tolerance = props.tolerance
       config.step = props.step
       break
@@ -45,7 +35,8 @@ function task(e, sync = true) {
       break
     }
     case 'addBody': {
-      const body = new Body(props)
+      const { mesh = null, position = [0, 0, 0], rotation = [0, 0, 0], scale = [1, 1, 1], ...extra } = props
+      const body = new Body(extra)
       body.uuid = uuid
       switch (type) {
         case 'Plane':
@@ -85,20 +76,7 @@ function task(e, sync = true) {
     }
     case 'addBodies': {
       for (let i = 0; i < uuid.length; i++) {
-        task(
-          {
-            data: {
-              op: 'addBody',
-              type,
-              uuid: uuid[i],
-              position: (position && position[i]) || [0, 0, 0],
-              rotation: (rotation && rotation[i]) || [0, 0, 0],
-              scale: (scale && scale[i]) || [0, 0, 0],
-              ...props,
-            },
-          },
-          false
-        )
+        task({ data: { op: 'addBody', type, uuid: uuid[i], props: props[i] } }, false)
       }
       syncBodies()
       break
@@ -114,10 +92,12 @@ function task(e, sync = true) {
       break
     }
     case 'setPosition': {
+      const { position } = props
       bodies[uuid].position.set(position[0], position[1], position[2])
       break
     }
     case 'setRotation': {
+      const { rotation } = props
       bodies[uuid].rotation.set(rotation[0], rotation[1], rotation[2])
       break
     }
