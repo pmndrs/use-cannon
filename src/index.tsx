@@ -35,21 +35,63 @@ type ShapeProps = {
   mass?: number
 }
 
-type ShapeType = 'Plane' | 'Box'
+type ShapeType = 'Plane' | 'Box' | 'Cylinder' | 'Heightfield' | 'Particle' | 'Sphere' | 'Trimesh'
 
 type BodyProps = ShapeProps & {
-  create?: (object: THREE.Object3D, index: number | undefined) => ShapeProps | void
+  args?: any
 }
 
 type PlaneProps = ShapeProps & {}
 
 type BoxProps = ShapeProps & {
-  halfExtents?: number[]
+  args?: {
+    halfExtents?: number[]
+  }
+}
+
+type CylinderProps = ShapeProps & {
+  args?: {
+    radiusTop?: number
+    radiusBottom?: number
+    height?: number
+    numSegments?: number
+  }
+}
+type HeightfieldProps = ShapeProps & {
+  args?: {
+    data?: number[]
+    options: {
+      minValue?: number
+      maxValue?: number
+      elementSize?: number
+    }
+  }
+}
+type ParticleProps = ShapeProps & {}
+
+type SphereProps = ShapeProps & {
+  args?: {
+    radius?: number
+  }
+}
+
+type TrimeshProps = ShapeProps & {
+  args?: {
+    vertices?: number[]
+    indices?: number[]
+  }
 }
 
 type BodyFn = (ref: THREE.Object3D, index?: number) => BodyProps
 type PlaneFn = (ref: THREE.Object3D, index?: number) => PlaneProps
 type BoxFn = (ref: THREE.Object3D, index?: number) => BoxProps
+type CylinderFn = (ref: THREE.Object3D, index?: number) => CylinderProps
+type HeightfieldFn = (ref: THREE.Object3D, index?: number) => HeightfieldProps
+type ParticleFn = (ref: THREE.Object3D, index?: number) => ParticleProps
+type SphereFn = (ref: THREE.Object3D, index?: number) => SphereProps
+type TrimeshFn = (ref: THREE.Object3D, index?: number) => TrimeshProps
+
+type ArgFn = (props: any) => any[]
 
 type Api = [
   React.MutableRefObject<THREE.Object3D | undefined>,
@@ -137,7 +179,7 @@ export function Physics({
   return <context.Provider value={api}>{children}</context.Provider>
 }
 
-export function useBody(type: ShapeType, fn: BodyFn, deps: any[] = []): Api {
+export function useBody(type: ShapeType, fn: BodyFn, argFn: ArgFn, deps: any[] = []): Api {
   const ref = useRef<THREE.Object3D>()
   const { worker, setRef } = useContext(context)
 
@@ -151,20 +193,23 @@ export function useBody(type: ShapeType, fn: BodyFn, deps: any[] = []): Api {
         // Why? Because @mrdoob did it in his example ...
         object.instanceMatrix.setUsage(THREE.DynamicDrawUsage)
         // Collect props
-        const props = uuid.map((id, i) => fn(object, i))
+        const props = uuid.map((id, i) => {
+          const props = fn(object, i)
+          props.args = argFn(props.args || {})
+          return props
+        })
         // Set start-up position values
         props.forEach(({ position, rotation, scale }, i) => {
           if (position || rotation || scale) {
             temp.position.set(...((position || [0, 0, 0]) as [number, number, number]))
             temp.rotation.set(...((rotation || [0, 0, 0]) as [number, number, number]))
-            //temp.scale.set(...((scale || [1, 1, 1]) as [number, number, number]))
+            temp.scale.set(...((scale || [1, 1, 1]) as [number, number, number]))
             temp.updateMatrix()
             object.setMatrixAt(i, temp.matrix)
             object.instanceMatrix.needsUpdate = true
           }
         })
         // Add bodies
-        console.log({ op: 'addBodies', uuid, type, props })
         currentWorker.postMessage({ op: 'addBodies', uuid, type, props })
         // Add refs to the collection
         setRef(refs => ({ ...refs, ...uuid.reduce((acc, i) => ({ ...acc, [i]: object }), {}) }))
@@ -183,6 +228,7 @@ export function useBody(type: ShapeType, fn: BodyFn, deps: any[] = []): Api {
         const uuid = object.uuid
         // Collect props
         const props = fn(object)
+        props.args = argFn(props.args || {})
         // Set start-up position values
         if (props.position) object.position.set(...(props.position as [number, number, number]))
         if (props.rotation) object.rotation.set(...(props.rotation as [number, number, number]))
@@ -240,9 +286,29 @@ export function useBody(type: ShapeType, fn: BodyFn, deps: any[] = []): Api {
 }
 
 export function usePlane(fn: PlaneFn, deps: any[] = []) {
-  return useBody('Plane', fn, deps)
+  return useBody('Plane', fn, () => [], deps)
 }
 
 export function useBox(fn: BoxFn, deps: any[] = []) {
-  return useBody('Box', fn, deps)
+  return useBody('Box', fn, ({ halfExtents }) => halfExtents, deps)
+}
+export function useCylinder(fn: CylinderFn, deps: any[] = []) {
+  return useBody(
+    'Cylinder',
+    fn,
+    ({ radiusTop, radiusBottom, height, numSegments }) => [radiusTop, radiusBottom, height, numSegments],
+    deps
+  )
+}
+export function useHeightfield(fn: HeightfieldFn, deps: any[] = []) {
+  return useBody('Heightfield', fn, () => [], deps)
+}
+export function useParticle(fn: ParticleFn, deps: any[] = []) {
+  return useBody('Particle', fn, () => [], deps)
+}
+export function useSphere(fn: SphereFn, deps: any[] = []) {
+  return useBody('Sphere', fn, ({ radius }) => [radius], deps)
+}
+export function useTrimesh(fn: TrimeshFn, deps: any[] = []) {
+  return useBody('Trimesh', fn, ({ vertices, indices }) => [vertices, indices], deps)
 }
