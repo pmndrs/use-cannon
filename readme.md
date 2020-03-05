@@ -19,8 +19,8 @@ Keeps track of physics objects and serves as a provider.
 ```jsx
 <Physics
   children,                     // ...
-  gravity = [0, -10, 0],        // default gravity
-  tolerance = {0.001} />          // default tolerance
+  gravity={[0, -10, 0]}        // default gravity
+  tolerance={0.001} />          // default tolerance
 ```
 
 ## [ref, api] = useCannon(props, deps = [])
