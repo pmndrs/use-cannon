@@ -61,7 +61,7 @@ return (
 }
 ```
 
-## [ref, api] = useCannonInstanced(props, index => props, deps = [])
+## [ref, api] = useCannonInstanced(props, deps = [])
 
 Ties a referenced instanced-mesh to cannons physics world.
 
