@@ -1,16 +1,13 @@
 import * as THREE from 'three'
 import React, { useState, useEffect, useContext, useRef, useMemo } from 'react'
-import { useFrame } from 'react-three-fiber'
-import CannonWorker from './worker'
-
-type Bodies = {
-  [uuid: string]: number
-}
+// @ts-ignore
+import CannonWorker from '../src/worker'
 
 type PhysicsProps = {
   children: React.ReactNode
-  gravity: number[]
-  tolerance: number
+  gravity?: number[]
+  tolerance?: number
+  step?: number
 }
 
 type PhysicsContext = {
@@ -23,7 +20,7 @@ type WorkerEvent = {
     op: string
     positions: Float32Array
     quaternions: Float32Array
-    bodies: number[]
+    bodies: string[]
   }
 }
 
@@ -34,25 +31,32 @@ type Refs = {
 type ShapeProps = {
   position?: number[]
   rotation?: number[]
-  mass: number
+  scale?: number[]
+  mass?: number
 }
 
 type BodyProps = ShapeProps & {
   type: string
+  create?: (object: THREE.Object3D) => ShapeProps | void
 }
 
 type PlaneProps = ShapeProps & {}
 
 type BoxProps = ShapeProps & {
-  halfExtents: number[]
+  halfExtents?: number[]
 }
 
-const bodies = React.createRef() as React.MutableRefObject<Bodies>
 const context = React.createContext<PhysicsContext>({} as PhysicsContext)
 
-export function Physics({ children, gravity = [0, -10, 0], tolerance = 0.001 }: PhysicsProps): React.ReactNode {
-  const [worker, setWorker] = useState<Worker>()
+export function Physics({
+  children,
+  step = 1 / 60,
+  gravity = [0, -10, 0],
+  tolerance = 0.001,
+}: PhysicsProps): React.ReactNode {
+  const [worker] = useState<Worker>(() => new CannonWorker() as Worker)
   const [refs, setRef] = useState<Refs>({})
+  const [bodies, setBodies] = useState<string[]>([])
   const count = useMemo(() => Object.keys(refs).length, [refs])
 
   useEffect(() => {
@@ -61,31 +65,32 @@ export function Physics({ children, gravity = [0, -10, 0], tolerance = 0.001 }: 
       let quaternions = new Float32Array(count * 4)
 
       // Initialize worker
-      let currentWorker = new CannonWorker() as Worker
-      currentWorker.postMessage({ op: 'init', gravity, tolerance })
+
+      worker.postMessage({ op: 'init', gravity, tolerance, step })
 
       function loop() {
         if (positions.byteLength !== 0 && quaternions.byteLength !== 0) {
-          currentWorker.postMessage({ op: 'step', positions, quaternions }, [positions.buffer, quaternions.buffer])
+          worker.postMessage({ op: 'step', positions, quaternions }, [positions.buffer, quaternions.buffer])
         }
       }
 
-      currentWorker.onmessage = (e: WorkerEvent) => {
+      worker.onmessage = (e: WorkerEvent) => {
         switch (e.data.op) {
           case 'frame': {
             positions = e.data.positions
             quaternions = e.data.quaternions
 
-            /*if (positions.length) {
-              ref.current.position.fromArray(buffers.current.positions, index * 3)
-              ref.current.quaternion.fromArray(buffers.current.quaternions, index * 4)
-            }*/
+            for (let i = 0; i < bodies.length; i++) {
+              const ref = refs[bodies[i]]
+              ref.position.fromArray(positions, i * 3)
+              ref.quaternion.fromArray(quaternions, i * 4)
+            }
 
             requestAnimationFrame(loop)
             break
           }
           case 'sync': {
-            bodies.current = e.data.bodies.reduce((acc, id) => ({ ...acc, [id]: e.data.bodies.indexOf(id) }), {})
+            setBodies(e.data.bodies)
             break
           }
           default:
@@ -93,16 +98,16 @@ export function Physics({ children, gravity = [0, -10, 0], tolerance = 0.001 }: 
         }
       }
       loop()
-      setWorker(currentWorker)
-      return () => currentWorker.terminate()
     }
-  }, [count])
+  }, [count, refs, bodies])
+
+  useEffect(() => () => worker.terminate(), [])
 
   const api = useMemo(() => ({ worker, setRef }), [worker])
   return <context.Provider value={api}>{children}</context.Provider>
 }
 
-export function useBody(props: BodyProps, deps: any[] = []) {
+export function useBody({ create = () => undefined, ...props }: BodyProps, deps: any[] = []) {
   const ref = useRef<THREE.Object3D>()
   const { worker, setRef } = useContext(context)
 
@@ -112,8 +117,12 @@ export function useBody(props: BodyProps, deps: any[] = []) {
       const uuid = ref.current.uuid
       const currentWorker = worker
 
+      if (props.position) object.position.set(...(props.position as [number, number, number]))
+      if (props.rotation) object.rotation.set(...(props.rotation as [number, number, number]))
+      if (props.scale) object.scale.set(...(props.scale as [number, number, number]))
+
       // Add body
-      currentWorker.postMessage({ op: 'addBody', uuid, ...props })
+      currentWorker.postMessage({ op: 'addBody', uuid, ...props, ...create(ref.current) })
       // Add ref to the collection
       setRef(refs => ({ ...refs, [uuid]: object }))
 
@@ -138,13 +147,14 @@ export function useBody(props: BodyProps, deps: any[] = []) {
         },
       }
   }, [worker])
+
   return [ref, api]
 }
 
 export function usePlane(props: PlaneProps, deps: any[] = []) {
-  return useBody({ type: 'Plane', ...props })
+  return useBody({ type: 'Plane', ...props }, deps)
 }
 
 export function useBox(props: BoxProps, deps: any[] = []) {
-  return useBody({ type: 'Box', ...props })
+  return useBody({ type: 'Box', ...props }, deps)
 }

@@ -2,7 +2,6 @@ import { World, NaiveBroadphase, Body, Plane, Box, ConvexPolyhedron, Vec3 } from
 
 let bodies = {}
 let world = new World()
-let config = { step: 1 / 60 }
 world.broadphase = new NaiveBroadphase(world)
 world.gravity.set(0, 10, 0)
 
@@ -16,7 +15,7 @@ function task(e, sync = true) {
     quaternions,
     position = [0, 0, 0],
     rotation = [0, 0, 0],
-    scale = [1, 1, 1],
+    args = [],
     ...props
   } = e.data
 
@@ -24,11 +23,10 @@ function task(e, sync = true) {
     case 'init': {
       world.gravity.set(...props.gravity)
       world.solver.tolerance = props.tolerance
-      config.step = props.step
       break
     }
     case 'step': {
-      world.step(config.step)
+      world.step(1 / 60)
       for (let i = 0; i < world.bodies.length; i++) {
         let b = world.bodies[i],
           p = b.position,
@@ -52,7 +50,7 @@ function task(e, sync = true) {
           body.addShape(new Plane())
           break
         case 'Box':
-          body.addShape(new Box(new Vec3(scale[0] / 2, scale[1] / 2, scale[2] / 2)))
+          body.addShape(new Box(new Vec3(...args)))
           break
         case 'Convex':
         case 'ConvexPolyhedron':
@@ -77,8 +75,8 @@ function task(e, sync = true) {
           break
       }
 
-      body.position.set(position[0], position[1], position[2])
-      body.quaternion.setFromEuler(rotation[0], rotation[1], rotation[2])
+      body.position.set(...position)
+      body.quaternion.setFromEuler(...rotation)
       world.addBody(body)
       if (sync) syncBodies()
       break
@@ -91,9 +89,9 @@ function task(e, sync = true) {
               op: 'addBody',
               type,
               uuid: uuid[i],
+              args: args && args[i] || [],
               position: (position && position[i]) || [0, 0, 0],
               rotation: (rotation && rotation[i]) || [0, 0, 0],
-              scale: (scale && scale[i]) || [0, 0, 0],
               ...props,
             },
           },
@@ -114,7 +112,7 @@ function task(e, sync = true) {
       break
     }
     case 'setPosition': {
-      bodies[uuid].position.set(position[0], position[1], position[2])
+      bodies[uuid].position.set(...position)
       break
     }
     default:
