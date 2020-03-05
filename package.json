@@ -15,7 +15,9 @@
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "rollup -c",
-    "prepare": "npm run build"
+    "prepare": "npm run build",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false --strict --jsx react",
+    "typegen": "tsc && mv dist/src/* dist && rm -rf dist/src || true"
   },
   "husky": {
     "hooks": {
@@ -43,7 +45,9 @@
     "@babel/plugin-transform-template-literals": "7.8.3",
     "@babel/preset-env": "7.8.6",
     "@babel/preset-react": "7.8.3",
+    "@babel/preset-typescript": "^7.8.3",
     "@babel/register": "^7.8.6",
+    "@types/react": "^16.9.23",
     "babel-eslint": "^10.1.0",
     "babel-loader": "^8.0.6",
     "babel-plugin-transform-react-remove-prop-types": "^0.4.24",
@@ -52,11 +56,14 @@
     "lebab": "^3.1.0",
     "prettier": "^1.19.1",
     "pretty-quick": "^2.0.1",
+    "react-three-fiber": "^4.0.19",
     "rimraf": "^3.0.2",
     "rollup": "^1.32.0",
     "rollup-plugin-babel": "^4.3.3",
     "rollup-plugin-node-resolve": "^5.2.0",
     "rollup-plugin-terser": "^5.2.0",
-    "rollup-plugin-web-worker-loader": "^0.9.0"
+    "rollup-plugin-web-worker-loader": "^0.9.0",
+    "three": "^0.114.0",
+    "typescript": "^3.8.3"
   }
 }
