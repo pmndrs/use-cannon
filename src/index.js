@@ -55,7 +55,7 @@ export function Physics({ children, gravity = [0, -10, 0], tolerance = 0.001 }) 
   return <context.Provider value={api} children={children} />
 }
 
-export function useCannon({ ...props }, deps = []) {
+export function useCannon(props, deps = []) {
   const ref = useRef()
   const { worker, setCount } = useContext(context)
 
@@ -101,7 +101,7 @@ export function useCannon({ ...props }, deps = []) {
 }
 
 const _object = new Object3D()
-export function useCannonInstanced(props, fn, deps = []) {
+export function useCannonInstanced({ position, rotation, ...props }, deps = []) {
   const ref = useRef()
   const { worker, setCount } = useContext(context)
 
@@ -122,21 +122,9 @@ export function useCannonInstanced(props, fn, deps = []) {
       buffers.current = null
       bodies.current = {}
       const uuid = new Array(ref.current.count).fill().map((_, i) => `${ref.current.uuid}_${i}`)
-
-      let extra = {}
-      if (fn) {
-        extra.position = []
-        extra.rotation = []
-        uuid.forEach((_, i) => {
-          const fnProps = fn(i)
-          extra.position.push(fnProps.position || [0, 0, 0])
-          extra.rotation.push(fnProps.rotation || [0, 0, 0])
-        })
-      }
-
-      console.log({ op: 'addBodies', uuid, ...props, ...extra })
-
-      worker.postMessage({ op: 'addBodies', uuid, ...props, ...extra })
+      if (typeof position === 'function') position = uuid.map((_, i) => position(i))
+      if (typeof rotation === 'function') rotation = uuid.map((_, i) => rotation(i))
+      worker.postMessage({ op: 'addBodies', uuid, ...props, position, rotation })
       return () => worker.postMessage({ op: 'removeBodies', uuid })
     }
   }, [worker, ...deps]) // eslint-disable-line react-hooks/exhaustive-deps

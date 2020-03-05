@@ -20,7 +20,7 @@ Keeps track of physics objects and serves as a provider.
 <Physics
   children,                     // ...
   gravity = [0, -10, 0],        // default gravity
-  tolerance = 0.001 />          // default tolerance
+  tolerance = {0.001} />          // default tolerance
 ```
 
 ## [ref, api] = useCannon(props, deps = [])
@@ -28,7 +28,7 @@ Keeps track of physics objects and serves as a provider.
 Ties a referenced object to cannons physics world.
 
 ```jsx
-const [ref, api] = useCannon({ type: "Plane", mass: 0, position: [0, 0, 0] })
+const [ref, api] = useCannon({ type: 'Plane', mass: 0, position: [0, 0, 0] })
 return <mesh ref={ref} geometry={planeGeom} />
 ```
 
@@ -36,11 +36,10 @@ return <mesh ref={ref} geometry={planeGeom} />
 
 ```jsx
 {
-  type: "Plane" | "Box",
+  type: "Plane" | "Box" | ...,
   args: [...],
-  position: [0, 0, 0],
-  rotation: [0, 0, 0],
-  scale: [1, 1, 1]
+  position: [number, number, number],
+  rotation: [number, number, number],
   //... all serializable Body props
 }
 ```
@@ -49,7 +48,7 @@ return <mesh ref={ref} geometry={planeGeom} />
 
 ```jsx
 {
-  setPosition(pos: [number, number, number])
+  setPosition((pos: [number, number, number]))
 }
 ```
 
@@ -58,7 +57,7 @@ return <mesh ref={ref} geometry={planeGeom} />
 Ties a referenced instanced-mesh to cannons physics world.
 
 ```jsx
-const [ref, api] = useCannonInstanced({ type: "Box", mass: 1 }, i => ({ position: position[i] }))
+const [ref, api] = useCannonInstanced({ type: "Box", mass: 1, position: i => positions[i] }))
 return <instancedMesh ref={ref} args={[geometry, material, count]} />
 ```
 
@@ -66,17 +65,11 @@ return <instancedMesh ref={ref} args={[geometry, material, count]} />
 
 ```jsx
 {
-  type: "Plane" | "Box",
+  type: "Plane" | "Box" | ...,
   args: [...],
-  position: [[0, 0, 0], ...],
-  rotation: [[0, 0, 0], ...],
+  position: [[number, number, number], ...] | index => [number, number, number],
+  rotation: [[number, number, number], ...] | index => [number, number, number],
   //... all serializable Body props
-},
-
-index => {
-  position: [0, 0, 0],
-  rotation: [0, 0, 0],
-  scale: [1, 1, 1]
 }
 ```
 
@@ -84,6 +77,6 @@ index => {
 
 ```jsx
 {
-  setPositionAt(index, pos: [number, number, number])
+  setPositionAt(index, (pos: [number, number, number]))
 }
 ```
