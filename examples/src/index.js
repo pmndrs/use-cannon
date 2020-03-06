@@ -6,11 +6,11 @@ import { Physics, useBox, usePlane, useSphere } from '../../dist/index'
 import niceColors from 'nice-color-palettes'
 import './styles.css'
 
-function Plane(props) {
+function Plane({ color, ...props }) {
   return (
     <mesh ref={usePlane(() => ({ mass: 0, ...props }))[0]} receiveShadow>
       <planeBufferGeometry attach="geometry" args={[1000, 1000]} />
-      <meshPhongMaterial attach="material" color="indianred" />
+      <meshPhongMaterial attach="material" color={color} />
     </mesh>
   )
 }
@@ -31,7 +31,7 @@ function Box() {
 }
 
 function InstancedSpheres({ number = 100 }) {
-  const [ref] = useSphere((ref, index) => ({
+  const [ref] = useSphere(index => ({
     mass: 1,
     position: [Math.random() - 0.5, Math.random() - 0.5, index * 2],
     args: 1,
@@ -59,11 +59,11 @@ function InstancedSpheres({ number = 100 }) {
 function Walls() {
   return (
     <>
-      <Plane />
-      <Plane position={[-6, 0, 0]} rotation={[0, 0.9, 0]} />
-      <Plane position={[6, 0, 0]} rotation={[0, -0.9, 0]} />
-      <Plane position={[0, 6, 0]} rotation={[0.9, 0, 0]} />
-      <Plane position={[0, -6, 0]} rotation={[-0.9, 0, 0]} />
+      <Plane color={niceColors[17][4]} />
+      <Plane color={niceColors[17][1]} position={[-6, 0, 0]} rotation={[0, 0.9, 0]} />
+      <Plane color={niceColors[17][2]} position={[6, 0, 0]} rotation={[0, -0.9, 0]} />
+      <Plane color={niceColors[17][3]} position={[0, 6, 0]} rotation={[0.9, 0, 0]} />
+      <Plane color={niceColors[17][0]} position={[0, -6, 0]} rotation={[-0.9, 0, 0]} />
     </>
   )
 }
@@ -89,7 +89,7 @@ ReactDOM.render(
       shadow-mapSize-width={256}
       shadow-mapSize-height={256}
     />
-    <Physics gravity={[0, 0, -15]}>
+    <Physics gravity={[0, 0, -30]}>
       <Walls />
       <Box />
       <InstancedSpheres number={100} />

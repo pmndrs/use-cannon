@@ -17,11 +17,14 @@ Heap of cubes: https://codesandbox.io/s/r3f-cannon-instanced-physics-g1s88
 # Api
 
 ```jsx
+import { Phsysics, usePlane, useBox, useSphere } from 'use-cannon'
+
 function Plane() {
   const [ref] = usePlane(() => ({ mass: 0 }))
   return (
     <mesh ref={ref}>
       <planeBufferGeometry attach="geometry" />
+      <meshBasicMaterial attach="material" color="hotpink" />
     </mesh>
   )
 }
@@ -31,6 +34,7 @@ function Box() {
   return (
     <mesh ref={ref}>
       <boxBufferGeometry attach="geometry" />
+      <meshBasicMaterial attach="material" color="indianred" />
     </mesh>
   )
 }
@@ -40,6 +44,7 @@ function InstancedSpheres({ number = 100 }) {
   return (
     <instancedMesh ref={ref} args={[null, null, number]}>
       <sphereBufferGeometry attach="geometry" />
+      <meshBasicMaterial attach="material" color="peachpuff" />
     </instancedMesh>
   )
 }
@@ -130,11 +135,11 @@ type HeightfieldProps = BodyProps & {
   ]
 }
 
-type PlaneFn = (ref: THREE.Object3D, index?: number) => PlaneProps
-type BoxFn = (ref: THREE.Object3D, index?: number) => BoxProps
-type CylinderFn = (ref: THREE.Object3D, index?: number) => CylinderProps
-type HeightfieldFn = (ref: THREE.Object3D, index?: number) => HeightfieldProps
-type ParticleFn = (ref: THREE.Object3D, index?: number) => ParticleProps
-type SphereFn = (ref: THREE.Object3D, index?: number) => SphereProps
-type TrimeshFn = (ref: THREE.Object3D, index?: number) => TrimeshProps
+type PlaneFn = (index?: number) => PlaneProps
+type BoxFn = (index?: number) => BoxProps
+type CylinderFn = (index?: number) => CylinderProps
+type HeightfieldFn = (index?: number) => HeightfieldProps
+type ParticleFn = (index?: number) => ParticleProps
+type SphereFn = (index?: number) => SphereProps
+type TrimeshFn = (index?: number) => TrimeshProps
 ```
