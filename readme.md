@@ -4,7 +4,7 @@
 
     yarn add use-cannon
 
-Experimental React hooks for cannon (using [cannon-es](https://github.com/drcmda/cannon-es)). Use this in combination with [react-three-fiber](https://github.com/react-spring/react-three-fiber). 
+Experimental React hooks for [cannon](https://github.com/schteppe/cannon.js). Use this in combination with [react-three-fiber](https://github.com/react-spring/react-three-fiber). 
 
 - [x] Doesn't block the main thread, runs in a web worker
 - [x] Supports instancing out of the box
