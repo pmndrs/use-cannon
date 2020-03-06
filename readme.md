@@ -23,10 +23,10 @@ function Plane() {
 }
 
 function Box() {
-  const [ref, api] = useBox(() => ({ 
+  const [ref, api] = useBox(() => ({
     mass: 1,
     position: [0, 0, 10],
-    args: { halfExtents: [0.5, 0.5, 0.5] }
+    args: { halfExtents: [0.5, 0.5, 0.5] },
   }))
   return (
     <mesh ref={ref}>
@@ -36,10 +36,10 @@ function Box() {
 }
 
 function InstancedSpheres({ number = 100 }) {
-  const [ref, api] = useSphere(index => ({ 
+  const [ref, api] = useSphere(index => ({
     mass: 1,
     position: [0, 0, index + 10],
-    args: { radius: 0.5 }
+    args: { radius: 0.5 },
   }))
   return (
     <instancedMesh ref={ref} args={[null, null, number]}>
@@ -93,34 +93,45 @@ declare type PhysicsProps = {
   step?: number
 }
 
-declare type ShapeProps = {
+declare type BodyProps = {
   position?: number[]
   rotation?: number[]
   scale?: number[]
   mass?: number
+  velocity?: number[]
+  linearDamping?: number
+  angularDamping?: number
+  allowSleep?: boolean
+  sleepSpeedLimit?: number
+  sleepTimeLimit?: number
+  collisionFilterGroup?: number
+  collisionFilterMask?: number
+  fixedRotation?: boolean
 }
-declare type PlaneProps = ShapeProps & {}
-declare type BoxProps = ShapeProps & { args?: { halfExtents?: number[] } }
-declare type CylinderProps = ShapeProps & {
-  args?: {
-    radiusTop?: number
-    radiusBottom?: number
-    height?: number
-    numSegments?: number
-  }
+
+declare type PlaneProps = BodyProps & {}
+declare type ParticleProps = BodyProps & {}
+declare type BoxProps = BodyProps & {
+  args?: number[] // hafExtents: [x, y, z]
 }
-declare type HeightfieldProps = ShapeProps & {
-  args?: {
-    data?: number[]
-    minValue?: number
-    maxValue?: number
-    elementSize?: number
-  }
+declare type CylinderProps = BodyProps & {
+  args?: [number, number, number, number] // radiusTop, radiusBottom, height, numSegments
 }
-declare type ParticleProps = ShapeProps & {}
-declare type SphereProps = ShapeProps & { args?: { radius?: number } }
-declare type TrimeshProps = ShapeProps & {
-  args?: { vertices?: number[], indices?: number[] }
+declare type SphereProps = BodyProps & {
+  args?: number // radius
+}
+declare type TrimeshProps = BodyProps & {
+  args?: [number[], number[]] // vertices: [...], indices: [...]
+}
+declare type HeightfieldProps = BodyProps & {
+  args?: [
+    number[], // data
+    {
+      minValue?: number;
+      maxValue?: number;
+      elementSize?: number;
+    }
+  ]
 }
 
 declare type PlaneFn = (ref: THREE.Object3D, index?: number) => PlaneProps

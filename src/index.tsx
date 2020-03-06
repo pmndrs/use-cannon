@@ -56,14 +56,7 @@ type ParticleProps = BodyProps & {}
 type SphereProps = BodyProps & { args?: number }
 type TrimeshProps = BodyProps & { args?: [number[], number[]] }
 type HeightfieldProps = BodyProps & {
-  args?: {
-    data?: number[]
-    options: {
-      minValue?: number
-      maxValue?: number
-      elementSize?: number
-    }
-  }
+  args?: [number[], { minValue?: number; maxValue?: number; elementSize?: number }]
 }
 
 type BodyFn = (ref: THREE.Object3D, index?: number) => BodyProps
@@ -285,7 +278,7 @@ export function useCylinder(fn: CylinderFn, deps: any[] = []) {
   return useBody('Cylinder', fn, args => args, deps)
 }
 export function useHeightfield(fn: HeightfieldFn, deps: any[] = []) {
-  return useBody('Heightfield', fn, () => [], deps)
+  return useBody('Heightfield', fn, args => args, deps)
 }
 export function useParticle(fn: ParticleFn, deps: any[] = []) {
   return useBody('Particle', fn, () => [], deps)
