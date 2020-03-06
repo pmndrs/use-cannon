@@ -61,15 +61,15 @@ type HeightfieldProps = BodyProps & {
   args?: [number[], { minValue?: number; maxValue?: number; elementSize?: number }]
 }
 
-type BodyFn = (ref: THREE.Object3D, index?: number) => BodyProps
-type PlaneFn = (ref: THREE.Object3D, index?: number) => PlaneProps
-type BoxFn = (ref: THREE.Object3D, index?: number) => BoxProps
-type CylinderFn = (ref: THREE.Object3D, index?: number) => CylinderProps
-type HeightfieldFn = (ref: THREE.Object3D, index?: number) => HeightfieldProps
-type ParticleFn = (ref: THREE.Object3D, index?: number) => ParticleProps
-type SphereFn = (ref: THREE.Object3D, index?: number) => SphereProps
-type TrimeshFn = (ref: THREE.Object3D, index?: number) => TrimeshProps
-type ConvexPolyhedronFn = (ref: THREE.Object3D, index?: number) => ConvexPolyhedronProps
+type BodyFn = (index?: number) => BodyProps
+type PlaneFn = (index?: number) => PlaneProps
+type BoxFn = (index?: number) => BoxProps
+type CylinderFn = (index?: number) => CylinderProps
+type HeightfieldFn = (index?: number) => HeightfieldProps
+type ParticleFn = (index?: number) => ParticleProps
+type SphereFn = (index?: number) => SphereProps
+type TrimeshFn = (index?: number) => TrimeshProps
+type ConvexPolyhedronFn = (index?: number) => ConvexPolyhedronProps
 
 type ArgFn = (props: any) => any[]
 
