@@ -11,6 +11,7 @@ import {
   Particle,
   Sphere,
   Trimesh,
+  Quaternion,
 } from 'cannon-es'
 
 let bodies = {}
@@ -127,7 +128,7 @@ function task(e, sync = true) {
       break
     }
     case 'setRotation': {
-      bodies[uuid].rotation.set(props[0], props[1], props[2])
+      bodies[uuid].quaternion.setFromEuler(props[0], props[1], props[2], 'XYZ')
       break
     }
     default:
