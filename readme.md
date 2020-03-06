@@ -108,6 +108,7 @@ type BodyProps = {
   collisionFilterGroup?: number
   collisionFilterMask?: number
   fixedRotation?: boolean
+  isKinematic?: boolean
 }
 
 type PlaneProps = BodyProps & {}
