@@ -52,7 +52,6 @@ function task(e, sync = true) {
     case 'addBody': {
       const {
         args = [],
-        mesh = null,
         position = [0, 0, 0],
         rotation = [0, 0, 0],
         scale = [1, 1, 1],
@@ -72,21 +71,20 @@ function task(e, sync = true) {
           body.addShape(new Box(new Vec3(...args))) // halfExtents
           break
         case 'ConvexPolyhedron':
-          // 'mesh' must contain data structured as THREE.Geometry vertex and faces arrays
-          // Convert from THREE.Vector3 to CANNON.Vec3
-          const vertices = new Array(mesh.vertices.length)
+          // [ vertices, faces ] = args
+          // vertices must contain data structured as a THREE.Geometry vertex array
+          // ConvexPolyhedron requires a CANNON.Vec3 array, which cannot be passed via postmessage
+          const vertices = new Array(props.vertices.length)
           for (let i = 0; i < vertices.length; i++) {
             vertices[i] = new Vec3(mesh.vertices[i].x, mesh.vertices[i].y, mesh.vertices[i].z)
           }
 
           // Convert from THREE.Face3 to Cannon-compatible Array
-          const faces = new Array(mesh.faces.length)
+          const faces = new Array(props.faces.length)
           for (let i = 0; i < mesh.faces.length; i++) {
             faces[i] = [mesh.faces[i].a, mesh.faces[i].b, mesh.faces[i].c]
           }
 
-          // NOTE: You can sometimes get away with *concave* meshes depending on what you are doing.
-          // non-convex meshes will however produce errors in inopportune collisions
           body.addmesh(new ConvexPolyhedron(vertices, faces))
           break
         case 'Cylinder':
