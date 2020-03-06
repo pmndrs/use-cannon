@@ -24,6 +24,7 @@ function Plane() {
   return (
     <mesh ref={ref}>
       <planeBufferGeometry attach="geometry" />
+      <meshBasicMaterial attach="material" color="hotpink" />
     </mesh>
   )
 }
@@ -33,6 +34,7 @@ function Box() {
   return (
     <mesh ref={ref}>
       <boxBufferGeometry attach="geometry" />
+      <meshBasicMaterial attach="material" color="indianred" />
     </mesh>
   )
 }
@@ -42,6 +44,7 @@ function InstancedSpheres({ number = 100 }) {
   return (
     <instancedMesh ref={ref} args={[null, null, number]}>
       <sphereBufferGeometry attach="geometry" />
+      <meshBasicMaterial attach="material" color="peachpuff" />
     </instancedMesh>
   )
 }
