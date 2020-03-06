@@ -8,11 +8,11 @@ Experimental React hooks for cannon (using [cannon-es](https://github.com/drcmda
 
 How does it work? 
 
-Take an object (meshes, lines, gltf, anything), tie it to one of cannons shapes that suits your usecase best (box, plane, sphere, ...), give it a mass, and that's it. Now the object is affected by gravity and all the other objects that are subscribes to the physics world. You interact with the object by using the returned api, which lets you apply positions and rotations.
+Take an object (meshes, lines, gltf, anything), tie it to one of cannons shapes that suits your usecase best (box, plane, sphere, ...), give it a mass, and that's it. Now the object is affected by gravity other objects subscribed to the physics world. You interact with it by using the returned api, which lets you apply positions and rotations.
 
 # Demos
 
-Cubes pushing spheres away: https://codesandbox.io/s/r3f-cannon-instanced-physics-devf8
+Cube pushing spheres away: https://codesandbox.io/s/r3f-cannon-instanced-physics-devf8
 
 Heap of cubes: https://codesandbox.io/s/r3f-cannon-instanced-physics-g1s88
 
