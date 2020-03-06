@@ -1,4 +1,5 @@
 node_modules/
+examples/
 coverage/
 Thumbs.db
 ehthumbs.db
