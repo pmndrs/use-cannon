@@ -95,7 +95,7 @@ export function Physics({
   gravity = [0, -10, 0],
   tolerance = 0.001,
   iterations = 5,
-}: PhysicsProps): React.ReactNode {
+}: PhysicsProps): JSX.Element {
   const [worker] = useState<Worker>(() => new CannonWorker() as Worker)
   const [refs, setRef] = useState<Refs>({})
   const bodies = useRef<{ [uuid: string]: number }>({})
