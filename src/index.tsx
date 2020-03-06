@@ -60,14 +60,14 @@ type HeightfieldProps = BodyProps & {
   args?: [number[], { minValue?: number; maxValue?: number; elementSize?: number }]
 }
 
-type BodyFn = (ref: THREE.Object3D, index?: number) => BodyProps
-type PlaneFn = (ref: THREE.Object3D, index?: number) => PlaneProps
-type BoxFn = (ref: THREE.Object3D, index?: number) => BoxProps
-type CylinderFn = (ref: THREE.Object3D, index?: number) => CylinderProps
-type HeightfieldFn = (ref: THREE.Object3D, index?: number) => HeightfieldProps
-type ParticleFn = (ref: THREE.Object3D, index?: number) => ParticleProps
-type SphereFn = (ref: THREE.Object3D, index?: number) => SphereProps
-type TrimeshFn = (ref: THREE.Object3D, index?: number) => TrimeshProps
+type BodyFn = (index?: number) => BodyProps
+type PlaneFn = (index?: number) => PlaneProps
+type BoxFn = (index?: number) => BoxProps
+type CylinderFn = (index?: number) => CylinderProps
+type HeightfieldFn = (index?: number) => HeightfieldProps
+type ParticleFn = (index?: number) => ParticleProps
+type SphereFn = (index?: number) => SphereProps
+type TrimeshFn = (index?: number) => TrimeshProps
 
 type ArgFn = (props: any) => any[]
 
@@ -156,7 +156,7 @@ export function useBody(type: ShapeType, fn: BodyFn, argFn: ArgFn, deps: any[] =
         object.instanceMatrix.setUsage(THREE.DynamicDrawUsage)
         // Collect props
         const props = uuid.map((id, i) => {
-          const props = fn(object, i)
+          const props = fn(i)
           if (props.args) props.args = argFn(props.args)
           return props
         })
@@ -189,7 +189,7 @@ export function useBody(type: ShapeType, fn: BodyFn, argFn: ArgFn, deps: any[] =
       } else {
         const uuid = object.uuid
         // Collect props
-        const props = fn(object)
+        const props = fn()
         if (props.args) props.args = argFn(props.args)
         // Set start-up position values
         if (props.position) object.position.set(...(props.position as [number, number, number]))
@@ -241,12 +241,10 @@ export function useBody(type: ShapeType, fn: BodyFn, argFn: ArgFn, deps: any[] =
     if (worker)
       return {
         setPosition(x: number, y: number, z: number) {
-          if (ref.current)
-            worker.postMessage({ op: 'setPosition', uuid: ref.current.uuid, props: [x, y, z] })
+          if (ref.current) worker.postMessage({ op: 'setPosition', uuid: ref.current.uuid, props: [x, y, z] })
         },
         setRotation(x: number, y: number, z: number) {
-          if (ref.current)
-            worker.postMessage({ op: 'setRotation', uuid: ref.current.uuid, props: [x, y, z] })
+          if (ref.current) worker.postMessage({ op: 'setRotation', uuid: ref.current.uuid, props: [x, y, z] })
         },
         setPositionAt(index: number, x: number, y: number, z: number) {
           if (ref.current)
