@@ -2,7 +2,7 @@ import * as THREE from 'three'
 import ReactDOM from 'react-dom'
 import React, { useMemo } from 'react'
 import { Canvas, useFrame } from 'react-three-fiber'
-import { Physics, useBox, usePlane, useSphere } from 'use-cannon'
+import { Physics, useBox, usePlane, useSphere } from '../../dist/index'
 import niceColors from 'nice-color-palettes'
 import './styles.css'
 
@@ -16,11 +16,11 @@ function Plane({ color, ...props }) {
 }
 
 function Box() {
-  const [ref, api] = useBox(() => ({ mass: 1000, args: [2, 2, 2] }))
-  // Make it run circles
+  const [ref, api] = useBox(() => ({ mass: 1, args: [2, 2, 2], isKinematic: true }))
   useFrame(state => {
     const t = state.clock.getElapsedTime()
     api.setPosition(Math.sin(t * 2) * 5, Math.cos(t * 2) * 5, 3)
+    api.setRotation(Math.sin(t * 2), Math.cos(t * 2), 0)
   })
   return (
     <mesh ref={ref} castShadow receiveShadow>
