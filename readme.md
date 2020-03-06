@@ -50,11 +50,11 @@ function InstancedSpheres({ number = 100 }) {
 
 function App() {
   return (
-    <Physics gravity={[0, 0, -10]>
+    <Physics gravity={[0, 0, -10]}>
       <Plane />
       <Box />
       <InstancedSpheres />
-    <Physics>
+    </Physics>
   )
 }
 ```
@@ -92,13 +92,13 @@ declare type PhysicsProps = {
   tolerance?: number
   step?: number
 }
+
 declare type ShapeProps = {
   position?: number[]
   rotation?: number[]
   scale?: number[]
   mass?: number
 }
-
 declare type PlaneProps = ShapeProps & {}
 declare type BoxProps = ShapeProps & { args?: { halfExtents?: number[] } }
 declare type CylinderProps = ShapeProps & {
@@ -122,6 +122,7 @@ declare type SphereProps = ShapeProps & { args?: { radius?: number } }
 declare type TrimeshProps = ShapeProps & {
   args?: { vertices?: number[], indices?: number[] }
 }
+
 declare type PlaneFn = (ref: THREE.Object3D, index?: number) => PlaneProps
 declare type BoxFn = (ref: THREE.Object3D, index?: number) => BoxProps
 declare type CylinderFn = (ref: THREE.Object3D, index?: number) => CylinderProps

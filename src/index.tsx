@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import React, { useState, useEffect, useContext, useRef, useMemo } from 'react'
+import { useFrame } from 'react-three-fiber'
 // @ts-ignore
 import CannonWorker from '../src/worker'
 
@@ -12,6 +13,7 @@ type PhysicsProps = {
 
 type PhysicsContext = {
   worker: Worker | undefined
+  bodies: { [uuid: string]: number }
   setRef: React.Dispatch<React.SetStateAction<Refs>>
 }
 
@@ -107,6 +109,7 @@ type Api = [
 ]
 
 const context = React.createContext<PhysicsContext>({} as PhysicsContext)
+const buffers = React.createRef() as any
 const temp = new THREE.Object3D()
 
 export function Physics({
@@ -117,7 +120,7 @@ export function Physics({
 }: PhysicsProps): React.ReactNode {
   const [worker] = useState<Worker>(() => new CannonWorker() as Worker)
   const [refs, setRef] = useState<Refs>({})
-  const [bodies, setBodies] = useState<string[]>([])
+  const [bodies, setBodies] = useState<{ [uuid: string]: number }>({})
   const count = useMemo(() => Object.keys(refs).length, [refs])
 
   useEffect(() => {
@@ -139,30 +142,12 @@ export function Physics({
           case 'frame': {
             positions = e.data.positions
             quaternions = e.data.quaternions
-
-            for (let i = 0; i < bodies.length; i++) {
-              const name = bodies[i]
-              const ref = refs[name]
-              if (!ref) break
-
-              if (ref instanceof THREE.InstancedMesh) {
-                const index = parseInt(name.split('/')[1])
-                temp.position.fromArray(positions, i * 3)
-                temp.quaternion.fromArray(quaternions, i * 4)
-                temp.updateMatrix()
-                ref.setMatrixAt(index, temp.matrix)
-                ref.instanceMatrix.needsUpdate = true
-              } else {
-                ref.position.fromArray(positions, i * 3)
-                ref.quaternion.fromArray(quaternions, i * 4)
-              }
-            }
-
+            buffers.current = { positions, quaternions }
             requestAnimationFrame(loop)
             break
           }
           case 'sync': {
-            setBodies(e.data.bodies)
+            setBodies(e.data.bodies.reduce((acc, id) => ({ ...acc, [id]: e.data.bodies.indexOf(id) }), {}))
             break
           }
           default:
@@ -175,13 +160,13 @@ export function Physics({
 
   useEffect(() => () => worker.terminate(), [])
 
-  const api = useMemo(() => ({ worker, setRef }), [worker])
+  const api = useMemo(() => ({ worker, bodies, setRef }), [worker, bodies])
   return <context.Provider value={api}>{children}</context.Provider>
 }
 
 export function useBody(type: ShapeType, fn: BodyFn, argFn: ArgFn, deps: any[] = []): Api {
   const ref = useRef<THREE.Object3D>()
-  const { worker, setRef } = useContext(context)
+  const { worker, bodies, setRef } = useContext(context)
 
   useEffect(() => {
     if (ref.current && worker) {
@@ -195,7 +180,7 @@ export function useBody(type: ShapeType, fn: BodyFn, argFn: ArgFn, deps: any[] =
         // Collect props
         const props = uuid.map((id, i) => {
           const props = fn(object, i)
-          props.args = argFn(props.args || {})
+          props.args = argFn(props.args || {})
           return props
         })
         // Set start-up position values
@@ -228,7 +213,7 @@ export function useBody(type: ShapeType, fn: BodyFn, argFn: ArgFn, deps: any[] =
         const uuid = object.uuid
         // Collect props
         const props = fn(object)
-        props.args = argFn(props.args || {})
+        props.args = argFn(props.args || {})
         // Set start-up position values
         if (props.position) object.position.set(...(props.position as [number, number, number]))
         if (props.rotation) object.rotation.set(...(props.rotation as [number, number, number]))
@@ -251,6 +236,29 @@ export function useBody(type: ShapeType, fn: BodyFn, argFn: ArgFn, deps: any[] =
       }
     }
   }, [ref.current, worker, ...deps]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useFrame(() => {
+    if (ref.current && buffers.current && buffers.current.positions.length) {
+      if (ref.current instanceof THREE.InstancedMesh) {
+        for (let i = 0; i < ref.current.count; i++) {
+          const index = bodies[`${ref.current.uuid}/${i}`]
+          if (index !== undefined) {
+            temp.position.fromArray(buffers.current.positions, index * 3)
+            temp.quaternion.fromArray(buffers.current.quaternions, index * 4)
+            temp.updateMatrix()
+            ref.current.setMatrixAt(i, temp.matrix)
+          }
+          ref.current.instanceMatrix.needsUpdate = true
+        }
+      } else {
+        const index = bodies[ref.current.uuid]
+        if (index !== undefined) {
+          ref.current.position.fromArray(buffers.current.positions, index * 3)
+          ref.current.quaternion.fromArray(buffers.current.quaternions, index * 4)
+        }
+      }
+    }
+  })
 
   const api = useMemo(() => {
     if (worker)
