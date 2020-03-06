@@ -64,11 +64,12 @@ function task(e, sync = true) {
           break
         case 'ConvexPolyhedron':
           const [v, f] = args
-          const vertices = new Array(v.length)
-          for (let i = 0; i < vertices.length; i++) vertices[i] = new Vec3(v[i][0], v[i][1], v[i][2])
-          const faces = new Array(f.length)
-          for (let i = 0; i < f.length; i++) faces[i] = [f[i][0], f[i][1], f[i][2]]
-          body.addmesh(new ConvexPolyhedron(vertices, faces))
+          body.addmesh(
+            new ConvexPolyhedron(
+              v.map(([x, y, z]) => new Vec3(x, y, z)),
+              f
+            )
+          )
           break
         case 'Cylinder':
           body.addShape(new Cylinder(...args)) // [ radiusTop, radiusBottom, height, numSegments ] = args

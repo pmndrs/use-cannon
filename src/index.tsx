@@ -270,7 +270,7 @@ export function usePlane(fn: PlaneFn, deps: any[] = []) {
   return useBody('Plane', fn, () => [], deps)
 }
 export function useBox(fn: BoxFn, deps: any[] = []) {
-  return useBody('Box', fn, args => args ?? [0.5, 0.5, 0.5], deps)
+  return useBody('Box', fn, args => args || [0.5, 0.5, 0.5], deps)
 }
 export function useCylinder(fn: CylinderFn, deps: any[] = []) {
   return useBody('Cylinder', fn, args => args, deps)
