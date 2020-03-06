@@ -32,7 +32,7 @@ import { Physics, useBox, ... } from 'use-cannon'
 const [ref, api] = useBox(() => ({ mass: 1 }))
 ```
 
-4. Now take your object, it could be a mesh, line, gltf, anything. Tie it to the reference you have just received. The object will then be affected by gravity and other objects subscribed to the physics world.
+4. Take your object, it could be a mesh, line, gltf, anything, and tie it to the reference you have just received. Et voilà, it will now be affected by gravity and other objects inside the physics world automatically.
 
 ```jsx
 <mesh ref={ref} geometry={...} material={...} />
