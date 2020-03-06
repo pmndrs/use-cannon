@@ -44,52 +44,6 @@ const [ref, api] = useBox(() => ({ mass: 1 }))
 useFrame(({ clock }) => api.setPosition(Math.sin(clock.getElapsedTime()) * 5,0,0))
 ```
 
-Here's how it could look like:
-
-```jsx
-import { Phsysics, usePlane, useBox, useSphere } from 'use-cannon'
-
-function Plane() {
-  const [ref] = usePlane(() => ({ mass: 0 }))
-  return (
-    <mesh ref={ref}>
-      <planeBufferGeometry attach="geometry" />
-      <meshBasicMaterial attach="material" color="hotpink" />
-    </mesh>
-  )
-}
-
-function Box() {
-  const [ref] = useBox(() => ({ mass: 1, position: [0, 0, 10], args: [0.5, 0.5, 0.5] }))
-  return (
-    <mesh ref={ref}>
-      <boxBufferGeometry attach="geometry" />
-      <meshBasicMaterial attach="material" color="indianred" />
-    </mesh>
-  )
-}
-
-function InstancedSpheres({ number = 100 }) {
-  const [ref] = useSphere(index => ({ mass: 1, position: [0, 0, index + 10], args: 0.5 }))
-  return (
-    <instancedMesh ref={ref} args={[null, null, number]}>
-      <sphereBufferGeometry attach="geometry" />
-      <meshBasicMaterial attach="material" color="peachpuff" />
-    </instancedMesh>
-  )
-}
-
-function App() {
-  return (
-    <Physics gravity={[0, 0, -10]}>
-      <Plane />
-      <Box />
-      <InstancedSpheres />
-    </Physics>
-  )
-}
-```
-
 # Demos
 
 Cube pushing spheres away: https://codesandbox.io/s/r3f-cannon-instanced-physics-devf8
