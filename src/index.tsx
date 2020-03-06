@@ -56,19 +56,19 @@ type BoxProps = BodyProps & { args?: number[] }
 type CylinderProps = BodyProps & { args?: [number, number, number, number] }
 type ParticleProps = BodyProps & {}
 type SphereProps = BodyProps & { args?: number }
-type TrimeshProps = BodyProps & { args?: [number[], number[]] }
+type TrimeshProps = BodyProps & { args?: [number[][], number[][]] }
 type HeightfieldProps = BodyProps & {
   args?: [number[], { minValue?: number; maxValue?: number; elementSize?: number }]
 }
 
-type BodyFn = (index?: number) => BodyProps
-type PlaneFn = (index?: number) => PlaneProps
-type BoxFn = (index?: number) => BoxProps
-type CylinderFn = (index?: number) => CylinderProps
-type HeightfieldFn = (index?: number) => HeightfieldProps
-type ParticleFn = (index?: number) => ParticleProps
-type SphereFn = (index?: number) => SphereProps
-type TrimeshFn = (index?: number) => TrimeshProps
+type BodyFn = (index: number) => BodyProps
+type PlaneFn = (index: number) => PlaneProps
+type BoxFn = (index: number) => BoxProps
+type CylinderFn = (index: number) => CylinderProps
+type HeightfieldFn = (index: number) => HeightfieldProps
+type ParticleFn = (index: number) => ParticleProps
+type SphereFn = (index: number) => SphereProps
+type TrimeshFn = (index: number) => TrimeshProps
 
 type ArgFn = (props: any) => any[]
 
@@ -128,8 +128,6 @@ export function Physics({
             bodies.current = e.data.bodies.reduce((acc, id) => ({ ...acc, [id]: e.data.bodies.indexOf(id) }), {})
             break
           }
-          default:
-            break
         }
       }
       loop()
@@ -190,7 +188,7 @@ export function useBody(type: ShapeType, fn: BodyFn, argFn: ArgFn, deps: any[] =
       } else {
         const uuid = object.uuid
         // Collect props
-        const props = fn()
+        const props = fn(0)
         if (props.args) props.args = argFn(props.args)
         // Set start-up position values
         if (props.position) object.position.set(...(props.position as [number, number, number]))

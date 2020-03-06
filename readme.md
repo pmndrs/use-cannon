@@ -123,7 +123,7 @@ type SphereProps = BodyProps & {
   args?: number // radius
 }
 type TrimeshProps = BodyProps & {
-  args?: [number[], number[]] // vertices: [...], indices: [...]
+  args?: [number[][], number[][]] // vertices: [[...], ...], faces: [[...], ...]
 }
 type HeightfieldProps = BodyProps & {
   args?: [
@@ -136,11 +136,11 @@ type HeightfieldProps = BodyProps & {
   ]
 }
 
-type PlaneFn = (index?: number) => PlaneProps
-type BoxFn = (index?: number) => BoxProps
-type CylinderFn = (index?: number) => CylinderProps
-type HeightfieldFn = (index?: number) => HeightfieldProps
-type ParticleFn = (index?: number) => ParticleProps
-type SphereFn = (index?: number) => SphereProps
-type TrimeshFn = (index?: number) => TrimeshProps
+type PlaneFn = (index: number) => PlaneProps
+type BoxFn = (index: number) => BoxProps
+type CylinderFn = (index: number) => CylinderProps
+type HeightfieldFn = (index: number) => HeightfieldProps
+type ParticleFn = (index: number) => ParticleProps
+type SphereFn = (index: number) => SphereProps
+type TrimeshFn = (index: number) => TrimeshProps
 ```
