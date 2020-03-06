@@ -50,10 +50,23 @@ function task(e, sync = true) {
       break
     }
     case 'addBody': {
-      const { args = [], mesh = null, position = [0, 0, 0], rotation = [0, 0, 0], scale = [1, 1, 1], ...extra } = props
+      const {
+        args = [],
+        mesh = null,
+        position = [0, 0, 0],
+        rotation = [0, 0, 0],
+        scale = [1, 1, 1],
+        isKinematic,
+        ...extra
+      } = props
 
-      const body = new Body(extra)
+      const body = new Body({
+        ...extra,
+        type: isKinematic ? Body.KINEMATIC : undefined,
+      })
+
       body.uuid = uuid
+
       switch (type) {
         case 'Box':
           body.addShape(new Box(new Vec3(...args))) // halfExtents
@@ -79,10 +92,10 @@ function task(e, sync = true) {
           body.addmesh(new ConvexPolyhedron(vertices, faces))
           break
         case 'Cylinder':
-          body.addShape(new Cylinder(...args)) // { radiusTop, radiusBottom, height, numSegments } = args
+          body.addShape(new Cylinder(...args)) // [ radiusTop, radiusBottom, height, numSegments ] = args
           break
         case 'Heightfield':
-          body.addShape(new Heightfield(...args)) // { Array data, options: {minValue, maxValue, elementSize}  } = args
+          body.addShape(new Heightfield(...args)) // [ Array data, options: {minValue, maxValue, elementSize}  ] = args
           break
         case 'Particle':
           body.addShape(new Particle()) // no args
@@ -91,10 +104,10 @@ function task(e, sync = true) {
           body.addShape(new Plane()) // no args, infinite x and y
           break
         case 'Sphere':
-          body.addShape(new Sphere(...args)) // { radius } = args
+          body.addShape(new Sphere(...args)) // [radius] = args
           break
         case 'Trimesh':
-          body.addShape(new Trimesh(...args)) // { vertices, indices } = args
+          body.addShape(new Trimesh(...args)) // [vertices, indices] = args
           break
         default:
           break
