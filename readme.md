@@ -105,6 +105,7 @@ function useHeightfield(fn: HeightfieldFn, deps?: any[]): Api
 function useParticle(fn: ParticleFn, deps?: any[]): Api
 function useSphere(fn: SphereFn, deps?: any[]): Api
 function useTrimesh(fn: TrimeshFn, deps?: any[]): Api
+function useConvexPolyhedron(fn: ConvexPolyhedronFn, deps?: any[]): Api
 ```
 
 ## Returned api
@@ -157,6 +158,9 @@ type SphereProps = BodyProps & {
   args?: number // radius
 }
 type TrimeshProps = BodyProps & {
+  args?: [number[][], number[][]] // vertices: [[x, y, z], ...], indices: [[a, b, c], ...]
+}
+type ConvexPolyhedronProps = BodyProps & {
   args?: [number[][], number[][]] // vertices: [[x, y, z], ...], faces: [[a, b, c], ...]
 }
 type HeightfieldProps = BodyProps & {

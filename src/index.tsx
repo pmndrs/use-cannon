@@ -49,7 +49,7 @@ type BodyProps = {
   isKinematic?: boolean
 }
 
-type ShapeType = 'Plane' | 'Box' | 'Cylinder' | 'Heightfield' | 'Particle' | 'Sphere' | 'Trimesh'
+type ShapeType = 'Plane' | 'Box' | 'Cylinder' | 'Heightfield' | 'Particle' | 'Sphere' | 'Trimesh' | 'ConvexPolyhedron'
 type PlaneProps = BodyProps & {}
 type BoxProps = BodyProps & { args?: number[] }
 type CylinderProps = BodyProps & { args?: [number, number, number, number] }
@@ -59,6 +59,7 @@ type TrimeshProps = BodyProps & { args?: [number[][], number[][]] }
 type HeightfieldProps = BodyProps & {
   args?: [number[], { minValue?: number; maxValue?: number; elementSize?: number }]
 }
+type ConvexPolyhedronProps = BodyProps & { args?: [number[][], number[][]] }
 
 type BodyFn = (index: number) => BodyProps
 type PlaneFn = (index: number) => PlaneProps
@@ -68,6 +69,7 @@ type HeightfieldFn = (index: number) => HeightfieldProps
 type ParticleFn = (index: number) => ParticleProps
 type SphereFn = (index: number) => SphereProps
 type TrimeshFn = (index: number) => TrimeshProps
+type ConvexPolyhedronFn = (index: number) => ConvexPolyhedronProps
 type ArgFn = (props: any) => any[]
 
 type Api = [
@@ -284,4 +286,7 @@ export function useSphere(fn: SphereFn, deps: any[] = []) {
 }
 export function useTrimesh(fn: TrimeshFn, deps: any[] = []) {
   return useBody('Trimesh', fn, args => args, deps)
+}
+export function useConvexPolyhedron(fn: ConvexPolyhedronFn, deps: any[] = []) {
+  return useBody('ConvexPolyhedron', fn, args => args, deps)
 }
