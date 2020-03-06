@@ -268,7 +268,7 @@ export function usePlane(fn: PlaneFn, deps: any[] = []) {
   return useBody('Plane', fn, () => [], deps)
 }
 export function useBox(fn: BoxFn, deps: any[] = []) {
-  return useBody('Box', fn, args => args, deps)
+  return useBody('Box', fn, args => args ?? [0.5, 0.5, 0.5], deps)
 }
 export function useCylinder(fn: CylinderFn, deps: any[] = []) {
   return useBody('Cylinder', fn, args => args, deps)
@@ -280,7 +280,7 @@ export function useParticle(fn: ParticleFn, deps: any[] = []) {
   return useBody('Particle', fn, () => [], deps)
 }
 export function useSphere(fn: SphereFn, deps: any[] = []) {
-  return useBody('Sphere', fn, radius => [radius], deps)
+  return useBody('Sphere', fn, radius => [radius ?? 1], deps)
 }
 export function useTrimesh(fn: TrimeshFn, deps: any[] = []) {
   return useBody('Trimesh', fn, args => args, deps)
