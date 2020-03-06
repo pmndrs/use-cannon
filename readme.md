@@ -10,7 +10,13 @@ Experimental React hooks for [cannon](https://github.com/schteppe/cannon.js). Us
 - [x] Supports instancing out of the box
 - [x] Least amount of friction you'll ever experience with a physics rig ... 🙈
 
-# How it works
+## Demos
+
+Cube pushing spheres away: https://codesandbox.io/s/r3f-cannon-instanced-physics-devf8
+
+Heap of cubes: https://codesandbox.io/s/r3f-cannon-instanced-physics-g1s88
+
+## How it works
 
 1. Get all the imports that you need.
 
@@ -44,15 +50,9 @@ const [ref, api] = useBox(() => ({ mass: 1 }))
 useFrame(({ clock }) => api.setPosition(Math.sin(clock.getElapsedTime()) * 5,0,0))
 ```
 
-# Demos
+## Api
 
-Cube pushing spheres away: https://codesandbox.io/s/r3f-cannon-instanced-physics-devf8
-
-Heap of cubes: https://codesandbox.io/s/r3f-cannon-instanced-physics-g1s88
-
-# Api
-
-## Exports
+### Exports
 
 ```jsx
 function Physics({ children, step, gravity, tolerance, }: PhysicsProps): React.ReactNode
@@ -65,7 +65,7 @@ function useSphere(fn: SphereFn, deps?: any[]): Api
 function useTrimesh(fn: TrimeshFn, deps?: any[]): Api
 ```
 
-## Returned api
+### Returned api
 
 ```jsx
 type Api = [React.MutableRefObject<THREE.Object3D | undefined>, ({
@@ -76,7 +76,7 @@ type Api = [React.MutableRefObject<THREE.Object3D | undefined>, ({
 } | undefined)]
 ```
 
-## Props
+### Props
 
 ```jsx
 type PhysicsProps = {
