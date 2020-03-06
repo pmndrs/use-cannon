@@ -4,9 +4,11 @@
 
     yarn add use-cannon
 
-Experimental web-worker based React hooks for cannon (using [cannon-es](https://github.com/drcmda/cannon-es)) in combination with [react-three-fiber](https://github.com/react-spring/react-three-fiber). Right now it only supports planes and boxes, for individual objects or instanced objects. The public api can only set positions for now. If you need more, please submit your PRs.
+Experimental React hooks for cannon (using [cannon-es](https://github.com/drcmda/cannon-es)) running in a web worker. Use this in combination with [react-three-fiber](https://github.com/react-spring/react-three-fiber). 
 
-How does it work? It subscribes the view part of a component to cannons physics world and unsubscribes on unmount. You don't put position/rotation/scale into the mesh any longer, you put it into the hook, which takes care of forwarding all movements.
+How does it work? 
+
+Take an object (meshes, lines, gltf, anything), tie it to one of cannons shapes that suits your usecase best (box, plane, sphere, ...), give it a mass, and that's it. Now the object is affected by gravity and all the other objects that are subscribes to the physics world. You interact with the object by using the returned api, which lets you apply positions and rotations.
 
 # Demos
 
