@@ -10,17 +10,37 @@ Experimental React hooks for [cannon](https://github.com/schteppe/cannon.js). Us
 - [x] Supports instancing out of the box
 - [x] Least amount of friction you'll ever experience with a physics rig ... 🙈
 
-How does it work? 
+How does it work?
 
-Take an object (meshes, lines, gltf, anything), tie it to one of cannons shapes that suits your usecase best (box, plane, sphere, ...), give it a mass, and that's it. Now the object is affected by gravity and other objects subscribed to the physics world. You interact with it by using the returned api, which lets you apply positions and rotations.
+Create a physics world.
 
-# Demos
+```jsx
+<Physics>
+  {/* Physics related objects in here please */}
+</Physics>
+```
 
-Cube pushing spheres away: https://codesandbox.io/s/r3f-cannon-instanced-physics-devf8
+Pick a shape that suits your object best, it could be a box, plane, sphere, etc. Give it a mass, too. 
 
-Heap of cubes: https://codesandbox.io/s/r3f-cannon-instanced-physics-g1s88
+```jsx
+const [ref, api] = useBox(() => ({ mass: 1 }))
+```
 
-# Api
+Now take your object, it could be a mesh, line, gltf, anything. Tie it to the reference you have just received.
+
+```jsx
+<mesh ref={ref} geometry={...} material={...} />
+```
+
+The object will now be affected by gravity and other objects subscribed to the physics world.
+
+You can interact with it by using the api, which lets you apply positions and rotations.
+
+```jsx
+useFrame(({ clock }) => api.setPosition(Math.sin(clock.getElapsedTime()) * 5,0,0))
+```
+
+Here's how it could look like:
 
 ```jsx
 import { Phsysics, usePlane, useBox, useSphere } from 'use-cannon'
@@ -65,6 +85,14 @@ function App() {
   )
 }
 ```
+
+# Demos
+
+Cube pushing spheres away: https://codesandbox.io/s/r3f-cannon-instanced-physics-devf8
+
+Heap of cubes: https://codesandbox.io/s/r3f-cannon-instanced-physics-g1s88
+
+# Api
 
 ## Exports
 
