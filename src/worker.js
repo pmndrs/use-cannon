@@ -71,8 +71,6 @@ function task(e, sync = true) {
         case 'Box':
           body.addShape(new Box(new Vec3(...args))) // halfExtents
           break
-        case 'Convex':
-          break
         case 'ConvexPolyhedron':
           // 'mesh' must contain data structured as THREE.Geometry vertex and faces arrays
           // Convert from THREE.Vector3 to CANNON.Vec3
