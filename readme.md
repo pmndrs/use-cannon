@@ -17,6 +17,8 @@ Heap of cubes: https://codesandbox.io/s/r3f-cannon-instanced-physics-g1s88
 # Api
 
 ```jsx
+import { Phsysics, usePlane, useBox, useSphere } from 'use-cannon'
+
 function Plane() {
   const [ref] = usePlane(() => ({ mass: 0 }))
   return (
