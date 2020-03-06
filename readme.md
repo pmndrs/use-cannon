@@ -8,7 +8,7 @@ Experimental React hooks for [cannon](https://github.com/schteppe/cannon.js). Us
 
 - [x] Doesn't block the main thread, runs in a web worker
 - [x] Supports instancing out of the box
-- [x] Least amount of friction you'll ever experience with a physics rig
+- [x] Least amount of friction you'll ever experience with a physics rig ... 🙈
 
 How does it work? 
 
