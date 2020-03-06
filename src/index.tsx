@@ -46,6 +46,7 @@ type BodyProps = {
   collisionFilterGroup?: number
   collisionFilterMask?: number
   fixedRotation?: boolean
+  isKinematic?: boolean
 }
 
 type ShapeType = 'Plane' | 'Box' | 'Cylinder' | 'Heightfield' | 'Particle' | 'Sphere' | 'Trimesh'
@@ -241,12 +242,10 @@ export function useBody(type: ShapeType, fn: BodyFn, argFn: ArgFn, deps: any[] =
     if (worker)
       return {
         setPosition(x: number, y: number, z: number) {
-          if (ref.current)
-            worker.postMessage({ op: 'setPosition', uuid: ref.current.uuid, props: [x, y, z] })
+          if (ref.current) worker.postMessage({ op: 'setPosition', uuid: ref.current.uuid, props: [x, y, z] })
         },
         setRotation(x: number, y: number, z: number) {
-          if (ref.current)
-            worker.postMessage({ op: 'setRotation', uuid: ref.current.uuid, props: [x, y, z] })
+          if (ref.current) worker.postMessage({ op: 'setRotation', uuid: ref.current.uuid, props: [x, y, z] })
         },
         setPositionAt(index: number, x: number, y: number, z: number) {
           if (ref.current)

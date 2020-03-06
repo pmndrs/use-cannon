@@ -11,7 +11,6 @@ import {
   Particle,
   Sphere,
   Trimesh,
-  Quaternion,
 } from 'cannon-es'
 
 let bodies = {}
