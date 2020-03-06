@@ -4,7 +4,7 @@
 
     yarn add use-cannon
 
-Live demo: https://codesandbox.io/s/r3f-cannon-instanced-physics-g1s88
+Live demo: https://codesandbox.io/s/r3f-cannon-instanced-physics-devf8
 
 Experimental web-worker based React hooks for cannon (using [cannon-es](https://github.com/drcmda/cannon-es)) in combination with [react-three-fiber](https://github.com/react-spring/react-three-fiber). Right now it only supports planes and boxes, for individual objects or instanced objects. The public api can only set positions for now. If you need more, please submit your PRs.
 
@@ -26,7 +26,7 @@ function Box() {
   const [ref, api] = useBox(() => ({
     mass: 1,
     position: [0, 0, 10],
-    args: { halfExtents: [0.5, 0.5, 0.5] },
+    args: [0.5, 0.5, 0.5],
   }))
   return (
     <mesh ref={ref}>
@@ -39,7 +39,7 @@ function InstancedSpheres({ number = 100 }) {
   const [ref, api] = useSphere(index => ({
     mass: 1,
     position: [0, 0, index + 10],
-    args: { radius: 0.5 },
+    args: 0.5,
   }))
   return (
     <instancedMesh ref={ref} args={[null, null, number]}>
