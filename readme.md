@@ -36,7 +36,7 @@ function Box() {
 }
 
 function InstancedSpheres({ number = 100 }) {
-  const [ref] = useSphere(index => ({  mass: 1, position: [0, 0, index + 10], args: 0.5 }))
+  const [ref] = useSphere(index => ({ mass: 1, position: [0, 0, index + 10], args: 0.5 }))
   return (
     <instancedMesh ref={ref} args={[null, null, number]}>
       <sphereBufferGeometry attach="geometry" />
@@ -58,20 +58,20 @@ function App() {
 ## Exports
 
 ```jsx
-export declare function Physics({ children, step, gravity, tolerance, }: PhysicsProps): React.ReactNode
-export declare function usePlane(fn: PlaneFn, deps?: any[]): Api
-export declare function useBox(fn: BoxFn, deps?: any[]): Api
-export declare function useCylinder(fn: CylinderFn, deps?: any[]): Api
-export declare function useHeightfield(fn: HeightfieldFn, deps?: any[]): Api
-export declare function useParticle(fn: ParticleFn, deps?: any[]): Api
-export declare function useSphere(fn: SphereFn, deps?: any[]): Api
-export declare function useTrimesh(fn: TrimeshFn, deps?: any[]): Api
+function Physics({ children, step, gravity, tolerance, }: PhysicsProps): React.ReactNode
+function usePlane(fn: PlaneFn, deps?: any[]): Api
+function useBox(fn: BoxFn, deps?: any[]): Api
+function useCylinder(fn: CylinderFn, deps?: any[]): Api
+function useHeightfield(fn: HeightfieldFn, deps?: any[]): Api
+function useParticle(fn: ParticleFn, deps?: any[]): Api
+function useSphere(fn: SphereFn, deps?: any[]): Api
+function useTrimesh(fn: TrimeshFn, deps?: any[]): Api
 ```
 
 ## Returned api
 
 ```jsx
-declare type Api = [React.MutableRefObject<THREE.Object3D | undefined>, ({
+type Api = [React.MutableRefObject<THREE.Object3D | undefined>, ({
   setPosition: (x: number, y: number, z: number) => void
   setRotation: (x: number, y: number, z: number) => void
   setPositionAt: (index: number, x: number, y: number, z: number) => void
@@ -82,14 +82,14 @@ declare type Api = [React.MutableRefObject<THREE.Object3D | undefined>, ({
 ## Props
 
 ```jsx
-declare type PhysicsProps = {
+type PhysicsProps = {
   children: React.ReactNode
   gravity?: number[]
   tolerance?: number
   step?: number
 }
 
-declare type BodyProps = {
+type BodyProps = {
   position?: number[]
   rotation?: number[]
   scale?: number[]
@@ -105,36 +105,36 @@ declare type BodyProps = {
   fixedRotation?: boolean
 }
 
-declare type PlaneProps = BodyProps & {}
-declare type ParticleProps = BodyProps & {}
-declare type BoxProps = BodyProps & {
+type PlaneProps = BodyProps & {}
+type ParticleProps = BodyProps & {}
+type BoxProps = BodyProps & {
   args?: number[] // hafExtents: [x, y, z]
 }
-declare type CylinderProps = BodyProps & {
+type CylinderProps = BodyProps & {
   args?: [number, number, number, number] // radiusTop, radiusBottom, height, numSegments
 }
-declare type SphereProps = BodyProps & {
+type SphereProps = BodyProps & {
   args?: number // radius
 }
-declare type TrimeshProps = BodyProps & {
+type TrimeshProps = BodyProps & {
   args?: [number[], number[]] // vertices: [...], indices: [...]
 }
-declare type HeightfieldProps = BodyProps & {
+type HeightfieldProps = BodyProps & {
   args?: [
     number[], // data
     {
-      minValue?: number;
-      maxValue?: number;
-      elementSize?: number;
+      minValue?: number
+      maxValue?: number
+      elementSize?: number
     }
   ]
 }
 
-declare type PlaneFn = (ref: THREE.Object3D, index?: number) => PlaneProps
-declare type BoxFn = (ref: THREE.Object3D, index?: number) => BoxProps
-declare type CylinderFn = (ref: THREE.Object3D, index?: number) => CylinderProps
-declare type HeightfieldFn = (ref: THREE.Object3D, index?: number) => HeightfieldProps
-declare type ParticleFn = (ref: THREE.Object3D, index?: number) => ParticleProps
-declare type SphereFn = (ref: THREE.Object3D, index?: number) => SphereProps
-declare type TrimeshFn = (ref: THREE.Object3D, index?: number) => TrimeshProps
+type PlaneFn = (ref: THREE.Object3D, index?: number) => PlaneProps
+type BoxFn = (ref: THREE.Object3D, index?: number) => BoxProps
+type CylinderFn = (ref: THREE.Object3D, index?: number) => CylinderProps
+type HeightfieldFn = (ref: THREE.Object3D, index?: number) => HeightfieldProps
+type ParticleFn = (ref: THREE.Object3D, index?: number) => ParticleProps
+type SphereFn = (ref: THREE.Object3D, index?: number) => SphereProps
+type TrimeshFn = (ref: THREE.Object3D, index?: number) => TrimeshProps
 ```
