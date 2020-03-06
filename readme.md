@@ -10,9 +10,21 @@ Experimental React hooks for [cannon](https://github.com/schteppe/cannon.js). Us
 - [x] Supports instancing out of the box
 - [x] Least amount of friction you'll ever experience with a physics rig ... 🙈
 
-How does it work?
+## Demos
 
-Create a physics world.
+Cube pushing spheres away: https://codesandbox.io/s/r3f-cannon-instanced-physics-devf8
+
+Heap of cubes: https://codesandbox.io/s/r3f-cannon-instanced-physics-g1s88
+
+## How it works
+
+1. Get all the imports that you need.
+
+```jsx
+import { Physics, useBox, ... } from 'use-cannon'
+```
+
+2. Create a physics world.
 
 ```jsx
 <Physics>
@@ -20,81 +32,27 @@ Create a physics world.
 </Physics>
 ```
 
-Pick a shape that suits your object best, it could be a box, plane, sphere, etc. Give it a mass, too. 
+3. Pick a shape that suits your object best, it could be a box, plane, sphere, etc. Give it a mass, too. 
 
 ```jsx
 const [ref, api] = useBox(() => ({ mass: 1 }))
 ```
 
-Now take your object, it could be a mesh, line, gltf, anything. Tie it to the reference you have just received.
+4. Take your object, it could be a mesh, line, gltf, anything, and tie it to the reference you have just received. Et voilà, it will now be affected by gravity and other objects inside the physics world automatically.
 
 ```jsx
 <mesh ref={ref} geometry={...} material={...} />
 ```
 
-The object will now be affected by gravity and other objects subscribed to the physics world.
-
-You can interact with it by using the api, which lets you apply positions and rotations.
+5. You can interact with it by using the api, which lets you apply positions and rotations.
 
 ```jsx
 useFrame(({ clock }) => api.setPosition(Math.sin(clock.getElapsedTime()) * 5,0,0))
 ```
 
-Here's how it could look like:
+## Api
 
-```jsx
-import { Phsysics, usePlane, useBox, useSphere } from 'use-cannon'
-
-function Plane() {
-  const [ref] = usePlane(() => ({ mass: 0 }))
-  return (
-    <mesh ref={ref}>
-      <planeBufferGeometry attach="geometry" />
-      <meshBasicMaterial attach="material" color="hotpink" />
-    </mesh>
-  )
-}
-
-function Box() {
-  const [ref] = useBox(() => ({ mass: 1, position: [0, 0, 10], args: [0.5, 0.5, 0.5] }))
-  return (
-    <mesh ref={ref}>
-      <boxBufferGeometry attach="geometry" />
-      <meshBasicMaterial attach="material" color="indianred" />
-    </mesh>
-  )
-}
-
-function InstancedSpheres({ number = 100 }) {
-  const [ref] = useSphere(index => ({ mass: 1, position: [0, 0, index + 10], args: 0.5 }))
-  return (
-    <instancedMesh ref={ref} args={[null, null, number]}>
-      <sphereBufferGeometry attach="geometry" />
-      <meshBasicMaterial attach="material" color="peachpuff" />
-    </instancedMesh>
-  )
-}
-
-function App() {
-  return (
-    <Physics gravity={[0, 0, -10]}>
-      <Plane />
-      <Box />
-      <InstancedSpheres />
-    </Physics>
-  )
-}
-```
-
-# Demos
-
-Cube pushing spheres away: https://codesandbox.io/s/r3f-cannon-instanced-physics-devf8
-
-Heap of cubes: https://codesandbox.io/s/r3f-cannon-instanced-physics-g1s88
-
-# Api
-
-## Exports
+### Exports
 
 ```jsx
 function Physics({ children, step, gravity, tolerance, }: PhysicsProps): React.ReactNode
@@ -108,7 +66,7 @@ function useTrimesh(fn: TrimeshFn, deps?: any[]): Api
 function useConvexPolyhedron(fn: ConvexPolyhedronFn, deps?: any[]): Api
 ```
 
-## Returned api
+### Returned api
 
 ```jsx
 type Api = [React.MutableRefObject<THREE.Object3D | undefined>, ({
@@ -119,7 +77,7 @@ type Api = [React.MutableRefObject<THREE.Object3D | undefined>, ({
 } | undefined)]
 ```
 
-## Props
+### Props
 
 ```jsx
 type PhysicsProps = {
