@@ -46,25 +46,14 @@ function InstancedSpheres({ number = 100 }) {
         .toArray(array, i * 3)
     return array
   }, [number])
+
   return (
     <instancedMesh ref={ref} castShadow receiveShadow args={[null, null, number]}>
       <sphereBufferGeometry attach="geometry" args={[1, 16, 16]}>
         <instancedBufferAttribute attachObject={['attributes', 'color']} args={[colors, 3]} />
       </sphereBufferGeometry>
-      <meshLambertMaterial attach="material" vertexColors={THREE.VertexColors} />
+      <meshPhongMaterial attach="material" vertexColors={THREE.VertexColors} />
     </instancedMesh>
-  )
-}
-
-function Walls() {
-  return (
-    <>
-      <Plane color={niceColors[17][4]} />
-      <Plane color={niceColors[17][1]} position={[-6, 0, 0]} rotation={[0, 0.9, 0]} />
-      <Plane color={niceColors[17][2]} position={[6, 0, 0]} rotation={[0, -0.9, 0]} />
-      <Plane color={niceColors[17][3]} position={[0, 6, 0]} rotation={[0.9, 0, 0]} />
-      <Plane color={niceColors[17][0]} position={[0, -6, 0]} rotation={[-0.9, 0, 0]} />
-    </>
   )
 }
 
@@ -73,7 +62,7 @@ ReactDOM.render(
     concurrent
     shadowMap
     gl={{ alpha: false }}
-    camera={{ position: [0, -12, 15] }}
+    camera={{ position: [0, -12, 16] }}
     onCreated={({ gl, camera }) => {
       camera.lookAt(0, 0, 0)
       gl.toneMapping = THREE.ACESFilmicToneMapping
@@ -89,8 +78,13 @@ ReactDOM.render(
       shadow-mapSize-width={256}
       shadow-mapSize-height={256}
     />
+    <pointLight position={[-30, 0, -30]} intensity={0.5} />
     <Physics gravity={[0, 0, -30]}>
-      <Walls />
+      <Plane color={niceColors[17][4]} />
+      <Plane color={niceColors[17][1]} position={[-6, 0, 0]} rotation={[0, 0.9, 0]} />
+      <Plane color={niceColors[17][2]} position={[6, 0, 0]} rotation={[0, -0.9, 0]} />
+      <Plane color={niceColors[17][3]} position={[0, 6, 0]} rotation={[0.9, 0, 0]} />
+      <Plane color={niceColors[17][0]} position={[0, -6, 0]} rotation={[-0.9, 0, 0]} />
       <Box />
       <InstancedSpheres number={100} />
     </Physics>
