@@ -2,8 +2,6 @@
 
 ![Imgur](https://imgur.com/FpBsJPL.jpg)
 
-<br/>
-
     yarn add use-cannon
 
 Experimental React hooks for [cannon](https://github.com/schteppe/cannon.js). Use this in combination with [react-three-fiber](https://github.com/react-spring/react-three-fiber). 
