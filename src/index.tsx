@@ -50,7 +50,6 @@ type BodyProps = {
 }
 
 type ShapeType = 'Plane' | 'Box' | 'Cylinder' | 'Heightfield' | 'Particle' | 'Sphere' | 'Trimesh'
-
 type PlaneProps = BodyProps & {}
 type BoxProps = BodyProps & { args?: number[] }
 type CylinderProps = BodyProps & { args?: [number, number, number, number] }
@@ -69,7 +68,6 @@ type HeightfieldFn = (index: number) => HeightfieldProps
 type ParticleFn = (index: number) => ParticleProps
 type SphereFn = (index: number) => SphereProps
 type TrimeshFn = (index: number) => TrimeshProps
-
 type ArgFn = (props: any) => any[]
 
 type Api = [
@@ -110,9 +108,8 @@ export function Physics({
       worker.postMessage({ op: 'init', props: { gravity, tolerance, step, iterations } })
 
       function loop() {
-        if (positions.byteLength !== 0 && quaternions.byteLength !== 0) {
+        if (positions.byteLength !== 0 && quaternions.byteLength !== 0)
           worker.postMessage({ op: 'step', positions, quaternions }, [positions.buffer, quaternions.buffer])
-        }
       }
 
       worker.onmessage = (e: WorkerEvent) => {
