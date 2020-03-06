@@ -27,11 +27,7 @@ function Plane() {
 }
 
 function Box() {
-  const [ref, api] = useBox(() => ({
-    mass: 1,
-    position: [0, 0, 10],
-    args: [0.5, 0.5, 0.5],
-  }))
+  const [ref] = useBox(() => ({ mass: 1, position: [0, 0, 10], args: [0.5, 0.5, 0.5] }))
   return (
     <mesh ref={ref}>
       <boxBufferGeometry attach="geometry" />
@@ -40,11 +36,7 @@ function Box() {
 }
 
 function InstancedSpheres({ number = 100 }) {
-  const [ref, api] = useSphere(index => ({
-    mass: 1,
-    position: [0, 0, index + 10],
-    args: 0.5,
-  }))
+  const [ref] = useSphere(index => ({  mass: 1, position: [0, 0, index + 10], args: 0.5 }))
   return (
     <instancedMesh ref={ref} args={[null, null, number]}>
       <sphereBufferGeometry attach="geometry" />
