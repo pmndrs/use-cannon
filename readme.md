@@ -10,7 +10,7 @@ Experimental React hooks for [cannon](https://github.com/schteppe/cannon.js). Us
 - [x] Supports instancing out of the box
 - [x] Least amount of friction you'll ever experience with a physics rig ... 🙈
 
-How does it work?
+# How it works
 
 1. Get all the imports that you need.
 
