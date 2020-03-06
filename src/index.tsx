@@ -48,7 +48,7 @@ type BodyProps = {
   fixedRotation?: boolean
 }
 
-type ShapeType = 'Plane' | 'Box' | 'Cylinder' | 'Heightfield' | 'Particle' | 'Sphere' | 'Trimesh'
+type ShapeType = 'Plane' | 'Box' | 'Cylinder' | 'Heightfield' | 'Particle' | 'Sphere' | 'Trimesh' | 'ConvexPolyhedron'
 
 type PlaneProps = BodyProps & {}
 type BoxProps = BodyProps & { args?: number[] }
@@ -56,6 +56,7 @@ type CylinderProps = BodyProps & { args?: [number, number, number, number] }
 type ParticleProps = BodyProps & {}
 type SphereProps = BodyProps & { args?: number }
 type TrimeshProps = BodyProps & { args?: [number[], number[]] }
+type ConvexPolyhedronProps = BodyProps & { args?: [{ vertices: number[], faces: number[] }] }
 type HeightfieldProps = BodyProps & {
   args?: [number[], { minValue?: number; maxValue?: number; elementSize?: number }]
 }
@@ -68,6 +69,7 @@ type HeightfieldFn = (ref: THREE.Object3D, index?: number) => HeightfieldProps
 type ParticleFn = (ref: THREE.Object3D, index?: number) => ParticleProps
 type SphereFn = (ref: THREE.Object3D, index?: number) => SphereProps
 type TrimeshFn = (ref: THREE.Object3D, index?: number) => TrimeshProps
+type ConvexPolyhedronFn = (ref: THREE.Object3D, index?: number) => ConvexPolyhedronProps
 
 type ArgFn = (props: any) => any[]
 
@@ -290,4 +292,7 @@ export function useSphere(fn: SphereFn, deps: any[] = []) {
 }
 export function useTrimesh(fn: TrimeshFn, deps: any[] = []) {
   return useBody('Trimesh', fn, args => args, deps)
+}
+export function useConvexPolyhedron(fn: ConvexPolyhedronFn, deps: any[] = []) {
+  return useBody('ConvexPolyhedron', fn, args => args, deps)
 }
