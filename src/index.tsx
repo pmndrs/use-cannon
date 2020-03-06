@@ -9,11 +9,12 @@ type PhysicsProps = {
   gravity?: number[]
   tolerance?: number
   step?: number
+  iterations?: number
 }
 
 type PhysicsContext = {
   worker: Worker | undefined
-  bodies: { [uuid: string]: number }
+  bodies: React.MutableRefObject<{ [uuid: string]: number }>
   setRef: React.Dispatch<React.SetStateAction<Refs>>
 }
 
@@ -92,10 +93,11 @@ export function Physics({
   step = 1 / 60,
   gravity = [0, -10, 0],
   tolerance = 0.001,
+  iterations = 5,
 }: PhysicsProps): React.ReactNode {
   const [worker] = useState<Worker>(() => new CannonWorker() as Worker)
   const [refs, setRef] = useState<Refs>({})
-  const [bodies, setBodies] = useState<{ [uuid: string]: number }>({})
+  const bodies = useRef<{ [uuid: string]: number }>({})
   const count = useMemo(() => Object.keys(refs).length, [refs])
 
   useEffect(() => {
@@ -104,7 +106,7 @@ export function Physics({
       let quaternions = new Float32Array(count * 4)
 
       // Initialize worker
-      worker.postMessage({ op: 'init', props: { gravity, tolerance, step } })
+      worker.postMessage({ op: 'init', props: { gravity, tolerance, step, iterations } })
 
       function loop() {
         if (positions.byteLength !== 0 && quaternions.byteLength !== 0) {
@@ -122,7 +124,7 @@ export function Physics({
             break
           }
           case 'sync': {
-            setBodies(e.data.bodies.reduce((acc, id) => ({ ...acc, [id]: e.data.bodies.indexOf(id) }), {}))
+            bodies.current = e.data.bodies.reduce((acc, id) => ({ ...acc, [id]: e.data.bodies.indexOf(id) }), {})
             break
           }
           default:
@@ -216,7 +218,7 @@ export function useBody(type: ShapeType, fn: BodyFn, argFn: ArgFn, deps: any[] =
     if (ref.current && buffers.current && buffers.current.positions.length) {
       if (ref.current instanceof THREE.InstancedMesh) {
         for (let i = 0; i < ref.current.count; i++) {
-          const index = bodies[`${ref.current.uuid}/${i}`]
+          const index = bodies.current[`${ref.current.uuid}/${i}`]
           if (index !== undefined) {
             temp.position.fromArray(buffers.current.positions, index * 3)
             temp.quaternion.fromArray(buffers.current.quaternions, index * 4)
@@ -226,7 +228,7 @@ export function useBody(type: ShapeType, fn: BodyFn, argFn: ArgFn, deps: any[] =
           ref.current.instanceMatrix.needsUpdate = true
         }
       } else {
-        const index = bodies[ref.current.uuid]
+        const index = bodies.current[ref.current.uuid]
         if (index !== undefined) {
           ref.current.position.fromArray(buffers.current.positions, index * 3)
           ref.current.quaternion.fromArray(buffers.current.quaternions, index * 4)
@@ -240,18 +242,18 @@ export function useBody(type: ShapeType, fn: BodyFn, argFn: ArgFn, deps: any[] =
       return {
         setPosition(x: number, y: number, z: number) {
           if (ref.current)
-            worker.postMessage({ op: 'setPosition', uuid: ref.current.uuid, props: { position: [x, y, z] } })
+            worker.postMessage({ op: 'setPosition', uuid: ref.current.uuid, props: [x, y, z] })
         },
         setRotation(x: number, y: number, z: number) {
           if (ref.current)
-            worker.postMessage({ op: 'setRotation', uuid: ref.current.uuid, props: { rotation: [x, y, z] } })
+            worker.postMessage({ op: 'setRotation', uuid: ref.current.uuid, props: [x, y, z] })
         },
         setPositionAt(index: number, x: number, y: number, z: number) {
           if (ref.current)
             worker.postMessage({
               op: 'setPosition',
               uuid: `${ref.current.uuid}/${index}`,
-              props: { position: [x, y, z] },
+              props: [x, y, z],
             })
         },
         setRotationAt(index: number, x: number, y: number, z: number) {
@@ -259,7 +261,7 @@ export function useBody(type: ShapeType, fn: BodyFn, argFn: ArgFn, deps: any[] =
             worker.postMessage({
               op: 'setRotation',
               uuid: `${ref.current.uuid}/${index}`,
-              props: { rotation: [x, y, z] },
+              props: [x, y, z],
             })
         },
       }

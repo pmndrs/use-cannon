@@ -24,10 +24,11 @@ function task(e, sync = true) {
 
   switch (op) {
     case 'init': {
-      const { gravity, tolerance, step } = props
+      const { gravity, tolerance, step, iterations } = props
       world.gravity.set(gravity[0], gravity[1], gravity[2])
-      world.solver.tolerance = props.tolerance
-      config.step = props.step
+      world.solver.tolerance = tolerance
+      world.solver.iterations = iterations
+      config.step = step
       break
     }
     case 'step': {
@@ -122,13 +123,11 @@ function task(e, sync = true) {
       break
     }
     case 'setPosition': {
-      const { position } = props
-      bodies[uuid].position.set(position[0], position[1], position[2])
+      bodies[uuid].position.set(props[0], props[1], props[2])
       break
     }
     case 'setRotation': {
-      const { rotation } = props
-      bodies[uuid].rotation.set(rotation[0], rotation[1], rotation[2])
+      bodies[uuid].rotation.set(props[0], props[1], props[2])
       break
     }
     default:
