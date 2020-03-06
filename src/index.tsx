@@ -30,36 +30,32 @@ type Refs = {
   [uuid: string]: THREE.Object3D
 }
 
-type ShapeProps = {
+type BodyProps = {
+  args?: any
   position?: number[]
   rotation?: number[]
   scale?: number[]
   mass?: number
+  velocity?: number[]
+  linearDamping?: number
+  angularDamping?: number
+  allowSleep?: boolean
+  sleepSpeedLimit?: number
+  sleepTimeLimit?: number
+  collisionFilterGroup?: number
+  collisionFilterMask?: number
+  fixedRotation?: boolean
 }
 
 type ShapeType = 'Plane' | 'Box' | 'Cylinder' | 'Heightfield' | 'Particle' | 'Sphere' | 'Trimesh'
 
-type BodyProps = ShapeProps & {
-  args?: any
-}
-
-type PlaneProps = ShapeProps & {}
-
-type BoxProps = ShapeProps & {
-  args?: {
-    halfExtents?: number[]
-  }
-}
-
-type CylinderProps = ShapeProps & {
-  args?: {
-    radiusTop?: number
-    radiusBottom?: number
-    height?: number
-    numSegments?: number
-  }
-}
-type HeightfieldProps = ShapeProps & {
+type PlaneProps = BodyProps & {}
+type BoxProps = BodyProps & { args?: number[] }
+type CylinderProps = BodyProps & { args?: [number, number, number, number] }
+type ParticleProps = BodyProps & {}
+type SphereProps = BodyProps & { args?: number }
+type TrimeshProps = BodyProps & { args?: [number[], number[]] }
+type HeightfieldProps = BodyProps & {
   args?: {
     data?: number[]
     options: {
@@ -67,20 +63,6 @@ type HeightfieldProps = ShapeProps & {
       maxValue?: number
       elementSize?: number
     }
-  }
-}
-type ParticleProps = ShapeProps & {}
-
-type SphereProps = ShapeProps & {
-  args?: {
-    radius?: number
-  }
-}
-
-type TrimeshProps = ShapeProps & {
-  args?: {
-    vertices?: number[]
-    indices?: number[]
   }
 }
 
@@ -180,7 +162,7 @@ export function useBody(type: ShapeType, fn: BodyFn, argFn: ArgFn, deps: any[] =
         // Collect props
         const props = uuid.map((id, i) => {
           const props = fn(object, i)
-          props.args = argFn(props.args || {})
+          if (props.args) props.args = argFn(props.args)
           return props
         })
         // Set start-up position values
@@ -213,7 +195,7 @@ export function useBody(type: ShapeType, fn: BodyFn, argFn: ArgFn, deps: any[] =
         const uuid = object.uuid
         // Collect props
         const props = fn(object)
-        props.args = argFn(props.args || {})
+        if (props.args) props.args = argFn(props.args)
         // Set start-up position values
         if (props.position) object.position.set(...(props.position as [number, number, number]))
         if (props.rotation) object.rotation.set(...(props.rotation as [number, number, number]))
@@ -296,17 +278,11 @@ export function useBody(type: ShapeType, fn: BodyFn, argFn: ArgFn, deps: any[] =
 export function usePlane(fn: PlaneFn, deps: any[] = []) {
   return useBody('Plane', fn, () => [], deps)
 }
-
 export function useBox(fn: BoxFn, deps: any[] = []) {
-  return useBody('Box', fn, ({ halfExtents }) => halfExtents, deps)
+  return useBody('Box', fn, args => args, deps)
 }
 export function useCylinder(fn: CylinderFn, deps: any[] = []) {
-  return useBody(
-    'Cylinder',
-    fn,
-    ({ radiusTop, radiusBottom, height, numSegments }) => [radiusTop, radiusBottom, height, numSegments],
-    deps
-  )
+  return useBody('Cylinder', fn, args => args, deps)
 }
 export function useHeightfield(fn: HeightfieldFn, deps: any[] = []) {
   return useBody('Heightfield', fn, () => [], deps)
@@ -315,8 +291,8 @@ export function useParticle(fn: ParticleFn, deps: any[] = []) {
   return useBody('Particle', fn, () => [], deps)
 }
 export function useSphere(fn: SphereFn, deps: any[] = []) {
-  return useBody('Sphere', fn, ({ radius }) => [radius], deps)
+  return useBody('Sphere', fn, radius => [radius], deps)
 }
 export function useTrimesh(fn: TrimeshFn, deps: any[] = []) {
-  return useBody('Trimesh', fn, ({ vertices, indices }) => [vertices, indices], deps)
+  return useBody('Trimesh', fn, args => args, deps)
 }
