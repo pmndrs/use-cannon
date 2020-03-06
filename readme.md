@@ -12,7 +12,13 @@ Experimental React hooks for [cannon](https://github.com/schteppe/cannon.js). Us
 
 How does it work?
 
-Create a physics world.
+1. Get all the imports that you need.
+
+```jsx
+import { Physics, useBox, ... } from 'use-cannon'
+```
+
+2. Create a physics world.
 
 ```jsx
 <Physics>
@@ -20,21 +26,19 @@ Create a physics world.
 </Physics>
 ```
 
-Pick a shape that suits your object best, it could be a box, plane, sphere, etc. Give it a mass, too. 
+3. Pick a shape that suits your object best, it could be a box, plane, sphere, etc. Give it a mass, too. 
 
 ```jsx
 const [ref, api] = useBox(() => ({ mass: 1 }))
 ```
 
-Now take your object, it could be a mesh, line, gltf, anything. Tie it to the reference you have just received.
+4. Now take your object, it could be a mesh, line, gltf, anything. Tie it to the reference you have just received. The object will then be affected by gravity and other objects subscribed to the physics world.
 
 ```jsx
 <mesh ref={ref} geometry={...} material={...} />
 ```
 
-The object will now be affected by gravity and other objects subscribed to the physics world.
-
-You can interact with it by using the api, which lets you apply positions and rotations.
+5. You can interact with it by using the api, which lets you apply positions and rotations.
 
 ```jsx
 useFrame(({ clock }) => api.setPosition(Math.sin(clock.getElapsedTime()) * 5,0,0))
