@@ -2,7 +2,7 @@ import * as THREE from 'three'
 import ReactDOM from 'react-dom'
 import React, { useMemo } from 'react'
 import { Canvas, useFrame } from 'react-three-fiber'
-import { Physics, useBox, usePlane, useSphere } from '../../dist/index'
+import { Physics, useBox, usePlane, useSphere } from 'use-cannon'
 import niceColors from 'nice-color-palettes'
 import './styles.css'
 
@@ -20,7 +20,7 @@ function Box() {
   useFrame(state => {
     const t = state.clock.getElapsedTime()
     api.setPosition(Math.sin(t * 2) * 5, Math.cos(t * 2) * 5, 3)
-    api.setRotation(Math.sin(t * 2), Math.cos(t * 2), 0)
+    api.setRotation(Math.sin(t * 6), Math.cos(t * 6), 0)
   })
   return (
     <mesh ref={ref} castShadow receiveShadow>
