@@ -20,14 +20,14 @@ const getBabelOptions = ({ useESModules }, targets) => ({
 
 export default [
   {
-    input: `./src/index.ts`,
+    input: `./src/index.tsx`,
     output: { file: `dist/index.js`, format: 'esm' },
     external,
     plugins: [
-      worker({ pattern: /\/worker$/ }),
+      worker({ pattern: /.*\/worker$/ }),
       resolve({ extensions }),
       babel(getBabelOptions({ useESModules: true }, '>1%, not dead, not ie 11, not op_mini all')),
-      terser(),
+      //terser(),
     ],
   },
 ]

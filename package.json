@@ -1,6 +1,6 @@
 {
   "name": "use-cannon",
-  "version": "0.0.9",
+  "version": "0.1.0-beta.0",
   "description": "cannon hooks for react-three-fiber",
   "keywords": [
     "cannon",
@@ -10,10 +10,11 @@
   ],
   "author": "Paul Henschel",
   "license": "MIT",
-  "module": "./dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/types.d.ts",
   "sideEffects": false,
   "scripts": {
-    "prebuild": "rimraf dist",
+    "prebuild": "rimraf dist && npm run typegen",
     "build": "rollup -c",
     "prepare": "npm run build",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false --strict --jsx react",
