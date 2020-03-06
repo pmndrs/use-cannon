@@ -4,11 +4,15 @@
 
     yarn add use-cannon
 
-Live demo: https://codesandbox.io/s/r3f-cannon-instanced-physics-devf8
-
 Experimental web-worker based React hooks for cannon (using [cannon-es](https://github.com/drcmda/cannon-es)) in combination with [react-three-fiber](https://github.com/react-spring/react-three-fiber). Right now it only supports planes and boxes, for individual objects or instanced objects. The public api can only set positions for now. If you need more, please submit your PRs.
 
 How does it work? It subscribes the view part of a component to cannons physics world and unsubscribes on unmount. You don't put position/rotation/scale into the mesh any longer, you put it into the hook, which takes care of forwarding all movements.
+
+# Demos
+
+Cubes pushing spheres away: https://codesandbox.io/s/r3f-cannon-instanced-physics-devf8
+
+Heap of cubes: https://codesandbox.io/s/r3f-cannon-instanced-physics-g1s88
 
 # Api
 
