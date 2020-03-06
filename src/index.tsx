@@ -158,7 +158,7 @@ export function useBody(type: ShapeType, fn: BodyFn, argFn: ArgFn, deps: any[] =
         object.instanceMatrix.setUsage(THREE.DynamicDrawUsage)
         // Collect props
         const props = uuid.map((id, i) => {
-          const props = fn(object, i)
+          const props = fn(i)
           if (props.args) props.args = argFn(props.args)
           return props
         })
@@ -191,7 +191,7 @@ export function useBody(type: ShapeType, fn: BodyFn, argFn: ArgFn, deps: any[] =
       } else {
         const uuid = object.uuid
         // Collect props
-        const props = fn(object)
+        const props = fn()
         if (props.args) props.args = argFn(props.args)
         // Set start-up position values
         if (props.position) object.position.set(...(props.position as [number, number, number]))
@@ -243,12 +243,10 @@ export function useBody(type: ShapeType, fn: BodyFn, argFn: ArgFn, deps: any[] =
     if (worker)
       return {
         setPosition(x: number, y: number, z: number) {
-          if (ref.current)
-            worker.postMessage({ op: 'setPosition', uuid: ref.current.uuid, props: [x, y, z] })
+          if (ref.current) worker.postMessage({ op: 'setPosition', uuid: ref.current.uuid, props: [x, y, z] })
         },
         setRotation(x: number, y: number, z: number) {
-          if (ref.current)
-            worker.postMessage({ op: 'setRotation', uuid: ref.current.uuid, props: [x, y, z] })
+          if (ref.current) worker.postMessage({ op: 'setRotation', uuid: ref.current.uuid, props: [x, y, z] })
         },
         setPositionAt(index: number, x: number, y: number, z: number) {
           if (ref.current)
