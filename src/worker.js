@@ -49,15 +49,7 @@ function task(e, sync = true) {
       break
     }
     case 'addBody': {
-      const {
-        args = [],
-        mesh = null,
-        position = [0, 0, 0],
-        rotation = [0, 0, 0],
-        scale = [1, 1, 1],
-        isKinematic,
-        ...extra
-      } = props
+      const { args = [], position = [0, 0, 0], rotation = [0, 0, 0], scale = [1, 1, 1], isKinematic, ...extra } = props
 
       const body = new Body({
         ...extra,
@@ -71,21 +63,11 @@ function task(e, sync = true) {
           body.addShape(new Box(new Vec3(...args))) // halfExtents
           break
         case 'ConvexPolyhedron':
-          // 'mesh' must contain data structured as THREE.Geometry vertex and faces arrays
-          // Convert from THREE.Vector3 to CANNON.Vec3
-          const vertices = new Array(mesh.vertices.length)
-          for (let i = 0; i < vertices.length; i++) {
-            vertices[i] = new Vec3(mesh.vertices[i].x, mesh.vertices[i].y, mesh.vertices[i].z)
-          }
-
-          // Convert from THREE.Face3 to Cannon-compatible Array
-          const faces = new Array(mesh.faces.length)
-          for (let i = 0; i < mesh.faces.length; i++) {
-            faces[i] = [mesh.faces[i].a, mesh.faces[i].b, mesh.faces[i].c]
-          }
-
-          // NOTE: You can sometimes get away with *concave* meshes depending on what you are doing.
-          // non-convex meshes will however produce errors in inopportune collisions
+          const [v, f] = args
+          const vertices = new Array(v.length)
+          for (let i = 0; i < vertices.length; i++) vertices[i] = new Vec3(v[i][0], v[i][1], v[i][2])
+          const faces = new Array(f.length)
+          for (let i = 0; i < f.length; i++) faces[i] = [f[i][0], f[i][1], f[i][2]]
           body.addmesh(new ConvexPolyhedron(vertices, faces))
           break
         case 'Cylinder':
@@ -141,8 +123,6 @@ function task(e, sync = true) {
       bodies[uuid].quaternion.setFromEuler(props[0], props[1], props[2], 'XYZ')
       break
     }
-    default:
-      break
   }
 }
 

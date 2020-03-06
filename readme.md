@@ -123,7 +123,7 @@ type SphereProps = BodyProps & {
   args?: number // radius
 }
 type TrimeshProps = BodyProps & {
-  args?: [number[], number[]] // vertices: [...], indices: [...]
+  args?: [number[][], number[][]] // vertices: [[...], ...], faces: [[...], ...]
 }
 type HeightfieldProps = BodyProps & {
   args?: [

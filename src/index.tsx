@@ -56,7 +56,7 @@ type BoxProps = BodyProps & { args?: number[] }
 type CylinderProps = BodyProps & { args?: [number, number, number, number] }
 type ParticleProps = BodyProps & {}
 type SphereProps = BodyProps & { args?: number }
-type TrimeshProps = BodyProps & { args?: [number[], number[]] }
+type TrimeshProps = BodyProps & { args?: [number[][], number[][]] }
 type HeightfieldProps = BodyProps & {
   args?: [number[], { minValue?: number; maxValue?: number; elementSize?: number }]
 }
@@ -128,8 +128,6 @@ export function Physics({
             bodies.current = e.data.bodies.reduce((acc, id) => ({ ...acc, [id]: e.data.bodies.indexOf(id) }), {})
             break
           }
-          default:
-            break
         }
       }
       loop()
