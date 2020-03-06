@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/react-spring/use-cannon.svg?branch=master)](https://travis-ci.org/react-spring/use-cannon) [![npm version](https://badge.fury.io/js/use-cannon.svg)](https://badge.fury.io/js/use-cannon) ![npm](https://img.shields.io/npm/dt/use-cannon.svg)
+
 ![Imgur](https://imgur.com/FpBsJPL.jpg)
 
 <br/>
