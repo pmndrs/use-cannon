@@ -55,7 +55,17 @@ useFrame(({ clock }) => api.setPosition(Math.sin(clock.getElapsedTime()) * 5,0,0
 ### Exports
 
 ```jsx
-function Physics({ children, step, gravity, tolerance, }: PhysicsProps): JSX.Element
+function Physics({ 
+  children,
+  step = 1 / 60,
+  gravity = [0, -10, 0],
+  tolerance = 0.001,
+  iterations = 5,
+  // Maximum amount of physics objects inside your scene
+  // Lower this value to save memory, increase if 1000 isn't enough
+  size = 1000
+}: PhysicsProps): JSX.Element
+
 function usePlane(fn: PlaneFn, deps?: any[]): Api
 function useBox(fn: BoxFn, deps?: any[]): Api
 function useCylinder(fn: CylinderFn, deps?: any[]): Api
@@ -82,13 +92,11 @@ type Api = [React.MutableRefObject<THREE.Object3D | undefined>, ({
 ```jsx
 type PhysicsProps = {
   children: React.ReactNode
-  gravity?: number[] = [0, -10, 0]
-  tolerance?: number = 0.001
-  step?: number = 1 / 60
-  iterations?: number = 5
-  // Maximum amount of physics objects inside your scene
-  // Lower this value to save memory, increase if 1000 isn't enough
-  size?: number = 1000
+  gravity?: number[]
+  tolerance?: number
+  step?: number
+  iterations?: number
+  size?: number
 }
 
 type BodyProps = {

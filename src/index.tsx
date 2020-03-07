@@ -28,10 +28,6 @@ type WorkerEvent = {
   }
 }
 
-type Refs = {
-  [uuid: string]: THREE.Object3D
-}
-
 type BodyProps = {
   args?: any
   position?: number[]
@@ -96,7 +92,7 @@ export function Physics({
   tolerance = 0.001,
   iterations = 5,
   size = 1000,
-}: PhysicsProps): JSX.Element | null {
+}: PhysicsProps): JSX.Element {
   const [worker] = useState<Worker>(() => new CannonWorker() as Worker)
   const [buffers] = useState(() => ({ positions: new Float32Array(size * 3), quaternions: new Float32Array(size * 4) }))
   const bodies = useRef<{ [uuid: string]: number }>({})
