@@ -64,7 +64,7 @@ function task(e, sync = true) {
           break
         case 'ConvexPolyhedron':
           const [v, f] = args
-          body.addmesh(
+          body.addShape(
             new ConvexPolyhedron(
               v.map(([x, y, z]) => new Vec3(x, y, z)),
               f
