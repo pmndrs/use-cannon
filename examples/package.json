@@ -8,8 +8,10 @@
     "nice-color-palettes": "3.0.0",
     "react": "16.13.0",
     "react-dom": "16.13.0",
+    "react-router-dom": "^5.1.2",
     "react-scripts": "3.4.0",
     "react-three-fiber": "4.0.19",
+    "styled-components": "^5.0.1",
     "three": "0.114.0",
     "use-cannon": "0.1.4"
   },
