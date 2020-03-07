@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import React, { useState, useEffect, useContext, useRef, useMemo } from 'react'
+import React, { useState, useEffect, useLayoutEffect, useContext, useRef, useMemo } from 'react'
 import { useFrame } from 'react-three-fiber'
 // @ts-ignore
 import CannonWorker from '../src/worker'
@@ -131,7 +131,7 @@ export function Physics({
 export function useBody(type: ShapeType, fn: BodyFn, argFn: ArgFn, deps: any[] = []): Api {
   const ref = useRef<THREE.Object3D>()
   const { worker, bodies, buffers } = useContext(context)
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (ref.current) {
       const object = ref.current
       const currentWorker = worker

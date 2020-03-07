@@ -33,13 +33,13 @@ import { Physics, useBox, ... } from 'use-cannon'
 3. Pick a shape that suits your object best, it could be a box, plane, sphere, etc. Give it a mass, too.
 
 ```jsx
-const [ref, api] = useBox(() => ({ mass: 1 }))
+const [bind, api] = useBox(() => ({ mass: 1 }))
 ```
 
-4. Take your object, it could be a mesh, line, gltf, anything, and tie it to the reference you have just received. Et voilà, it will now be affected by gravity and other objects inside the physics world automatically.
+4. Take your object, it could be a mesh, line, gltf, anything, and bind it to the reference you have just received. Et voilà, it will now be affected by gravity and other objects inside the physics world automatically.
 
 ```jsx
-<mesh ref={ref} geometry={...} material={...} />
+<mesh {...bind} geometry={...} material={...} />
 ```
 
 5. You can interact with it by using the api, which lets you apply positions and rotations.
@@ -52,7 +52,7 @@ useFrame(({ clock }) => api.setPosition(Math.sin(clock.getElapsedTime()) * 5, 0,
 
 ### Exports
 
-```jsx
+```typescript
 function Physics({
   children,
   step = 1 / 60,
@@ -61,7 +61,7 @@ function Physics({
   iterations = 5,
   // Maximum amount of physics objects inside your scene
   // Lower this value to save memory, increase if 1000 isn't enough
-  size = 1000
+  size = 1000,
 }: PhysicsProps): JSX.Element
 
 function usePlane(fn: PlaneFn, deps?: any[]): Api
@@ -76,18 +76,24 @@ function useConvexPolyhedron(fn: ConvexPolyhedronFn, deps?: any[]): Api
 
 ### Returned api
 
-```jsx
-type Api = [React.MutableRefObject<THREE.Object3D | undefined>, ({
-  setPosition: (x: number, y: number, z: number) => void
-  setRotation: (x: number, y: number, z: number) => void
-  setPositionAt: (index: number, x: number, y: number, z: number) => void
-  setRotationAt: (index: number, x: number, y: number, z: number) => void
-} | undefined)]
+```typescript
+type Api = [
+  { ref: React.MutableRefObject<THREE.Object3D | undefined>; visible: boolean },
+  (
+    | {
+        setPosition: (x: number, y: number, z: number) => void
+        setRotation: (x: number, y: number, z: number) => void
+        setPositionAt: (index: number, x: number, y: number, z: number) => void
+        setRotationAt: (index: number, x: number, y: number, z: number) => void
+      }
+    | undefined
+  )
+]
 ```
 
 ### Props
 
-```jsx
+```typescript
 type PhysicsProps = {
   children: React.ReactNode
   gravity?: number[]
@@ -129,9 +135,10 @@ type TrimeshProps = BodyProps & {
   args?: [number[][], number[][]] // vertices: [[x, y, z], ...], indices: [[a, b, c], ...]
 }
 type ConvexPolyhedronProps = BodyProps & {
-  args?: THREE.Geometry |
-  // vertices: [[x, y, z], ...], faces: [[a, b, c], ...]
-  [(THREE.Vector3 | number[])[], (THREE.Face3 | number[])[]]
+  args?:
+    | THREE.Geometry
+    // vertices: [[x, y, z], ...], faces: [[a, b, c], ...]
+    | [(THREE.Vector3 | number[])[], (THREE.Face3 | number[])[]]
 }
 type HeightfieldProps = BodyProps & {
   args?: [

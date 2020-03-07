@@ -5,8 +5,9 @@ import { Physics, useBox, usePlane, useSphere } from 'use-cannon'
 import niceColors from 'nice-color-palettes'
 
 function Plane({ color, ...props }) {
+  const [ref] = usePlane(() => ({ mass: 0, ...props }))
   return (
-    <mesh ref={usePlane(() => ({ mass: 0, ...props }))[0]} receiveShadow>
+    <mesh ref={ref} receiveShadow>
       <planeBufferGeometry attach="geometry" args={[1000, 1000]} />
       <meshPhongMaterial attach="material" color={color} />
     </mesh>
