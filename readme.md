@@ -4,7 +4,7 @@
 
     yarn add use-cannon
 
-Experimental React hooks for [cannon](https://github.com/schteppe/cannon.js). Use this in combination with [react-three-fiber](https://github.com/react-spring/react-three-fiber). 
+Experimental React hooks for [cannon](https://github.com/schteppe/cannon.js). Use this in combination with [react-three-fiber](https://github.com/react-spring/react-three-fiber).
 
 - [x] Doesn't block the main thread, runs in a web worker
 - [x] Supports instancing out of the box
@@ -27,12 +27,10 @@ import { Physics, useBox, ... } from 'use-cannon'
 2. Create a physics world.
 
 ```jsx
-<Physics>
-  {/* Physics related objects in here please */}
-</Physics>
+<Physics>{/* Physics related objects in here please */}</Physics>
 ```
 
-3. Pick a shape that suits your object best, it could be a box, plane, sphere, etc. Give it a mass, too. 
+3. Pick a shape that suits your object best, it could be a box, plane, sphere, etc. Give it a mass, too.
 
 ```jsx
 const [ref, api] = useBox(() => ({ mass: 1 }))
@@ -47,7 +45,7 @@ const [ref, api] = useBox(() => ({ mass: 1 }))
 5. You can interact with it by using the api, which lets you apply positions and rotations.
 
 ```jsx
-useFrame(({ clock }) => api.setPosition(Math.sin(clock.getElapsedTime()) * 5,0,0))
+useFrame(({ clock }) => api.setPosition(Math.sin(clock.getElapsedTime()) * 5, 0, 0))
 ```
 
 ## Api
@@ -55,7 +53,7 @@ useFrame(({ clock }) => api.setPosition(Math.sin(clock.getElapsedTime()) * 5,0,0
 ### Exports
 
 ```jsx
-function Physics({ 
+function Physics({
   children,
   step = 1 / 60,
   gravity = [0, -10, 0],
@@ -131,7 +129,9 @@ type TrimeshProps = BodyProps & {
   args?: [number[][], number[][]] // vertices: [[x, y, z], ...], indices: [[a, b, c], ...]
 }
 type ConvexPolyhedronProps = BodyProps & {
-  args?: [number[][], number[][]] // vertices: [[x, y, z], ...], faces: [[a, b, c], ...]
+  args?: THREE.Geometry |
+  // vertices: [[x, y, z], ...], faces: [[a, b, c], ...]
+  [(THREE.Vector3 | number[])[], (THREE.Face3 | number[])[]]
 }
 type HeightfieldProps = BodyProps & {
   args?: [
