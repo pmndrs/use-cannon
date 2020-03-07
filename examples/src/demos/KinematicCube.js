@@ -56,16 +56,7 @@ function InstancedSpheres({ number = 100 }) {
 }
 
 export default () => (
-  <Canvas
-    concurrent
-    shadowMap
-    gl={{ alpha: false }}
-    camera={{ position: [0, -12, 16] }}
-    onCreated={({ gl, camera }) => {
-      camera.lookAt(0, 0, 0)
-      gl.toneMapping = THREE.ACESFilmicToneMapping
-      gl.outputEncoding = THREE.sRGBEncoding
-    }}>
+  <Canvas concurrent shadowMap sRGB gl={{ alpha: false }} camera={{ position: [0, -12, 16] }}>
     <hemisphereLight intensity={0.35} />
     <spotLight
       position={[30, 0, 30]}

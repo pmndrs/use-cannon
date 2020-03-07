@@ -10,10 +10,10 @@
     "react-dom": "16.13.0",
     "react-router-dom": "^5.1.2",
     "react-scripts": "3.4.0",
-    "react-three-fiber": "4.0.19",
+    "react-three-fiber": "4.0.20",
     "styled-components": "^5.0.1",
     "three": "0.114.0",
-    "use-cannon": "0.1.4"
+    "use-cannon": "0.1.8"
   },
   "devDependencies": {
     "customize-cra": "^0.9.1",

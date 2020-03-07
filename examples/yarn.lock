@@ -8883,10 +8883,10 @@ react-scripts@3.4.0:
   optionalDependencies:
     fsevents "2.1.2"
 
-react-three-fiber@4.0.19:
-  version "4.0.19"
-  resolved "https://registry.yarnpkg.com/react-three-fiber/-/react-three-fiber-4.0.19.tgz#b266267df489152f1b4cc11607f8634d152cf633"
-  integrity sha512-D3cMG6KrsyE9Oj+t0yoQpAMGSxkGOChoBjS9vmZjg32DUZ6NxRAXxVkEULutcBuFSLWek0ye8z+MUeiDwdqYAg==
+react-three-fiber@4.0.20:
+  version "4.0.20"
+  resolved "https://registry.yarnpkg.com/react-three-fiber/-/react-three-fiber-4.0.20.tgz#c043f504a97fa5b5f0472515c768cdbc1c840ac5"
+  integrity sha512-UL0p2mQlYG/bcwTnxWNyDbR2KaKN/yXcZdAGqyzp4b7UUA81HEnk01wNZcxrS8RodYFRznarjyJ/emDI8tXKKQ==
   dependencies:
     "@babel/runtime" "^7.7.7"
     "@juggle/resize-observer" "^3.0.2"
@@ -10559,10 +10559,10 @@ url@^0.11.0:
     punycode "1.3.2"
     querystring "0.2.0"
 
-use-cannon@0.1.4:
-  version "0.1.4"
-  resolved "https://registry.yarnpkg.com/use-cannon/-/use-cannon-0.1.4.tgz#08594710ac35dd33c6e174f703e7137e51f130b7"
-  integrity sha512-2YDyumWRluhsLJswYbHqSDBoFx0dsiDCCRNTyh3Bg9GwLrTEtHSxkhKHEzb2vPj9R+1K7Ypx2oywTJc2/PQOxw==
+use-cannon@0.1.8:
+  version "0.1.8"
+  resolved "https://registry.yarnpkg.com/use-cannon/-/use-cannon-0.1.8.tgz#2d0ffe0e90c9fe58c5dfed3e86fd43c3c1d2a593"
+  integrity sha512-8+pL9Y9NZ/J/hbRz5CeMYhdr5YH4AOc/2c1Q1nXMxq/vUrdT8zO0RxBSxQAC8RvXm/ZDFI0WN3Yxp0gwDOkFUQ==
 
 use@^3.1.0:
   version "3.1.1"

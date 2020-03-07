@@ -47,14 +47,10 @@ function Cubes({ number }) {
 export default () => (
   <Canvas
     shadowMap
+    sRGB
     gl={{ alpha: false }}
     camera={{ position: [-1, 1, 2.5], fov: 50 }}
-    onCreated={({ gl, camera, scene }) => {
-      camera.lookAt(0, 0, 0)
-      scene.background = new THREE.Color('lightblue')
-      gl.toneMapping = THREE.ACESFilmicToneMapping
-      gl.outputEncoding = THREE.sRGBEncoding
-    }}>
+    onCreated={({ gl, camera, scene }) => (scene.background = new THREE.Color('lightblue'))}>
     <hemisphereLight intensity={0.35} />
     <spotLight
       position={[5, 5, 5]}
