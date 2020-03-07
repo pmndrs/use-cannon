@@ -33,13 +33,13 @@ import { Physics, useBox, ... } from 'use-cannon'
 3. Pick a shape that suits your object best, it could be a box, plane, sphere, etc. Give it a mass, too.
 
 ```jsx
-const [bind, api] = useBox(() => ({ mass: 1 }))
+const [ref, api] = useBox(() => ({ mass: 1 }))
 ```
 
-4. Take your object, it could be a mesh, line, gltf, anything, and bind it to the reference you have just received. Et voilà, it will now be affected by gravity and other objects inside the physics world automatically.
+4. Take your object, it could be a mesh, line, gltf, anything, and tie it to the reference you have just received. Et voilà, it will now be affected by gravity and other objects inside the physics world automatically.
 
 ```jsx
-<mesh {...bind} geometry={...} material={...} />
+<mesh ref={ref} geometry={...} material={...} />
 ```
 
 5. You can interact with it by using the api, which lets you apply positions and rotations.
@@ -78,7 +78,7 @@ function useConvexPolyhedron(fn: ConvexPolyhedronFn, deps?: any[]): Api
 
 ```typescript
 type Api = [
-  { ref: React.MutableRefObject<THREE.Object3D | undefined>; visible: boolean },
+  React.MutableRefObject<THREE.Object3D | undefined>,
   (
     | {
         setPosition: (x: number, y: number, z: number) => void
