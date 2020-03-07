@@ -82,9 +82,13 @@ type Api = [React.MutableRefObject<THREE.Object3D | undefined>, ({
 ```jsx
 type PhysicsProps = {
   children: React.ReactNode
-  gravity?: number[]
-  tolerance?: number
-  step?: number
+  gravity?: number[] = [0, -10, 0]
+  tolerance?: number = 0.001
+  step?: number = 1 / 60
+  iterations?: number = 5
+  // Maximum amount of physics objects inside your scene
+  // Lower this value to save memory, increase if 1000 isn't enough
+  size?: number = 1000
 }
 
 type BodyProps = {
