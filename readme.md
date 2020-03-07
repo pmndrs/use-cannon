@@ -55,7 +55,7 @@ useFrame(({ clock }) => api.setPosition(Math.sin(clock.getElapsedTime()) * 5,0,0
 ### Exports
 
 ```jsx
-function Physics({ children, step, gravity, tolerance, }: PhysicsProps): React.ReactNode
+function Physics({ children, step, gravity, tolerance, }: PhysicsProps): JSX.Element
 function usePlane(fn: PlaneFn, deps?: any[]): Api
 function useBox(fn: BoxFn, deps?: any[]): Api
 function useCylinder(fn: CylinderFn, deps?: any[]): Api
