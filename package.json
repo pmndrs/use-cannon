@@ -23,7 +23,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "pretty-quick"
+      "pre-commit": "pretty-quick --staged"
     }
   },
   "prettier": {
@@ -32,7 +32,7 @@
     "singleQuote": true,
     "jsxBracketSameLine": true,
     "tabWidth": 2,
-    "printWidth": 120
+    "printWidth": 100
   },
   "peerDependencies": {
     "react": ">=16.13",

@@ -59,6 +59,8 @@ function Physics({
   gravity = [0, -10, 0],
   tolerance = 0.001,
   iterations = 5,
+  allowSleep = true,
+  broadphase = 'Naive',
   // Maximum amount of physics objects inside your scene
   // Lower this value to save memory, increase if 1000 isn't enough
   size = 1000,
@@ -79,15 +81,12 @@ function useConvexPolyhedron(fn: ConvexPolyhedronFn, deps?: any[]): Api
 ```typescript
 type Api = [
   React.MutableRefObject<THREE.Object3D | undefined>,
-  (
-    | {
-        setPosition: (x: number, y: number, z: number) => void
-        setRotation: (x: number, y: number, z: number) => void
-        setPositionAt: (index: number, x: number, y: number, z: number) => void
-        setRotationAt: (index: number, x: number, y: number, z: number) => void
-      }
-    | undefined
-  )
+  {
+    setPosition: (x: number, y: number, z: number) => void
+    setRotation: (x: number, y: number, z: number) => void
+    setPositionAt: (index: number, x: number, y: number, z: number) => void
+    setRotationAt: (index: number, x: number, y: number, z: number) => void
+  }
 ]
 ```
 
@@ -100,6 +99,8 @@ type PhysicsProps = {
   tolerance?: number
   step?: number
   iterations?: number
+  allowSleep?: boolean
+  broadphase?: 'Naive' | 'SAP'
   size?: number
 }
 

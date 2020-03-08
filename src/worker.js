@@ -1,6 +1,7 @@
 import {
   World,
   NaiveBroadphase,
+  SAPBroadphase,
   Body,
   Plane,
   Box,
@@ -15,16 +16,19 @@ import {
 
 let bodies = {}
 let world = new World()
+world.defaultContactMaterial.contactEquationStiffness = 1e6
+world.defaultContactMaterial.contactEquationRegularizationTime = 3
 let config = { step: 1 / 60 }
-world.broadphase = new NaiveBroadphase(world)
-world.gravity.set(0, 10, 0)
 
 function task(e, sync = true) {
   const { op, uuid, type, positions, quaternions, props } = e.data
 
   switch (op) {
     case 'init': {
-      const { gravity, tolerance, step, iterations } = props
+      const { gravity, tolerance, step, iterations, allowSleep, broadphase } = props
+      const broadphases = { NaiveBroadphase, SAPBroadphase }
+      world.broadphase = new (broadphases[broadphase + 'Broadphase'] || NaiveBroadphase)(world)
+      world.allowSleep = allowSleep
       world.gravity.set(gravity[0], gravity[1], gravity[2])
       world.solver.tolerance = tolerance
       world.solver.iterations = iterations
@@ -45,11 +49,21 @@ function task(e, sync = true) {
         quaternions[4 * i + 2] = q.z
         quaternions[4 * i + 3] = q.w
       }
-      self.postMessage({ op: 'frame', positions, quaternions }, [positions.buffer, quaternions.buffer])
+      self.postMessage({ op: 'frame', positions, quaternions }, [
+        positions.buffer,
+        quaternions.buffer,
+      ])
       break
     }
     case 'addBody': {
-      const { args = [], position = [0, 0, 0], rotation = [0, 0, 0], scale = [1, 1, 1], isKinematic, ...extra } = props
+      const {
+        args = [],
+        position = [0, 0, 0],
+        rotation = [0, 0, 0],
+        scale = [1, 1, 1],
+        isKinematic,
+        ...extra
+      } = props
 
       const body = new Body({
         ...extra,
@@ -100,9 +114,8 @@ function task(e, sync = true) {
       break
     }
     case 'addBodies': {
-      for (let i = 0; i < uuid.length; i++) {
+      for (let i = 0; i < uuid.length; i++)
         task({ data: { op: 'addBody', type, uuid: uuid[i], props: props[i] } }, false)
-      }
       syncBodies()
       break
     }

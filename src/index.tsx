@@ -10,6 +10,8 @@ type PhysicsProps = {
   tolerance?: number
   step?: number
   iterations?: number
+  allowSleep?: boolean
+  broadphase?: 'Naive' | 'SAP'
   size?: number
 }
 
@@ -46,7 +48,15 @@ type BodyProps = {
   isKinematic?: boolean
 }
 
-type ShapeType = 'Plane' | 'Box' | 'Cylinder' | 'Heightfield' | 'Particle' | 'Sphere' | 'Trimesh' | 'ConvexPolyhedron'
+type ShapeType =
+  | 'Plane'
+  | 'Box'
+  | 'Cylinder'
+  | 'Heightfield'
+  | 'Particle'
+  | 'Sphere'
+  | 'Trimesh'
+  | 'ConvexPolyhedron'
 type PlaneProps = BodyProps & {}
 type BoxProps = BodyProps & { args?: number[] }
 type CylinderProps = BodyProps & { args?: [number, number, number, number] }
@@ -73,15 +83,12 @@ type ArgFn = (props: any) => any[]
 
 type Api = [
   React.MutableRefObject<THREE.Object3D | undefined>,
-  (
-    | {
-        setPosition: (x: number, y: number, z: number) => void
-        setRotation: (x: number, y: number, z: number) => void
-        setPositionAt: (index: number, x: number, y: number, z: number) => void
-        setRotationAt: (index: number, x: number, y: number, z: number) => void
-      }
-    | undefined
-  )
+  {
+    setPosition: (x: number, y: number, z: number) => void
+    setRotation: (x: number, y: number, z: number) => void
+    setPositionAt: (index: number, x: number, y: number, z: number) => void
+    setRotationAt: (index: number, x: number, y: number, z: number) => void
+  }
 ]
 
 const context = React.createContext<PhysicsContext>({} as PhysicsContext)
@@ -93,17 +100,28 @@ export function Physics({
   gravity = [0, -10, 0],
   tolerance = 0.001,
   iterations = 5,
+  allowSleep = true,
+  broadphase = 'Naive',
   size = 1000,
 }: PhysicsProps): JSX.Element {
   const [worker] = useState<Worker>(() => new CannonWorker() as Worker)
-  const [buffers] = useState(() => ({ positions: new Float32Array(size * 3), quaternions: new Float32Array(size * 4) }))
+  const [buffers] = useState(() => ({
+    positions: new Float32Array(size * 3),
+    quaternions: new Float32Array(size * 4),
+  }))
   const bodies = useRef<{ [uuid: string]: number }>({})
 
   useEffect(() => {
-    worker.postMessage({ op: 'init', props: { gravity, tolerance, step, iterations } })
+    worker.postMessage({
+      op: 'init',
+      props: { gravity, tolerance, step, iterations, broadphase, allowSleep },
+    })
 
     function loop() {
-      worker.postMessage({ op: 'step', ...buffers }, [buffers.positions.buffer, buffers.quaternions.buffer])
+      worker.postMessage({ op: 'step', ...buffers }, [
+        buffers.positions.buffer,
+        buffers.quaternions.buffer,
+      ])
     }
 
     worker.onmessage = (e: WorkerEvent) => {
@@ -115,7 +133,10 @@ export function Physics({
           break
         }
         case 'sync': {
-          bodies.current = e.data.bodies.reduce((acc, id) => ({ ...acc, [id]: e.data.bodies.indexOf(id) }), {})
+          bodies.current = e.data.bodies.reduce(
+            (acc, id) => ({ ...acc, [id]: e.data.bodies.indexOf(id) }),
+            {}
+          )
           break
         }
       }
@@ -211,10 +232,12 @@ export function useBody(type: ShapeType, fn: BodyFn, argFn: ArgFn, deps: any[] =
   const api = useMemo(() => {
     return {
       setPosition(x: number, y: number, z: number) {
-        if (ref.current) worker.postMessage({ op: 'setPosition', uuid: ref.current.uuid, props: [x, y, z] })
+        if (ref.current)
+          worker.postMessage({ op: 'setPosition', uuid: ref.current.uuid, props: [x, y, z] })
       },
       setRotation(x: number, y: number, z: number) {
-        if (ref.current) worker.postMessage({ op: 'setRotation', uuid: ref.current.uuid, props: [x, y, z] })
+        if (ref.current)
+          worker.postMessage({ op: 'setRotation', uuid: ref.current.uuid, props: [x, y, z] })
       },
       setPositionAt(index: number, x: number, y: number, z: number) {
         if (ref.current)
