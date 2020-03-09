@@ -12,6 +12,7 @@ type PhysicsProps = {
   iterations?: number
   allowSleep?: boolean
   broadphase?: 'Naive' | 'SAP'
+  axisIndex?: number
   size?: number
 }
 
@@ -102,6 +103,7 @@ export function Physics({
   iterations = 5,
   allowSleep = true,
   broadphase = 'Naive',
+  axisIndex = 0,
   size = 1000,
 }: PhysicsProps): JSX.Element {
   const [worker] = useState<Worker>(() => new CannonWorker() as Worker)
@@ -164,7 +166,7 @@ export function useBody(type: ShapeType, fn: BodyFn, argFn: ArgFn, deps: any[] =
         // Collect props
         const props = uuid.map((id, i) => {
           const props = fn(i)
-          if (props.args) props.args = argFn(props.args)
+          props.args = argFn(props.args)
           return props
         })
         // Set start-up position values
@@ -189,7 +191,7 @@ export function useBody(type: ShapeType, fn: BodyFn, argFn: ArgFn, deps: any[] =
         const uuid = object.uuid
         // Collect props
         const props = fn(0)
-        if (props.args) props.args = argFn(props.args)
+        props.args = argFn(props.args)
         // Set start-up position values
         if (props.position) object.position.set(...(props.position as [number, number, number]))
         if (props.rotation) object.rotation.set(...(props.rotation as [number, number, number]))

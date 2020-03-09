@@ -25,13 +25,14 @@ function task(e, sync = true) {
 
   switch (op) {
     case 'init': {
-      const { gravity, tolerance, step, iterations, allowSleep, broadphase } = props
+      const { gravity, tolerance, step, iterations, allowSleep, broadphase, axisIndex } = props
       const broadphases = { NaiveBroadphase, SAPBroadphase }
-      world.broadphase = new (broadphases[broadphase + 'Broadphase'] || NaiveBroadphase)(world)
       world.allowSleep = allowSleep
       world.gravity.set(gravity[0], gravity[1], gravity[2])
       world.solver.tolerance = tolerance
       world.solver.iterations = iterations
+      world.broadphase = new (broadphases[broadphase + 'Broadphase'] || NaiveBroadphase)(world)
+      world.broadphase.axisIndex = axisIndex ?? 0
       config.step = step
       break
     }

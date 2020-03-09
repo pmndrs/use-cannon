@@ -61,6 +61,7 @@ function Physics({
   iterations = 5,
   allowSleep = true,
   broadphase = 'Naive',
+  axisIndex = 0,
   // Maximum amount of physics objects inside your scene
   // Lower this value to save memory, increase if 1000 isn't enough
   size = 1000,
@@ -101,6 +102,7 @@ type PhysicsProps = {
   iterations?: number
   allowSleep?: boolean
   broadphase?: 'Naive' | 'SAP'
+  axisIndex?: number
   size?: number
 }
 

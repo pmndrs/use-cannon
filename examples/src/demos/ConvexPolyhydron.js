@@ -39,7 +39,7 @@ export default () => (
       shadow-mapSize-height={256}
     />
     <Suspense fallback={null}>
-      <Physics broadphase="SAP">
+      <Physics>
         <Plane rotation={[-Math.PI / 2, 0, 0]} />
         <Diamond position={[0, 5, 0]} rotation={[0.1, 0.1, 0.1]} />
       </Physics>
