@@ -106,7 +106,10 @@ export function Physics({
   axisIndex = 0,
   size = 1000,
 }: PhysicsProps): JSX.Element {
-  const [worker] = useState<Worker>(() => new CannonWorker() as Worker)
+  const [worker] = useState<Worker>(() => {
+    // https://github.com/react-spring/use-cannon/issues/22
+    return (typeof window === 'undefined' ? undefined : new CannonWorker()) as Worker
+  })
   const [buffers] = useState(() => ({
     positions: new Float32Array(size * 3),
     quaternions: new Float32Array(size * 4),
@@ -116,7 +119,7 @@ export function Physics({
   useEffect(() => {
     worker.postMessage({
       op: 'init',
-      props: { gravity, tolerance, step, iterations, broadphase, allowSleep },
+      props: { gravity, tolerance, step, iterations, broadphase, allowSleep, axisIndex },
     })
 
     function loop() {
