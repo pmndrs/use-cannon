@@ -2,10 +2,11 @@ import React, { Suspense, createContext, lazy } from 'react'
 import { ProviderProps } from './Provider'
 export * from './hooks'
 
-type ProviderContext = {
+export type ProviderContext = {
   worker: Worker
   bodies: React.MutableRefObject<{ [uuid: string]: number }>
   buffers: { positions: Float32Array; quaternions: Float32Array }
+  events: { [uuid: string]: () => void }
 }
 
 const context = createContext<ProviderContext>({} as ProviderContext)

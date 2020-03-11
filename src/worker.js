@@ -75,6 +75,7 @@ self.onmessage = e => {
           rotation = [0, 0, 0],
           scale = [1, 1, 1],
           type: bodyType,
+          onCollide,
           ...extra
         } = props[i]
 
@@ -117,14 +118,29 @@ self.onmessage = e => {
         body.position.set(position[0], position[1], position[2])
         body.quaternion.setFromEuler(rotation[0], rotation[1], rotation[2])
         world.addBody(body)
-        //body.addEventListener('collide', e => console.log('collide', e))
+
+        if (onCollide)
+          body.addEventListener('collide', ({ type, contact, target }) => {
+            const { ni, ri, rj } = contact
+            self.postMessage({
+              op: 'event',
+              type,
+              body: body.uuid,
+              target: target.uuid,
+              contact: {
+                ni,
+                ri,
+                rj,
+                impactVelocity: contact.getImpactVelocityAlongNormal(),
+              },
+            })
+          })
       }
       syncBodies()
       break
     }
     case 'removeBodies': {
       for (let i = 0; i < uuid.length; i++) world.removeBody(bodies[uuid[i]])
-
       syncBodies()
       break
     }
