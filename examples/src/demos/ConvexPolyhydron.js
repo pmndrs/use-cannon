@@ -16,7 +16,7 @@ function Diamond(props) {
 }
 
 function Plane(props) {
-  const [ref] = usePlane(() => ({ mass: 0, ...props }))
+  const [ref] = usePlane(() => ({ type: 'Static', ...props }))
   return (
     <mesh ref={ref} receiveShadow>
       <planeBufferGeometry attach="geometry" args={[5, 5]} />

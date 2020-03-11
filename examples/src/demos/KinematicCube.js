@@ -5,7 +5,7 @@ import { Physics, useBox, usePlane, useSphere } from 'use-cannon'
 import niceColors from 'nice-color-palettes'
 
 function Plane({ color, ...props }) {
-  const [ref] = usePlane(() => ({ mass: 0, ...props }))
+  const [ref] = usePlane(() => ({ ...props }))
   return (
     <mesh ref={ref} receiveShadow>
       <planeBufferGeometry attach="geometry" args={[1000, 1000]} />
@@ -15,7 +15,7 @@ function Plane({ color, ...props }) {
 }
 
 function Box() {
-  const [ref, api] = useBox(() => ({ mass: 1, args: [2, 2, 2], isKinematic: true }))
+  const [ref, api] = useBox(() => ({ type: "Kinematic", mass: 1, args: [2, 2, 2] }))
   useFrame(state => {
     const t = state.clock.getElapsedTime()
     api.setPosition(Math.sin(t * 2) * 5, Math.cos(t * 2) * 5, 3)

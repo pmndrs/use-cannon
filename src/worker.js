@@ -20,7 +20,18 @@ world.defaultContactMaterial.contactEquationStiffness = 1e6
 world.defaultContactMaterial.contactEquationRegularizationTime = 3
 let config = { step: 1 / 60 }
 
-function task(e, sync = true) {
+const TYPES = {
+  Dynamic: Body.DYNAMIC,
+  Static: Body.STATIC,
+  Kinematic: Body.KINEMATIC,
+}
+
+function syncBodies() {
+  self.postMessage({ op: 'sync', bodies: world.bodies.map(body => body.uuid) })
+  bodies = world.bodies.reduce((acc, body) => ({ ...acc, [body.uuid]: body }), {})
+}
+
+self.onmessage = e => {
   const { op, uuid, type, positions, quaternions, props } = e.data
 
   switch (op) {
@@ -56,77 +67,64 @@ function task(e, sync = true) {
       ])
       break
     }
-    case 'addBody': {
-      const {
-        args = [],
-        position = [0, 0, 0],
-        rotation = [0, 0, 0],
-        scale = [1, 1, 1],
-        isKinematic,
-        ...extra
-      } = props
-
-      const body = new Body({
-        ...extra,
-        type: isKinematic ? Body.KINEMATIC : undefined,
-      })
-
-      body.uuid = uuid
-
-      switch (type) {
-        case 'Box':
-          body.addShape(new Box(new Vec3(...args))) // halfExtents
-          break
-        case 'ConvexPolyhedron':
-          const [v, f] = args
-          body.addShape(
-            new ConvexPolyhedron(
-              v.map(([x, y, z]) => new Vec3(x, y, z)),
-              f
-            )
-          )
-          break
-        case 'Cylinder':
-          body.addShape(new Cylinder(...args)) // [ radiusTop, radiusBottom, height, numSegments ] = args
-          break
-        case 'Heightfield':
-          body.addShape(new Heightfield(...args)) // [ Array data, options: {minValue, maxValue, elementSize}  ] = args
-          break
-        case 'Particle':
-          body.addShape(new Particle()) // no args
-          break
-        case 'Plane':
-          body.addShape(new Plane()) // no args, infinite x and y
-          break
-        case 'Sphere':
-          body.addShape(new Sphere(...args)) // [radius] = args
-          break
-        case 'Trimesh':
-          body.addShape(new Trimesh(...args)) // [vertices, indices] = args
-          break
-        default:
-          break
-      }
-
-      body.position.set(position[0], position[1], position[2])
-      body.quaternion.setFromEuler(rotation[0], rotation[1], rotation[2])
-      world.addBody(body)
-      if (sync) syncBodies()
-      break
-    }
     case 'addBodies': {
-      for (let i = 0; i < uuid.length; i++)
-        task({ data: { op: 'addBody', type, uuid: uuid[i], props: props[i] } }, false)
+      for (let i = 0; i < uuid.length; i++) {
+        const {
+          args = [],
+          position = [0, 0, 0],
+          rotation = [0, 0, 0],
+          scale = [1, 1, 1],
+          type: bodyType,
+          ...extra
+        } = props[i]
+
+        const body = new Body({ ...extra, type: TYPES[bodyType] })
+        body.uuid = uuid[i]
+
+        switch (type) {
+          case 'Box':
+            body.addShape(new Box(new Vec3(...args))) // halfExtents
+            break
+          case 'ConvexPolyhedron':
+            const [v, f] = args
+            body.addShape(
+              new ConvexPolyhedron(
+                v.map(([x, y, z]) => new Vec3(x, y, z)),
+                f
+              )
+            )
+            break
+          case 'Cylinder':
+            body.addShape(new Cylinder(...args)) // [ radiusTop, radiusBottom, height, numSegments ] = args
+            break
+          case 'Heightfield':
+            body.addShape(new Heightfield(...args)) // [ Array data, options: {minValue, maxValue, elementSize}  ] = args
+            break
+          case 'Particle':
+            body.addShape(new Particle()) // no args
+            break
+          case 'Plane':
+            body.addShape(new Plane()) // no args, infinite x and y
+            break
+          case 'Sphere':
+            body.addShape(new Sphere(...args)) // [radius] = args
+            break
+          case 'Trimesh':
+            body.addShape(new Trimesh(...args)) // [vertices, indices] = args
+            break
+        }
+
+        body.position.set(position[0], position[1], position[2])
+        body.quaternion.setFromEuler(rotation[0], rotation[1], rotation[2])
+        world.addBody(body)
+        //body.addEventListener('collide', e => console.log('collide', e))
+      }
       syncBodies()
       break
     }
-    case 'removeBody': {
-      world.removeBody(bodies[uuid])
-      if (sync) syncBodies()
-      break
-    }
     case 'removeBodies': {
-      for (let i = 0; i < uuid.length; i++) task({ data: { op: 'removeBody', uuid: uuid[i] } })
+      for (let i = 0; i < uuid.length; i++) world.removeBody(bodies[uuid[i]])
+
       syncBodies()
       break
     }
@@ -140,10 +138,3 @@ function task(e, sync = true) {
     }
   }
 }
-
-function syncBodies() {
-  self.postMessage({ op: 'sync', bodies: world.bodies.map(body => body.uuid) })
-  bodies = world.bodies.reduce((acc, body) => ({ ...acc, [body.uuid]: body }), {})
-}
-
-self.onmessage = e => task(e)

@@ -65,7 +65,7 @@ function Physics({
   // Maximum amount of physics objects inside your scene
   // Lower this value to save memory, increase if 1000 isn't enough
   size = 1000,
-}: PhysicsProps): JSX.Element
+}: ProviderProps): JSX.Element
 
 function usePlane(fn: PlaneFn, deps?: any[]): Api
 function useBox(fn: BoxFn, deps?: any[]): Api
@@ -94,7 +94,7 @@ type Api = [
 ### Props
 
 ```typescript
-type PhysicsProps = {
+type ProviderProps = {
   children: React.ReactNode
   gravity?: number[]
   tolerance?: number
@@ -120,7 +120,7 @@ type BodyProps = {
   collisionFilterGroup?: number
   collisionFilterMask?: number
   fixedRotation?: boolean
-  isKinematic?: boolean
+  type?: 'Dynamic' | 'Static' | 'Kinematic'
 }
 
 type PlaneProps = BodyProps & {}

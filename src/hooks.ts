@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import React, { useLayoutEffect, useContext, useRef, useMemo } from 'react'
 import { useFrame } from 'react-three-fiber'
+import { Buffers } from './Provider'
 import { context } from './index'
 
 type BodyProps = {
@@ -18,7 +19,7 @@ type BodyProps = {
   collisionFilterGroup?: number
   collisionFilterMask?: number
   fixedRotation?: boolean
-  isKinematic?: boolean
+  type?: 'Dynamic' | 'Static' | 'Kinematic'
 }
 
 type ShapeType =
@@ -66,6 +67,21 @@ type Api = [
 
 const temp = new THREE.Object3D()
 
+function prepare(object: THREE.Object3D, props: BodyProps, argFn: ArgFn) {
+  props.args = argFn(props.args)
+  object.position.set(...((props.position || [0, 0, 0]) as [number, number, number]))
+  object.rotation.set(...((props.rotation || [0, 0, 0]) as [number, number, number]))
+  object.scale.set(...((props.scale || [1, 1, 1]) as [number, number, number]))
+  return props
+}
+
+function apply(object: THREE.Object3D, index: number, buffers: Buffers) {
+  if (index !== undefined) {
+    object.position.fromArray(buffers.positions, index * 3)
+    object.quaternion.fromArray(buffers.quaternions, index * 4)
+  }
+}
+
 function useBody(type: ShapeType, fn: BodyFn, argFn: ArgFn, deps: any[] = []): Api {
   const ref = useRef<THREE.Object3D>()
   const { worker, bodies, buffers } = useContext(context)
@@ -73,76 +89,41 @@ function useBody(type: ShapeType, fn: BodyFn, argFn: ArgFn, deps: any[] = []): A
     if (ref.current) {
       const object = ref.current
       const currentWorker = worker
+      let uuid: string[] = [object.uuid],
+        props: BodyProps[]
 
       if (object instanceof THREE.InstancedMesh) {
-        const uuid = new Array(object.count).fill(0).map((_, i) => `${object.uuid}/${i}`)
         // Why? Because @mrdoob did it in his example ...
         object.instanceMatrix.setUsage(THREE.DynamicDrawUsage)
-        // Collect props
-        const props = uuid.map((id, i) => {
-          const props = fn(i)
-          props.args = argFn(props.args)
+        uuid = new Array(object.count).fill(0).map((_, i) => `${object.uuid}/${i}`)
+        props = uuid.map((id, i) => {
+          const props = prepare(temp, fn(i), argFn)
+          temp.updateMatrix()
+          object.setMatrixAt(i, temp.matrix)
+          object.instanceMatrix.needsUpdate = true
           return props
         })
-        // Set start-up position values
-        props.forEach(({ position, rotation, scale }, i) => {
-          if (position || rotation || scale) {
-            temp.position.set(...((position || [0, 0, 0]) as [number, number, number]))
-            temp.rotation.set(...((rotation || [0, 0, 0]) as [number, number, number]))
-            temp.scale.set(...((scale || [1, 1, 1]) as [number, number, number]))
-            temp.updateMatrix()
-            object.setMatrixAt(i, temp.matrix)
-            object.instanceMatrix.needsUpdate = true
-          }
-        })
-        // Add bodies
-        currentWorker.postMessage({ op: 'addBodies', uuid, type, props })
-        // Unmount ...
-        return () => {
-          // Remove body from worker
-          currentWorker.postMessage({ op: 'removeBodies', uuid, type })
-        }
-      } else {
-        const uuid = object.uuid
-        // Collect props
-        const props = fn(0)
-        props.args = argFn(props.args)
-        // Set start-up position values
-        if (props.position) object.position.set(...(props.position as [number, number, number]))
-        if (props.rotation) object.rotation.set(...(props.rotation as [number, number, number]))
-        if (props.scale) object.scale.set(...(props.scale as [number, number, number]))
-        // Add body
-        currentWorker.postMessage({ op: 'addBody', type, uuid, props })
-        // Unmount ...
-        return () => {
-          // Remove body from worker
-          currentWorker.postMessage({ op: 'removeBody', uuid })
-        }
-      }
+      } else props = [prepare(object, fn(0), argFn)]
+
+      // Register on mount, unregister on unmount
+      currentWorker.postMessage({ op: 'addBodies', type, uuid, props })
+      return () => currentWorker.postMessage({ op: 'removeBodies', uuid })
     }
   }, [ref.current, ...deps]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useFrame(() => {
-    const { positions, quaternions } = buffers
-    if (ref.current && positions.length && quaternions.length) {
+    if (ref.current && buffers.positions.length && buffers.quaternions.length) {
       if (ref.current instanceof THREE.InstancedMesh) {
         for (let i = 0; i < ref.current.count; i++) {
           const index = bodies.current[`${ref.current.uuid}/${i}`]
           if (index !== undefined) {
-            temp.position.fromArray(positions, index * 3)
-            temp.quaternion.fromArray(quaternions, index * 4)
+            apply(temp, index, buffers)
             temp.updateMatrix()
             ref.current.setMatrixAt(i, temp.matrix)
           }
           ref.current.instanceMatrix.needsUpdate = true
         }
-      } else {
-        const index = bodies.current[ref.current.uuid]
-        if (index !== undefined) {
-          ref.current.position.fromArray(positions, index * 3)
-          ref.current.quaternion.fromArray(quaternions, index * 4)
-        }
-      }
+      } else apply(ref.current, bodies.current[ref.current.uuid], buffers)
     }
   })
 
@@ -174,7 +155,6 @@ function useBody(type: ShapeType, fn: BodyFn, argFn: ArgFn, deps: any[] = []): A
       },
     }
   }, [])
-
   return [ref, api]
 }
 

@@ -15,10 +15,12 @@ export type ProviderProps = {
   size?: number
 }
 
+export type Buffers = { positions: Float32Array; quaternions: Float32Array }
+
 type ProviderContext = {
   worker: Worker
   bodies: React.MutableRefObject<{ [uuid: string]: number }>
-  buffers: { positions: Float32Array; quaternions: Float32Array }
+  buffers: Buffers
 }
 
 type WorkerEvent = {
@@ -42,7 +44,7 @@ export default function Provider({
   size = 1000,
 }: ProviderProps): JSX.Element {
   const [worker] = useState<Worker>(() => new CannonWorker() as Worker)
-  const [buffers] = useState(() => ({
+  const [buffers] = useState<Buffers>(() => ({
     positions: new Float32Array(size * 3),
     quaternions: new Float32Array(size * 4),
   }))
@@ -63,19 +65,20 @@ export default function Provider({
 
     worker.onmessage = (e: WorkerEvent) => {
       switch (e.data.op) {
-        case 'frame': {
+        case 'frame':
           buffers.positions = e.data.positions
           buffers.quaternions = e.data.quaternions
           requestAnimationFrame(loop)
           break
-        }
-        case 'sync': {
+        case 'sync':
           bodies.current = e.data.bodies.reduce(
             (acc, id) => ({ ...acc, [id]: e.data.bodies.indexOf(id) }),
             {}
           )
           break
-        }
+        case 'event':
+          //bodies.current[e.data.bodies[0]]
+          break;
       }
     }
     loop()
