@@ -7,7 +7,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 function Diamond(props) {
   const { nodes } = useLoader(GLTFLoader, '/diamond.glb')
   const geo = useMemo(() => new THREE.Geometry().fromBufferGeometry(nodes.Cylinder.geometry), [])
-  const [ref] = useConvexPolyhedron(() => ({ mass: 100, ...props, args: geo, onCollide: e => console.log(e.contact) }))
+  const [ref] = useConvexPolyhedron(() => ({ mass: 100, ...props, args: geo, onCollide: e => console.log(e) }))
   return (
     <mesh castShadow ref={ref} geometry={nodes.Cylinder.geometry} dispose={null}>
       <meshNormalMaterial attach="material" />

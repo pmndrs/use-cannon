@@ -128,9 +128,9 @@ self.onmessage = e => {
               body: body.uuid,
               target: target.uuid,
               contact: {
-                ni,
-                ri,
-                rj,
+                ni: ni.toArray(),
+                ri: ri.toArray(),
+                rj: rj.toArray(),
                 impactVelocity: contact.getImpactVelocityAlongNormal(),
               },
             })

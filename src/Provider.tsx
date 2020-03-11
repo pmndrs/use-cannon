@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react'
 // @ts-ignore
 import CannonWorker from '../src/worker'
-import { context, ProviderContext } from './index'
+import { context, ProviderContext, Refs, Events, Event } from './index'
 
 export type ProviderProps = {
   children: React.ReactNode
@@ -26,6 +26,12 @@ type WorkerEvent = {
     type: string
     body: string
     target: string
+    contact: {
+      ni: number[]
+      ri: number[]
+      rj: number[]
+      impactVelocity: number
+    }
   }
 }
 
@@ -41,7 +47,8 @@ export default function Provider({
   size = 1000,
 }: ProviderProps): JSX.Element {
   const [worker] = useState<Worker>(() => new CannonWorker() as Worker)
-  const [events] = useState({})
+  const [events] = useState<Events>({})
+  const [refs] = useState<Refs>({})
   const [buffers] = useState<Buffers>(() => ({
     positions: new Float32Array(size * 3),
     quaternions: new Float32Array(size * 4),
@@ -77,7 +84,11 @@ export default function Provider({
         case 'event':
           switch (e.data.type) {
             case 'collide':
-              ;(events as any)[e.data.body](e.data)
+              events[e.data.body]({
+                ...e.data,
+                body: refs[e.data.body],
+                target: refs[e.data.target],
+              })
               break
           }
           break
@@ -87,11 +98,12 @@ export default function Provider({
     return () => worker.terminate()
   }, [])
 
-  const api = useMemo(() => ({ worker, bodies, buffers, events }), [
+  const api = useMemo(() => ({ worker, bodies, buffers, refs, events }), [
     worker,
     bodies,
     buffers,
     events,
+    refs,
   ])
   return <context.Provider value={api as ProviderContext}>{children}</context.Provider>
 }
