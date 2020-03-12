@@ -133,6 +133,12 @@ self.onmessage = e => {
                 rj: rj.toArray(),
                 impactVelocity: contact.getImpactVelocityAlongNormal(),
               },
+              collisionGroups: {
+                bodyFilterGroup: body.collisionFilterGroup,
+                bodyFilterMask: body.collisionFilterMask,
+                targetFilterGroup: target.collisionFilterGroup,
+                targetFilterMask: target.collisionFilterMask,
+              },
             })
           })
       }
