@@ -20,6 +20,7 @@ type BodyProps = {
   collisionFilterMask?: number
   fixedRotation?: boolean
   type?: 'Dynamic' | 'Static' | 'Kinematic'
+  onCollide?: () => void
 }
 
 type ShapeType =
@@ -84,7 +85,7 @@ function apply(object: THREE.Object3D, index: number, buffers: Buffers) {
 
 function useBody(type: ShapeType, fn: BodyFn, argFn: ArgFn, deps: any[] = []): Api {
   const ref = useRef<THREE.Object3D>()
-  const { worker, bodies, buffers } = useContext(context)
+  const { worker, bodies, buffers, refs, events } = useContext(context)
   useLayoutEffect(() => {
     if (ref.current) {
       const object = ref.current
@@ -105,9 +106,23 @@ function useBody(type: ShapeType, fn: BodyFn, argFn: ArgFn, deps: any[] = []): A
         })
       } else props = [prepare(object, fn(0), argFn)]
 
+      props.forEach((props, index) => {
+        if (props.onCollide) {
+          refs[uuid[index]] = object
+          events[uuid[index]] = props.onCollide
+          ;(props as any).onCollide = true
+        }
+      })
+
       // Register on mount, unregister on unmount
       currentWorker.postMessage({ op: 'addBodies', type, uuid, props })
-      return () => currentWorker.postMessage({ op: 'removeBodies', uuid })
+      return () => {
+        props.forEach((props, index) => {
+          delete refs[uuid[index]]
+          if (props.onCollide) delete events[uuid[index]]
+        })
+        currentWorker.postMessage({ op: 'removeBodies', uuid })
+      }
     }
   }, [ref.current, ...deps]) // eslint-disable-line react-hooks/exhaustive-deps
 

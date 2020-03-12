@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react'
 // @ts-ignore
 import CannonWorker from '../src/worker'
-import { context } from './index'
+import { context, ProviderContext, Refs, Events, Event } from './index'
 
 export type ProviderProps = {
   children: React.ReactNode
@@ -17,18 +17,21 @@ export type ProviderProps = {
 
 export type Buffers = { positions: Float32Array; quaternions: Float32Array }
 
-type ProviderContext = {
-  worker: Worker
-  bodies: React.MutableRefObject<{ [uuid: string]: number }>
-  buffers: Buffers
-}
-
 type WorkerEvent = {
   data: {
     op: string
     positions: Float32Array
     quaternions: Float32Array
     bodies: string[]
+    type: string
+    body: string
+    target: string
+    contact: {
+      ni: number[]
+      ri: number[]
+      rj: number[]
+      impactVelocity: number
+    }
   }
 }
 
@@ -44,6 +47,8 @@ export default function Provider({
   size = 1000,
 }: ProviderProps): JSX.Element {
   const [worker] = useState<Worker>(() => new CannonWorker() as Worker)
+  const [events] = useState<Events>({})
+  const [refs] = useState<Refs>({})
   const [buffers] = useState<Buffers>(() => ({
     positions: new Float32Array(size * 3),
     quaternions: new Float32Array(size * 4),
@@ -77,14 +82,28 @@ export default function Provider({
           )
           break
         case 'event':
-          //bodies.current[e.data.bodies[0]]
-          break;
+          switch (e.data.type) {
+            case 'collide':
+              events[e.data.body]({
+                ...e.data,
+                body: refs[e.data.body],
+                target: refs[e.data.target],
+              })
+              break
+          }
+          break
       }
     }
     loop()
     return () => worker.terminate()
   }, [])
 
-  const api = useMemo(() => ({ worker, bodies, buffers }), [worker, bodies, buffers])
+  const api = useMemo(() => ({ worker, bodies, buffers, refs, events }), [
+    worker,
+    bodies,
+    buffers,
+    events,
+    refs,
+  ])
   return <context.Provider value={api as ProviderContext}>{children}</context.Provider>
 }
