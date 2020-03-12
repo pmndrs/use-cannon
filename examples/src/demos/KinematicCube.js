@@ -15,7 +15,7 @@ function Plane({ color, ...props }) {
 }
 
 function Box() {
-  const [ref, api] = useBox(() => ({ type: "Kinematic", mass: 1, args: [2, 2, 2] }))
+  const [ref, api] = useBox(() => ({ type: 'Kinematic', mass: 1, args: [2, 2, 2] }))
   useFrame(state => {
     const t = state.clock.getElapsedTime()
     api.setPosition(Math.sin(t * 2) * 5, Math.cos(t * 2) * 5, 3)

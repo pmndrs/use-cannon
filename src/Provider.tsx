@@ -12,6 +12,14 @@ export type ProviderProps = {
   allowSleep?: boolean
   broadphase?: 'Naive' | 'SAP'
   axisIndex?: number
+  defaultContactMaterial?: {
+    friction?: number
+    restitution?: number
+    contactEquationStiffness?: number
+    contactEquationRelaxation?: number
+    frictionEquationStiffness?: number
+    frictionEquationRelaxation?: number
+  }
   size?: number
 }
 
@@ -44,6 +52,9 @@ export default function Provider({
   allowSleep = true,
   broadphase = 'Naive',
   axisIndex = 0,
+  defaultContactMaterial = {
+    contactEquationStiffness: 1e6,
+  },
   size = 1000,
 }: ProviderProps): JSX.Element {
   const [worker] = useState<Worker>(() => new CannonWorker() as Worker)
@@ -58,14 +69,20 @@ export default function Provider({
   useEffect(() => {
     worker.postMessage({
       op: 'init',
-      props: { gravity, tolerance, step, iterations, broadphase, allowSleep, axisIndex },
+      props: {
+        gravity,
+        tolerance,
+        step,
+        iterations,
+        broadphase,
+        allowSleep,
+        axisIndex,
+        defaultContactMaterial,
+      },
     })
 
     function loop() {
-      worker.postMessage({ op: 'step', ...buffers }, [
-        buffers.positions.buffer,
-        buffers.quaternions.buffer,
-      ])
+      worker.postMessage({ op: 'step', ...buffers }, [buffers.positions.buffer, buffers.quaternions.buffer])
     }
 
     worker.onmessage = (e: WorkerEvent) => {

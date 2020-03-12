@@ -62,6 +62,9 @@ function Physics({
   allowSleep = true,
   broadphase = 'Naive',
   axisIndex = 0,
+  defaultContactMaterial = {
+    contactEquationStiffness: 1e6,
+  },
   // Maximum amount of physics objects inside your scene
   // Lower this value to save memory, increase if 1000 isn't enough
   size = 1000,
@@ -103,6 +106,14 @@ type ProviderProps = {
   allowSleep?: boolean
   broadphase?: 'Naive' | 'SAP'
   axisIndex?: number
+  defaultContactMaterial?: {
+    friction?: number
+    restitution?: number
+    contactEquationStiffness?: number
+    contactEquationRelaxation?: number
+    frictionEquationStiffness?: number
+    frictionEquationRelaxation?: number
+  }
   size?: number
 }
 
@@ -120,7 +131,21 @@ type BodyProps = {
   collisionFilterGroup?: number
   collisionFilterMask?: number
   fixedRotation?: boolean
-  type?: 'Dynamic' | 'Static' | 'Kinematic'
+  type?: 'Dynamic' | 'Static' | 'Kinematic'
+  onCollide?: (e: Event) => void
+}
+
+type Event = {
+  op: string
+  type: string
+  body: THREE.Object3D
+  target: THREE.Object3D
+  contact: {
+    ni: number[]
+    ri: number[]
+    rj: number[]
+    impactVelocity: number
+  }
 }
 
 type PlaneProps = BodyProps & {}
@@ -162,3 +187,16 @@ type ParticleFn = (index: number) => ParticleProps
 type SphereFn = (index: number) => SphereProps
 type TrimeshFn = (index: number) => TrimeshProps
 ```
+
+### FAQ
+
+#### Broadphases
+
+- NaiveBroadphase is as simple as it gets. It considers every body to be a potential collider with every other body. This results in the maximum number of narrowphase checks.
+- SAPBroadphase sorts bodies along an axis and then moves down that list finding pairs by looking at body size and position of the next bodies. Control what axis to sort along by setting the axisIndex property.
+
+#### Types
+
+- A dynamic body is fully simulated. Can be moved manually by the user, but normally they move according to forces. A dynamic body can collide with all body types. A dynamic body always has finite, non-zero mass.
+- A static body does not move during simulation and behaves as if it has infinite mass. Static bodies can be moved manually by setting the position of the body. The velocity of a static body is always zero. Static bodies do not collide with other static or kinematic bodies.
+- A kinematic body moves under simulation according to its velocity. They do not respond to forces. They can be moved manually, but normally a kinematic body is moved by setting its velocity. A kinematic body behaves as if it has infinite mass. Kinematic bodies do not collide with other static or kinematic bodies.
