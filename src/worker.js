@@ -167,5 +167,21 @@ self.onmessage = e => {
       bodies[uuid].quaternion.setFromEuler(props[0], props[1], props[2], 'XYZ')
       break
     }
+    case 'applyForce': {
+      bodies[uuid].applyForce(new Vec3(...props[0]), new Vec3(...props[1]))
+      break
+    }
+    case 'applyImpulse': {
+      bodies[uuid].applyImpulse(new Vec3(...props[0]), new Vec3(...props[1]))
+      break
+    }
+    case 'applyLocalForce': {
+      bodies[uuid].applyLocalForce(new Vec3(...props[0]), new Vec3(...props[1]))
+      break
+    }
+    case 'applyLocalImpulse': {
+      bodies[uuid].applyLocalImpulse(new Vec3(...props[0]), new Vec3(...props[1]))
+      break
+    }
   }
 }

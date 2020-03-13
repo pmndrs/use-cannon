@@ -92,6 +92,13 @@ type Api = [
     setRotation: (x: number, y: number, z: number) => void
     setPositionAt: (index: number, x: number, y: number, z: number) => void
     setRotationAt: (index: number, x: number, y: number, z: number) => void
+    applyForce: (force: [number, number, number], worldPoint: [number, number, number]) => void
+    applyImpulse: (impulse: [number, number, number], worldPoint: [number, number, number]) => void
+    applyLocalForce: (force: [number, number, number], localPoint: [number, number, number]) => void
+    applyLocalImpulse: (
+      impulse: [number, number, number],
+      localPoint: [number, number, number]
+    ) => void
   }
 ]
 ```

@@ -65,6 +65,13 @@ type Api = [
     setRotation: (x: number, y: number, z: number) => void
     setPositionAt: (index: number, x: number, y: number, z: number) => void
     setRotationAt: (index: number, x: number, y: number, z: number) => void
+    applyForce: (force: [number, number, number], worldPoint: [number, number, number]) => void
+    applyImpulse: (impulse: [number, number, number], worldPoint: [number, number, number]) => void
+    applyLocalForce: (force: [number, number, number], localPoint: [number, number, number]) => void
+    applyLocalImpulse: (
+      impulse: [number, number, number],
+      localPoint: [number, number, number]
+    ) => void
   }
 ]
 
@@ -165,6 +172,38 @@ function useBody(type: ShapeType, fn: BodyFn, argFn: ArgFn, deps: any[] = []): A
             op: 'setRotation',
             uuid: `${ref.current.uuid}/${index}`,
             props: [x, y, z],
+          })
+      },
+      applyForce(force: [number, number, number], worldPoint: [number, number, number]) {
+        if (ref.current)
+          worker.postMessage({
+            op: 'applyForce',
+            uuid: ref.current.uuid,
+            props: [force, worldPoint],
+          })
+      },
+      applyImpulse(impulse: [number, number, number], worldPoint: [number, number, number]) {
+        if (ref.current)
+          worker.postMessage({
+            op: 'applyImpulse',
+            uuid: ref.current.uuid,
+            props: [impulse, worldPoint],
+          })
+      },
+      applyLocalForce(force: [number, number, number], localPoint: [number, number, number]) {
+        if (ref.current)
+          worker.postMessage({
+            op: 'applyLocalForce',
+            uuid: ref.current.uuid,
+            props: [force, localPoint],
+          })
+      },
+      applyLocalImpulse(impulse: [number, number, number], localPoint: [number, number, number]) {
+        if (ref.current)
+          worker.postMessage({
+            op: 'applyLocalImpulse',
+            uuid: ref.current.uuid,
+            props: [impulse, localPoint],
           })
       },
     }
