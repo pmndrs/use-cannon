@@ -12,6 +12,7 @@ import {
   Particle,
   Sphere,
   Trimesh,
+  PointToPointConstraint,
 } from 'cannon-es'
 
 let bodies = {}
@@ -181,6 +182,26 @@ self.onmessage = e => {
     }
     case 'applyLocalImpulse': {
       bodies[uuid].applyLocalImpulse(new Vec3(...props[0]), new Vec3(...props[1]))
+      break
+    }
+    case 'addConstraint': {
+      const [bodyA, offsetA, bodyB, offsetB, maxForce] = props
+
+      const constraint = new PointToPointConstraint(
+        bodies[bodyA],
+        new Vec3(...offsetA),
+        bodies[bodyB],
+        new Vec3(...offsetB),
+        maxForce
+      )
+
+      constraint.uuid = uuid
+
+      world.addConstraint(constraint)
+      break
+    }
+    case 'removeConstraint': {
+      world.removeConstraint(uuid)
       break
     }
   }

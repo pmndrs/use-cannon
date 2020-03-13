@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import React, { useLayoutEffect, useContext, useRef, useMemo } from 'react'
+import React, { useLayoutEffect, useContext, useRef, useMemo, useEffect } from 'react'
 import { useFrame } from 'react-three-fiber'
 import { Buffers } from './Provider'
 import { context, Event } from './index'
@@ -260,4 +260,31 @@ export function useConvexPolyhedron(fn: ConvexPolyhedronFn, deps: any[] = []) {
     },
     deps
   )
+}
+
+export function useConstraint(
+  bodyA: React.MutableRefObject<THREE.Object3D | undefined>,
+  offsetA: [number, number, number] = [0, 0, 0],
+  bodyB: React.MutableRefObject<THREE.Object3D | undefined>,
+  offsetB: [number, number, number] = [0, 0, 0],
+  maxForce: number
+) {
+  const { worker } = useContext(context)
+  const uuid = THREE.MathUtils.generateUUID()
+
+  useEffect(() => {
+    if (bodyA.current && bodyB.current) {
+      worker.postMessage({
+        op: 'addConstraint',
+        uuid: uuid,
+        props: [bodyA.current.uuid, offsetA, bodyB.current.uuid, offsetB, maxForce],
+      })
+
+      return () =>
+        worker.postMessage({
+          op: 'removeConstraint',
+          uuid: uuid,
+        })
+    }
+  }, [])
 }
