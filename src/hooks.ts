@@ -2,7 +2,7 @@ import * as THREE from 'three'
 import React, { useLayoutEffect, useContext, useRef, useMemo } from 'react'
 import { useFrame } from 'react-three-fiber'
 import { Buffers } from './Provider'
-import { context } from './index'
+import { context, Event } from './index'
 
 type BodyProps = {
   args?: any
@@ -20,7 +20,7 @@ type BodyProps = {
   collisionFilterMask?: number
   fixedRotation?: boolean
   type?: 'Dynamic' | 'Static' | 'Kinematic'
-  onCollide?: () => void
+  onCollide?: (e: Event) => void
 }
 
 type ShapeType =
@@ -37,7 +37,9 @@ type BoxProps = BodyProps & { args?: number[] }
 type CylinderProps = BodyProps & { args?: [number, number, number, number] }
 type ParticleProps = BodyProps & {}
 type SphereProps = BodyProps & { args?: number }
-type TrimeshProps = BodyProps & { args?: [number[][], number[][]] }
+type TrimeshProps = BodyProps & {
+  args?: THREE.Geometry | [(THREE.Vector3 | number[])[], (THREE.Face3 | number[])[]]
+}
 type HeightfieldProps = BodyProps & {
   args?: [number[], { minValue?: number; maxValue?: number; elementSize?: number }]
 }
@@ -91,47 +93,46 @@ function apply(object: THREE.Object3D, index: number, buffers: Buffers) {
 }
 
 function useBody(type: ShapeType, fn: BodyFn, argFn: ArgFn, deps: any[] = []): Api {
-  const ref = useRef<THREE.Object3D>()
+  const ref = useRef<THREE.Object3D>((null as unknown) as THREE.Object3D)
   const { worker, bodies, buffers, refs, events } = useContext(context)
+
   useLayoutEffect(() => {
-    if (ref.current) {
-      const object = ref.current
-      const currentWorker = worker
-      let uuid: string[] = [object.uuid],
-        props: BodyProps[]
+    const object = ref.current
+    const currentWorker = worker
+    let uuid: string[] = [object.uuid],
+      props: BodyProps[]
 
-      if (object instanceof THREE.InstancedMesh) {
-        // Why? Because @mrdoob did it in his example ...
-        object.instanceMatrix.setUsage(THREE.DynamicDrawUsage)
-        uuid = new Array(object.count).fill(0).map((_, i) => `${object.uuid}/${i}`)
-        props = uuid.map((id, i) => {
-          const props = prepare(temp, fn(i), argFn)
-          temp.updateMatrix()
-          object.setMatrixAt(i, temp.matrix)
-          object.instanceMatrix.needsUpdate = true
-          return props
-        })
-      } else props = [prepare(object, fn(0), argFn)]
-
-      props.forEach((props, index) => {
-        if (props.onCollide) {
-          refs[uuid[index]] = object
-          events[uuid[index]] = props.onCollide
-          ;(props as any).onCollide = true
-        }
+    if (object instanceof THREE.InstancedMesh) {
+      // Why? Because @mrdoob did it in his example ...
+      object.instanceMatrix.setUsage(THREE.DynamicDrawUsage)
+      uuid = new Array(object.count).fill(0).map((_, i) => `${object.uuid}/${i}`)
+      props = uuid.map((id, i) => {
+        const props = prepare(temp, fn(i), argFn)
+        temp.updateMatrix()
+        object.setMatrixAt(i, temp.matrix)
+        object.instanceMatrix.needsUpdate = true
+        return props
       })
+    } else props = [prepare(object, fn(0), argFn)]
 
-      // Register on mount, unregister on unmount
-      currentWorker.postMessage({ op: 'addBodies', type, uuid, props })
-      return () => {
-        props.forEach((props, index) => {
-          delete refs[uuid[index]]
-          if (props.onCollide) delete events[uuid[index]]
-        })
-        currentWorker.postMessage({ op: 'removeBodies', uuid })
+    props.forEach((props, index) => {
+      if (props.onCollide) {
+        refs[uuid[index]] = object
+        events[uuid[index]] = props.onCollide
+        ;(props as any).onCollide = true
       }
+    })
+
+    // Register on mount, unregister on unmount
+    currentWorker.postMessage({ op: 'addBodies', type, uuid, props })
+    return () => {
+      props.forEach((props, index) => {
+        delete refs[uuid[index]]
+        if (props.onCollide) delete events[uuid[index]]
+      })
+      currentWorker.postMessage({ op: 'removeBodies', uuid })
     }
-  }, [ref.current, ...deps]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, deps) // eslint-disable-line react-hooks/exhaustive-deps
 
   useFrame(() => {
     if (ref.current && buffers.positions.length && buffers.quaternions.length) {
@@ -152,12 +153,10 @@ function useBody(type: ShapeType, fn: BodyFn, argFn: ArgFn, deps: any[] = []): A
   const api = useMemo(() => {
     return {
       setPosition(x: number, y: number, z: number) {
-        if (ref.current)
-          worker.postMessage({ op: 'setPosition', uuid: ref.current.uuid, props: [x, y, z] })
+        if (ref.current) worker.postMessage({ op: 'setPosition', uuid: ref.current.uuid, props: [x, y, z] })
       },
       setRotation(x: number, y: number, z: number) {
-        if (ref.current)
-          worker.postMessage({ op: 'setRotation', uuid: ref.current.uuid, props: [x, y, z] })
+        if (ref.current) worker.postMessage({ op: 'setRotation', uuid: ref.current.uuid, props: [x, y, z] })
       },
       setPositionAt(index: number, x: number, y: number, z: number) {
         if (ref.current)
@@ -231,7 +230,19 @@ export function useSphere(fn: SphereFn, deps: any[] = []) {
   return useBody('Sphere', fn, radius => [radius ?? 1], deps)
 }
 export function useTrimesh(fn: TrimeshFn, deps: any[] = []) {
-  return useBody('Trimesh', fn, args => args, deps)
+  return useBody(
+    'Trimesh',
+    fn,
+    args => {
+      const vertices = args instanceof THREE.Geometry ? args.vertices : args[0]
+      const indices = args instanceof THREE.Geometry ? args.faces : args[1]
+      return [
+        vertices.map((v: any) => (v instanceof THREE.Vector3 ? [v.x, v.y, v.z] : v)),
+        indices.map((i: any) => (i instanceof THREE.Face3 ? [i.a, i.b, i.c] : i)),
+      ]
+    },
+    deps
+  )
 }
 export function useConvexPolyhedron(fn: ConvexPolyhedronFn, deps: any[] = []) {
   return useBody(
@@ -240,9 +251,11 @@ export function useConvexPolyhedron(fn: ConvexPolyhedronFn, deps: any[] = []) {
     args => {
       const vertices = args instanceof THREE.Geometry ? args.vertices : args[0]
       const faces = args instanceof THREE.Geometry ? args.faces : args[1]
+      const normals = args instanceof THREE.Geometry ? args.faces.map(f => f.normal) : args[2]
       return [
         vertices.map((v: any) => (v instanceof THREE.Vector3 ? [v.x, v.y, v.z] : v)),
         faces.map((f: any) => (f instanceof THREE.Face3 ? [f.a, f.b, f.c] : f)),
+        normals && normals.map((n: any) => (n instanceof THREE.Vector3 ? [n.x, n.y, n.z] : n)),
       ]
     },
     deps

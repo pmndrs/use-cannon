@@ -16,8 +16,6 @@ import {
 
 let bodies = {}
 let world = new World()
-world.defaultContactMaterial.contactEquationStiffness = 1e6
-world.defaultContactMaterial.contactEquationRegularizationTime = 3
 let config = { step: 1 / 60 }
 
 const TYPES = {
@@ -36,7 +34,16 @@ self.onmessage = e => {
 
   switch (op) {
     case 'init': {
-      const { gravity, tolerance, step, iterations, allowSleep, broadphase, axisIndex } = props
+      const {
+        gravity,
+        tolerance,
+        step,
+        iterations,
+        allowSleep,
+        broadphase,
+        axisIndex,
+        defaultContactMaterial,
+      } = props
       const broadphases = { NaiveBroadphase, SAPBroadphase }
       world.allowSleep = allowSleep
       world.gravity.set(gravity[0], gravity[1], gravity[2])
@@ -44,6 +51,7 @@ self.onmessage = e => {
       world.solver.iterations = iterations
       world.broadphase = new (broadphases[broadphase + 'Broadphase'] || NaiveBroadphase)(world)
       world.broadphase.axisIndex = axisIndex ?? 0
+      Object.assign(world.defaultContactMaterial, defaultContactMaterial)
       config.step = step
       break
     }
@@ -61,10 +69,7 @@ self.onmessage = e => {
         quaternions[4 * i + 2] = q.z
         quaternions[4 * i + 3] = q.w
       }
-      self.postMessage({ op: 'frame', positions, quaternions }, [
-        positions.buffer,
-        quaternions.buffer,
-      ])
+      self.postMessage({ op: 'frame', positions, quaternions }, [positions.buffer, quaternions.buffer])
       break
     }
     case 'addBodies': {
@@ -87,13 +92,17 @@ self.onmessage = e => {
             body.addShape(new Box(new Vec3(...args))) // halfExtents
             break
           case 'ConvexPolyhedron':
-            const [v, f] = args
-            body.addShape(
-              new ConvexPolyhedron(
-                v.map(([x, y, z]) => new Vec3(x, y, z)),
-                f
-              )
+            const [v, f, n] = args
+            console.log('vertices', v)
+            console.log('faces', f)
+            console.log('normals', n)
+            const shape = new ConvexPolyhedron(
+              v.map(([x, y, z]) => new Vec3(x, y, z)),
+              f
             )
+            if (n) shape.faceNormals = n.map(([x, y, z]) => new Vec3(x, y, z))
+            else shape.computeNormals()
+            body.addShape(shape)
             break
           case 'Cylinder':
             body.addShape(new Cylinder(...args)) // [ radiusTop, radiusBottom, height, numSegments ] = args
@@ -132,6 +141,12 @@ self.onmessage = e => {
                 ri: ri.toArray(),
                 rj: rj.toArray(),
                 impactVelocity: contact.getImpactVelocityAlongNormal(),
+              },
+              collisionGroups: {
+                bodyFilterGroup: body.collisionFilterGroup,
+                bodyFilterMask: body.collisionFilterMask,
+                targetFilterGroup: target.collisionFilterGroup,
+                targetFilterMask: target.collisionFilterMask,
               },
             })
           })

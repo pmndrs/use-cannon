@@ -1,7 +1,7 @@
 {
   "name": "use-cannon",
-  "version": "0.1.15",
-  "description": "cannon hooks for react-three-fiber",
+  "version": "0.2.0",
+  "description": "physics based hooks for react-three-fiber",
   "keywords": [
     "cannon",
     "three",
@@ -32,7 +32,7 @@
     "singleQuote": true,
     "jsxBracketSameLine": true,
     "tabWidth": 2,
-    "printWidth": 100
+    "printWidth": 110
   },
   "peerDependencies": {
     "react": ">=16.13",
@@ -53,14 +53,14 @@
     "babel-eslint": "^10.1.0",
     "babel-loader": "^8.0.6",
     "babel-plugin-transform-react-remove-prop-types": "^0.4.24",
-    "cannon-es": "^0.6.7",
+    "cannon-es": "^0.6.8",
     "husky": "^4.2.3",
     "lebab": "^3.1.0",
     "prettier": "^1.19.1",
     "pretty-quick": "^2.0.1",
     "react-three-fiber": "^4.0.19",
     "rimraf": "^3.0.2",
-    "rollup": "^2.0.3",
+    "rollup": "^2.0.5",
     "rollup-plugin-babel": "^4.4.0",
     "rollup-plugin-node-resolve": "^5.2.0",
     "rollup-plugin-terser": "^5.3.0",
