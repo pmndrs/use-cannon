@@ -12,6 +12,8 @@ Experimental React hooks for [cannon](https://github.com/schteppe/cannon.js). Us
 
 ## Demos
 
+Ping pong: https://codesandbox.io/s/white-resonance-0mgum
+
 Cube pushing spheres away: https://codesandbox.io/s/r3f-cannon-instanced-physics-devf8
 
 Heap of cubes: https://codesandbox.io/s/r3f-cannon-instanced-physics-g1s88
