@@ -9,5 +9,6 @@ const ConvexPolyhydron = {
   bright: false,
 }
 const Pingpong = { descr: '', tags: [], Component: lazy(() => import('./Pingpong')), bright: false }
+const Constraints = { descr: '', tags: [], Component: lazy(() => import('./Constraints')), bright: false }
 
-export { Pingpong, KinematicCube, CubeHeap, ConvexPolyhydron }
+export { Constraints, Pingpong, KinematicCube, CubeHeap, ConvexPolyhydron }
