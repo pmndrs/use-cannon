@@ -14,6 +14,12 @@ export type Event = {
     rj: number[]
     impactVelocity: number
   }
+  collisionFilters: {
+    bodyFilterGroup: number
+    bodyFilterMask: number
+    targetFilterGroup: number
+    targetFilterMask: number
+  }
 }
 export type Events = { [uuid: string]: (e: Event) => void }
 
