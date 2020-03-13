@@ -13,6 +13,11 @@ import {
   Sphere,
   Trimesh,
   PointToPointConstraint,
+  ConeTwistConstraint,
+  HingeConstraint,
+  DistanceConstraint,
+  LockConstraint,
+  Constraint,
 } from 'cannon-es'
 
 let bodies = {}
@@ -185,15 +190,58 @@ self.onmessage = e => {
       break
     }
     case 'addConstraint': {
-      const [bodyA, offsetA, bodyB, offsetB, maxForce] = props
+      const [bodyA, bodyB, optns] = props
 
-      const constraint = new PointToPointConstraint(
-        bodies[bodyA],
-        new Vec3(...offsetA),
-        bodies[bodyB],
-        new Vec3(...offsetB),
-        maxForce
-      )
+      let { pivotA, pivotB, axisA, axisB, ...options } = optns
+
+      // is there a better way to enforce defaults?
+      pivotA = Array.isArray(pivotA) ? new Vec3(...pivotA) : undefined
+      pivotB = Array.isArray(pivotB) ? new Vec3(...pivotB) : undefined
+      axisA = Array.isArray(axisA) ? new Vec3(...axisA) : undefined
+      axisB = Array.isArray(axisB) ? new Vec3(...axisB) : undefined
+
+      let constraint
+
+      console.log(options)
+
+      switch (type) {
+        case 'PointToPoint':
+          constraint = new PointToPointConstraint(
+            bodies[bodyA],
+            pivotA,
+            bodies[bodyB],
+            pivotB,
+            optns.maxForce
+          )
+          break
+        case 'ConeTwist':
+          constraint = new ConeTwistConstraint(bodies[bodyA], bodies[bodyB], {
+            pivotA: pivotA,
+            pivotB: pivotB,
+            axisA: axisA,
+            axisB: axisB,
+            ...options,
+          })
+          break
+        case 'Hinge':
+          constraint = new HingeConstraint(bodies[bodyA], bodies[bodyB], {
+            pivotA: pivotA,
+            pivotB: pivotB,
+            axisA: axisA,
+            axisB: axisB,
+            ...options,
+          })
+          break
+        case 'Distance':
+          constraint = new DistanceConstraint(bodies[bodyA], bodies[bodyB], optns.distance, optns.maxForce)
+          break
+        case 'Lock':
+          constraint = new LockConstraint(bodies[bodyA], bodies[bodyB], optns)
+          break
+        default:
+          constraint = new Constraint(bodies[bodyA], bodies[bodyB], optns)
+          break
+      }
 
       constraint.uuid = uuid
 
