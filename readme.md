@@ -95,10 +95,7 @@ type Api = [
     applyForce: (force: [number, number, number], worldPoint: [number, number, number]) => void
     applyImpulse: (impulse: [number, number, number], worldPoint: [number, number, number]) => void
     applyLocalForce: (force: [number, number, number], localPoint: [number, number, number]) => void
-    applyLocalImpulse: (
-      impulse: [number, number, number],
-      localPoint: [number, number, number]
-    ) => void
+    applyLocalImpulse: (impulse: [number, number, number], localPoint: [number, number, number]) => void
   }
 ]
 ```
@@ -154,6 +151,12 @@ type Event = {
     ri: number[]
     rj: number[]
     impactVelocity: number
+  }
+  collisionFilters: {
+    bodyFilterGroup: number
+    bodyFilterMask: number
+    targetFilterGroup: number
+    targetFilterMask: number
   }
 }
 
