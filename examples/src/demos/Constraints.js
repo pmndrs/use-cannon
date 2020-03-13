@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import React from 'react'
 import { Canvas, useFrame } from 'react-three-fiber'
-import { Physics, useSphere, useBox, useConstraint } from '../../../dist/index'
+import { Physics, useSphere, useBox, useDistanceConstraint } from '../../../dist/index'
 
 const Box = React.forwardRef((props, ref) => {
   return (
@@ -25,7 +25,7 @@ const BoxAndBall = props => {
   const [ball, api] = useSphere(() => ({ type: 'Kinematic', mass: 1, args: 0.5, position: [1, 0, 0] }))
   const [box] = useBox(() => ({ mass: 1, args: [0.5, 0.5, 0.5], position: [-1, 0, 0] }))
 
-  useConstraint(box, [0, 0, 0], ball, [0, 0, 0], 2)
+  useDistanceConstraint(box, ball, { distance: 1 })
 
   useFrame(e => {
     api.setPosition((e.mouse.x * e.viewport.width) / 2, (e.mouse.y * e.viewport.height) / 2, 0)
