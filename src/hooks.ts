@@ -285,6 +285,11 @@ type HingeConstraintOpts = ConstraintOptns & {
 
 type LockConstraintOpts = ConstraintOptns & {}
 
+type ConstraintApi = {
+  enable: () => void
+  disable: () => void
+}
+
 export function usePointToPointConstraint(
   bodyA: React.MutableRefObject<THREE.Object3D | undefined>,
   bodyB: React.MutableRefObject<THREE.Object3D | undefined>,
@@ -332,7 +337,7 @@ function useConstraint(
   bodyB: React.MutableRefObject<THREE.Object3D | undefined>,
   optns: any = {},
   deps: any[] = []
-) {
+): ConstraintApi {
   const { worker } = useContext(context)
   const uuid = THREE.MathUtils.generateUUID()
 
@@ -352,6 +357,25 @@ function useConstraint(
         })
     }
   }, deps)
+
+  const api = useMemo(() => {
+    return {
+      enable() {
+        worker.postMessage({
+          op: 'enableConstraint',
+          uuid,
+        })
+      },
+      disable() {
+        worker.postMessage({
+          op: 'disableConstraint',
+          uuid,
+        })
+      },
+    }
+  }, deps)
+
+  return api
 }
 
 export function useSpring(
