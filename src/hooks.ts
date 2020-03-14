@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import React, { useLayoutEffect, useContext, useRef, useMemo } from 'react'
+import React, { useLayoutEffect, useContext, useRef, useMemo, useEffect } from 'react'
 import { useFrame } from 'react-three-fiber'
 import { Buffers } from './Provider'
 import { context, Event } from './index'
@@ -68,10 +68,7 @@ type Api = [
     applyForce: (force: [number, number, number], worldPoint: [number, number, number]) => void
     applyImpulse: (impulse: [number, number, number], worldPoint: [number, number, number]) => void
     applyLocalForce: (force: [number, number, number], localPoint: [number, number, number]) => void
-    applyLocalImpulse: (
-      impulse: [number, number, number],
-      localPoint: [number, number, number]
-    ) => void
+    applyLocalImpulse: (impulse: [number, number, number], localPoint: [number, number, number]) => void
   }
 ]
 
@@ -260,4 +257,130 @@ export function useConvexPolyhedron(fn: ConvexPolyhedronFn, deps: any[] = []) {
     },
     deps
   )
+}
+
+type ConstraintTypes = 'PointToPoint' | 'ConeTwist' | 'Distance' | 'Hinge' | 'Lock'
+
+type ConstraintOptns = { maxForce?: number; collideConnected?: boolean; wakeUpBodies?: boolean }
+
+type PointToPointConstraintOpts = ConstraintOptns & {
+  pivotA: [number, number, number]
+  pivotB: [number, number, number]
+}
+
+type ConeTwistConstraintOpts = ConstraintOptns & {
+  pivotA?: [number, number, number]
+  axisA?: [number, number, number]
+  pivotB?: [number, number, number]
+  axisB?: [number, number, number]
+}
+type DistanceConstraintOpts = ConstraintOptns & { distance?: number }
+
+type HingeConstraintOpts = ConstraintOptns & {
+  pivotA?: [number, number, number]
+  axisA?: [number, number, number]
+  pivotB?: [number, number, number]
+  axisB?: [number, number, number]
+}
+
+type LockConstraintOpts = ConstraintOptns & {}
+
+export function usePointToPointConstraint(
+  bodyA: React.MutableRefObject<THREE.Object3D | undefined>,
+  bodyB: React.MutableRefObject<THREE.Object3D | undefined>,
+  optns: PointToPointConstraintOpts,
+  deps: any[]
+) {
+  return useConstraint('PointToPoint', bodyA, bodyB, optns, deps)
+}
+export function useConeTwistConstraint(
+  bodyA: React.MutableRefObject<THREE.Object3D | undefined>,
+  bodyB: React.MutableRefObject<THREE.Object3D | undefined>,
+  optns: ConeTwistConstraintOpts,
+  deps: any[]
+) {
+  return useConstraint('ConeTwist', bodyA, bodyB, optns, deps)
+}
+export function useDistanceConstraint(
+  bodyA: React.MutableRefObject<THREE.Object3D | undefined>,
+  bodyB: React.MutableRefObject<THREE.Object3D | undefined>,
+  optns: DistanceConstraintOpts,
+  deps: any[]
+) {
+  return useConstraint('Distance', bodyA, bodyB, optns, deps)
+}
+export function useHingeConstraint(
+  bodyA: React.MutableRefObject<THREE.Object3D | undefined>,
+  bodyB: React.MutableRefObject<THREE.Object3D | undefined>,
+  optns: HingeConstraintOpts,
+  deps: any[]
+) {
+  return useConstraint('Hinge', bodyA, bodyB, optns, deps)
+}
+export function useLockConstraint(
+  bodyA: React.MutableRefObject<THREE.Object3D | undefined>,
+  bodyB: React.MutableRefObject<THREE.Object3D | undefined>,
+  optns: LockConstraintOpts,
+  deps: any[]
+) {
+  return useConstraint('Lock', bodyA, bodyB, optns, deps)
+}
+
+function useConstraint(
+  type: ConstraintTypes,
+  bodyA: React.MutableRefObject<THREE.Object3D | undefined>,
+  bodyB: React.MutableRefObject<THREE.Object3D | undefined>,
+  optns: any = {},
+  deps: any[] = []
+) {
+  const { worker } = useContext(context)
+  const uuid = THREE.MathUtils.generateUUID()
+
+  useEffect(() => {
+    if (bodyA.current && bodyB.current) {
+      worker.postMessage({
+        op: 'addConstraint',
+        uuid: uuid,
+        type: type,
+        props: [bodyA.current.uuid, bodyB.current.uuid, optns],
+      })
+
+      return () =>
+        worker.postMessage({
+          op: 'removeConstraint',
+          uuid: uuid,
+        })
+    }
+  }, deps)
+}
+
+export function useSpring(
+  bodyA: React.MutableRefObject<THREE.Object3D | undefined>,
+  bodyB: React.MutableRefObject<THREE.Object3D | undefined>,
+  optns: any = {},
+  deps: any[] = []
+) {
+  const { worker, events } = useContext(context)
+  const uuid = THREE.MathUtils.generateUUID()
+
+  useEffect(() => {
+    if (bodyA.current && bodyB.current) {
+      worker.postMessage({
+        op: 'addSpring',
+        uuid: uuid,
+        props: [bodyA.current.uuid, bodyB.current.uuid, optns],
+      })
+
+      events[uuid] = () => {}
+
+      return () => {
+        worker.postMessage({
+          op: 'removeSpring',
+          uuid: uuid,
+        })
+
+        delete events[uuid]
+      }
+    }
+  }, deps)
 }
