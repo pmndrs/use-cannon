@@ -216,19 +216,19 @@ self.onmessage = e => {
           break
         case 'ConeTwist':
           constraint = new ConeTwistConstraint(bodies[bodyA], bodies[bodyB], {
-            pivotA: pivotA,
-            pivotB: pivotB,
-            axisA: axisA,
-            axisB: axisB,
+            pivotA,
+            pivotB,
+            axisA,
+            axisB,
             ...options,
           })
           break
         case 'Hinge':
           constraint = new HingeConstraint(bodies[bodyA], bodies[bodyB], {
-            pivotA: pivotA,
-            pivotB: pivotB,
-            axisA: axisA,
-            axisB: axisB,
+            pivotA,
+            pivotB,
+            axisA,
+            axisB,
             ...options,
           })
           break
@@ -262,13 +262,13 @@ self.onmessage = e => {
       localAnchorB = Array.isArray(localAnchorB) ? new Vec3(...localAnchorB) : undefined
 
       let spring = new Spring(bodies[bodyA], bodies[bodyB], {
-        worldAnchorA: worldAnchorA,
-        worldAnchorB: worldAnchorB,
-        localAnchorA: localAnchorA,
-        localAnchorB: localAnchorB,
-        restLength: restLength,
-        stiffness: stiffness,
-        damping: damping,
+        worldAnchorA,
+        worldAnchorB,
+        localAnchorA,
+        localAnchorB,
+        restLength,
+        stiffness,
+        damping,
       })
 
       spring.uuid = uuid

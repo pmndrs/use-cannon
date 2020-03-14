@@ -340,7 +340,7 @@ function useConstraint(
     if (bodyA.current && bodyB.current) {
       worker.postMessage({
         op: 'addConstraint',
-        uuid: uuid,
+        uuid,
         type: type,
         props: [bodyA.current.uuid, bodyB.current.uuid, optns],
       })
@@ -348,7 +348,7 @@ function useConstraint(
       return () =>
         worker.postMessage({
           op: 'removeConstraint',
-          uuid: uuid,
+          uuid,
         })
     }
   }, deps)
@@ -367,7 +367,7 @@ export function useSpring(
     if (bodyA.current && bodyB.current) {
       worker.postMessage({
         op: 'addSpring',
-        uuid: uuid,
+        uuid,
         props: [bodyA.current.uuid, bodyB.current.uuid, optns],
       })
 
@@ -376,7 +376,7 @@ export function useSpring(
       return () => {
         worker.postMessage({
           op: 'removeSpring',
-          uuid: uuid,
+          uuid,
         })
 
         delete events[uuid]
