@@ -254,12 +254,10 @@ self.onmessage = e => {
     }
     case 'enableConstraint': {
       world.constraints.filter(({ uuid: thisId }) => thisId === uuid).map(c => c.enable())
-      console.log('enableConstraint')
       break
     }
     case 'disableConstraint': {
       world.constraints.filter(({ uuid: thisId }) => thisId === uuid).map(c => c.disable())
-      console.log('disableConstraint')
       break
     }
     case 'addSpring': {
