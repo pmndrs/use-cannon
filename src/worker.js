@@ -18,9 +18,11 @@ import {
   DistanceConstraint,
   LockConstraint,
   Constraint,
+  Spring,
 } from 'cannon-es'
 
 let bodies = {}
+let springs = {}
 let world = new World()
 let config = { step: 1 / 60 }
 
@@ -202,8 +204,6 @@ self.onmessage = e => {
 
       let constraint
 
-      console.log(options)
-
       switch (type) {
         case 'PointToPoint':
           constraint = new PointToPointConstraint(
@@ -250,6 +250,39 @@ self.onmessage = e => {
     }
     case 'removeConstraint': {
       world.removeConstraint(uuid)
+      break
+    }
+    case 'addSpring': {
+      const [bodyA, bodyB, optns] = props
+      let { worldAnchorA, worldAnchorB, localAnchorA, localAnchorB, restLength, stiffness, damping } = optns
+
+      worldAnchorA = Array.isArray(worldAnchorA) ? new Vec3(...worldAnchorA) : undefined
+      worldAnchorB = Array.isArray(worldAnchorB) ? new Vec3(...worldAnchorB) : undefined
+      localAnchorA = Array.isArray(localAnchorA) ? new Vec3(...localAnchorA) : undefined
+      localAnchorB = Array.isArray(localAnchorB) ? new Vec3(...localAnchorB) : undefined
+
+      let spring = new Spring(bodies[bodyA], bodies[bodyB], {
+        worldAnchorA: worldAnchorA,
+        worldAnchorB: worldAnchorB,
+        localAnchorA: localAnchorA,
+        localAnchorB: localAnchorB,
+        restLength: restLength,
+        stiffness: stiffness,
+        damping: damping,
+      })
+
+      spring.uuid = uuid
+
+      let postStepSpring = e => spring.applyForce()
+
+      springs[uuid] = postStepSpring
+
+      // Compute the force after each step
+      world.addEventListener('postStep', springs[uuid])
+      break
+    }
+    case 'removeSpring': {
+      world.removeEventListener('postStep', springs[uuid])
       break
     }
   }

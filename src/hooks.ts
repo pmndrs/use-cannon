@@ -353,3 +353,34 @@ function useConstraint(
     }
   }, deps)
 }
+
+export function useSpring(
+  bodyA: React.MutableRefObject<THREE.Object3D | undefined>,
+  bodyB: React.MutableRefObject<THREE.Object3D | undefined>,
+  optns: any = {},
+  deps: any[] = []
+) {
+  const { worker, events } = useContext(context)
+  const uuid = THREE.MathUtils.generateUUID()
+
+  useEffect(() => {
+    if (bodyA.current && bodyB.current) {
+      worker.postMessage({
+        op: 'addSpring',
+        uuid: uuid,
+        props: [bodyA.current.uuid, bodyB.current.uuid, optns],
+      })
+
+      events[uuid] = () => {}
+
+      return () => {
+        worker.postMessage({
+          op: 'removeSpring',
+          uuid: uuid,
+        })
+
+        delete events[uuid]
+      }
+    }
+  }, deps)
+}
