@@ -1,69 +1,77 @@
-![Imgur](https://imgur.com/FpBsJPL.jpg)
+[![Build Status](https://travis-ci.org/react-spring/use-cannon.svg?branch=master)](https://travis-ci.org/react-spring/use-cannon) [![npm version](https://badge.fury.io/js/use-cannon.svg)](https://badge.fury.io/js/use-cannon) ![npm](https://img.shields.io/npm/dt/use-cannon.svg)
 
-<br/>
+![Imgur](https://imgur.com/FpBsJPL.jpg)
 
     yarn add use-cannon
 
-Experimental web-worker based React hooks for cannon (using [cannon-es](https://github.com/drcmda/cannon-es)) in combination with [react-three-fiber](https://github.com/react-spring/react-three-fiber). Right now it only supports planes and boxes, for individual objects or instanced objects. The public api can only set positions for now. If you need more, please submit your PRs.
+Experimental React hooks for [cannon](https://github.com/schteppe/cannon.js). Use this in combination with [react-three-fiber](https://github.com/react-spring/react-three-fiber).
 
-How does it work? It subscribes the view part of a component to cannons physics world and unsubscribes on unmount. You don't put position/rotation/scale into the mesh any longer, you put it into the hook, which takes care of forwarding all movements.
+- [x] Doesn't block the main thread, runs in a web worker
+- [x] Supports instancing out of the box
+- [x] Least amount of friction you'll ever experience with a physics rig ... 🙈
 
-# Demos
+## Demos
 
-Cubes pushing spheres away: https://codesandbox.io/s/r3f-cannon-instanced-physics-devf8
+Ping pong: https://codesandbox.io/s/white-resonance-0mgum
+
+Cube pushing spheres away: https://codesandbox.io/s/r3f-cannon-instanced-physics-devf8
 
 Heap of cubes: https://codesandbox.io/s/r3f-cannon-instanced-physics-g1s88
 
-# Api
+## How it works
+
+1. Get all the imports that you need.
 
 ```jsx
-import { Phsysics, usePlane, useBox, useSphere } from 'use-cannon'
-
-function Plane() {
-  const [ref] = usePlane(() => ({ mass: 0 }))
-  return (
-    <mesh ref={ref}>
-      <planeBufferGeometry attach="geometry" />
-      <meshBasicMaterial attach="material" color="hotpink" />
-    </mesh>
-  )
-}
-
-function Box() {
-  const [ref] = useBox(() => ({ mass: 1, position: [0, 0, 10], args: [0.5, 0.5, 0.5] }))
-  return (
-    <mesh ref={ref}>
-      <boxBufferGeometry attach="geometry" />
-      <meshBasicMaterial attach="material" color="indianred" />
-    </mesh>
-  )
-}
-
-function InstancedSpheres({ number = 100 }) {
-  const [ref] = useSphere(index => ({ mass: 1, position: [0, 0, index + 10], args: 0.5 }))
-  return (
-    <instancedMesh ref={ref} args={[null, null, number]}>
-      <sphereBufferGeometry attach="geometry" />
-      <meshBasicMaterial attach="material" color="peachpuff" />
-    </instancedMesh>
-  )
-}
-
-function App() {
-  return (
-    <Physics gravity={[0, 0, -10]}>
-      <Plane />
-      <Box />
-      <InstancedSpheres />
-    </Physics>
-  )
-}
+import { Physics, useBox, ... } from 'use-cannon'
 ```
 
-## Exports
+2. Create a physics world.
 
 ```jsx
-function Physics({ children, step, gravity, tolerance, }: PhysicsProps): React.ReactNode
+<Physics>{/* Physics related objects in here please */}</Physics>
+```
+
+3. Pick a shape that suits your object best, it could be a box, plane, sphere, etc. Give it a mass, too.
+
+```jsx
+const [ref, api] = useBox(() => ({ mass: 1 }))
+```
+
+4. Take your object, it could be a mesh, line, gltf, anything, and tie it to the reference you have just received. Et voilà, it will now be affected by gravity and other objects inside the physics world automatically.
+
+```jsx
+<mesh ref={ref} geometry={...} material={...} />
+```
+
+5. You can interact with it by using the api, which lets you apply positions and rotations.
+
+```jsx
+useFrame(({ clock }) => api.setPosition(Math.sin(clock.getElapsedTime()) * 5, 0, 0))
+```
+
+## Api
+
+### Exports
+
+```typescript
+function Physics({
+  children,
+  step = 1 / 60,
+  gravity = [0, -10, 0],
+  tolerance = 0.001,
+  iterations = 5,
+  allowSleep = true,
+  broadphase = 'Naive',
+  axisIndex = 0,
+  defaultContactMaterial = {
+    contactEquationStiffness: 1e6,
+  },
+  // Maximum amount of physics objects inside your scene
+  // Lower this value to save memory, increase if 1000 isn't enough
+  size = 1000,
+}: ProviderProps): JSX.Element
+
 function usePlane(fn: PlaneFn, deps?: any[]): Api
 function useBox(fn: BoxFn, deps?: any[]): Api
 function useCylinder(fn: CylinderFn, deps?: any[]): Api
@@ -71,27 +79,48 @@ function useHeightfield(fn: HeightfieldFn, deps?: any[]): Api
 function useParticle(fn: ParticleFn, deps?: any[]): Api
 function useSphere(fn: SphereFn, deps?: any[]): Api
 function useTrimesh(fn: TrimeshFn, deps?: any[]): Api
+function useConvexPolyhedron(fn: ConvexPolyhedronFn, deps?: any[]): Api
 ```
 
-## Returned api
+### Returned api
 
-```jsx
-type Api = [React.MutableRefObject<THREE.Object3D | undefined>, ({
-  setPosition: (x: number, y: number, z: number) => void
-  setRotation: (x: number, y: number, z: number) => void
-  setPositionAt: (index: number, x: number, y: number, z: number) => void
-  setRotationAt: (index: number, x: number, y: number, z: number) => void
-} | undefined)]
+```typescript
+type Api = [
+  React.MutableRefObject<THREE.Object3D | undefined>,
+  {
+    setPosition: (x: number, y: number, z: number) => void
+    setRotation: (x: number, y: number, z: number) => void
+    setPositionAt: (index: number, x: number, y: number, z: number) => void
+    setRotationAt: (index: number, x: number, y: number, z: number) => void
+    applyForce: (force: [number, number, number], worldPoint: [number, number, number]) => void
+    applyImpulse: (impulse: [number, number, number], worldPoint: [number, number, number]) => void
+    applyLocalForce: (force: [number, number, number], localPoint: [number, number, number]) => void
+    applyLocalImpulse: (impulse: [number, number, number], localPoint: [number, number, number]) => void
+  }
+]
 ```
 
-## Props
+### Props
 
-```jsx
-type PhysicsProps = {
+```typescript
+type ProviderProps = {
   children: React.ReactNode
   gravity?: number[]
   tolerance?: number
   step?: number
+  iterations?: number
+  allowSleep?: boolean
+  broadphase?: 'Naive' | 'SAP'
+  axisIndex?: number
+  defaultContactMaterial?: {
+    friction?: number
+    restitution?: number
+    contactEquationStiffness?: number
+    contactEquationRelaxation?: number
+    frictionEquationStiffness?: number
+    frictionEquationRelaxation?: number
+  }
+  size?: number
 }
 
 type BodyProps = {
@@ -108,7 +137,27 @@ type BodyProps = {
   collisionFilterGroup?: number
   collisionFilterMask?: number
   fixedRotation?: boolean
-  isKinematic?: boolean
+  type?: 'Dynamic' | 'Static' | 'Kinematic'
+  onCollide?: (e: Event) => void
+}
+
+type Event = {
+  op: string
+  type: string
+  body: THREE.Object3D
+  target: THREE.Object3D
+  contact: {
+    ni: number[]
+    ri: number[]
+    rj: number[]
+    impactVelocity: number
+  }
+  collisionFilters: {
+    bodyFilterGroup: number
+    bodyFilterMask: number
+    targetFilterGroup: number
+    targetFilterMask: number
+  }
 }
 
 type PlaneProps = BodyProps & {}
@@ -123,7 +172,13 @@ type SphereProps = BodyProps & {
   args?: number // radius
 }
 type TrimeshProps = BodyProps & {
-  args?: [number[][], number[][]] // vertices: [[...], ...], faces: [[...], ...]
+  args?: [number[][], number[][]] // vertices: [[x, y, z], ...], indices: [[a, b, c], ...]
+}
+type ConvexPolyhedronProps = BodyProps & {
+  args?:
+    | THREE.Geometry
+    // vertices: [[x, y, z], ...], faces: [[a, b, c], ...]
+    | [(THREE.Vector3 | number[])[], (THREE.Face3 | number[])[]]
 }
 type HeightfieldProps = BodyProps & {
   args?: [
@@ -144,3 +199,16 @@ type ParticleFn = (index: number) => ParticleProps
 type SphereFn = (index: number) => SphereProps
 type TrimeshFn = (index: number) => TrimeshProps
 ```
+
+### FAQ
+
+#### Broadphases
+
+- NaiveBroadphase is as simple as it gets. It considers every body to be a potential collider with every other body. This results in the maximum number of narrowphase checks.
+- SAPBroadphase sorts bodies along an axis and then moves down that list finding pairs by looking at body size and position of the next bodies. Control what axis to sort along by setting the axisIndex property.
+
+#### Types
+
+- A dynamic body is fully simulated. Can be moved manually by the user, but normally they move according to forces. A dynamic body can collide with all body types. A dynamic body always has finite, non-zero mass.
+- A static body does not move during simulation and behaves as if it has infinite mass. Static bodies can be moved manually by setting the position of the body. The velocity of a static body is always zero. Static bodies do not collide with other static or kinematic bodies.
+- A kinematic body moves under simulation according to its velocity. They do not respond to forces. They can be moved manually, but normally a kinematic body is moved by setting its velocity. A kinematic body behaves as if it has infinite mass. Kinematic bodies do not collide with other static or kinematic bodies.
