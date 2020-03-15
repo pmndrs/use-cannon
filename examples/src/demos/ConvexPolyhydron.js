@@ -6,8 +6,16 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 
 function Diamond(props) {
   const { nodes } = useLoader(GLTFLoader, '/diamond.glb')
-  const geo = useMemo(() => new THREE.Geometry().fromBufferGeometry(nodes.Cylinder.geometry), [])
-  const [impact, set] = React.useState(0)
+  const [impact, set] = useState(0)
+  const geo = useMemo(() => {
+    let geo = new THREE.Geometry().fromBufferGeometry(nodes.Diamond.geometry)
+    // Merge duplicate vertices resulting from glTF export.
+    // Cannon assumes contiguous, closed meshes to work
+    geo.mergeVertices()
+    // Ensure loaded mesh is convex and create faces if necessary
+    return new ConvexGeometry(geo.vertices)
+  }, [nodes])
+
   const [ref] = useConvexPolyhedron(() => ({
     mass: 100,
     ...props,
@@ -17,9 +25,21 @@ function Diamond(props) {
       setTimeout(() => set(0), 100)
     },
   }))
-
   return (
-    <mesh castShadow ref={ref} geometry={nodes.Cylinder.geometry} dispose={null}>
+    <mesh castShadow receiveShadow ref={ref} geometry={geo} dispose={null}>
+      <meshStandardMaterial attach="material" wireframe />
+    </mesh>
+  )
+}
+
+// A cone is a convex shape by definition
+function Cone(props) {
+  const geo = new THREE.ConeGeometry(1, 1, props.sides, 2)
+  geo.mergeVertices()
+  const [ref] = useConvexPolyhedron(() => ({ mass: 100, ...props, args: geo }))
+  return (
+    <mesh castShadow ref={ref} dispose={null}>
+      <coneBufferGeometry attach="geometry" args={[1, 1, props.sides, 2]} />
       <meshNormalMaterial attach="material" />
     </mesh>
   )
@@ -52,6 +72,8 @@ export default () => (
       <Physics>
         <Plane rotation={[-Math.PI / 2, 0, 0]} />
         <Diamond position={[0, 5, 0]} rotation={[0.1, 0.1, 0.1]} />
+        <Cone position={[0, 5, 0]} rotation={[0.1, 0.1, 0.1]} sides={6} />
+        <Cone position={[1, 6, 0]} rotation={[0.5, 0.1, 0.1]} sides={8} />
       </Physics>
     </Suspense>
   </Canvas>
