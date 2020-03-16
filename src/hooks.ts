@@ -285,10 +285,14 @@ type HingeConstraintOpts = ConstraintOptns & {
 
 type LockConstraintOpts = ConstraintOptns & {}
 
-type ConstraintApi = {
-  enable: () => void
-  disable: () => void
-}
+type ConstraintApi = [
+  React.MutableRefObject<THREE.Object3D | undefined>,
+  React.MutableRefObject<THREE.Object3D | undefined>,
+  {
+    enable: () => void
+    disable: () => void
+  }
+]
 
 export function usePointToPointConstraint(
   bodyA: React.MutableRefObject<THREE.Object3D | undefined>,
@@ -341,6 +345,12 @@ function useConstraint(
   const { worker } = useContext(context)
   const uuid = THREE.MathUtils.generateUUID()
 
+  if (bodyA === undefined || bodyA === null)
+    bodyA = useRef<THREE.Object3D>((null as unknown) as THREE.Object3D)
+
+  if (bodyB === undefined || bodyB === null)
+    bodyB = useRef<THREE.Object3D>((null as unknown) as THREE.Object3D)
+
   useEffect(() => {
     if (bodyA.current && bodyB.current) {
       worker.postMessage({
@@ -375,7 +385,7 @@ function useConstraint(
     }
   }, deps)
 
-  return api
+  return [bodyA, bodyB, api]
 }
 
 export function useSpring(

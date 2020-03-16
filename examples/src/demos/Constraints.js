@@ -1,41 +1,88 @@
 import * as THREE from 'three'
 import React from 'react'
 import { Canvas, useFrame } from 'react-three-fiber'
-import { Physics, useSphere, useBox, useSpring } from '../../../dist/index'
+import { Physics, useSphere, useBox, useLockConstraint, usePointToPointConstraint } from '../../../dist/index'
 
-const Box = React.forwardRef((props, ref) => {
+const Link = ({ parentRef, ...props }) => {
+  const chainSize = [0.5, 1, 0.5]
+
+  const [ref, api] = useBox(() => ({
+    mass: 1,
+    linearDamping: 0.8,
+    args: chainSize.map(s => s / 2),
+    position: props.position,
+  }))
+
+  const [bodyA, bodyB] = usePointToPointConstraint(parentRef, ref, {
+    pivotA: [0, -chainSize[1] / 2, 0],
+    pivotB: [0, chainSize[1] / 2, 0],
+  })
+
   return (
-    <mesh ref={ref} position={props.position}>
-      <boxBufferGeometry attach="geometry" args={[1, 1, 1]}></boxBufferGeometry>
-      <meshStandardMaterial attach="material" />
-    </mesh>
+    <>
+      <mesh ref={bodyB} {...props}>
+        <boxBufferGeometry attach="geometry" args={chainSize}></boxBufferGeometry>
+        <meshStandardMaterial attach="material" />
+      </mesh>
+      {props.children && props.children(bodyB)}
+    </>
   )
+}
+
+const ChainLink = React.forwardRef((props, ref) => {
+  return <Link parentRef={ref} {...props} name={'link'} />
 })
 
-const Ball = React.forwardRef((props, ref) => {
-  return (
-    <mesh ref={ref} position={props.position}>
-      <sphereBufferGeometry attach="geometry" args={[0.5, 64, 64]}></sphereBufferGeometry>
-      <meshStandardMaterial attach="material" />
-    </mesh>
-  )
-})
-
-const BoxAndBall = props => {
-  const [ball, api] = useSphere(() => ({ type: 'Static', mass: 1, args: 0.5, position: [1, 0, 0] }))
-  const [box] = useBox(() => ({ mass: 1, args: [0.5, 0.5, 0.5], position: [-1, 0, 0] }))
-
-  useSpring(box, ball, { restLength: 1, stiffness: 100, damping: 2 })
+const Handle = props => {
+  const [handle, api] = useSphere(() => ({ type: 'Static', mass: 0, args: 0.5, position: [0, 0, 0] }))
 
   useFrame(e => {
     api.setPosition((e.mouse.x * e.viewport.width) / 2, (e.mouse.y * e.viewport.height) / 2, 0)
   })
 
+  const [bodyA, bodyB] = usePointToPointConstraint(handle, null, {
+    pivotA: [0, 0, 0],
+    pivotB: [0, 0, 0],
+  })
+
   return (
-    <>
-      <Box ref={box} position={[1, 0, 0]}></Box>
-      <Ball ref={ball} position={[-1, 0, 0]}></Ball>
-    </>
+    <group>
+      <mesh ref={bodyA} position={props.position}>
+        <sphereBufferGeometry attach="geometry" args={[0.5, 64, 64]}></sphereBufferGeometry>
+        <meshStandardMaterial attach="material" />
+      </mesh>
+      {props.children && props.children(handle)}
+    </group>
+  )
+}
+
+const Chain = props => {
+  return (
+    <Handle isHandle={true}>
+      {ref => (
+        <ChainLink ref={ref}>
+          {ref => (
+            <ChainLink ref={ref}>
+              {ref => (
+                <ChainLink ref={ref}>
+                  {ref => (
+                    <ChainLink ref={ref}>
+                      {ref => (
+                        <ChainLink ref={ref}>
+                          {ref => (
+                            <ChainLink ref={ref}>{ref => <ChainLink parentRef={ref}></ChainLink>}</ChainLink>
+                          )}
+                        </ChainLink>
+                      )}
+                    </ChainLink>
+                  )}
+                </ChainLink>
+              )}
+            </ChainLink>
+          )}
+        </ChainLink>
+      )}
+    </Handle>
   )
 }
 
@@ -47,7 +94,7 @@ const Test = () => {
       <pointLight position={[-10, -10, -10]} />
       <spotLight position={[10, 10, 10]} angle={0.3} penumbra={1} intensity={1} castShadow />
       <Physics gravity={[0, -40, 0]} allowSleep={false}>
-        <BoxAndBall />
+        <Chain />
       </Physics>
     </Canvas>
   )
