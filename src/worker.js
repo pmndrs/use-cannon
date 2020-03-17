@@ -102,12 +102,11 @@ self.onmessage = e => {
             break
           case 'ConvexPolyhedron':
             const [v, f, n] = args
-            const shape = new ConvexPolyhedron(
-              v.map(([x, y, z]) => new Vec3(x, y, z)),
-              f
-            )
-            if (n) shape.faceNormals = n.map(([x, y, z]) => new Vec3(x, y, z))
-            else shape.computeNormals()
+            const shape = new ConvexPolyhedron({
+              vertices: v.map(([x, y, z]) => new Vec3(x, y, z)),
+              normals: n ? n.map(([x, y, z]) => new Vec3(x, y, z)) : null,
+              faces: f,
+            })
             body.addShape(shape)
             break
           case 'Cylinder':
