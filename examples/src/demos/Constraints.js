@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import React from 'react'
 import { Canvas, useFrame } from 'react-three-fiber'
-import { Physics, useSphere, useBox, useLockConstraint, usePointToPointConstraint } from '../../../dist/index'
+import { Physics, useSphere, useBox, usePointToPointConstraint } from '../../../dist/index'
 
 const Link = ({ parentRef, ...props }) => {
   const chainSize = [0.5, 1, 0.5]
@@ -58,7 +58,7 @@ const Handle = props => {
 
 const Chain = props => {
   return (
-    <Handle isHandle={true}>
+    <Handle>
       {ref => (
         <ChainLink ref={ref}>
           {ref => (

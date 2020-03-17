@@ -10,6 +10,7 @@ import {
   useConeTwistConstraint,
   useHingeConstraint,
   usePointToPointConstraint,
+  useLockConstraint,
 } from '../../../dist/index'
 import lerp from 'lerp'
 import create from 'zustand'
@@ -24,20 +25,30 @@ const [useStore] = create(set => ({
   removeBody: name => set(({ bodies }) => ({ bodies: bodies.filter(body => body.name != name) })),
 }))
 
-const Joint = props => {
-  return (
-    <mesh {...props}>
-      <sphereBufferGeometry args={[0.5]} attach="geometry"></sphereBufferGeometry>
-      <meshLambertMaterial color={'#e7e7e7e'} attach="material" />
-    </mesh>
-  )
-}
+// const Joint = ({ bodyA, bodyB, ...props }) => {
+//   const ref = React.createRef(null)
+
+//   useFrame(() => {
+//     if (bodyA && bodyB) {
+//       if (ref.current && bodyA.current && bodyB.current) {
+//         ref.current.position.set(bodyA.current.position.x, bodyA.current.position.y, bodyA.current.position.z)
+//       }
+//     }
+//   })
+
+//   return (
+//     <mesh ref={ref} {...props}>
+//       <sphereBufferGeometry attach="geometry" args={[1.25, 64, 64]}></sphereBufferGeometry>
+//       <meshStandardMaterial attach="material" color="#171717" />
+//     </mesh>
+//   )
+// }
 
 const BodyPart = ({ parentRef, children = () => null, jointConfig, name, ...props }) => {
   const shape = ragdollConfig.shapes[name]
   const { args, mass, position } = shape
 
-  const [rb, api] = useBox(() => ({
+  const [thisbody, api] = useBox(() => ({
     // type: 'Kinematic',
     args,
     mass,
@@ -47,30 +58,28 @@ const BodyPart = ({ parentRef, children = () => null, jointConfig, name, ...prop
   const { addBody, removeBody } = useStore()
 
   useEffect(() => {
-    addBody({ name, ref: rb, api, args })
+    addBody({ name, ref: thisbody, api, args })
     return () => removeBody(name)
-  }, [rb])
-  let config = ragdollConfig.joints[jointConfig]
+  }, [thisbody])
 
-  useConeTwistConstraint(rb, parentRef, config)
+  let config = ragdollConfig.joints[jointConfig]
+  useConeTwistConstraint(thisbody, parentRef, config)
 
   const sizes = args.map(s => s * 2)
 
   return (
     <>
-      <mesh ref={rb} {...props} name={name}>
+      <mesh ref={thisbody} {...props} name={name}>
         <boxBufferGeometry attach="geometry" args={sizes}></boxBufferGeometry>
         <meshStandardMaterial attach="material" />
       </mesh>
-      <Joint position={config && config.position}></Joint>
-      {children(rb)}
+      {/* {thisbody && parentRef && <Joint bodyA={thisbody} bodyB={parentRef}></Joint>} */}
+      {children(thisbody)}
     </>
   )
 }
 
-const RagdollBodyPart = React.forwardRef(({ position, ...props }, ref) => (
-  <BodyPart parentRef={ref} {...props} positionOffset={position} />
-))
+const RagdollBodyPart = React.forwardRef(({ ...props }, ref) => <BodyPart parentRef={ref} {...props} />)
 
 const Cursor = ({ position, ...props }) => {
   const [ref, api] = useSphere(() => ({ type: 'Static', args: 0.5, position }))
