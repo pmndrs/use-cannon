@@ -254,6 +254,14 @@ self.onmessage = e => {
       world.removeConstraint(uuid)
       break
     }
+    case 'enableConstraint': {
+      world.constraints.filter(({ uuid: thisId }) => thisId === uuid).map(c => c.enable())
+      break
+    }
+    case 'disableConstraint': {
+      world.constraints.filter(({ uuid: thisId }) => thisId === uuid).map(c => c.disable())
+      break
+    }
     case 'addSpring': {
       const [bodyA, bodyB, optns] = props
       let { worldAnchorA, worldAnchorB, localAnchorA, localAnchorB, restLength, stiffness, damping } = optns
