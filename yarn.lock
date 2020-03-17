@@ -914,9 +914,9 @@ acorn-jsx@^5.0.0:
   integrity sha512-HiUX/+K2YpkpJ+SzBffkM/AQ2YE03S0U1kjTLVpoJdhZMOWy8qvXVN9JdLqv2QsaQ6MPYQIuNmwD8zOiYUofLQ==
 
 acorn@^6.0.7:
-  version "6.4.0"
-  resolved "https://registry.yarnpkg.com/acorn/-/acorn-6.4.0.tgz#b659d2ffbafa24baf5db1cdbb2c94a983ecd2784"
-  integrity sha512-gac8OEcQ2Li1dxIEWGZzsp2BitJxwkwcOm0zHAJLcPJaVvm58FRnk6RkuLRpU1EujipU2ZFODv2P9DLMfnV8mw==
+  version "6.4.1"
+  resolved "https://registry.yarnpkg.com/acorn/-/acorn-6.4.1.tgz#531e58ba3f51b9dacb9a6646ca4debf5b14ca474"
+  integrity sha512-ZVA9k326Nwrj3Cj9jlh3wGFutC2ZornPNARZwsNYqQYgN0EsV2d53w5RN/co65Ohn4sUAUtb1rSUAOD6XN9idA==
 
 ansi-styles@^3.2.1:
   version "3.2.1"
@@ -1034,10 +1034,10 @@ caniuse-lite@^1.0.30001030:
   resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001031.tgz#76f1bdd39e19567b855302f65102d9a8aaad5930"
   integrity sha512-DpAP5a1NGRLgYfaNCaXIRyGARi+3tJA2quZXNNA1Du26VyVkqvy2tznNu5ANyN1Y5aX44QDotZSVSUSi2uMGjg==
 
-cannon-es@^0.6.8:
-  version "0.6.8"
-  resolved "https://registry.yarnpkg.com/cannon-es/-/cannon-es-0.6.8.tgz#2462928c0bc6b3dadbe4f20c6da870963dc45aa1"
-  integrity sha512-p+beXIcI3AFW+oqyAMRs54WRShmnM2PArXkCC33TIkxtFjYPSGpaKK+PKcr/3CbroC3NWt6601B+tpQzkkeO2g==
+cannon-es@^0.6.10:
+  version "0.6.10"
+  resolved "https://registry.yarnpkg.com/cannon-es/-/cannon-es-0.6.10.tgz#62f9032b949dbfac56fbcf955edd68aaf11d3589"
+  integrity sha512-f02v8Jkgo+FnBI+EIeHF6SEAsHRH5Dx3nnqj5VA29fMLbfDnDoC1JUQ8SbJq/WtB2TCwAATSoT8B6PaFtnPXBw==
 
 chalk@^2.0.0, chalk@^2.4.2:
   version "2.4.2"
