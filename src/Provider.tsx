@@ -40,6 +40,12 @@ type WorkerEvent = {
       rj: number[]
       impactVelocity: number
     }
+    collisionFilters: {
+      bodyFilterGroup: number
+      bodyFilterMask: number
+      targetFilterGroup: number
+      targetFilterMask: number
+    }
   }
 }
 

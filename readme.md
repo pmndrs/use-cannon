@@ -12,6 +12,8 @@ Experimental React hooks for [cannon](https://github.com/schteppe/cannon.js). Us
 
 ## Demos
 
+Ping pong: https://codesandbox.io/s/white-resonance-0mgum
+
 Cube pushing spheres away: https://codesandbox.io/s/r3f-cannon-instanced-physics-devf8
 
 Heap of cubes: https://codesandbox.io/s/r3f-cannon-instanced-physics-g1s88
@@ -30,13 +32,13 @@ import { Physics, useBox, ... } from 'use-cannon'
 <Physics>{/* Physics related objects in here please */}</Physics>
 ```
 
-3. Pick a shape that suits your object best, it could be a box, plane, sphere, etc. Give it a mass, too.
+3. Pick a shape that suits your objects contact surface, it could be a box, plane, sphere, etc. Give it a mass, too.
 
 ```jsx
 const [ref, api] = useBox(() => ({ mass: 1 }))
 ```
 
-4. Take your object, it could be a mesh, line, gltf, anything, and tie it to the reference you have just received. Et voilà, it will now be affected by gravity and other objects inside the physics world automatically.
+4. Take your object, it could be a mesh, line, gltf, anything, and tie it to the reference you have just received. Et voilà, it will now be affected by gravity and other objects inside the physics world.
 
 ```jsx
 <mesh ref={ref} geometry={...} material={...} />
@@ -46,6 +48,42 @@ const [ref, api] = useBox(() => ({ mass: 1 }))
 
 ```jsx
 useFrame(({ clock }) => api.setPosition(Math.sin(clock.getElapsedTime()) * 5, 0, 0))
+```
+
+## Simple example
+
+Let's make a cube falling onto a plane. You can play with a sandbox [here](https://codesandbox.io/s/r3f-cannon-instanced-physics-l40oh).
+
+```jsx
+import { Canvas } from 'react-three-fiber'
+import { Physics, usePlane, useBox } from 'use-cannon'
+
+function Plane(props) {
+  const [ref] = usePlane(() => ({ rotation: [-Math.PI / 2, 0, 0], ...props }))
+  return (
+    <mesh ref={ref}>
+      <planeBufferGeometry attach="geometry" args={[100, 100]} />
+    </mesh>
+  )
+}
+
+function Cube(props) {
+  const [ref] = useBox(() => ({ mass: 1, position: [0, 5, 0], ...props }))
+  return (
+    <mesh ref={ref}>
+      <boxBufferGeometry attach="geometry" />
+    </mesh>
+  )
+}
+
+ReactDOM.render(
+  <Canvas>
+    <Physics>
+      <Plane />
+      <Cube />
+    </Physics>
+  </Canvas>, document.getElementById('root')
+)
 ```
 
 ## Api
@@ -90,6 +128,10 @@ type Api = [
     setRotation: (x: number, y: number, z: number) => void
     setPositionAt: (index: number, x: number, y: number, z: number) => void
     setRotationAt: (index: number, x: number, y: number, z: number) => void
+    applyForce: (force: [number, number, number], worldPoint: [number, number, number]) => void
+    applyImpulse: (impulse: [number, number, number], worldPoint: [number, number, number]) => void
+    applyLocalForce: (force: [number, number, number], localPoint: [number, number, number]) => void
+    applyLocalImpulse: (impulse: [number, number, number], localPoint: [number, number, number]) => void
   }
 ]
 ```
@@ -145,6 +187,12 @@ type Event = {
     ri: number[]
     rj: number[]
     impactVelocity: number
+  }
+  collisionFilters: {
+    bodyFilterGroup: number
+    bodyFilterMask: number
+    targetFilterGroup: number
+    targetFilterMask: number
   }
 }
 
