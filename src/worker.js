@@ -88,11 +88,12 @@ self.onmessage = e => {
           rotation = [0, 0, 0],
           scale = [1, 1, 1],
           type: bodyType,
+          mass,
           onCollide,
           ...extra
         } = props[i]
 
-        const body = new Body({ ...extra, type: TYPES[bodyType] })
+        const body = new Body({ ...extra, mass: bodyType === 'Static' ? 0 : mass, type: TYPES[bodyType] })
         body.uuid = uuid[i]
 
         switch (type) {
@@ -234,6 +235,7 @@ self.onmessage = e => {
           break
         case 'Distance':
           constraint = new DistanceConstraint(bodies[bodyA], bodies[bodyB], optns.distance, optns.maxForce)
+          console.log(constraint)
           break
         case 'Lock':
           constraint = new LockConstraint(bodies[bodyA], bodies[bodyB], optns)
