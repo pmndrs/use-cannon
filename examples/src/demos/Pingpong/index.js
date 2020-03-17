@@ -144,13 +144,23 @@ export default function() {
             <meshPhongMaterial attach="material" color="#172017" />
           </mesh>
           <ContactGround />
+          {!welcome && <Ball />}
           <Suspense fallback={null}>
-            {!welcome && <Ball />}
             <Paddle />
           </Suspense>
         </Physics>
       </Canvas>
-      <div style={{ position: 'absolute', display: welcome ? "block" : "none", top: 50, left: 50, color: 'white', fontSize: "1.2em" }}>* click to start ...</div>
+      <div
+        style={{
+          position: 'absolute',
+          display: welcome ? 'block' : 'none',
+          top: 50,
+          left: 50,
+          color: 'white',
+          fontSize: '1.2em',
+        }}>
+        * click to start ...
+      </div>
     </>
   )
 }

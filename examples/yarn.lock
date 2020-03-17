@@ -10574,10 +10574,10 @@ url@^0.11.0:
     punycode "1.3.2"
     querystring "0.2.0"
 
-use-cannon@0.1.10:
-  version "0.1.10"
-  resolved "https://registry.yarnpkg.com/use-cannon/-/use-cannon-0.1.10.tgz#eca4c901ff030b5c724bb84afc549581cdc89d21"
-  integrity sha512-gfu4FYK5lbtOuDYOkzLL5R+JNRqBT1MZn9Awvf3fJfPMih/1wzHHamNUWdp+MEPqKsWa8SzCwbgWSWS0JEWaPw==
+use-cannon@0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/use-cannon/-/use-cannon-0.2.0.tgz#47fb77e4691b98a210047565471d4d81bc2b90cb"
+  integrity sha512-ID2tYlNsX79xnCJRbaFx1YQIx0faqS2I0Jvw39Nyn/S5iDUrzsa2lCyL4QkrKNXg1BpjsFH3gVRD9fyKaRM54g==
 
 use@^3.1.0:
   version "3.1.1"
