@@ -102,9 +102,6 @@ self.onmessage = e => {
             break
           case 'ConvexPolyhedron':
             const [v, f, n] = args
-            console.log('vertices', v)
-            console.log('faces', f)
-            console.log('normals', n)
             const shape = new ConvexPolyhedron(
               v.map(([x, y, z]) => new Vec3(x, y, z)),
               f

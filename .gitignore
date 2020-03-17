@@ -1,6 +1,7 @@
 node_modules/
 coverage/
 dist/
+build/
 types/
 yarn-error.log
 .size-snapshot.json
