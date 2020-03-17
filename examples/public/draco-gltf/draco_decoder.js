@@ -63,7 +63,10 @@ var DracoDecoderModule = function(DracoDecoderModule) {
     ENVIRONMENT_IS_WEB = typeof window === 'object'
     ENVIRONMENT_IS_WORKER = typeof importScripts === 'function'
     ENVIRONMENT_IS_NODE =
-      typeof process === 'object' && typeof require === 'function' && !ENVIRONMENT_IS_WEB && !ENVIRONMENT_IS_WORKER
+      typeof process === 'object' &&
+      typeof require === 'function' &&
+      !ENVIRONMENT_IS_WEB &&
+      !ENVIRONMENT_IS_WORKER
     ENVIRONMENT_IS_SHELL = !ENVIRONMENT_IS_WEB && !ENVIRONMENT_IS_NODE && !ENVIRONMENT_IS_WORKER
   }
   if (ENVIRONMENT_IS_NODE) {
@@ -688,7 +691,9 @@ var DracoDecoderModule = function(DracoDecoderModule) {
   }
   var byteLength
   try {
-    byteLength = Function.prototype.call.bind(Object.getOwnPropertyDescriptor(ArrayBuffer.prototype, 'byteLength').get)
+    byteLength = Function.prototype.call.bind(
+      Object.getOwnPropertyDescriptor(ArrayBuffer.prototype, 'byteLength').get
+    )
     byteLength(new ArrayBuffer(4))
   } catch (e) {
     byteLength = function(buffer) {
@@ -699,7 +704,11 @@ var DracoDecoderModule = function(DracoDecoderModule) {
   var TOTAL_MEMORY = Module['TOTAL_MEMORY'] || 16777216
   if (TOTAL_MEMORY < TOTAL_STACK)
     Module.printErr(
-      'TOTAL_MEMORY should be larger than TOTAL_STACK, was ' + TOTAL_MEMORY + '! (TOTAL_STACK=' + TOTAL_STACK + ')'
+      'TOTAL_MEMORY should be larger than TOTAL_STACK, was ' +
+        TOTAL_MEMORY +
+        '! (TOTAL_STACK=' +
+        TOTAL_STACK +
+        ')'
     )
   if (Module['buffer']) {
     buffer = Module['buffer']
@@ -842,7 +851,9 @@ var DracoDecoderModule = function(DracoDecoderModule) {
   var memoryInitializer = null
   var dataURIPrefix = 'data:application/octet-stream;base64,'
   function isDataURI(filename) {
-    return String.prototype.startsWith ? filename.startsWith(dataURIPrefix) : filename.indexOf(dataURIPrefix) === 0
+    return String.prototype.startsWith
+      ? filename.startsWith(dataURIPrefix)
+      : filename.indexOf(dataURIPrefix) === 0
   }
   STATIC_BASE = GLOBAL_BASE
   STATICTOP = STATIC_BASE + 13472
@@ -1504,7 +1515,13 @@ var DracoDecoderModule = function(DracoDecoderModule) {
         if (ASSERTIONS) {
           assert(
             false,
-            'Character code ' + chr + ' (' + String.fromCharCode(chr) + ')  at offset ' + i + ' not in 0x00-0xFF.'
+            'Character code ' +
+              chr +
+              ' (' +
+              String.fromCharCode(chr) +
+              ')  at offset ' +
+              i +
+              ' not in 0x00-0xFF.'
           )
         }
         chr &= 255
@@ -2804,7 +2821,10 @@ var DracoDecoderModule = function(DracoDecoderModule) {
                   do
                     if (f[((f[a >> 2] | 0) + ((J >>> 5) << 2)) >> 2] & (1 << (J & 31))) {
                       E = (F + 1) | 0
-                      K = f[((f[l >> 2] | 0) + (((((I | 0) / 3) | 0) * 12) | 0) + (((I | 0) % 3 | 0) << 2)) >> 2] | 0
+                      K =
+                        f[
+                          ((f[l >> 2] | 0) + (((((I | 0) / 3) | 0) * 12) | 0) + (((I | 0) % 3 | 0) << 2)) >> 2
+                        ] | 0
                       if (!(b[m >> 0] | 0)) L = f[((f[n >> 2] | 0) + (K << 2)) >> 2] | 0
                       else L = K
                       f[i >> 2] = L
@@ -4431,7 +4451,10 @@ var DracoDecoderModule = function(DracoDecoderModule) {
           return g | 0
         }
         if (
-          J ? ((J = f[H >> 2] | 0), !(Qa[f[((f[J >> 2] | 0) + 44) >> 2] & 15](J, k, k, i, e, f[c >> 2] | 0) | 0)) : 0
+          J
+            ? ((J = f[H >> 2] | 0),
+              !(Qa[f[((f[J >> 2] | 0) + 44) >> 2] & 15](J, k, k, i, e, f[c >> 2] | 0) | 0))
+            : 0
         ) {
           g = 0
           return g | 0
@@ -4909,7 +4932,10 @@ var DracoDecoderModule = function(DracoDecoderModule) {
                     f[(i + 44) >> 2] = n
                     k = (p + m + -3) | 0
                     s = n
-                    t = ((h[(k + 1) >> 0] | 0) << 8) | (h[k >> 0] | 0) | (((h[(k + 2) >> 0] | 0) << 16) & 4128768)
+                    t =
+                      ((h[(k + 1) >> 0] | 0) << 8) |
+                      (h[k >> 0] | 0) |
+                      (((h[(k + 2) >> 0] | 0) << 16) & 4128768)
                     break
                   }
                   case 3: {
@@ -4973,7 +4999,8 @@ var DracoDecoderModule = function(DracoDecoderModule) {
                   y = A & 1048575
                   k = f[((f[r >> 2] | 0) + (y << 2)) >> 2] | 0
                   C = f[q >> 2] | 0
-                  x = ((X(f[(C + (k << 3)) >> 2] | 0, A >>> 20) | 0) + y - (f[(C + (k << 3) + 4) >> 2] | 0)) | 0
+                  x =
+                    ((X(f[(C + (k << 3)) >> 2] | 0, A >>> 20) | 0) + y - (f[(C + (k << 3) + 4) >> 2] | 0)) | 0
                   f[n >> 2] = x
                   f[(d + (v << 2)) >> 2] = k
                   v = (v + 1) | 0
@@ -5106,7 +5133,10 @@ var DracoDecoderModule = function(DracoDecoderModule) {
                     f[(i + 44) >> 2] = n
                     k = (p + m + -3) | 0
                     s = n
-                    t = ((h[(k + 1) >> 0] | 0) << 8) | (h[k >> 0] | 0) | (((h[(k + 2) >> 0] | 0) << 16) & 4128768)
+                    t =
+                      ((h[(k + 1) >> 0] | 0) << 8) |
+                      (h[k >> 0] | 0) |
+                      (((h[(k + 2) >> 0] | 0) << 16) & 4128768)
                     break
                   }
                   case 3: {
@@ -5170,7 +5200,8 @@ var DracoDecoderModule = function(DracoDecoderModule) {
                   y = A & 524287
                   k = f[((f[r >> 2] | 0) + (y << 2)) >> 2] | 0
                   C = f[q >> 2] | 0
-                  x = ((X(f[(C + (k << 3)) >> 2] | 0, A >>> 19) | 0) + y - (f[(C + (k << 3) + 4) >> 2] | 0)) | 0
+                  x =
+                    ((X(f[(C + (k << 3)) >> 2] | 0, A >>> 19) | 0) + y - (f[(C + (k << 3) + 4) >> 2] | 0)) | 0
                   f[n >> 2] = x
                   f[(d + (v << 2)) >> 2] = k
                   v = (v + 1) | 0
@@ -5303,7 +5334,10 @@ var DracoDecoderModule = function(DracoDecoderModule) {
                     f[(i + 44) >> 2] = n
                     k = (p + m + -3) | 0
                     s = n
-                    t = ((h[(k + 1) >> 0] | 0) << 8) | (h[k >> 0] | 0) | (((h[(k + 2) >> 0] | 0) << 16) & 4128768)
+                    t =
+                      ((h[(k + 1) >> 0] | 0) << 8) |
+                      (h[k >> 0] | 0) |
+                      (((h[(k + 2) >> 0] | 0) << 16) & 4128768)
                     break
                   }
                   case 3: {
@@ -5367,7 +5401,8 @@ var DracoDecoderModule = function(DracoDecoderModule) {
                   y = A & 262143
                   k = f[((f[r >> 2] | 0) + (y << 2)) >> 2] | 0
                   C = f[q >> 2] | 0
-                  x = ((X(f[(C + (k << 3)) >> 2] | 0, A >>> 18) | 0) + y - (f[(C + (k << 3) + 4) >> 2] | 0)) | 0
+                  x =
+                    ((X(f[(C + (k << 3)) >> 2] | 0, A >>> 18) | 0) + y - (f[(C + (k << 3) + 4) >> 2] | 0)) | 0
                   f[n >> 2] = x
                   f[(d + (v << 2)) >> 2] = k
                   v = (v + 1) | 0
@@ -5500,7 +5535,10 @@ var DracoDecoderModule = function(DracoDecoderModule) {
                     f[(i + 44) >> 2] = n
                     k = (p + m + -3) | 0
                     s = n
-                    t = ((h[(k + 1) >> 0] | 0) << 8) | (h[k >> 0] | 0) | (((h[(k + 2) >> 0] | 0) << 16) & 4128768)
+                    t =
+                      ((h[(k + 1) >> 0] | 0) << 8) |
+                      (h[k >> 0] | 0) |
+                      (((h[(k + 2) >> 0] | 0) << 16) & 4128768)
                     break
                   }
                   case 3: {
@@ -5564,7 +5602,8 @@ var DracoDecoderModule = function(DracoDecoderModule) {
                   y = A & 65535
                   k = f[((f[r >> 2] | 0) + (y << 2)) >> 2] | 0
                   C = f[q >> 2] | 0
-                  x = ((X(f[(C + (k << 3)) >> 2] | 0, A >>> 16) | 0) + y - (f[(C + (k << 3) + 4) >> 2] | 0)) | 0
+                  x =
+                    ((X(f[(C + (k << 3)) >> 2] | 0, A >>> 16) | 0) + y - (f[(C + (k << 3) + 4) >> 2] | 0)) | 0
                   f[n >> 2] = x
                   f[(d + (v << 2)) >> 2] = k
                   v = (v + 1) | 0
@@ -5697,7 +5736,10 @@ var DracoDecoderModule = function(DracoDecoderModule) {
                     f[(i + 44) >> 2] = n
                     k = (p + m + -3) | 0
                     s = n
-                    t = ((h[(k + 1) >> 0] | 0) << 8) | (h[k >> 0] | 0) | (((h[(k + 2) >> 0] | 0) << 16) & 4128768)
+                    t =
+                      ((h[(k + 1) >> 0] | 0) << 8) |
+                      (h[k >> 0] | 0) |
+                      (((h[(k + 2) >> 0] | 0) << 16) & 4128768)
                     break
                   }
                   case 3: {
@@ -5761,7 +5803,8 @@ var DracoDecoderModule = function(DracoDecoderModule) {
                   y = A & 32767
                   k = f[((f[r >> 2] | 0) + (y << 2)) >> 2] | 0
                   C = f[q >> 2] | 0
-                  x = ((X(f[(C + (k << 3)) >> 2] | 0, A >>> 15) | 0) + y - (f[(C + (k << 3) + 4) >> 2] | 0)) | 0
+                  x =
+                    ((X(f[(C + (k << 3)) >> 2] | 0, A >>> 15) | 0) + y - (f[(C + (k << 3) + 4) >> 2] | 0)) | 0
                   f[n >> 2] = x
                   f[(d + (v << 2)) >> 2] = k
                   v = (v + 1) | 0
@@ -5971,7 +6014,11 @@ var DracoDecoderModule = function(DracoDecoderModule) {
         c = i
         e = i
         while (1) {
-          j = X(h[d >> 0] | (h[(d + 1) >> 0] << 8) | (h[(d + 2) >> 0] << 16) | (h[(d + 3) >> 0] << 24), 1540483477) | 0
+          j =
+            X(
+              h[d >> 0] | (h[(d + 1) >> 0] << 8) | (h[(d + 2) >> 0] << 16) | (h[(d + 3) >> 0] << 24),
+              1540483477
+            ) | 0
           c = (X((j >>> 24) ^ j, 1540483477) | 0) ^ (X(c, 1540483477) | 0)
           e = (e + -4) | 0
           if (e >>> 0 <= 3) break
@@ -6254,7 +6301,10 @@ var DracoDecoderModule = function(DracoDecoderModule) {
                     f[(i + 44) >> 2] = n
                     k = (p + m + -3) | 0
                     s = n
-                    t = ((h[(k + 1) >> 0] | 0) << 8) | (h[k >> 0] | 0) | (((h[(k + 2) >> 0] | 0) << 16) & 4128768)
+                    t =
+                      ((h[(k + 1) >> 0] | 0) << 8) |
+                      (h[k >> 0] | 0) |
+                      (((h[(k + 2) >> 0] | 0) << 16) & 4128768)
                     break
                   }
                   case 3: {
@@ -6318,7 +6368,8 @@ var DracoDecoderModule = function(DracoDecoderModule) {
                   y = A & 8191
                   k = f[((f[r >> 2] | 0) + (y << 2)) >> 2] | 0
                   C = f[q >> 2] | 0
-                  x = ((X(f[(C + (k << 3)) >> 2] | 0, A >>> 13) | 0) + y - (f[(C + (k << 3) + 4) >> 2] | 0)) | 0
+                  x =
+                    ((X(f[(C + (k << 3)) >> 2] | 0, A >>> 13) | 0) + y - (f[(C + (k << 3) + 4) >> 2] | 0)) | 0
                   f[n >> 2] = x
                   f[(d + (v << 2)) >> 2] = k
                   v = (v + 1) | 0
@@ -6451,7 +6502,10 @@ var DracoDecoderModule = function(DracoDecoderModule) {
                     f[(i + 44) >> 2] = n
                     k = (p + m + -3) | 0
                     s = n
-                    t = ((h[(k + 1) >> 0] | 0) << 8) | (h[k >> 0] | 0) | (((h[(k + 2) >> 0] | 0) << 16) & 4128768)
+                    t =
+                      ((h[(k + 1) >> 0] | 0) << 8) |
+                      (h[k >> 0] | 0) |
+                      (((h[(k + 2) >> 0] | 0) << 16) & 4128768)
                     break
                   }
                   case 3: {
@@ -6515,7 +6569,8 @@ var DracoDecoderModule = function(DracoDecoderModule) {
                   y = A & 4095
                   k = f[((f[r >> 2] | 0) + (y << 2)) >> 2] | 0
                   C = f[q >> 2] | 0
-                  x = ((X(f[(C + (k << 3)) >> 2] | 0, A >>> 12) | 0) + y - (f[(C + (k << 3) + 4) >> 2] | 0)) | 0
+                  x =
+                    ((X(f[(C + (k << 3)) >> 2] | 0, A >>> 12) | 0) + y - (f[(C + (k << 3) + 4) >> 2] | 0)) | 0
                   f[n >> 2] = x
                   f[(d + (v << 2)) >> 2] = k
                   v = (v + 1) | 0
@@ -6587,7 +6642,11 @@ var DracoDecoderModule = function(DracoDecoderModule) {
         c = i
         e = i
         while (1) {
-          j = X(h[d >> 0] | (h[(d + 1) >> 0] << 8) | (h[(d + 2) >> 0] << 16) | (h[(d + 3) >> 0] << 24), 1540483477) | 0
+          j =
+            X(
+              h[d >> 0] | (h[(d + 1) >> 0] << 8) | (h[(d + 2) >> 0] << 16) | (h[(d + 3) >> 0] << 24),
+              1540483477
+            ) | 0
           c = (X((j >>> 24) ^ j, 1540483477) | 0) ^ (X(c, 1540483477) | 0)
           e = (e + -4) | 0
           if (e >>> 0 <= 3) break
@@ -6816,12 +6875,16 @@ var DracoDecoderModule = function(DracoDecoderModule) {
           o = n ? f[(g + 4) >> 2] | 0 : k & 255
           k = m >>> 0 < o >>> 0
           p = k ? m : o
-          if ((p | 0) != 0 ? ((q = jh(n ? f[g >> 2] | 0 : g, l ? f[j >> 2] | 0 : j, p) | 0), (q | 0) != 0) : 0) {
+          if (
+            (p | 0) != 0 ? ((q = jh(n ? f[g >> 2] | 0 : g, l ? f[j >> 2] | 0 : j, p) | 0), (q | 0) != 0) : 0
+          ) {
             if ((q | 0) < 0) break
           } else r = 4
           if ((r | 0) == 4 ? o >>> 0 < m >>> 0 : 0) break
           q = o >>> 0 < m >>> 0 ? o : m
-          if ((q | 0) != 0 ? ((m = jh(l ? f[j >> 2] | 0 : j, n ? f[g >> 2] | 0 : g, q) | 0), (m | 0) != 0) : 0) {
+          if (
+            (q | 0) != 0 ? ((m = jh(l ? f[j >> 2] | 0 : j, n ? f[g >> 2] | 0 : g, q) | 0), (m | 0) != 0) : 0
+          ) {
             if ((m | 0) >= 0) r = 37
           } else r = 21
           if ((r | 0) == 21 ? !k : 0) r = 37
@@ -6862,7 +6925,11 @@ var DracoDecoderModule = function(DracoDecoderModule) {
               q = (l << 24) >> 24 < 0
               p = q ? f[(t + 20) >> 2] | 0 : l & 255
               l = p >>> 0 < o >>> 0 ? p : o
-              if ((l | 0) != 0 ? ((u = jh(n ? f[g >> 2] | 0 : g, q ? f[k >> 2] | 0 : k, l) | 0), (u | 0) != 0) : 0) {
+              if (
+                (l | 0) != 0
+                  ? ((u = jh(n ? f[g >> 2] | 0 : g, q ? f[k >> 2] | 0 : k, l) | 0), (u | 0) != 0)
+                  : 0
+              ) {
                 if ((u | 0) < 0) break
               } else r = 31
               if ((r | 0) == 31 ? o >>> 0 < p >>> 0 : 0) break
@@ -6914,7 +6981,9 @@ var DracoDecoderModule = function(DracoDecoderModule) {
           j = (e << 24) >> 24 < 0
           p = j ? f[(w + 20) >> 2] | 0 : e & 255
           e = n >>> 0 < p >>> 0 ? n : p
-          if ((e | 0) != 0 ? ((u = jh(j ? f[m >> 2] | 0 : m, o ? f[g >> 2] | 0 : g, e) | 0), (u | 0) != 0) : 0) {
+          if (
+            (e | 0) != 0 ? ((u = jh(j ? f[m >> 2] | 0 : m, o ? f[g >> 2] | 0 : g, e) | 0), (u | 0) != 0) : 0
+          ) {
             if ((u | 0) < 0) {
               v = h
               break
@@ -7578,8 +7647,12 @@ var DracoDecoderModule = function(DracoDecoderModule) {
           l = (i >> 31) | (((i | 0) < 0 ? -1 : 0) << 1)
           t = l & 1
           v =
-            Tj(g | 0, a | 0, (l & b) | 0, (((((i | 0) < 0 ? -1 : 0) >> 31) | (((i | 0) < 0 ? -1 : 0) << 1)) & c) | 0) |
-            0
+            Tj(
+              g | 0,
+              a | 0,
+              (l & b) | 0,
+              (((((i | 0) < 0 ? -1 : 0) >> 31) | (((i | 0) < 0 ? -1 : 0) << 1)) & c) | 0
+            ) | 0
           w = I
           u = (u - 1) | 0
         } while ((u | 0) != 0)
@@ -12150,7 +12223,8 @@ var DracoDecoderModule = function(DracoDecoderModule) {
           : 0)
             ? ((f[(a + 12) >> 2] = j),
               (f[(a + 16) >> 2] = l),
-              (i = Tj(l | 0, ((((l | 0) < 0) << 31) >> 31) | 0, j | 0, ((((j | 0) < 0) << 31) >> 31) | 0) | 0),
+              (i =
+                Tj(l | 0, ((((l | 0) < 0) << 31) >> 31) | 0, j | 0, ((((j | 0) < 0) << 31) >> 31) | 0) | 0),
               (j = I),
               (j >>> 0 < 0) | (((j | 0) == 0) & (i >>> 0 < 2147483647)))
             : 0
@@ -17596,7 +17670,9 @@ var DracoDecoderModule = function(DracoDecoderModule) {
           else
             g =
               f[
-                ((f[((f[a >> 2] | 0) + 96) >> 2] | 0) + (((((e | 0) / 3) | 0) * 12) | 0) + (((e | 0) % 3 | 0) << 2)) >>
+                ((f[((f[a >> 2] | 0) + 96) >> 2] | 0) +
+                  (((((e | 0) / 3) | 0) * 12) | 0) +
+                  (((e | 0) % 3 | 0) << 2)) >>
                   2
               ] | 0
           if ((b | 0) != -1) {
@@ -17636,7 +17712,9 @@ var DracoDecoderModule = function(DracoDecoderModule) {
           else {
             e =
               f[
-                ((f[((f[a >> 2] | 0) + 96) >> 2] | 0) + (((((b | 0) / 3) | 0) * 12) | 0) + (((b | 0) % 3 | 0) << 2)) >>
+                ((f[((f[a >> 2] | 0) + 96) >> 2] | 0) +
+                  (((((b | 0) / 3) | 0) * 12) | 0) +
+                  (((b | 0) % 3 | 0) << 2)) >>
                   2
               ] | 0
             if (j) {
@@ -17655,7 +17733,9 @@ var DracoDecoderModule = function(DracoDecoderModule) {
           } else {
             l =
               f[
-                ((f[((f[a >> 2] | 0) + 96) >> 2] | 0) + (((((b | 0) / 3) | 0) * 12) | 0) + (((b | 0) % 3 | 0) << 2)) >>
+                ((f[((f[a >> 2] | 0) + 96) >> 2] | 0) +
+                  (((((b | 0) / 3) | 0) * 12) | 0) +
+                  (((b | 0) % 3 | 0) << 2)) >>
                   2
               ] | 0
             m = o
@@ -20593,7 +20673,11 @@ var DracoDecoderModule = function(DracoDecoderModule) {
               break a
             }
           }
-          if ((f[a >> 2] | 0) != 1 ? !(((f[n >> 2] | 0) == 0) & ((f[j >> 2] | 0) == 1) & ((f[m >> 2] | 0) == 1)) : 0) {
+          if (
+            (f[a >> 2] | 0) != 1
+              ? !(((f[n >> 2] | 0) == 0) & ((f[j >> 2] | 0) == 1) & ((f[m >> 2] | 0) == 1))
+              : 0
+          ) {
             q = 0
             break
           }
@@ -21604,7 +21688,11 @@ var DracoDecoderModule = function(DracoDecoderModule) {
             h = Oa[f[((f[a >> 2] | 0) + 20) >> 2] & 127](a, g) | 0
             j = f[c >> 2] | 0
             g = (g + 1) | 0
-            if (!(Oa[f[((f[j >> 2] | 0) + 8) >> 2] & 127](j, f[((f[(i + 8) >> 2] | 0) + (h << 2)) >> 2] | 0) | 0)) {
+            if (
+              !(
+                Oa[f[((f[j >> 2] | 0) + 8) >> 2] & 127](j, f[((f[(i + 8) >> 2] | 0) + (h << 2)) >> 2] | 0) | 0
+              )
+            ) {
               e = 0
               break
             }
@@ -21899,7 +21987,9 @@ var DracoDecoderModule = function(DracoDecoderModule) {
         g = f[(j + ((a * 144) | 0)) >> 2] | 0
         if (
           ((g | 0) >= 0
-          ? ((k = f[i >> 2] | 0), (l = f[(k + 8) >> 2] | 0), (g | 0) < ((((f[(k + 12) >> 2] | 0) - l) >> 2) | 0))
+          ? ((k = f[i >> 2] | 0),
+            (l = f[(k + 8) >> 2] | 0),
+            (g | 0) < ((((f[(k + 12) >> 2] | 0) - l) >> 2) | 0))
           : 0)
             ? ((k = f[(l + (g << 2)) >> 2] | 0), (Na[f[((f[k >> 2] | 0) + 24) >> 2] & 127](k) | 0) > 0)
             : 0
@@ -21948,7 +22038,9 @@ var DracoDecoderModule = function(DracoDecoderModule) {
             j = f[(i + ((h * 144) | 0)) >> 2] | 0
             if (
               ((j | 0) >= 0
-              ? ((k = f[g >> 2] | 0), (l = f[(k + 8) >> 2] | 0), (j | 0) < ((((f[(k + 12) >> 2] | 0) - l) >> 2) | 0))
+              ? ((k = f[g >> 2] | 0),
+                (l = f[(k + 8) >> 2] | 0),
+                (j | 0) < ((((f[(k + 12) >> 2] | 0) - l) >> 2) | 0))
               : 0)
                 ? ((k = f[(l + (j << 2)) >> 2] | 0), (Na[f[((f[k >> 2] | 0) + 24) >> 2] & 127](k) | 0) > 0)
                 : 0
@@ -22813,7 +22905,10 @@ var DracoDecoderModule = function(DracoDecoderModule) {
               Z = 13328
               while (1) {
                 Y = f[Z >> 2] | 0
-                if (Y >>> 0 <= X >>> 0 ? ((ba = (Z + 4) | 0), ((Y + (f[ba >> 2] | 0)) | 0) >>> 0 > X >>> 0) : 0) break
+                if (
+                  Y >>> 0 <= X >>> 0 ? ((ba = (Z + 4) | 0), ((Y + (f[ba >> 2] | 0)) | 0) >>> 0 > X >>> 0) : 0
+                )
+                  break
                 Y = f[(Z + 8) >> 2] | 0
                 if (!Y) {
                   H = 118
@@ -23205,7 +23300,8 @@ var DracoDecoderModule = function(DracoDecoderModule) {
               } else la = 13328
             while (1) {
               ha = f[la >> 2] | 0
-              if (ha >>> 0 <= ca >>> 0 ? ((va = (ha + (f[(la + 4) >> 2] | 0)) | 0), va >>> 0 > ca >>> 0) : 0) break
+              if (ha >>> 0 <= ca >>> 0 ? ((va = (ha + (f[(la + 4) >> 2] | 0)) | 0), va >>> 0 > ca >>> 0) : 0)
+                break
               la = f[(la + 8) >> 2] | 0
             }
             ga = (va + -47) | 0
@@ -23621,7 +23717,9 @@ var DracoDecoderModule = function(DracoDecoderModule) {
                   X = f[P >> 2] | 0
                   f[(X + (U << 2)) >> 2] = T
                   Z = (W + 1) | 0
-                  if ((W | 0) != -1 ? ((_ = ((Z >>> 0) % 3 | 0 | 0) == 0 ? (W + -2) | 0 : Z), (_ | 0) != -1) : 0)
+                  if (
+                    (W | 0) != -1 ? ((_ = ((Z >>> 0) % 3 | 0 | 0) == 0 ? (W + -2) | 0 : Z), (_ | 0) != -1) : 0
+                  )
                     aa = f[(X + (_ << 2)) >> 2] | 0
                   else aa = -1
                   f[(X + (R << 2)) >> 2] = aa
@@ -24010,7 +24108,9 @@ var DracoDecoderModule = function(DracoDecoderModule) {
             }
             f: do
               if (
-                (I | 0) == 108 ? ((I = 0), (P = (c - F + -1) | 0), (U = f[y >> 2] | 0), (U | 0) != (f[x >> 2] | 0)) : 0
+                (I | 0) == 108
+                  ? ((I = 0), (P = (c - F + -1) | 0), (U = f[y >> 2] | 0), (U | 0) != (f[x >> 2] | 0))
+                  : 0
               ) {
                 H = U
                 do {
@@ -24129,7 +24229,9 @@ var DracoDecoderModule = function(DracoDecoderModule) {
                       la = f[e >> 2] | 0
                       pa = (la + 1) | 0
                       if (
-                        (la | 0) != -1 ? ((na = ((pa >>> 0) % 3 | 0 | 0) == 0 ? (la + -2) | 0 : pa), (na | 0) != -1) : 0
+                        (la | 0) != -1
+                          ? ((na = ((pa >>> 0) % 3 | 0 | 0) == 0 ? (la + -2) | 0 : pa), (na | 0) != -1)
+                          : 0
                       )
                         Ca = f[(o + (na << 2)) >> 2] | 0
                       else Ca = -1
@@ -24773,7 +24875,11 @@ var DracoDecoderModule = function(DracoDecoderModule) {
                 da = f[Q >> 2] | 0
                 f[(da + (H << 2)) >> 2] = ba
                 fa = (ca + 1) | 0
-                if ((ca | 0) != -1 ? ((ga = ((fa >>> 0) % 3 | 0 | 0) == 0 ? (ca + -2) | 0 : fa), (ga | 0) != -1) : 0)
+                if (
+                  (ca | 0) != -1
+                    ? ((ga = ((fa >>> 0) % 3 | 0 | 0) == 0 ? (ca + -2) | 0 : fa), (ga | 0) != -1)
+                    : 0
+                )
                   ha = f[(da + (ga << 2)) >> 2] | 0
                 else ha = -1
                 f[(da + (G << 2)) >> 2] = ha
@@ -25060,7 +25166,9 @@ var DracoDecoderModule = function(DracoDecoderModule) {
                       ia = f[j >> 2] | 0
                       ma = (ia + 1) | 0
                       if (
-                        (ia | 0) != -1 ? ((ba = ((ma >>> 0) % 3 | 0 | 0) == 0 ? (ia + -2) | 0 : ma), (ba | 0) != -1) : 0
+                        (ia | 0) != -1
+                          ? ((ba = ((ma >>> 0) % 3 | 0 | 0) == 0 ? (ia + -2) | 0 : ma), (ba | 0) != -1)
+                          : 0
                       )
                         za = f[(la + (ba << 2)) >> 2] | 0
                       else za = -1
@@ -27445,7 +27553,9 @@ var DracoDecoderModule = function(DracoDecoderModule) {
                 m = 0
                 while (1) {
                   k = u
-                  s = $($(+((f[k >> 2] | 0) >>> 0) + 4294967296.0 * +(f[(k + 4) >> 2] | 0)) * $(1.08420217e-19))
+                  s = $(
+                    $(+((f[k >> 2] | 0) >>> 0) + 4294967296.0 * +(f[(k + 4) >> 2] | 0)) * $(1.08420217e-19)
+                  )
                   n[(g + (m << 2)) >> 2] = s
                   m = (m + 1) | 0
                   k = b[r >> 0] | 0
@@ -27496,7 +27606,10 @@ var DracoDecoderModule = function(DracoDecoderModule) {
                 k = 0
                 while (1) {
                   l = u
-                  s = $($(+((f[l >> 2] | 0) >>> 0) + 4294967296.0 * +((f[(l + 4) >> 2] | 0) >>> 0)) * $(5.42101086e-20))
+                  s = $(
+                    $(+((f[l >> 2] | 0) >>> 0) + 4294967296.0 * +((f[(l + 4) >> 2] | 0) >>> 0)) *
+                      $(5.42101086e-20)
+                  )
                   n[(g + (k << 2)) >> 2] = s
                   k = (k + 1) | 0
                   l = b[r >> 0] | 0
@@ -27878,9 +27991,15 @@ var DracoDecoderModule = function(DracoDecoderModule) {
                       (_ = f[(Z + (f[(Y + (W << 2)) >> 2] << 2)) >> 2] | 0),
                       ($ = (W + 1) | 0),
                       (aa =
-                        f[(Z + (f[(Y + (((($ >>> 0) % 3 | 0 | 0) == 0 ? (W + -2) | 0 : $) << 2)) >> 2] << 2)) >> 2] |
-                        0),
-                      ($ = f[(Z + (f[(Y + (((((W >>> 0) % 3 | 0 | 0) == 0 ? 2 : -1) + W) << 2)) >> 2] << 2)) >> 2] | 0),
+                        f[
+                          (Z +
+                            (f[(Y + (((($ >>> 0) % 3 | 0 | 0) == 0 ? (W + -2) | 0 : $) << 2)) >> 2] << 2)) >>
+                            2
+                        ] | 0),
+                      ($ =
+                        f[
+                          (Z + (f[(Y + (((((W >>> 0) % 3 | 0 | 0) == 0 ? 2 : -1) + W) << 2)) >> 2] << 2)) >> 2
+                        ] | 0),
                       ((_ | 0) < (G | 0)) & ((aa | 0) < (G | 0)) & (($ | 0) < (G | 0)))
                     : 0
                 ) {
@@ -28500,7 +28619,9 @@ var DracoDecoderModule = function(DracoDecoderModule) {
                   if (L) {
                     Z = (Q + 1) | 0
                     W = ((Z >>> 0) % 3 | 0 | 0) == 0 ? (Q + -2) | 0 : Z
-                    if ((W | 0) != -1 ? ((Z = f[(T + (W << 2)) >> 2] | 0), (W = (Z + 1) | 0), (Z | 0) != -1) : 0)
+                    if (
+                      (W | 0) != -1 ? ((Z = f[(T + (W << 2)) >> 2] | 0), (W = (Z + 1) | 0), (Z | 0) != -1) : 0
+                    )
                       da = ((W >>> 0) % 3 | 0 | 0) == 0 ? (Z + -2) | 0 : W
                     else da = -1
                   } else {
@@ -29697,7 +29818,8 @@ var DracoDecoderModule = function(DracoDecoderModule) {
                     while (1) {
                       v = f[((f[f[(M + ((w * 144) | 0) + 68) >> 2] >> 2] | 0) + (r << 2)) >> 2] | 0
                       if (
-                        ((1 << (v & 31)) & f[((f[(M + ((w * 144) | 0) + 16) >> 2] | 0) + ((v >>> 5) << 2)) >> 2]) |
+                        ((1 << (v & 31)) &
+                          f[((f[(M + ((w * 144) | 0) + 16) >> 2] | 0) + ((v >>> 5) << 2)) >> 2]) |
                         0
                       ) {
                         v = f[(M + ((w * 144) | 0) + 32) >> 2] | 0
@@ -29720,7 +29842,11 @@ var DracoDecoderModule = function(DracoDecoderModule) {
                   n = 0
                   while (1) {
                     t = f[((f[f[(M + ((n * 144) | 0) + 68) >> 2] >> 2] | 0) + (r << 2)) >> 2] | 0
-                    if (((1 << (t & 31)) & f[((f[(M + ((n * 144) | 0) + 16) >> 2] | 0) + ((t >>> 5) << 2)) >> 2]) | 0) {
+                    if (
+                      ((1 << (t & 31)) &
+                        f[((f[(M + ((n * 144) | 0) + 16) >> 2] | 0) + ((t >>> 5) << 2)) >> 2]) |
+                      0
+                    ) {
                       t = f[(M + ((n * 144) | 0) + 32) >> 2] | 0
                       v = f[(t + (r << 2)) >> 2] | 0
                       s = f[w >> 2] | 0
@@ -29795,7 +29921,8 @@ var DracoDecoderModule = function(DracoDecoderModule) {
                 : 0)
                 ? ((J = f[((f[(Z + 12) >> 2] | 0) + (n << 2)) >> 2] | 0), (J | 0) != -1)
                 : 0)
-                  ? ((n = (J + (((J >>> 0) % 3 | 0 | 0) == 0 ? 2 : -1)) | 0), ((n | 0) != -1) & ((n | 0) != (W | 0)))
+                  ? ((n = (J + (((J >>> 0) % 3 | 0 | 0) == 0 ? 2 : -1)) | 0),
+                    ((n | 0) != -1) & ((n | 0) != (W | 0)))
                   : 0
               ) {
                 J = W
@@ -30883,7 +31010,11 @@ var DracoDecoderModule = function(DracoDecoderModule) {
             }
             q = v & 255
             Ne(z, q)
-            if (dg(i, f[((f[n >> 2] | 0) + 32) >> 2] | 0) | 0 ? (f[h >> 2] | 0) >>> 0 >= (f[i >> 2] | 0) >>> 0 : 0) {
+            if (
+              dg(i, f[((f[n >> 2] | 0) + 32) >> 2] | 0) | 0
+                ? (f[h >> 2] | 0) >>> 0 >= (f[i >> 2] | 0) >>> 0
+                : 0
+            ) {
               if (
                 (dg(j, f[((f[n >> 2] | 0) + 32) >> 2] | 0) | 0
                 ? Gf(f[s >> 2] | 0, f[h >> 2] | 0, ((f[j >> 2] | 0) + (f[o >> 2] | 0)) | 0) | 0
@@ -31043,7 +31174,10 @@ var DracoDecoderModule = function(DracoDecoderModule) {
                       L = F
                       do {
                         F = L
-                        E = ((f[(F + ((D * 144) | 0) + 60) >> 2] | 0) - (f[(F + ((D * 144) | 0) + 56) >> 2] | 0)) >> 2
+                        E =
+                          ((f[(F + ((D * 144) | 0) + 60) >> 2] | 0) -
+                            (f[(F + ((D * 144) | 0) + 56) >> 2] | 0)) >>
+                          2
                         G = f[s >> 2] | 0
                         A = ((f[(G + 28) >> 2] | 0) - (f[(G + 24) >> 2] | 0)) >> 2
                         G = (E | 0) < (A | 0) ? A : E
@@ -31255,7 +31389,11 @@ var DracoDecoderModule = function(DracoDecoderModule) {
             }
             q = v & 255
             Ne(z, q)
-            if (dg(i, f[((f[n >> 2] | 0) + 32) >> 2] | 0) | 0 ? (f[h >> 2] | 0) >>> 0 >= (f[i >> 2] | 0) >>> 0 : 0) {
+            if (
+              dg(i, f[((f[n >> 2] | 0) + 32) >> 2] | 0) | 0
+                ? (f[h >> 2] | 0) >>> 0 >= (f[i >> 2] | 0) >>> 0
+                : 0
+            ) {
               if (
                 (dg(j, f[((f[n >> 2] | 0) + 32) >> 2] | 0) | 0
                 ? Gf(f[s >> 2] | 0, f[h >> 2] | 0, ((f[j >> 2] | 0) + (f[o >> 2] | 0)) | 0) | 0
@@ -31370,7 +31508,10 @@ var DracoDecoderModule = function(DracoDecoderModule) {
                       G = D
                       do {
                         D = G
-                        B = ((f[(D + ((x * 144) | 0) + 60) >> 2] | 0) - (f[(D + ((x * 144) | 0) + 56) >> 2] | 0)) >> 2
+                        B =
+                          ((f[(D + ((x * 144) | 0) + 60) >> 2] | 0) -
+                            (f[(D + ((x * 144) | 0) + 56) >> 2] | 0)) >>
+                          2
                         A = f[s >> 2] | 0
                         y = ((f[(A + 28) >> 2] | 0) - (f[(A + 24) >> 2] | 0)) >> 2
                         A = (B | 0) < (y | 0) ? y : B
@@ -32570,7 +32711,8 @@ var DracoDecoderModule = function(DracoDecoderModule) {
                       f[d >> 2] = I
                       D = (a + 52 + ((L * 12) | 0) + 4) | 0
                       K = f[D >> 2] | 0
-                      if ((K | 0) == (f[(a + 52 + ((L * 12) | 0) + 8) >> 2] | 0)) xf((a + 52 + ((L * 12) | 0)) | 0, d)
+                      if ((K | 0) == (f[(a + 52 + ((L * 12) | 0) + 8) >> 2] | 0))
+                        xf((a + 52 + ((L * 12) | 0)) | 0, d)
                       else {
                         f[K >> 2] = I
                         f[D >> 2] = K + 4
@@ -32607,7 +32749,8 @@ var DracoDecoderModule = function(DracoDecoderModule) {
                 f[d >> 2] = H
                 l = (a + 52 + ((O * 12) | 0) + 4) | 0
                 j = f[l >> 2] | 0
-                if ((j | 0) == (f[(a + 52 + ((O * 12) | 0) + 8) >> 2] | 0)) xf((a + 52 + ((O * 12) | 0)) | 0, d)
+                if ((j | 0) == (f[(a + 52 + ((O * 12) | 0) + 8) >> 2] | 0))
+                  xf((a + 52 + ((O * 12) | 0)) | 0, d)
                 else {
                   f[j >> 2] = H
                   f[l >> 2] = j + 4
@@ -35411,7 +35554,11 @@ var DracoDecoderModule = function(DracoDecoderModule) {
         w = f[(r + -4) >> 2] | 0
         f[b >> 2] = w
         p = ((w >>> 0) / 3) | 0
-        if ((w | 0) != -1 ? ((w = f[i >> 2] | 0), ((f[(w + ((p >>> 5) << 2)) >> 2] & (1 << (p & 31))) | 0) == 0) : 0) {
+        if (
+          (w | 0) != -1
+            ? ((w = f[i >> 2] | 0), ((f[(w + ((p >>> 5) << 2)) >> 2] & (1 << (p & 31))) | 0) == 0)
+            : 0
+        ) {
           t = p
           p = w
           w = f[a >> 2] | 0
@@ -35504,12 +35651,20 @@ var DracoDecoderModule = function(DracoDecoderModule) {
                 break
               }
               l = ((y >>> 0) % 3 | 0 | 0) == 0 ? (D + -2) | 0 : y
-              if ((l | 0) != -1 ? ((f[((f[E >> 2] | 0) + ((l >>> 5) << 2)) >> 2] & (1 << (l & 31))) | 0) == 0 : 0)
+              if (
+                (l | 0) != -1
+                  ? ((f[((f[E >> 2] | 0) + ((l >>> 5) << 2)) >> 2] & (1 << (l & 31))) | 0) == 0
+                  : 0
+              )
                 J = f[((f[((f[(E + 64) >> 2] | 0) + 12) >> 2] | 0) + (l << 2)) >> 2] | 0
               else J = -1
               f[d >> 2] = J
               l = ((((D >>> 0) % 3 | 0 | 0) == 0 ? 2 : -1) + D) | 0
-              if ((l | 0) != -1 ? ((f[((f[E >> 2] | 0) + ((l >>> 5) << 2)) >> 2] & (1 << (l & 31))) | 0) == 0 : 0)
+              if (
+                (l | 0) != -1
+                  ? ((f[((f[E >> 2] | 0) + ((l >>> 5) << 2)) >> 2] & (1 << (l & 31))) | 0) == 0
+                  : 0
+              )
                 K = f[((f[((f[(E + 64) >> 2] | 0) + 12) >> 2] | 0) + (l << 2)) >> 2] | 0
               else K = -1
               l = (J | 0) == -1
@@ -36566,7 +36721,11 @@ var DracoDecoderModule = function(DracoDecoderModule) {
         v = f[(m + -4) >> 2] | 0
         f[b >> 2] = v
         p = ((v >>> 0) / 3) | 0
-        if ((v | 0) != -1 ? ((v = f[i >> 2] | 0), ((f[(v + ((p >>> 5) << 2)) >> 2] & (1 << (p & 31))) | 0) == 0) : 0) {
+        if (
+          (v | 0) != -1
+            ? ((v = f[i >> 2] | 0), ((f[(v + ((p >>> 5) << 2)) >> 2] & (1 << (p & 31))) | 0) == 0)
+            : 0
+        ) {
           s = p
           p = v
           a: while (1) {
@@ -36587,7 +36746,9 @@ var DracoDecoderModule = function(DracoDecoderModule) {
                   ((z | 0) != -1
                   ? ((B = ((A >>> 0) % 3 | 0 | 0) == 0 ? (z + -2) | 0 : A), (B | 0) != -1)
                   : 0)
-                    ? ((A = f[((f[(y + 12) >> 2] | 0) + (B << 2)) >> 2] | 0), (B = (A + 1) | 0), (A | 0) != -1)
+                    ? ((A = f[((f[(y + 12) >> 2] | 0) + (B << 2)) >> 2] | 0),
+                      (B = (A + 1) | 0),
+                      (A | 0) != -1)
                     : 0
                 )
                   C = ((((B >>> 0) % 3 | 0 | 0) == 0 ? (A + -2) | 0 : B) | 0) == -1
@@ -36853,7 +37014,11 @@ var DracoDecoderModule = function(DracoDecoderModule) {
         s = d
         p = d
         while (1) {
-          o = X(h[r >> 0] | (h[(r + 1) >> 0] << 8) | (h[(r + 2) >> 0] << 16) | (h[(r + 3) >> 0] << 24), 1540483477) | 0
+          o =
+            X(
+              h[r >> 0] | (h[(r + 1) >> 0] << 8) | (h[(r + 2) >> 0] << 16) | (h[(r + 3) >> 0] << 24),
+              1540483477
+            ) | 0
           s = (X((o >>> 24) ^ o, 1540483477) | 0) ^ (X(s, 1540483477) | 0)
           p = (p + -4) | 0
           if (p >>> 0 <= 3) break
@@ -38981,7 +39146,11 @@ var DracoDecoderModule = function(DracoDecoderModule) {
         e = i
         j = i
         while (1) {
-          k = X(h[d >> 0] | (h[(d + 1) >> 0] << 8) | (h[(d + 2) >> 0] << 16) | (h[(d + 3) >> 0] << 24), 1540483477) | 0
+          k =
+            X(
+              h[d >> 0] | (h[(d + 1) >> 0] << 8) | (h[(d + 2) >> 0] << 16) | (h[(d + 3) >> 0] << 24),
+              1540483477
+            ) | 0
           e = (X((k >>> 24) ^ k, 1540483477) | 0) ^ (X(e, 1540483477) | 0)
           j = (j + -4) | 0
           if (j >>> 0 <= 3) break
@@ -39655,8 +39824,11 @@ var DracoDecoderModule = function(DracoDecoderModule) {
               (y = f[d >> 2] | 0),
               (z = f[(y + (f[(v + (x << 2)) >> 2] << 2)) >> 2] | 0),
               (A = (x + 1) | 0),
-              (B = f[(y + (f[(v + ((((A >>> 0) % 3 | 0 | 0) == 0 ? (x + -2) | 0 : A) << 2)) >> 2] << 2)) >> 2] | 0),
-              (A = f[(y + (f[(v + (((((x >>> 0) % 3 | 0 | 0) == 0 ? 2 : -1) + x) << 2)) >> 2] << 2)) >> 2] | 0),
+              (B =
+                f[(y + (f[(v + ((((A >>> 0) % 3 | 0 | 0) == 0 ? (x + -2) | 0 : A) << 2)) >> 2] << 2)) >> 2] |
+                0),
+              (A =
+                f[(y + (f[(v + (((((x >>> 0) % 3 | 0 | 0) == 0 ? 2 : -1) + x) << 2)) >> 2] << 2)) >> 2] | 0),
               ((z | 0) < (s | 0)) & ((B | 0) < (s | 0)) & ((A | 0) < (s | 0)))
             : 0
         ) {
@@ -39949,7 +40121,11 @@ var DracoDecoderModule = function(DracoDecoderModule) {
           }
         }
       }
-      if ((v | 0) != -1 ? ((K = f[((f[((f[b >> 2] | 0) + 12) >> 2] | 0) + (v << 2)) >> 2] | 0), (K | 0) != -1) : 0) {
+      if (
+        (v | 0) != -1
+          ? ((K = f[((f[((f[b >> 2] | 0) + 12) >> 2] | 0) + (v << 2)) >> 2] | 0), (K | 0) != -1)
+          : 0
+      ) {
         if ((((K >>> 0) / 3) | 0) >>> 0 >= q >>> 0 ? (f[w >> 2] | 0) != (f[x >> 2] | 0) : 0) {
           K = 0
           do {
@@ -39994,7 +40170,11 @@ var DracoDecoderModule = function(DracoDecoderModule) {
           }
         }
       }
-      if ((r | 0) != -1 ? ((N = f[((f[((f[b >> 2] | 0) + 12) >> 2] | 0) + (r << 2)) >> 2] | 0), (N | 0) != -1) : 0) {
+      if (
+        (r | 0) != -1
+          ? ((N = f[((f[((f[b >> 2] | 0) + 12) >> 2] | 0) + (r << 2)) >> 2] | 0), (N | 0) != -1)
+          : 0
+      ) {
         if ((((N >>> 0) / 3) | 0) >>> 0 < q >>> 0) {
           u = c
           return 1
@@ -40620,7 +40800,13 @@ var DracoDecoderModule = function(DracoDecoderModule) {
       f[(g + 4) >> 2] = 0
       f[(g + 8) >> 2] = 0
       f[(g + 12) >> 2] = 0
-      Mh(c, f[(a + 24) >> 2] | 0, f[(a + 28) >> 2] | 0, b[((f[(a + 8) >> 2] | 0) + 24) >> 0] | 0, $(n[(a + 32) >> 2]))
+      Mh(
+        c,
+        f[(a + 24) >> 2] | 0,
+        f[(a + 28) >> 2] | 0,
+        b[((f[(a + 8) >> 2] | 0) + 24) >> 0] | 0,
+        $(n[(a + 32) >> 2])
+      )
       i = gh(c, f[(a + 16) >> 2] | 0) | 0
       f[c >> 2] = 956
       a = f[g >> 2] | 0
@@ -44073,8 +44259,12 @@ var DracoDecoderModule = function(DracoDecoderModule) {
       a = g ^ e
       e = h ^ f
       return (
-        Tj(((gc(i, b, Tj((g ^ c) | 0, (h ^ d) | 0, g | 0, h | 0) | 0, I, 0) | 0) ^ a) | 0, (I ^ e) | 0, a | 0, e | 0) |
-        0
+        Tj(
+          ((gc(i, b, Tj((g ^ c) | 0, (h ^ d) | 0, g | 0, h | 0) | 0, I, 0) | 0) ^ a) | 0,
+          (I ^ e) | 0,
+          a | 0,
+          e | 0
+        ) | 0
       )
     }
     function Vg(a, b, c, d, e, g) {
@@ -45436,8 +45626,8 @@ var DracoDecoderModule = function(DracoDecoderModule) {
       d = b >>> 16
       b = X(d, c) | 0
       return (
-        ((I = ((a >>> 16) + (X(d, f) | 0) + ((((a & 65535) + b) | 0) >>> 16)) | 0), ((a + b) << 16) | (e & 65535) | 0) |
-        0
+        ((I = ((a >>> 16) + (X(d, f) | 0) + ((((a & 65535) + b) | 0) >>> 16)) | 0),
+        ((a + b) << 16) | (e & 65535) | 0) | 0
       )
     }
     function ji(a, b) {
@@ -45615,7 +45805,8 @@ var DracoDecoderModule = function(DracoDecoderModule) {
         (a | 0
         ? ((b = f[a >> 2] | 0), b | 0)
         : 0)
-          ? ((a = (b + 48) | 0), ((f[a >> 2] & -256) | 0) == 1126902528 ? (f[(a + 4) >> 2] | 0) == 1129074247 : 0)
+          ? ((a = (b + 48) | 0),
+            ((f[a >> 2] & -256) | 0) == 1126902528 ? (f[(a + 4) >> 2] | 0) == 1129074247 : 0)
           : 0
       )
         Rk(f[(b + 12) >> 2] | 0)
@@ -48065,21 +48256,24 @@ var DracoDecoderModule = function(DracoDecoderModule) {
   var _emscripten_bind_AttributeTransformData_transform_type_0 = (Module[
     '_emscripten_bind_AttributeTransformData_transform_type_0'
   ] = asm['_emscripten_bind_AttributeTransformData_transform_type_0'])
-  var _emscripten_bind_DecoderBuffer_DecoderBuffer_0 = (Module['_emscripten_bind_DecoderBuffer_DecoderBuffer_0'] =
-    asm['_emscripten_bind_DecoderBuffer_DecoderBuffer_0'])
+  var _emscripten_bind_DecoderBuffer_DecoderBuffer_0 = (Module[
+    '_emscripten_bind_DecoderBuffer_DecoderBuffer_0'
+  ] = asm['_emscripten_bind_DecoderBuffer_DecoderBuffer_0'])
   var _emscripten_bind_DecoderBuffer_Init_2 = (Module['_emscripten_bind_DecoderBuffer_Init_2'] =
     asm['_emscripten_bind_DecoderBuffer_Init_2'])
   var _emscripten_bind_DecoderBuffer___destroy___0 = (Module['_emscripten_bind_DecoderBuffer___destroy___0'] =
     asm['_emscripten_bind_DecoderBuffer___destroy___0'])
-  var _emscripten_bind_Decoder_DecodeBufferToMesh_2 = (Module['_emscripten_bind_Decoder_DecodeBufferToMesh_2'] =
-    asm['_emscripten_bind_Decoder_DecodeBufferToMesh_2'])
+  var _emscripten_bind_Decoder_DecodeBufferToMesh_2 = (Module[
+    '_emscripten_bind_Decoder_DecodeBufferToMesh_2'
+  ] = asm['_emscripten_bind_Decoder_DecodeBufferToMesh_2'])
   var _emscripten_bind_Decoder_DecodeBufferToPointCloud_2 = (Module[
     '_emscripten_bind_Decoder_DecodeBufferToPointCloud_2'
   ] = asm['_emscripten_bind_Decoder_DecodeBufferToPointCloud_2'])
   var _emscripten_bind_Decoder_Decoder_0 = (Module['_emscripten_bind_Decoder_Decoder_0'] =
     asm['_emscripten_bind_Decoder_Decoder_0'])
-  var _emscripten_bind_Decoder_GetAttributeByUniqueId_2 = (Module['_emscripten_bind_Decoder_GetAttributeByUniqueId_2'] =
-    asm['_emscripten_bind_Decoder_GetAttributeByUniqueId_2'])
+  var _emscripten_bind_Decoder_GetAttributeByUniqueId_2 = (Module[
+    '_emscripten_bind_Decoder_GetAttributeByUniqueId_2'
+  ] = asm['_emscripten_bind_Decoder_GetAttributeByUniqueId_2'])
   var _emscripten_bind_Decoder_GetAttributeFloatForAllPoints_3 = (Module[
     '_emscripten_bind_Decoder_GetAttributeFloatForAllPoints_3'
   ] = asm['_emscripten_bind_Decoder_GetAttributeFloatForAllPoints_3'])
@@ -48088,8 +48282,9 @@ var DracoDecoderModule = function(DracoDecoderModule) {
   var _emscripten_bind_Decoder_GetAttributeIdByMetadataEntry_3 = (Module[
     '_emscripten_bind_Decoder_GetAttributeIdByMetadataEntry_3'
   ] = asm['_emscripten_bind_Decoder_GetAttributeIdByMetadataEntry_3'])
-  var _emscripten_bind_Decoder_GetAttributeIdByName_2 = (Module['_emscripten_bind_Decoder_GetAttributeIdByName_2'] =
-    asm['_emscripten_bind_Decoder_GetAttributeIdByName_2'])
+  var _emscripten_bind_Decoder_GetAttributeIdByName_2 = (Module[
+    '_emscripten_bind_Decoder_GetAttributeIdByName_2'
+  ] = asm['_emscripten_bind_Decoder_GetAttributeIdByName_2'])
   var _emscripten_bind_Decoder_GetAttributeId_2 = (Module['_emscripten_bind_Decoder_GetAttributeId_2'] =
     asm['_emscripten_bind_Decoder_GetAttributeId_2'])
   var _emscripten_bind_Decoder_GetAttributeInt16ForAllPoints_3 = (Module[
@@ -48104,8 +48299,9 @@ var DracoDecoderModule = function(DracoDecoderModule) {
   var _emscripten_bind_Decoder_GetAttributeIntForAllPoints_3 = (Module[
     '_emscripten_bind_Decoder_GetAttributeIntForAllPoints_3'
   ] = asm['_emscripten_bind_Decoder_GetAttributeIntForAllPoints_3'])
-  var _emscripten_bind_Decoder_GetAttributeMetadata_2 = (Module['_emscripten_bind_Decoder_GetAttributeMetadata_2'] =
-    asm['_emscripten_bind_Decoder_GetAttributeMetadata_2'])
+  var _emscripten_bind_Decoder_GetAttributeMetadata_2 = (Module[
+    '_emscripten_bind_Decoder_GetAttributeMetadata_2'
+  ] = asm['_emscripten_bind_Decoder_GetAttributeMetadata_2'])
   var _emscripten_bind_Decoder_GetAttributeUInt16ForAllPoints_3 = (Module[
     '_emscripten_bind_Decoder_GetAttributeUInt16ForAllPoints_3'
   ] = asm['_emscripten_bind_Decoder_GetAttributeUInt16ForAllPoints_3'])
@@ -48117,8 +48313,9 @@ var DracoDecoderModule = function(DracoDecoderModule) {
   ] = asm['_emscripten_bind_Decoder_GetAttributeUInt8ForAllPoints_3'])
   var _emscripten_bind_Decoder_GetAttribute_2 = (Module['_emscripten_bind_Decoder_GetAttribute_2'] =
     asm['_emscripten_bind_Decoder_GetAttribute_2'])
-  var _emscripten_bind_Decoder_GetEncodedGeometryType_1 = (Module['_emscripten_bind_Decoder_GetEncodedGeometryType_1'] =
-    asm['_emscripten_bind_Decoder_GetEncodedGeometryType_1'])
+  var _emscripten_bind_Decoder_GetEncodedGeometryType_1 = (Module[
+    '_emscripten_bind_Decoder_GetEncodedGeometryType_1'
+  ] = asm['_emscripten_bind_Decoder_GetEncodedGeometryType_1'])
   var _emscripten_bind_Decoder_GetFaceFromMesh_3 = (Module['_emscripten_bind_Decoder_GetFaceFromMesh_3'] =
     asm['_emscripten_bind_Decoder_GetFaceFromMesh_3'])
   var _emscripten_bind_Decoder_GetMetadata_1 = (Module['_emscripten_bind_Decoder_GetMetadata_1'] =
@@ -48126,17 +48323,20 @@ var DracoDecoderModule = function(DracoDecoderModule) {
   var _emscripten_bind_Decoder_GetTriangleStripsFromMesh_2 = (Module[
     '_emscripten_bind_Decoder_GetTriangleStripsFromMesh_2'
   ] = asm['_emscripten_bind_Decoder_GetTriangleStripsFromMesh_2'])
-  var _emscripten_bind_Decoder_SkipAttributeTransform_1 = (Module['_emscripten_bind_Decoder_SkipAttributeTransform_1'] =
-    asm['_emscripten_bind_Decoder_SkipAttributeTransform_1'])
+  var _emscripten_bind_Decoder_SkipAttributeTransform_1 = (Module[
+    '_emscripten_bind_Decoder_SkipAttributeTransform_1'
+  ] = asm['_emscripten_bind_Decoder_SkipAttributeTransform_1'])
   var _emscripten_bind_Decoder___destroy___0 = (Module['_emscripten_bind_Decoder___destroy___0'] =
     asm['_emscripten_bind_Decoder___destroy___0'])
   var _emscripten_bind_DracoFloat32Array_DracoFloat32Array_0 = (Module[
     '_emscripten_bind_DracoFloat32Array_DracoFloat32Array_0'
   ] = asm['_emscripten_bind_DracoFloat32Array_DracoFloat32Array_0'])
-  var _emscripten_bind_DracoFloat32Array_GetValue_1 = (Module['_emscripten_bind_DracoFloat32Array_GetValue_1'] =
-    asm['_emscripten_bind_DracoFloat32Array_GetValue_1'])
-  var _emscripten_bind_DracoFloat32Array___destroy___0 = (Module['_emscripten_bind_DracoFloat32Array___destroy___0'] =
-    asm['_emscripten_bind_DracoFloat32Array___destroy___0'])
+  var _emscripten_bind_DracoFloat32Array_GetValue_1 = (Module[
+    '_emscripten_bind_DracoFloat32Array_GetValue_1'
+  ] = asm['_emscripten_bind_DracoFloat32Array_GetValue_1'])
+  var _emscripten_bind_DracoFloat32Array___destroy___0 = (Module[
+    '_emscripten_bind_DracoFloat32Array___destroy___0'
+  ] = asm['_emscripten_bind_DracoFloat32Array___destroy___0'])
   var _emscripten_bind_DracoFloat32Array_size_0 = (Module['_emscripten_bind_DracoFloat32Array_size_0'] =
     asm['_emscripten_bind_DracoFloat32Array_size_0'])
   var _emscripten_bind_DracoInt16Array_DracoInt16Array_0 = (Module[
@@ -48144,8 +48344,9 @@ var DracoDecoderModule = function(DracoDecoderModule) {
   ] = asm['_emscripten_bind_DracoInt16Array_DracoInt16Array_0'])
   var _emscripten_bind_DracoInt16Array_GetValue_1 = (Module['_emscripten_bind_DracoInt16Array_GetValue_1'] =
     asm['_emscripten_bind_DracoInt16Array_GetValue_1'])
-  var _emscripten_bind_DracoInt16Array___destroy___0 = (Module['_emscripten_bind_DracoInt16Array___destroy___0'] =
-    asm['_emscripten_bind_DracoInt16Array___destroy___0'])
+  var _emscripten_bind_DracoInt16Array___destroy___0 = (Module[
+    '_emscripten_bind_DracoInt16Array___destroy___0'
+  ] = asm['_emscripten_bind_DracoInt16Array___destroy___0'])
   var _emscripten_bind_DracoInt16Array_size_0 = (Module['_emscripten_bind_DracoInt16Array_size_0'] =
     asm['_emscripten_bind_DracoInt16Array_size_0'])
   var _emscripten_bind_DracoInt32Array_DracoInt32Array_0 = (Module[
@@ -48153,16 +48354,19 @@ var DracoDecoderModule = function(DracoDecoderModule) {
   ] = asm['_emscripten_bind_DracoInt32Array_DracoInt32Array_0'])
   var _emscripten_bind_DracoInt32Array_GetValue_1 = (Module['_emscripten_bind_DracoInt32Array_GetValue_1'] =
     asm['_emscripten_bind_DracoInt32Array_GetValue_1'])
-  var _emscripten_bind_DracoInt32Array___destroy___0 = (Module['_emscripten_bind_DracoInt32Array___destroy___0'] =
-    asm['_emscripten_bind_DracoInt32Array___destroy___0'])
+  var _emscripten_bind_DracoInt32Array___destroy___0 = (Module[
+    '_emscripten_bind_DracoInt32Array___destroy___0'
+  ] = asm['_emscripten_bind_DracoInt32Array___destroy___0'])
   var _emscripten_bind_DracoInt32Array_size_0 = (Module['_emscripten_bind_DracoInt32Array_size_0'] =
     asm['_emscripten_bind_DracoInt32Array_size_0'])
-  var _emscripten_bind_DracoInt8Array_DracoInt8Array_0 = (Module['_emscripten_bind_DracoInt8Array_DracoInt8Array_0'] =
-    asm['_emscripten_bind_DracoInt8Array_DracoInt8Array_0'])
+  var _emscripten_bind_DracoInt8Array_DracoInt8Array_0 = (Module[
+    '_emscripten_bind_DracoInt8Array_DracoInt8Array_0'
+  ] = asm['_emscripten_bind_DracoInt8Array_DracoInt8Array_0'])
   var _emscripten_bind_DracoInt8Array_GetValue_1 = (Module['_emscripten_bind_DracoInt8Array_GetValue_1'] =
     asm['_emscripten_bind_DracoInt8Array_GetValue_1'])
-  var _emscripten_bind_DracoInt8Array___destroy___0 = (Module['_emscripten_bind_DracoInt8Array___destroy___0'] =
-    asm['_emscripten_bind_DracoInt8Array___destroy___0'])
+  var _emscripten_bind_DracoInt8Array___destroy___0 = (Module[
+    '_emscripten_bind_DracoInt8Array___destroy___0'
+  ] = asm['_emscripten_bind_DracoInt8Array___destroy___0'])
   var _emscripten_bind_DracoInt8Array_size_0 = (Module['_emscripten_bind_DracoInt8Array_size_0'] =
     asm['_emscripten_bind_DracoInt8Array_size_0'])
   var _emscripten_bind_DracoUInt16Array_DracoUInt16Array_0 = (Module[
@@ -48170,8 +48374,9 @@ var DracoDecoderModule = function(DracoDecoderModule) {
   ] = asm['_emscripten_bind_DracoUInt16Array_DracoUInt16Array_0'])
   var _emscripten_bind_DracoUInt16Array_GetValue_1 = (Module['_emscripten_bind_DracoUInt16Array_GetValue_1'] =
     asm['_emscripten_bind_DracoUInt16Array_GetValue_1'])
-  var _emscripten_bind_DracoUInt16Array___destroy___0 = (Module['_emscripten_bind_DracoUInt16Array___destroy___0'] =
-    asm['_emscripten_bind_DracoUInt16Array___destroy___0'])
+  var _emscripten_bind_DracoUInt16Array___destroy___0 = (Module[
+    '_emscripten_bind_DracoUInt16Array___destroy___0'
+  ] = asm['_emscripten_bind_DracoUInt16Array___destroy___0'])
   var _emscripten_bind_DracoUInt16Array_size_0 = (Module['_emscripten_bind_DracoUInt16Array_size_0'] =
     asm['_emscripten_bind_DracoUInt16Array_size_0'])
   var _emscripten_bind_DracoUInt32Array_DracoUInt32Array_0 = (Module[
@@ -48179,8 +48384,9 @@ var DracoDecoderModule = function(DracoDecoderModule) {
   ] = asm['_emscripten_bind_DracoUInt32Array_DracoUInt32Array_0'])
   var _emscripten_bind_DracoUInt32Array_GetValue_1 = (Module['_emscripten_bind_DracoUInt32Array_GetValue_1'] =
     asm['_emscripten_bind_DracoUInt32Array_GetValue_1'])
-  var _emscripten_bind_DracoUInt32Array___destroy___0 = (Module['_emscripten_bind_DracoUInt32Array___destroy___0'] =
-    asm['_emscripten_bind_DracoUInt32Array___destroy___0'])
+  var _emscripten_bind_DracoUInt32Array___destroy___0 = (Module[
+    '_emscripten_bind_DracoUInt32Array___destroy___0'
+  ] = asm['_emscripten_bind_DracoUInt32Array___destroy___0'])
   var _emscripten_bind_DracoUInt32Array_size_0 = (Module['_emscripten_bind_DracoUInt32Array_size_0'] =
     asm['_emscripten_bind_DracoUInt32Array_size_0'])
   var _emscripten_bind_DracoUInt8Array_DracoUInt8Array_0 = (Module[
@@ -48188,16 +48394,19 @@ var DracoDecoderModule = function(DracoDecoderModule) {
   ] = asm['_emscripten_bind_DracoUInt8Array_DracoUInt8Array_0'])
   var _emscripten_bind_DracoUInt8Array_GetValue_1 = (Module['_emscripten_bind_DracoUInt8Array_GetValue_1'] =
     asm['_emscripten_bind_DracoUInt8Array_GetValue_1'])
-  var _emscripten_bind_DracoUInt8Array___destroy___0 = (Module['_emscripten_bind_DracoUInt8Array___destroy___0'] =
-    asm['_emscripten_bind_DracoUInt8Array___destroy___0'])
+  var _emscripten_bind_DracoUInt8Array___destroy___0 = (Module[
+    '_emscripten_bind_DracoUInt8Array___destroy___0'
+  ] = asm['_emscripten_bind_DracoUInt8Array___destroy___0'])
   var _emscripten_bind_DracoUInt8Array_size_0 = (Module['_emscripten_bind_DracoUInt8Array_size_0'] =
     asm['_emscripten_bind_DracoUInt8Array_size_0'])
   var _emscripten_bind_GeometryAttribute_GeometryAttribute_0 = (Module[
     '_emscripten_bind_GeometryAttribute_GeometryAttribute_0'
   ] = asm['_emscripten_bind_GeometryAttribute_GeometryAttribute_0'])
-  var _emscripten_bind_GeometryAttribute___destroy___0 = (Module['_emscripten_bind_GeometryAttribute___destroy___0'] =
-    asm['_emscripten_bind_GeometryAttribute___destroy___0'])
-  var _emscripten_bind_Mesh_Mesh_0 = (Module['_emscripten_bind_Mesh_Mesh_0'] = asm['_emscripten_bind_Mesh_Mesh_0'])
+  var _emscripten_bind_GeometryAttribute___destroy___0 = (Module[
+    '_emscripten_bind_GeometryAttribute___destroy___0'
+  ] = asm['_emscripten_bind_GeometryAttribute___destroy___0'])
+  var _emscripten_bind_Mesh_Mesh_0 = (Module['_emscripten_bind_Mesh_Mesh_0'] =
+    asm['_emscripten_bind_Mesh_Mesh_0'])
   var _emscripten_bind_Mesh___destroy___0 = (Module['_emscripten_bind_Mesh___destroy___0'] =
     asm['_emscripten_bind_Mesh___destroy___0'])
   var _emscripten_bind_Mesh_num_attributes_0 = (Module['_emscripten_bind_Mesh_num_attributes_0'] =
@@ -48206,29 +48415,38 @@ var DracoDecoderModule = function(DracoDecoderModule) {
     asm['_emscripten_bind_Mesh_num_faces_0'])
   var _emscripten_bind_Mesh_num_points_0 = (Module['_emscripten_bind_Mesh_num_points_0'] =
     asm['_emscripten_bind_Mesh_num_points_0'])
-  var _emscripten_bind_MetadataQuerier_GetDoubleEntry_2 = (Module['_emscripten_bind_MetadataQuerier_GetDoubleEntry_2'] =
-    asm['_emscripten_bind_MetadataQuerier_GetDoubleEntry_2'])
-  var _emscripten_bind_MetadataQuerier_GetEntryName_2 = (Module['_emscripten_bind_MetadataQuerier_GetEntryName_2'] =
-    asm['_emscripten_bind_MetadataQuerier_GetEntryName_2'])
-  var _emscripten_bind_MetadataQuerier_GetIntEntry_2 = (Module['_emscripten_bind_MetadataQuerier_GetIntEntry_2'] =
-    asm['_emscripten_bind_MetadataQuerier_GetIntEntry_2'])
-  var _emscripten_bind_MetadataQuerier_GetStringEntry_2 = (Module['_emscripten_bind_MetadataQuerier_GetStringEntry_2'] =
-    asm['_emscripten_bind_MetadataQuerier_GetStringEntry_2'])
-  var _emscripten_bind_MetadataQuerier_HasDoubleEntry_2 = (Module['_emscripten_bind_MetadataQuerier_HasDoubleEntry_2'] =
-    asm['_emscripten_bind_MetadataQuerier_HasDoubleEntry_2'])
+  var _emscripten_bind_MetadataQuerier_GetDoubleEntry_2 = (Module[
+    '_emscripten_bind_MetadataQuerier_GetDoubleEntry_2'
+  ] = asm['_emscripten_bind_MetadataQuerier_GetDoubleEntry_2'])
+  var _emscripten_bind_MetadataQuerier_GetEntryName_2 = (Module[
+    '_emscripten_bind_MetadataQuerier_GetEntryName_2'
+  ] = asm['_emscripten_bind_MetadataQuerier_GetEntryName_2'])
+  var _emscripten_bind_MetadataQuerier_GetIntEntry_2 = (Module[
+    '_emscripten_bind_MetadataQuerier_GetIntEntry_2'
+  ] = asm['_emscripten_bind_MetadataQuerier_GetIntEntry_2'])
+  var _emscripten_bind_MetadataQuerier_GetStringEntry_2 = (Module[
+    '_emscripten_bind_MetadataQuerier_GetStringEntry_2'
+  ] = asm['_emscripten_bind_MetadataQuerier_GetStringEntry_2'])
+  var _emscripten_bind_MetadataQuerier_HasDoubleEntry_2 = (Module[
+    '_emscripten_bind_MetadataQuerier_HasDoubleEntry_2'
+  ] = asm['_emscripten_bind_MetadataQuerier_HasDoubleEntry_2'])
   var _emscripten_bind_MetadataQuerier_HasEntry_2 = (Module['_emscripten_bind_MetadataQuerier_HasEntry_2'] =
     asm['_emscripten_bind_MetadataQuerier_HasEntry_2'])
-  var _emscripten_bind_MetadataQuerier_HasIntEntry_2 = (Module['_emscripten_bind_MetadataQuerier_HasIntEntry_2'] =
-    asm['_emscripten_bind_MetadataQuerier_HasIntEntry_2'])
-  var _emscripten_bind_MetadataQuerier_HasStringEntry_2 = (Module['_emscripten_bind_MetadataQuerier_HasStringEntry_2'] =
-    asm['_emscripten_bind_MetadataQuerier_HasStringEntry_2'])
+  var _emscripten_bind_MetadataQuerier_HasIntEntry_2 = (Module[
+    '_emscripten_bind_MetadataQuerier_HasIntEntry_2'
+  ] = asm['_emscripten_bind_MetadataQuerier_HasIntEntry_2'])
+  var _emscripten_bind_MetadataQuerier_HasStringEntry_2 = (Module[
+    '_emscripten_bind_MetadataQuerier_HasStringEntry_2'
+  ] = asm['_emscripten_bind_MetadataQuerier_HasStringEntry_2'])
   var _emscripten_bind_MetadataQuerier_MetadataQuerier_0 = (Module[
     '_emscripten_bind_MetadataQuerier_MetadataQuerier_0'
   ] = asm['_emscripten_bind_MetadataQuerier_MetadataQuerier_0'])
-  var _emscripten_bind_MetadataQuerier_NumEntries_1 = (Module['_emscripten_bind_MetadataQuerier_NumEntries_1'] =
-    asm['_emscripten_bind_MetadataQuerier_NumEntries_1'])
-  var _emscripten_bind_MetadataQuerier___destroy___0 = (Module['_emscripten_bind_MetadataQuerier___destroy___0'] =
-    asm['_emscripten_bind_MetadataQuerier___destroy___0'])
+  var _emscripten_bind_MetadataQuerier_NumEntries_1 = (Module[
+    '_emscripten_bind_MetadataQuerier_NumEntries_1'
+  ] = asm['_emscripten_bind_MetadataQuerier_NumEntries_1'])
+  var _emscripten_bind_MetadataQuerier___destroy___0 = (Module[
+    '_emscripten_bind_MetadataQuerier___destroy___0'
+  ] = asm['_emscripten_bind_MetadataQuerier___destroy___0'])
   var _emscripten_bind_Metadata_Metadata_0 = (Module['_emscripten_bind_Metadata_Metadata_0'] =
     asm['_emscripten_bind_Metadata_Metadata_0'])
   var _emscripten_bind_Metadata___destroy___0 = (Module['_emscripten_bind_Metadata___destroy___0'] =
@@ -48236,22 +48454,28 @@ var DracoDecoderModule = function(DracoDecoderModule) {
   var _emscripten_bind_PointAttribute_GetAttributeTransformData_0 = (Module[
     '_emscripten_bind_PointAttribute_GetAttributeTransformData_0'
   ] = asm['_emscripten_bind_PointAttribute_GetAttributeTransformData_0'])
-  var _emscripten_bind_PointAttribute_PointAttribute_0 = (Module['_emscripten_bind_PointAttribute_PointAttribute_0'] =
-    asm['_emscripten_bind_PointAttribute_PointAttribute_0'])
-  var _emscripten_bind_PointAttribute___destroy___0 = (Module['_emscripten_bind_PointAttribute___destroy___0'] =
-    asm['_emscripten_bind_PointAttribute___destroy___0'])
-  var _emscripten_bind_PointAttribute_attribute_type_0 = (Module['_emscripten_bind_PointAttribute_attribute_type_0'] =
-    asm['_emscripten_bind_PointAttribute_attribute_type_0'])
-  var _emscripten_bind_PointAttribute_byte_offset_0 = (Module['_emscripten_bind_PointAttribute_byte_offset_0'] =
-    asm['_emscripten_bind_PointAttribute_byte_offset_0'])
-  var _emscripten_bind_PointAttribute_byte_stride_0 = (Module['_emscripten_bind_PointAttribute_byte_stride_0'] =
-    asm['_emscripten_bind_PointAttribute_byte_stride_0'])
+  var _emscripten_bind_PointAttribute_PointAttribute_0 = (Module[
+    '_emscripten_bind_PointAttribute_PointAttribute_0'
+  ] = asm['_emscripten_bind_PointAttribute_PointAttribute_0'])
+  var _emscripten_bind_PointAttribute___destroy___0 = (Module[
+    '_emscripten_bind_PointAttribute___destroy___0'
+  ] = asm['_emscripten_bind_PointAttribute___destroy___0'])
+  var _emscripten_bind_PointAttribute_attribute_type_0 = (Module[
+    '_emscripten_bind_PointAttribute_attribute_type_0'
+  ] = asm['_emscripten_bind_PointAttribute_attribute_type_0'])
+  var _emscripten_bind_PointAttribute_byte_offset_0 = (Module[
+    '_emscripten_bind_PointAttribute_byte_offset_0'
+  ] = asm['_emscripten_bind_PointAttribute_byte_offset_0'])
+  var _emscripten_bind_PointAttribute_byte_stride_0 = (Module[
+    '_emscripten_bind_PointAttribute_byte_stride_0'
+  ] = asm['_emscripten_bind_PointAttribute_byte_stride_0'])
   var _emscripten_bind_PointAttribute_data_type_0 = (Module['_emscripten_bind_PointAttribute_data_type_0'] =
     asm['_emscripten_bind_PointAttribute_data_type_0'])
   var _emscripten_bind_PointAttribute_normalized_0 = (Module['_emscripten_bind_PointAttribute_normalized_0'] =
     asm['_emscripten_bind_PointAttribute_normalized_0'])
-  var _emscripten_bind_PointAttribute_num_components_0 = (Module['_emscripten_bind_PointAttribute_num_components_0'] =
-    asm['_emscripten_bind_PointAttribute_num_components_0'])
+  var _emscripten_bind_PointAttribute_num_components_0 = (Module[
+    '_emscripten_bind_PointAttribute_num_components_0'
+  ] = asm['_emscripten_bind_PointAttribute_num_components_0'])
   var _emscripten_bind_PointAttribute_size_0 = (Module['_emscripten_bind_PointAttribute_size_0'] =
     asm['_emscripten_bind_PointAttribute_size_0'])
   var _emscripten_bind_PointAttribute_unique_id_0 = (Module['_emscripten_bind_PointAttribute_unique_id_0'] =
@@ -48270,7 +48494,8 @@ var DracoDecoderModule = function(DracoDecoderModule) {
     asm['_emscripten_bind_Status_code_0'])
   var _emscripten_bind_Status_error_msg_0 = (Module['_emscripten_bind_Status_error_msg_0'] =
     asm['_emscripten_bind_Status_error_msg_0'])
-  var _emscripten_bind_Status_ok_0 = (Module['_emscripten_bind_Status_ok_0'] = asm['_emscripten_bind_Status_ok_0'])
+  var _emscripten_bind_Status_ok_0 = (Module['_emscripten_bind_Status_ok_0'] =
+    asm['_emscripten_bind_Status_ok_0'])
   var _emscripten_bind_VoidPtr___destroy___0 = (Module['_emscripten_bind_VoidPtr___destroy___0'] =
     asm['_emscripten_bind_VoidPtr___destroy___0'])
   var _emscripten_enum_draco_AttributeTransformType_ATTRIBUTE_INVALID_TRANSFORM = (Module[
@@ -48321,8 +48546,9 @@ var DracoDecoderModule = function(DracoDecoderModule) {
     asm['_emscripten_enum_draco_StatusCode_IO_ERROR'])
   var _emscripten_enum_draco_StatusCode_OK = (Module['_emscripten_enum_draco_StatusCode_OK'] =
     asm['_emscripten_enum_draco_StatusCode_OK'])
-  var _emscripten_enum_draco_StatusCode_UNKNOWN_VERSION = (Module['_emscripten_enum_draco_StatusCode_UNKNOWN_VERSION'] =
-    asm['_emscripten_enum_draco_StatusCode_UNKNOWN_VERSION'])
+  var _emscripten_enum_draco_StatusCode_UNKNOWN_VERSION = (Module[
+    '_emscripten_enum_draco_StatusCode_UNKNOWN_VERSION'
+  ] = asm['_emscripten_enum_draco_StatusCode_UNKNOWN_VERSION'])
   var _emscripten_enum_draco_StatusCode_UNSUPPORTED_VERSION = (Module[
     '_emscripten_enum_draco_StatusCode_UNSUPPORTED_VERSION'
   ] = asm['_emscripten_enum_draco_StatusCode_UNSUPPORTED_VERSION'])
@@ -48785,7 +49011,10 @@ var DracoDecoderModule = function(DracoDecoderModule) {
     'GetAttributeTransformData'
   ] = PointAttribute.prototype.GetAttributeTransformData = function() {
     var self = this.ptr
-    return wrapPointer(_emscripten_bind_PointAttribute_GetAttributeTransformData_0(self), AttributeTransformData)
+    return wrapPointer(
+      _emscripten_bind_PointAttribute_GetAttributeTransformData_0(self),
+      AttributeTransformData
+    )
   }
   PointAttribute.prototype['attribute_type'] = PointAttribute.prototype.attribute_type = function() {
     var self = this.ptr
@@ -48828,11 +49057,15 @@ var DracoDecoderModule = function(DracoDecoderModule) {
   AttributeTransformData.prototype.__class__ = AttributeTransformData
   AttributeTransformData.__cache__ = {}
   Module['AttributeTransformData'] = AttributeTransformData
-  AttributeTransformData.prototype['transform_type'] = AttributeTransformData.prototype.transform_type = function() {
+  AttributeTransformData.prototype[
+    'transform_type'
+  ] = AttributeTransformData.prototype.transform_type = function() {
     var self = this.ptr
     return _emscripten_bind_AttributeTransformData_transform_type_0(self)
   }
-  AttributeTransformData.prototype['__destroy__'] = AttributeTransformData.prototype.__destroy__ = function() {
+  AttributeTransformData.prototype[
+    '__destroy__'
+  ] = AttributeTransformData.prototype.__destroy__ = function() {
     var self = this.ptr
     _emscripten_bind_AttributeTransformData___destroy___0(self)
   }
@@ -48858,14 +49091,16 @@ var DracoDecoderModule = function(DracoDecoderModule) {
     var self = this.ptr
     return _emscripten_bind_AttributeQuantizationTransform_quantization_bits_0(self)
   }
-  AttributeQuantizationTransform.prototype['min_value'] = AttributeQuantizationTransform.prototype.min_value = function(
-    arg0
-  ) {
+  AttributeQuantizationTransform.prototype[
+    'min_value'
+  ] = AttributeQuantizationTransform.prototype.min_value = function(arg0) {
     var self = this.ptr
     if (arg0 && typeof arg0 === 'object') arg0 = arg0.ptr
     return _emscripten_bind_AttributeQuantizationTransform_min_value_1(self, arg0)
   }
-  AttributeQuantizationTransform.prototype['range'] = AttributeQuantizationTransform.prototype.range = function() {
+  AttributeQuantizationTransform.prototype[
+    'range'
+  ] = AttributeQuantizationTransform.prototype.range = function() {
     var self = this.ptr
     return _emscripten_bind_AttributeQuantizationTransform_range_0(self)
   }
@@ -48930,7 +49165,10 @@ var DracoDecoderModule = function(DracoDecoderModule) {
     else arg1 = ensureString(arg1)
     return _emscripten_bind_MetadataQuerier_GetIntEntry_2(self, arg0, arg1)
   }
-  MetadataQuerier.prototype['HasDoubleEntry'] = MetadataQuerier.prototype.HasDoubleEntry = function(arg0, arg1) {
+  MetadataQuerier.prototype['HasDoubleEntry'] = MetadataQuerier.prototype.HasDoubleEntry = function(
+    arg0,
+    arg1
+  ) {
     var self = this.ptr
     ensureCache.prepare()
     if (arg0 && typeof arg0 === 'object') arg0 = arg0.ptr
@@ -48938,7 +49176,10 @@ var DracoDecoderModule = function(DracoDecoderModule) {
     else arg1 = ensureString(arg1)
     return !!_emscripten_bind_MetadataQuerier_HasDoubleEntry_2(self, arg0, arg1)
   }
-  MetadataQuerier.prototype['GetDoubleEntry'] = MetadataQuerier.prototype.GetDoubleEntry = function(arg0, arg1) {
+  MetadataQuerier.prototype['GetDoubleEntry'] = MetadataQuerier.prototype.GetDoubleEntry = function(
+    arg0,
+    arg1
+  ) {
     var self = this.ptr
     ensureCache.prepare()
     if (arg0 && typeof arg0 === 'object') arg0 = arg0.ptr
@@ -48946,7 +49187,10 @@ var DracoDecoderModule = function(DracoDecoderModule) {
     else arg1 = ensureString(arg1)
     return _emscripten_bind_MetadataQuerier_GetDoubleEntry_2(self, arg0, arg1)
   }
-  MetadataQuerier.prototype['HasStringEntry'] = MetadataQuerier.prototype.HasStringEntry = function(arg0, arg1) {
+  MetadataQuerier.prototype['HasStringEntry'] = MetadataQuerier.prototype.HasStringEntry = function(
+    arg0,
+    arg1
+  ) {
     var self = this.ptr
     ensureCache.prepare()
     if (arg0 && typeof arg0 === 'object') arg0 = arg0.ptr
@@ -48954,7 +49198,10 @@ var DracoDecoderModule = function(DracoDecoderModule) {
     else arg1 = ensureString(arg1)
     return !!_emscripten_bind_MetadataQuerier_HasStringEntry_2(self, arg0, arg1)
   }
-  MetadataQuerier.prototype['GetStringEntry'] = MetadataQuerier.prototype.GetStringEntry = function(arg0, arg1) {
+  MetadataQuerier.prototype['GetStringEntry'] = MetadataQuerier.prototype.GetStringEntry = function(
+    arg0,
+    arg1
+  ) {
     var self = this.ptr
     ensureCache.prepare()
     if (arg0 && typeof arg0 === 'object') arg0 = arg0.ptr
@@ -49070,7 +49317,10 @@ var DracoDecoderModule = function(DracoDecoderModule) {
     if (arg0 && typeof arg0 === 'object') arg0 = arg0.ptr
     return _emscripten_bind_Decoder_GetEncodedGeometryType_1(self, arg0)
   }
-  Decoder.prototype['DecodeBufferToPointCloud'] = Decoder.prototype.DecodeBufferToPointCloud = function(arg0, arg1) {
+  Decoder.prototype['DecodeBufferToPointCloud'] = Decoder.prototype.DecodeBufferToPointCloud = function(
+    arg0,
+    arg1
+  ) {
     var self = this.ptr
     if (arg0 && typeof arg0 === 'object') arg0 = arg0.ptr
     if (arg1 && typeof arg1 === 'object') arg1 = arg1.ptr
@@ -49096,11 +49346,9 @@ var DracoDecoderModule = function(DracoDecoderModule) {
     else arg1 = ensureString(arg1)
     return _emscripten_bind_Decoder_GetAttributeIdByName_2(self, arg0, arg1)
   }
-  Decoder.prototype['GetAttributeIdByMetadataEntry'] = Decoder.prototype.GetAttributeIdByMetadataEntry = function(
-    arg0,
-    arg1,
-    arg2
-  ) {
+  Decoder.prototype[
+    'GetAttributeIdByMetadataEntry'
+  ] = Decoder.prototype.GetAttributeIdByMetadataEntry = function(arg0, arg1, arg2) {
     var self = this.ptr
     ensureCache.prepare()
     if (arg0 && typeof arg0 === 'object') arg0 = arg0.ptr
@@ -49116,7 +49364,10 @@ var DracoDecoderModule = function(DracoDecoderModule) {
     if (arg1 && typeof arg1 === 'object') arg1 = arg1.ptr
     return wrapPointer(_emscripten_bind_Decoder_GetAttribute_2(self, arg0, arg1), PointAttribute)
   }
-  Decoder.prototype['GetAttributeByUniqueId'] = Decoder.prototype.GetAttributeByUniqueId = function(arg0, arg1) {
+  Decoder.prototype['GetAttributeByUniqueId'] = Decoder.prototype.GetAttributeByUniqueId = function(
+    arg0,
+    arg1
+  ) {
     var self = this.ptr
     if (arg0 && typeof arg0 === 'object') arg0 = arg0.ptr
     if (arg1 && typeof arg1 === 'object') arg1 = arg1.ptr
@@ -49140,7 +49391,10 @@ var DracoDecoderModule = function(DracoDecoderModule) {
     if (arg2 && typeof arg2 === 'object') arg2 = arg2.ptr
     return !!_emscripten_bind_Decoder_GetFaceFromMesh_3(self, arg0, arg1, arg2)
   }
-  Decoder.prototype['GetTriangleStripsFromMesh'] = Decoder.prototype.GetTriangleStripsFromMesh = function(arg0, arg1) {
+  Decoder.prototype['GetTriangleStripsFromMesh'] = Decoder.prototype.GetTriangleStripsFromMesh = function(
+    arg0,
+    arg1
+  ) {
     var self = this.ptr
     if (arg0 && typeof arg0 === 'object') arg0 = arg0.ptr
     if (arg1 && typeof arg1 === 'object') arg1 = arg1.ptr
@@ -49153,11 +49407,9 @@ var DracoDecoderModule = function(DracoDecoderModule) {
     if (arg2 && typeof arg2 === 'object') arg2 = arg2.ptr
     return !!_emscripten_bind_Decoder_GetAttributeFloat_3(self, arg0, arg1, arg2)
   }
-  Decoder.prototype['GetAttributeFloatForAllPoints'] = Decoder.prototype.GetAttributeFloatForAllPoints = function(
-    arg0,
-    arg1,
-    arg2
-  ) {
+  Decoder.prototype[
+    'GetAttributeFloatForAllPoints'
+  ] = Decoder.prototype.GetAttributeFloatForAllPoints = function(arg0, arg1, arg2) {
     var self = this.ptr
     if (arg0 && typeof arg0 === 'object') arg0 = arg0.ptr
     if (arg1 && typeof arg1 === 'object') arg1 = arg1.ptr
@@ -49175,66 +49427,54 @@ var DracoDecoderModule = function(DracoDecoderModule) {
     if (arg2 && typeof arg2 === 'object') arg2 = arg2.ptr
     return !!_emscripten_bind_Decoder_GetAttributeIntForAllPoints_3(self, arg0, arg1, arg2)
   }
-  Decoder.prototype['GetAttributeInt8ForAllPoints'] = Decoder.prototype.GetAttributeInt8ForAllPoints = function(
-    arg0,
-    arg1,
-    arg2
-  ) {
+  Decoder.prototype[
+    'GetAttributeInt8ForAllPoints'
+  ] = Decoder.prototype.GetAttributeInt8ForAllPoints = function(arg0, arg1, arg2) {
     var self = this.ptr
     if (arg0 && typeof arg0 === 'object') arg0 = arg0.ptr
     if (arg1 && typeof arg1 === 'object') arg1 = arg1.ptr
     if (arg2 && typeof arg2 === 'object') arg2 = arg2.ptr
     return !!_emscripten_bind_Decoder_GetAttributeInt8ForAllPoints_3(self, arg0, arg1, arg2)
   }
-  Decoder.prototype['GetAttributeUInt8ForAllPoints'] = Decoder.prototype.GetAttributeUInt8ForAllPoints = function(
-    arg0,
-    arg1,
-    arg2
-  ) {
+  Decoder.prototype[
+    'GetAttributeUInt8ForAllPoints'
+  ] = Decoder.prototype.GetAttributeUInt8ForAllPoints = function(arg0, arg1, arg2) {
     var self = this.ptr
     if (arg0 && typeof arg0 === 'object') arg0 = arg0.ptr
     if (arg1 && typeof arg1 === 'object') arg1 = arg1.ptr
     if (arg2 && typeof arg2 === 'object') arg2 = arg2.ptr
     return !!_emscripten_bind_Decoder_GetAttributeUInt8ForAllPoints_3(self, arg0, arg1, arg2)
   }
-  Decoder.prototype['GetAttributeInt16ForAllPoints'] = Decoder.prototype.GetAttributeInt16ForAllPoints = function(
-    arg0,
-    arg1,
-    arg2
-  ) {
+  Decoder.prototype[
+    'GetAttributeInt16ForAllPoints'
+  ] = Decoder.prototype.GetAttributeInt16ForAllPoints = function(arg0, arg1, arg2) {
     var self = this.ptr
     if (arg0 && typeof arg0 === 'object') arg0 = arg0.ptr
     if (arg1 && typeof arg1 === 'object') arg1 = arg1.ptr
     if (arg2 && typeof arg2 === 'object') arg2 = arg2.ptr
     return !!_emscripten_bind_Decoder_GetAttributeInt16ForAllPoints_3(self, arg0, arg1, arg2)
   }
-  Decoder.prototype['GetAttributeUInt16ForAllPoints'] = Decoder.prototype.GetAttributeUInt16ForAllPoints = function(
-    arg0,
-    arg1,
-    arg2
-  ) {
+  Decoder.prototype[
+    'GetAttributeUInt16ForAllPoints'
+  ] = Decoder.prototype.GetAttributeUInt16ForAllPoints = function(arg0, arg1, arg2) {
     var self = this.ptr
     if (arg0 && typeof arg0 === 'object') arg0 = arg0.ptr
     if (arg1 && typeof arg1 === 'object') arg1 = arg1.ptr
     if (arg2 && typeof arg2 === 'object') arg2 = arg2.ptr
     return !!_emscripten_bind_Decoder_GetAttributeUInt16ForAllPoints_3(self, arg0, arg1, arg2)
   }
-  Decoder.prototype['GetAttributeInt32ForAllPoints'] = Decoder.prototype.GetAttributeInt32ForAllPoints = function(
-    arg0,
-    arg1,
-    arg2
-  ) {
+  Decoder.prototype[
+    'GetAttributeInt32ForAllPoints'
+  ] = Decoder.prototype.GetAttributeInt32ForAllPoints = function(arg0, arg1, arg2) {
     var self = this.ptr
     if (arg0 && typeof arg0 === 'object') arg0 = arg0.ptr
     if (arg1 && typeof arg1 === 'object') arg1 = arg1.ptr
     if (arg2 && typeof arg2 === 'object') arg2 = arg2.ptr
     return !!_emscripten_bind_Decoder_GetAttributeInt32ForAllPoints_3(self, arg0, arg1, arg2)
   }
-  Decoder.prototype['GetAttributeUInt32ForAllPoints'] = Decoder.prototype.GetAttributeUInt32ForAllPoints = function(
-    arg0,
-    arg1,
-    arg2
-  ) {
+  Decoder.prototype[
+    'GetAttributeUInt32ForAllPoints'
+  ] = Decoder.prototype.GetAttributeUInt32ForAllPoints = function(arg0, arg1, arg2) {
     var self = this.ptr
     if (arg0 && typeof arg0 === 'object') arg0 = arg0.ptr
     if (arg1 && typeof arg1 === 'object') arg1 = arg1.ptr
@@ -49336,7 +49576,9 @@ var DracoDecoderModule = function(DracoDecoderModule) {
       Module[
         'ATTRIBUTE_INVALID_TRANSFORM'
       ] = _emscripten_enum_draco_AttributeTransformType_ATTRIBUTE_INVALID_TRANSFORM()
-      Module['ATTRIBUTE_NO_TRANSFORM'] = _emscripten_enum_draco_AttributeTransformType_ATTRIBUTE_NO_TRANSFORM()
+      Module[
+        'ATTRIBUTE_NO_TRANSFORM'
+      ] = _emscripten_enum_draco_AttributeTransformType_ATTRIBUTE_NO_TRANSFORM()
       Module[
         'ATTRIBUTE_QUANTIZATION_TRANSFORM'
       ] = _emscripten_enum_draco_AttributeTransformType_ATTRIBUTE_QUANTIZATION_TRANSFORM()

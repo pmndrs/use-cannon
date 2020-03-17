@@ -10,7 +10,11 @@ $jscomp.defineProperty =
         d != Array.prototype && d != Object.prototype && (d[k] = f.value)
       }
 $jscomp.getGlobal = function(d) {
-  return 'undefined' != typeof window && window === d ? d : 'undefined' != typeof global && null != global ? global : d
+  return 'undefined' != typeof window && window === d
+    ? d
+    : 'undefined' != typeof global && null != global
+    ? global
+    : d
 }
 $jscomp.global = $jscomp.getGlobal(this)
 $jscomp.polyfill = function(d, k, f, u) {
@@ -306,7 +310,8 @@ $jscomp.polyfill(
     }
     h.race = function(d) {
       return new h(function(h, k) {
-        for (var v = $jscomp.makeIterator(d), r = v.next(); !r.done; r = v.next()) f(r.value).callWhenSettled_(h, k)
+        for (var v = $jscomp.makeIterator(d), r = v.next(); !r.done; r = v.next())
+          f(r.value).callWhenSettled_(h, k)
       })
     }
     h.all = function(d) {
@@ -460,7 +465,8 @@ var DracoDecoderModule = function(d) {
           0 === b || 10 === b ? ((1 === c ? a.print : a.printErr)(h(e, 0)), (e.length = 0)) : e.push(b)
         }))
       for (c = 0; c < d; c++) {
-        for (var g = E[(p + 8 * c) >> 2], k = E[(p + (8 * c + 4)) >> 2], l = 0; l < k; l++) Z.printChar(b, W[g + l])
+        for (var g = E[(p + 8 * c) >> 2], k = E[(p + (8 * c + 4)) >> 2], l = 0; l < k; l++)
+          Z.printChar(b, W[g + l])
         e += k
       }
       return e
@@ -491,7 +497,8 @@ var DracoDecoderModule = function(d) {
     }
     if (!(0 < ea)) {
       if (a.preRun)
-        for ('function' == typeof a.preRun && (a.preRun = [a.preRun]); a.preRun.length; ) Pa.unshift(a.preRun.shift())
+        for ('function' == typeof a.preRun && (a.preRun = [a.preRun]); a.preRun.length; )
+          Pa.unshift(a.preRun.shift())
       B(Pa)
       0 < ea ||
         a.calledRun ||
@@ -531,7 +538,8 @@ var DracoDecoderModule = function(d) {
         55296 <= e && 57343 >= e && (e = (65536 + ((e & 1023) << 10)) | (a.charCodeAt(++b) & 1023))
         127 >= e
           ? ++c
-          : (c = 2047 >= e ? c + 2 : 65535 >= e ? c + 3 : 2097151 >= e ? c + 4 : 67108863 >= e ? c + 5 : c + 6)
+          : (c =
+              2047 >= e ? c + 2 : 65535 >= e ? c + 3 : 2097151 >= e ? c + 4 : 67108863 >= e ? c + 5 : c + 6)
       }
       c = Array(c + 1)
       b = 0
@@ -779,7 +787,8 @@ var DracoDecoderModule = function(d) {
       (a.setWindowTitle = function(a) {
         document.title = a
       })
-  a.print = 'undefined' !== typeof console ? console.log.bind(console) : 'undefined' !== typeof print ? print : null
+  a.print =
+    'undefined' !== typeof console ? console.log.bind(console) : 'undefined' !== typeof print ? print : null
   a.printErr =
     'undefined' !== typeof printErr
       ? printErr
@@ -809,7 +818,9 @@ var DracoDecoderModule = function(d) {
       return nb(c) ? c : !1
     })
   try {
-    var Ta = Function.prototype.call.bind(Object.getOwnPropertyDescriptor(ArrayBuffer.prototype, 'byteLength').get)
+    var Ta = Function.prototype.call.bind(
+      Object.getOwnPropertyDescriptor(ArrayBuffer.prototype, 'byteLength').get
+    )
     Ta(new ArrayBuffer(4))
   } catch (e) {
     Ta = function(a) {
@@ -818,7 +829,8 @@ var DracoDecoderModule = function(d) {
   }
   var Fa = a.TOTAL_STACK || 5242880,
     A = a.TOTAL_MEMORY || 16777216
-  A < Fa && a.printErr('TOTAL_MEMORY should be larger than TOTAL_STACK, was ' + A + '! (TOTAL_STACK=' + Fa + ')')
+  A < Fa &&
+    a.printErr('TOTAL_MEMORY should be larger than TOTAL_STACK, was ' + A + '! (TOTAL_STACK=' + Fa + ')')
   if (a.buffer) var D = a.buffer
   else
     'object' === typeof WebAssembly && 'function' === typeof WebAssembly.Memory
@@ -912,7 +924,10 @@ var DracoDecoderModule = function(d) {
         } catch (pb) {
           return a.printErr('Module.instantiateWasm callback failed with error: ' + pb), !1
         }
-      a.wasmBinary || 'function' !== typeof WebAssembly.instantiateStreaming || Y(f) || 'function' !== typeof fetch
+      a.wasmBinary ||
+      'function' !== typeof WebAssembly.instantiateStreaming ||
+      Y(f) ||
+      'function' !== typeof fetch
         ? S(g)
         : WebAssembly.instantiateStreaming(fetch(f, { credentials: 'same-origin' }), h)
             .then(g)
@@ -1278,7 +1293,10 @@ var DracoDecoderModule = function(d) {
     return a.asm.___cxa_is_pointer_type.apply(null, arguments)
   }
   var $a = (a._emscripten_bind_AttributeOctahedronTransform_AttributeOctahedronTransform_0 = function() {
-      return a.asm._emscripten_bind_AttributeOctahedronTransform_AttributeOctahedronTransform_0.apply(null, arguments)
+      return a.asm._emscripten_bind_AttributeOctahedronTransform_AttributeOctahedronTransform_0.apply(
+        null,
+        arguments
+      )
     }),
     rb = (a._emscripten_bind_AttributeOctahedronTransform_InitFromAttribute_1 = function() {
       return a.asm._emscripten_bind_AttributeOctahedronTransform_InitFromAttribute_1.apply(null, arguments)
@@ -1605,16 +1623,25 @@ var DracoDecoderModule = function(d) {
       return a.asm._emscripten_bind_VoidPtr___destroy___0.apply(null, arguments)
     }),
     bd = (a._emscripten_enum_draco_AttributeTransformType_ATTRIBUTE_INVALID_TRANSFORM = function() {
-      return a.asm._emscripten_enum_draco_AttributeTransformType_ATTRIBUTE_INVALID_TRANSFORM.apply(null, arguments)
+      return a.asm._emscripten_enum_draco_AttributeTransformType_ATTRIBUTE_INVALID_TRANSFORM.apply(
+        null,
+        arguments
+      )
     }),
     cd = (a._emscripten_enum_draco_AttributeTransformType_ATTRIBUTE_NO_TRANSFORM = function() {
       return a.asm._emscripten_enum_draco_AttributeTransformType_ATTRIBUTE_NO_TRANSFORM.apply(null, arguments)
     }),
     dd = (a._emscripten_enum_draco_AttributeTransformType_ATTRIBUTE_OCTAHEDRON_TRANSFORM = function() {
-      return a.asm._emscripten_enum_draco_AttributeTransformType_ATTRIBUTE_OCTAHEDRON_TRANSFORM.apply(null, arguments)
+      return a.asm._emscripten_enum_draco_AttributeTransformType_ATTRIBUTE_OCTAHEDRON_TRANSFORM.apply(
+        null,
+        arguments
+      )
     }),
     ed = (a._emscripten_enum_draco_AttributeTransformType_ATTRIBUTE_QUANTIZATION_TRANSFORM = function() {
-      return a.asm._emscripten_enum_draco_AttributeTransformType_ATTRIBUTE_QUANTIZATION_TRANSFORM.apply(null, arguments)
+      return a.asm._emscripten_enum_draco_AttributeTransformType_ATTRIBUTE_QUANTIZATION_TRANSFORM.apply(
+        null,
+        arguments
+      )
     }),
     fd = (a._emscripten_enum_draco_EncodedGeometryType_INVALID_GEOMETRY_TYPE = function() {
       return a.asm._emscripten_enum_draco_EncodedGeometryType_INVALID_GEOMETRY_TYPE.apply(null, arguments)
@@ -1770,7 +1797,8 @@ var DracoDecoderModule = function(d) {
   }
   a.abort = O
   if (a.preInit)
-    for ('function' == typeof a.preInit && (a.preInit = [a.preInit]); 0 < a.preInit.length; ) a.preInit.pop()()
+    for ('function' == typeof a.preInit && (a.preInit = [a.preInit]); 0 < a.preInit.length; )
+      a.preInit.pop()()
   a.noExitRuntime = !0
   wa()
   m.prototype = Object.create(m.prototype)
@@ -2268,7 +2296,11 @@ var DracoDecoderModule = function(d) {
     d && 'object' === typeof d && (d = d.ptr)
     return !!Lb(c, a, b, d)
   }
-  g.prototype.GetAttributeUInt16ForAllPoints = g.prototype.GetAttributeUInt16ForAllPoints = function(a, b, d) {
+  g.prototype.GetAttributeUInt16ForAllPoints = g.prototype.GetAttributeUInt16ForAllPoints = function(
+    a,
+    b,
+    d
+  ) {
     var c = this.ptr
     a && 'object' === typeof a && (a = a.ptr)
     b && 'object' === typeof b && (b = b.ptr)
@@ -2282,7 +2314,11 @@ var DracoDecoderModule = function(d) {
     d && 'object' === typeof d && (d = d.ptr)
     return !!Mb(c, a, b, d)
   }
-  g.prototype.GetAttributeUInt32ForAllPoints = g.prototype.GetAttributeUInt32ForAllPoints = function(a, b, d) {
+  g.prototype.GetAttributeUInt32ForAllPoints = g.prototype.GetAttributeUInt32ForAllPoints = function(
+    a,
+    b,
+    d
+  ) {
     var c = this.ptr
     a && 'object' === typeof a && (a = a.ptr)
     b && 'object' === typeof b && (b = b.ptr)

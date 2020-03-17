@@ -150,7 +150,17 @@ export default function() {
           </Suspense>
         </Physics>
       </Canvas>
-      <div style={{ position: 'absolute', display: welcome ? "block" : "none", top: 50, left: 50, color: 'white', fontSize: "1.2em" }}>* click to start ...</div>
+      <div
+        style={{
+          position: 'absolute',
+          display: welcome ? 'block' : 'none',
+          top: 50,
+          left: 50,
+          color: 'white',
+          fontSize: '1.2em',
+        }}>
+        * click to start ...
+      </div>
     </>
   )
 }
