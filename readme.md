@@ -50,42 +50,6 @@ const [ref, api] = useBox(() => ({ mass: 1 }))
 useFrame(({ clock }) => api.setPosition(Math.sin(clock.getElapsedTime()) * 5, 0, 0))
 ```
 
-## Simple example
-
-Let's make a cube falling onto a plane. You can play with a sandbox [here](https://codesandbox.io/s/r3f-cannon-instanced-physics-l40oh).
-
-```jsx
-import { Canvas } from 'react-three-fiber'
-import { Physics, usePlane, useBox } from 'use-cannon'
-
-function Plane(props) {
-  const [ref] = usePlane(() => ({ rotation: [-Math.PI / 2, 0, 0], ...props }))
-  return (
-    <mesh ref={ref}>
-      <planeBufferGeometry attach="geometry" args={[100, 100]} />
-    </mesh>
-  )
-}
-
-function Cube(props) {
-  const [ref] = useBox(() => ({ mass: 1, position: [0, 5, 0], ...props }))
-  return (
-    <mesh ref={ref}>
-      <boxBufferGeometry attach="geometry" />
-    </mesh>
-  )
-}
-
-ReactDOM.render(
-  <Canvas>
-    <Physics>
-      <Plane />
-      <Cube />
-    </Physics>
-  </Canvas>, document.getElementById('root')
-)
-```
-
 ## Api
 
 ### Exports

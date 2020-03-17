@@ -15,7 +15,7 @@ import lerp from 'lerp'
 import create from 'zustand'
 import mergeRefs from 'react-merge-refs'
 
-const ragdollConfig = createRagdoll(5)
+const ragdollConfig = createRagdoll(5, Math.PI / 4, Math.PI / 3, Math.PI / 8)
 
 const [useStore] = create(set => ({
   bodies: [],
@@ -24,10 +24,25 @@ const [useStore] = create(set => ({
   removeBody: name => set(({ bodies }) => ({ bodies: bodies.filter(body => body.name != name) })),
 }))
 
-const BodyPart = ({ parentRef, children = () => null, name, ...props }) => {
-  const { args, mass, position } = ragdollConfig.shapes[name]
+const Joint = props => {
+  return (
+    <mesh {...props}>
+      <sphereBufferGeometry args={[0.5]} attach="geometry"></sphereBufferGeometry>
+      <meshLambertMaterial color={'#e7e7e7e'} attach="material" />
+    </mesh>
+  )
+}
 
-  const [rb, api] = useBox(() => ({ args, mass, position, linearDamping: 0.9 }))
+const BodyPart = ({ parentRef, children = () => null, jointConfig, name, ...props }) => {
+  const shape = ragdollConfig.shapes[name]
+  const { args, mass, position } = shape
+
+  const [rb, api] = useBox(() => ({
+    // type: 'Kinematic',
+    args,
+    mass,
+    position,
+  }))
 
   const { addBody, removeBody } = useStore()
 
@@ -35,24 +50,27 @@ const BodyPart = ({ parentRef, children = () => null, name, ...props }) => {
     addBody({ name, ref: rb, api, args })
     return () => removeBody(name)
   }, [rb])
+  let config = ragdollConfig.joints[jointConfig]
 
-  // const [bodyA, bodyB] = useConeTwistConstraint(rb, parentRef, ragdollConfig.joints[name])
-  const [bodyA, bodyB] = useDistanceConstraint(rb, parentRef, ragdollConfig.joints[name])
+  useConeTwistConstraint(rb, parentRef, config)
 
   const sizes = args.map(s => s * 2)
 
   return (
     <>
-      <mesh ref={bodyA} {...props}>
+      <mesh ref={rb} {...props} name={name}>
         <boxBufferGeometry attach="geometry" args={sizes}></boxBufferGeometry>
         <meshStandardMaterial attach="material" />
       </mesh>
-      {children(bodyA)}
+      <Joint position={config && config.position}></Joint>
+      {children(rb)}
     </>
   )
 }
 
-const RagdollBodyPart = React.forwardRef((props, ref) => <BodyPart parentRef={ref} {...props} />)
+const RagdollBodyPart = React.forwardRef(({ position, ...props }, ref) => (
+  <BodyPart parentRef={ref} {...props} positionOffset={position} />
+))
 
 const Cursor = ({ position, ...props }) => {
   const [ref, api] = useSphere(() => ({ type: 'Static', args: 0.5, position }))
@@ -87,35 +105,45 @@ const Cursor = ({ position, ...props }) => {
   )
 }
 
-const Ragdoll = props => {
+const Ragdoll = ({ position, ...props }) => {
   return (
-    <>
-      <RagdollBodyPart name={'upperBody'}>
-        {ref => (
-          <>
-            <RagdollBodyPart name={'head'} ref={ref} />
-            <RagdollBodyPart name={'upperLeftArm'} ref={ref}>
-              {upperLeftArm => <RagdollBodyPart name={'lowerLeftArm'} ref={upperLeftArm} />}
-            </RagdollBodyPart>
-            <RagdollBodyPart name={'upperRightArm'} ref={ref}>
-              {upperRightArm => <RagdollBodyPart name={'lowerRightArm'} ref={upperRightArm} />}
-            </RagdollBodyPart>
-            <RagdollBodyPart name={'pelvis'} ref={ref}>
-              {pelvis => (
-                <>
-                  <RagdollBodyPart name={'upperLeftLeg'} ref={pelvis}>
-                    {upperLeftLeg => <RagdollBodyPart name={'lowerLeftLeg'} ref={upperLeftLeg} />}
-                  </RagdollBodyPart>
-                  <RagdollBodyPart name={'upperRightLeg'} ref={pelvis}>
-                    {upperRightLeg => <RagdollBodyPart name={'lowerRightLeg'} ref={upperRightLeg} />}
-                  </RagdollBodyPart>
-                </>
-              )}
-            </RagdollBodyPart>
-          </>
-        )}
-      </RagdollBodyPart>
-    </>
+    <RagdollBodyPart name={'upperBody'} {...props} position={position}>
+      {ref => (
+        <>
+          <RagdollBodyPart name={'head'} ref={ref} jointConfig={'neckJoint'} />
+          <RagdollBodyPart name={'upperLeftArm'} ref={ref} jointConfig={'leftShoulder'}>
+            {upperLeftArm => (
+              <RagdollBodyPart name={'lowerLeftArm'} ref={upperLeftArm} jointConfig={'leftElbowJoint'} />
+            )}
+          </RagdollBodyPart>
+          <RagdollBodyPart name={'upperRightArm'} ref={ref} jointConfig={'rightShoulder'}>
+            {upperRightArm => (
+              <RagdollBodyPart name={'lowerRightArm'} ref={upperRightArm} jointConfig={'rightElbowJoint'} />
+            )}
+          </RagdollBodyPart>
+          <RagdollBodyPart name={'pelvis'} ref={ref} jointConfig={'spineJoint'}>
+            {pelvis => (
+              <>
+                <RagdollBodyPart name={'upperLeftLeg'} ref={pelvis} jointConfig={'leftHipJoint'}>
+                  {upperLeftLeg => (
+                    <RagdollBodyPart name={'lowerLeftLeg'} ref={upperLeftLeg} jointConfig={'leftKneeJoint'} />
+                  )}
+                </RagdollBodyPart>
+                <RagdollBodyPart name={'upperRightLeg'} ref={pelvis} jointConfig={'rightHipJoint'}>
+                  {upperRightLeg => (
+                    <RagdollBodyPart
+                      name={'lowerRightLeg'}
+                      ref={upperRightLeg}
+                      jointConfig={'rightKneeJoint'}
+                    />
+                  )}
+                </RagdollBodyPart>
+              </>
+            )}
+          </RagdollBodyPart>
+        </>
+      )}
+    </RagdollBodyPart>
   )
 }
 
@@ -136,9 +164,9 @@ const RagdollScene = () => {
       <ambientLight intensity={0.5} />
       <pointLight position={[-10, -10, -10]} />
       <spotLight position={[10, 10, 10]} angle={0.3} penumbra={1} intensity={1} castShadow />
-      <Physics gravity={[0, -40, 0]} allowSleep={false}>
-        <Cursor />
-        <Ragdoll position={[0, 0, 0]} />
+      <Physics gravity={[0, -10, 0]} allowSleep={false}>
+        {/* <Cursor /> */}
+        <Ragdoll position={[0, 10, 0]} />
         <Plane position={[0, -5, 0]} rotation={[-Math.PI / 2, 0, 0]} />
       </Physics>
     </Canvas>
@@ -166,24 +194,24 @@ function createRagdoll(scale, angleA = 0, angleB = 0, twistAngle = 0) {
   var lowerLeftLeg = {
     args: [lowerLegSize * 0.5, lowerLegLength * 0.5, lowerArmSize * 0.5],
     mass: 1,
-    position: [-shouldersDistance / 2, lowerLegLength / 2, 0],
+    position: [-shouldersDistance / 3, lowerLegLength / 2, 0],
   }
   var lowerRightLeg = {
     args: [lowerLegSize * 0.5, lowerLegLength * 0.5, lowerArmSize * 0.5],
     mass: 1,
-    position: [shouldersDistance / 2, lowerLegLength / 2, 0],
+    position: [shouldersDistance / 3, lowerLegLength / 2, 0],
   }
 
   // Upper legs
   var upperLeftLeg = {
     args: [upperLegSize * 0.5, upperLegLength * 0.5, lowerArmSize * 0.5],
     mass: 1,
-    position: [-shouldersDistance / 2, lowerLeftLeg.position[1] + lowerLegLength / 2 + upperLegLength / 2, 0],
+    position: [-shouldersDistance / 3, lowerLeftLeg.position[1] + lowerLegLength / 2 + upperLegLength / 2, 0],
   }
   var upperRightLeg = {
     args: [upperLegSize * 0.5, upperLegLength * 0.5, lowerArmSize * 0.5],
     mass: 1,
-    position: [shouldersDistance / 2, lowerRightLeg.position[1] + lowerLegLength / 2 + upperLegLength / 2, 0],
+    position: [shouldersDistance / 3, lowerRightLeg.position[1] + lowerLegLength / 2 + upperLegLength / 2, 0],
   }
 
   // Pelvis
@@ -204,7 +232,7 @@ function createRagdoll(scale, angleA = 0, angleB = 0, twistAngle = 0) {
   var head = {
     args: [headRadius * 0.5, headRadius * 0.5, headRadius * 0.5],
     mass: 1,
-    position: [0, upperBody.position[1] + upperBodyLength / 2 + headRadius + neckLength, 0],
+    position: [0, upperBody.position[1] + upperBodyLength / 2 + headRadius / 2 + neckLength, 0],
   }
 
   // Upper arms
@@ -243,8 +271,8 @@ function createRagdoll(scale, angleA = 0, angleB = 0, twistAngle = 0) {
 
   // Neck joint
   var neckJoint = {
-    // bodyA: 'head',
-    // bodyB: 'upperBody',
+    bodyA: 'head',
+    bodyB: 'upperBody',
     pivotA: [0, -headRadius - neckLength / 2, 0],
     pivotB: [0, upperBodyLength / 2, 0],
     axisA: [0, 1, 0],
@@ -255,8 +283,8 @@ function createRagdoll(scale, angleA = 0, angleB = 0, twistAngle = 0) {
 
   // Knee joints
   var leftKneeJoint = {
-    // bodyA: 'lowerLeftLeg',
-    // bodyB: 'upperLeftLeg',
+    bodyA: 'lowerLeftLeg',
+    bodyB: 'upperLeftLeg',
     pivotA: [0, lowerLegLength / 2, 0],
     pivotB: [0, -upperLegLength / 2, 0],
     axisA: [0, 1, 0],
@@ -265,8 +293,8 @@ function createRagdoll(scale, angleA = 0, angleB = 0, twistAngle = 0) {
     twistAngle: twistAngle,
   }
   var rightKneeJoint = {
-    // bodyA: 'lowerRightLeg',
-    // bodyB: 'upperRightLeg',
+    bodyA: 'lowerRightLeg',
+    bodyB: 'upperRightLeg',
     pivotA: [0, lowerLegLength / 2, 0],
     pivotB: [0, -upperLegLength / 2, 0],
     axisA: [0, 1, 0],
@@ -277,8 +305,8 @@ function createRagdoll(scale, angleA = 0, angleB = 0, twistAngle = 0) {
 
   // Hip joints
   var leftHipJoint = {
-    // bodyA: 'upperLeftLeg',
-    // bodyB: 'pelvis',
+    bodyA: 'upperLeftLeg',
+    bodyB: 'pelvis',
     pivotA: [0, upperLegLength / 2, 0],
     pivotB: [-shouldersDistance / 2, -pelvisLength / 2, 0],
     axisA: [0, 1, 0],
@@ -287,8 +315,8 @@ function createRagdoll(scale, angleA = 0, angleB = 0, twistAngle = 0) {
     twistAngle: twistAngle,
   }
   var rightHipJoint = {
-    // bodyA: 'upperRightLeg',
-    // bodyB: 'pelvis',
+    bodyA: 'upperRightLeg',
+    bodyB: 'pelvis',
     pivotA: [0, upperLegLength / 2, 0],
     pivotB: [shouldersDistance / 2, -pelvisLength / 2, 0],
     axisA: [0, 1, 0],
@@ -299,8 +327,8 @@ function createRagdoll(scale, angleA = 0, angleB = 0, twistAngle = 0) {
 
   // Spine
   var spineJoint = {
-    // bodyA: 'pelvis',
-    // bodyB: 'upperBody',
+    bodyA: 'pelvis',
+    bodyB: 'upperBody',
     pivotA: [0, pelvisLength / 2, 0],
     pivotB: [0, -upperBodyLength / 2, 0],
     axisA: [0, 1, 0],
@@ -311,19 +339,19 @@ function createRagdoll(scale, angleA = 0, angleB = 0, twistAngle = 0) {
 
   // Shoulders
   var leftShoulder = {
-    // bodyA: 'upperBody',
-    // bodyB: 'upperLeftArm',
+    bodyA: 'upperBody',
+    bodyB: 'upperLeftArm',
     pivotA: [-shouldersDistance / 2, upperBodyLength / 2, 0],
-    pivotB: [upperArmLength / 2, 0, 0],
+    pivotB: [-upperArmLength / 2, 0, 0],
     axisA: [1, 0, 0],
     axisB: [1, 0, 0],
     angle: angleB,
   }
   var rightShoulder = {
-    // bodyA: 'upperBody',
-    // bodyB: 'upperRightArm',
+    bodyA: 'upperBody',
+    bodyB: 'upperRightArm',
     pivotA: [shouldersDistance / 2, upperBodyLength / 2, 0],
-    pivotB: [-upperArmLength / 2, 0, 0],
+    pivotB: [upperArmLength / 2, 0, 0],
     axisA: [1, 0, 0],
     axisB: [1, 0, 0],
     angle: angleB,
@@ -332,8 +360,8 @@ function createRagdoll(scale, angleA = 0, angleB = 0, twistAngle = 0) {
 
   // Elbow joint
   var leftElbowJoint = {
-    // bodyA: 'lowerLeftArm',
-    // bodyB: 'upperLeftArm',
+    bodyA: 'lowerLeftArm',
+    bodyB: 'upperLeftArm',
     pivotA: [lowerArmLength / 2, 0, 0],
     pivotB: [-upperArmLength / 2, 0, 0],
     axisA: [1, 0, 0],
@@ -342,8 +370,8 @@ function createRagdoll(scale, angleA = 0, angleB = 0, twistAngle = 0) {
     twistAngle: twistAngle,
   }
   var rightElbowJoint = {
-    // bodyA: 'lowerRightArm',
-    // bodyB: 'upperRightArm',
+    bodyA: 'lowerRightArm',
+    bodyB: 'upperRightArm',
     pivotA: [-lowerArmLength / 2, 0, 0],
     pivotB: [upperArmLength / 2, 0, 0],
     axisA: [1, 0, 0],
