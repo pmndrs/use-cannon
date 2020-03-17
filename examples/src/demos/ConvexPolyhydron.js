@@ -3,12 +3,12 @@ import React, { Suspense, useMemo } from 'react'
 import { Canvas, useLoader } from 'react-three-fiber'
 import { Physics, usePlane, useConvexPolyhedron } from 'use-cannon'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
+import { ConvexGeometry } from 'three/examples/jsm/geometries/ConvexGeometry'
 
 function Diamond(props) {
   const { nodes } = useLoader(GLTFLoader, '/diamond.glb')
-  const [impact, set] = useState(0)
   const geo = useMemo(() => {
-    let geo = new THREE.Geometry().fromBufferGeometry(nodes.Diamond.geometry)
+    let geo = new THREE.Geometry().fromBufferGeometry(nodes.Cylinder.geometry)
     // Merge duplicate vertices resulting from glTF export.
     // Cannon assumes contiguous, closed meshes to work
     geo.mergeVertices()
@@ -20,10 +20,6 @@ function Diamond(props) {
     mass: 100,
     ...props,
     args: geo,
-    onCollide: e => {
-      set(e.contact.impactVelocity)
-      setTimeout(() => set(0), 100)
-    },
   }))
   return (
     <mesh castShadow receiveShadow ref={ref} geometry={geo} dispose={null}>
@@ -32,14 +28,27 @@ function Diamond(props) {
   )
 }
 
-// A cone is a convex shape by definition
+// A cone is a convex shape by definition...
 function Cone(props) {
-  const geo = new THREE.ConeGeometry(1, 1, props.sides, 2)
+  const geo = new THREE.ConeGeometry(0.7, 0.7, props.sides, 1)
   geo.mergeVertices()
   const [ref] = useConvexPolyhedron(() => ({ mass: 100, ...props, args: geo }))
   return (
     <mesh castShadow ref={ref} dispose={null}>
-      <coneBufferGeometry attach="geometry" args={[1, 1, props.sides, 2]} />
+      <coneBufferGeometry attach="geometry" args={[0.7, 0.7, props.sides, 1]} />
+      <meshNormalMaterial attach="material" />
+    </mesh>
+  )
+}
+
+// ...And so is a cube!
+function Cube(props) {
+  const geo = new THREE.BoxGeometry(props.size, props.size, props.size)
+  geo.mergeVertices()
+  const [ref] = useConvexPolyhedron(() => ({ mass: 100, ...props, args: geo }))
+  return (
+    <mesh castShadow ref={ref} dispose={null}>
+      <boxBufferGeometry attach="geometry" args={[props.size, props.size, props.size]} />
       <meshNormalMaterial attach="material" />
     </mesh>
   )
@@ -56,7 +65,7 @@ function Plane(props) {
 }
 
 export default () => (
-  <Canvas shadowMap sRGB gl={{ alpha: false }} camera={{ position: [-1, 1, 5], fov: 50 }}>
+  <Canvas shadowMap gl={{ alpha: false }} camera={{ position: [-1, 1, 5], fov: 50 }}>
     <color attach="background" args={['lightpink']} />
     <hemisphereLight intensity={0.35} />
     <spotLight
@@ -65,15 +74,17 @@ export default () => (
       penumbra={1}
       intensity={2}
       castShadow
-      shadow-mapSize-width={256}
-      shadow-mapSize-height={256}
+      shadow-mapSize-width={1028}
+      shadow-mapSize-height={1028}
     />
     <Suspense fallback={null}>
-      <Physics>
+      <Physics iterations={6}>
         <Plane rotation={[-Math.PI / 2, 0, 0]} />
-        <Diamond position={[0, 5, 0]} rotation={[0.1, 0.1, 0.1]} />
-        <Cone position={[0, 5, 0]} rotation={[0.1, 0.1, 0.1]} sides={6} />
-        <Cone position={[1, 6, 0]} rotation={[0.5, 0.1, 0.1]} sides={8} />
+        <Diamond position={[1, 5, 0]} rotation={[0.4, 0.1, 0.1]} />
+        <Cone position={[-1, 5, 0.5]} rotation={[0.1, 0.2, 0.1]} sides={6} />
+        <Cone position={[-1, 6, 0]} rotation={[0.5, 0.1, 0.1]} sides={8} />
+        <Cube position={[2, 3, -0.3]} rotation={[0.5, 0.4, -1]} size={0.4} />
+        <Cone position={[-0.3, 7, 1]} rotation={[1, 0.4, 0.1]} sides={7} />
       </Physics>
     </Suspense>
   </Canvas>
