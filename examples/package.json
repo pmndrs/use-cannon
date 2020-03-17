@@ -11,6 +11,7 @@
     "postprocessing": "^6.12.2",
     "react": "16.13.0",
     "react-dom": "16.13.0",
+    "react-merge-refs": "^1.0.0",
     "react-router-dom": "^5.1.2",
     "react-scripts": "3.4.0",
     "react-three-fiber": "4.0.21",
