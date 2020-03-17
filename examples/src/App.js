@@ -7,7 +7,7 @@ import * as demos from './demos'
 import { Page as PageImpl } from './styles'
 
 const Page = styled(PageImpl)`
-  padding: 20px;
+  padding: 0px;
 
   & > h1 {
     position: absolute;
@@ -23,7 +23,7 @@ const Page = styled(PageImpl)`
   }
 `
 
-const defaultComponent = 'KinematicCube'
+const defaultComponent = 'Pingpong'
 const visibleComponents = Object.entries(demos)
   //.filter(([name, item]) => !item.dev)
   .reduce((acc, [name, item]) => ({ ...acc, [name]: item }), {})

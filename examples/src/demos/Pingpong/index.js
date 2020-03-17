@@ -144,8 +144,8 @@ export default function() {
             <meshPhongMaterial attach="material" color="#172017" />
           </mesh>
           <ContactGround />
+          {!welcome && <Ball />}
           <Suspense fallback={null}>
-            {!welcome && <Ball />}
             <Paddle />
           </Suspense>
         </Physics>

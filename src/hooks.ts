@@ -344,12 +344,7 @@ function useConstraint(
         type: type,
         props: [bodyA.current.uuid, bodyB.current.uuid, optns],
       })
-
-      return () =>
-        worker.postMessage({
-          op: 'removeConstraint',
-          uuid,
-        })
+      return () => worker.postMessage({ op: 'removeConstraint', uuid })
     }
   }, deps)
 }
@@ -370,15 +365,9 @@ export function useSpring(
         uuid,
         props: [bodyA.current.uuid, bodyB.current.uuid, optns],
       })
-
       events[uuid] = () => {}
-
       return () => {
-        worker.postMessage({
-          op: 'removeSpring',
-          uuid,
-        })
-
+        worker.postMessage({ op: 'removeSpring', uuid })
         delete events[uuid]
       }
     }
