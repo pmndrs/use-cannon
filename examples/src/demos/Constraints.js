@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import React from 'react'
 import { Canvas, useFrame } from 'react-three-fiber'
-import { Physics, useSphere, useBox, useSpring } from '../../../dist/index'
+import { Physics, useSphere, useBox, useSpring } from 'cannon-es'
 
 const Box = React.forwardRef((props, ref) => {
   return (
