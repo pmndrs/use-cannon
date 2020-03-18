@@ -221,7 +221,6 @@ self.onmessage = e => {
       break
     case 'addConstraint': {
       const [bodyA, bodyB, optns] = props
-
       let { pivotA, pivotB, axisA, axisB, ...options } = optns
 
       // is there a better way to enforce defaults?
@@ -271,16 +270,13 @@ self.onmessage = e => {
           constraint = new Constraint(bodies[bodyA], bodies[bodyB], optns)
           break
       }
-
       constraint.uuid = uuid
-
       world.addConstraint(constraint)
       break
     }
-    case 'removeConstraint': {
+    case 'removeConstraint':
       world.removeConstraint(uuid)
       break
-    }
     case 'addSpring': {
       const [bodyA, bodyB, optns] = props
       let { worldAnchorA, worldAnchorB, localAnchorA, localAnchorB, restLength, stiffness, damping } = optns

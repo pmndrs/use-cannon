@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import React, { useLayoutEffect, useContext, useRef, useMemo, useEffect } from 'react'
+import React, { useLayoutEffect, useContext, useRef, useMemo, useEffect, useState } from 'react'
 import { useFrame } from 'react-three-fiber'
 import { Buffers } from './Provider'
 import { context, Event } from './index'
@@ -79,6 +79,32 @@ type WorkerApi = AtomicProps & {
 }
 
 type Api = [React.MutableRefObject<THREE.Object3D | undefined>, WorkerApi]
+
+type ConstraintTypes = 'PointToPoint' | 'ConeTwist' | 'Distance' | 'Hinge' | 'Lock'
+
+type ConstraintOptns = { maxForce?: number; collideConnected?: boolean; wakeUpBodies?: boolean }
+
+type PointToPointConstraintOpts = ConstraintOptns & {
+  pivotA: number[]
+  pivotB: number[]
+}
+
+type ConeTwistConstraintOpts = ConstraintOptns & {
+  pivotA?: number[]
+  axisA?: number[]
+  pivotB?: number[]
+  axisB?: number[]
+}
+type DistanceConstraintOpts = ConstraintOptns & { distance?: number }
+
+type HingeConstraintOpts = ConstraintOptns & {
+  pivotA?: number[]
+  axisA?: number[]
+  pivotB?: number[]
+  axisB?: number[]
+}
+
+type LockConstraintOpts = ConstraintOptns & {}
 
 const temp = new THREE.Object3D()
 
@@ -276,31 +302,28 @@ export function useConvexPolyhedron(fn: ConvexPolyhedronFn, deps: any[] = []) {
   )
 }
 
-type ConstraintTypes = 'PointToPoint' | 'ConeTwist' | 'Distance' | 'Hinge' | 'Lock'
+function useConstraint(
+  type: ConstraintTypes,
+  bodyA: React.MutableRefObject<THREE.Object3D | undefined>,
+  bodyB: React.MutableRefObject<THREE.Object3D | undefined>,
+  optns: any = {},
+  deps: any[] = []
+) {
+  const { worker } = useContext(context)
+  const [uuid] = useState(() => THREE.MathUtils.generateUUID())
 
-type ConstraintOptns = { maxForce?: number; collideConnected?: boolean; wakeUpBodies?: boolean }
-
-type PointToPointConstraintOpts = ConstraintOptns & {
-  pivotA: number[]
-  pivotB: number[]
+  useEffect(() => {
+    if (bodyA.current && bodyB.current) {
+      worker.postMessage({
+        op: 'addConstraint',
+        uuid,
+        type: type,
+        props: [bodyA.current.uuid, bodyB.current.uuid, optns],
+      })
+      return () => worker.postMessage({ op: 'removeConstraint', uuid })
+    }
+  }, deps)
 }
-
-type ConeTwistConstraintOpts = ConstraintOptns & {
-  pivotA?: number[]
-  axisA?: number[]
-  pivotB?: number[]
-  axisB?: number[]
-}
-type DistanceConstraintOpts = ConstraintOptns & { distance?: number }
-
-type HingeConstraintOpts = ConstraintOptns & {
-  pivotA?: number[]
-  axisA?: number[]
-  pivotB?: number[]
-  axisB?: number[]
-}
-
-type LockConstraintOpts = ConstraintOptns & {}
 
 export function usePointToPointConstraint(
   bodyA: React.MutableRefObject<THREE.Object3D | undefined>,
@@ -343,29 +366,6 @@ export function useLockConstraint(
   return useConstraint('Lock', bodyA, bodyB, optns, deps)
 }
 
-function useConstraint(
-  type: ConstraintTypes,
-  bodyA: React.MutableRefObject<THREE.Object3D | undefined>,
-  bodyB: React.MutableRefObject<THREE.Object3D | undefined>,
-  optns: any = {},
-  deps: any[] = []
-) {
-  const { worker } = useContext(context)
-  const uuid = THREE.MathUtils.generateUUID()
-
-  useEffect(() => {
-    if (bodyA.current && bodyB.current) {
-      worker.postMessage({
-        op: 'addConstraint',
-        uuid,
-        type: type,
-        props: [bodyA.current.uuid, bodyB.current.uuid, optns],
-      })
-      return () => worker.postMessage({ op: 'removeConstraint', uuid })
-    }
-  }, deps)
-}
-
 export function useSpring(
   bodyA: React.MutableRefObject<THREE.Object3D | undefined>,
   bodyB: React.MutableRefObject<THREE.Object3D | undefined>,
@@ -373,7 +373,7 @@ export function useSpring(
   deps: any[] = []
 ) {
   const { worker, events } = useContext(context)
-  const uuid = THREE.MathUtils.generateUUID()
+  const [uuid] = useState(() => THREE.MathUtils.generateUUID())
 
   useEffect(() => {
     if (bodyA.current && bodyB.current) {
