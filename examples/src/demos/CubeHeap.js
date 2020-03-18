@@ -33,8 +33,8 @@ function Cubes({ number }) {
   }, [number])
 
   useFrame(() => {
-    //const instancedApi = api.at(Math.floor(Math.random() * number))
-    //instancedApi.position.set(0, Math.random() * 2, 0)
+    const instancedApi = api.at(Math.floor(Math.random() * number))
+    instancedApi.position.set(0, Math.random() * 2, 0)
   })
 
   return (
