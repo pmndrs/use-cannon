@@ -94,6 +94,8 @@ type ConeTwistConstraintOpts = ConstraintOptns & {
   axisA?: number[]
   pivotB?: number[]
   axisB?: number[]
+  angle?: number
+  twistAngle?: number
 }
 type DistanceConstraintOpts = ConstraintOptns & { distance?: number }
 
