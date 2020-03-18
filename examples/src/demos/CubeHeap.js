@@ -15,7 +15,7 @@ function Plane(props) {
 }
 
 function Cubes({ number }) {
-  const [ref, api] = useBox(() => ({
+  const [ref, { at }] = useBox(() => ({
     mass: 1,
     args: [0.05, 0.05, 0.05],
     position: [Math.random() - 0.5, Math.random() * 2, Math.random() - 0.5],
@@ -32,10 +32,7 @@ function Cubes({ number }) {
     return array
   }, [number])
 
-  useFrame(() => {
-    const instancedApi = api.at(Math.floor(Math.random() * number))
-    instancedApi.position.set(0, Math.random() * 2, 0)
-  })
+  useFrame(() => at(Math.floor(Math.random() * number)).position.set(0, Math.random() * 2, 0))
 
   return (
     <instancedMesh receiveShadow castShadow ref={ref} args={[null, null, number]}>
