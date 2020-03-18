@@ -8,7 +8,7 @@ import {
   usePointToPointConstraint,
   useConeTwistConstraint,
   useDistanceConstraint,
-} from '../../../dist/index'
+} from 'use-cannon'
 import { niceColors } from 'nice-color-palettes'
 
 const Link = ({ parentRef, ...props }) => {

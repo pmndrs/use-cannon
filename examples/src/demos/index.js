@@ -11,5 +11,6 @@ const ConvexPolyhydron = {
 const Pingpong = { descr: '', tags: [], Component: lazy(() => import('./Pingpong')), bright: false }
 const Constraints = { descr: '', tags: [], Component: lazy(() => import('./Constraints')), bright: false }
 const Ragdoll = { descr: '', tags: [], Component: lazy(() => import('./Ragdoll')), bright: false }
+const Chain = { descr: '', tags: [], Component: lazy(() => import('./Chain')), bright: false }
 
-export { Ragdoll, Constraints, Pingpong, KinematicCube, CubeHeap, ConvexPolyhydron }
+export { Pingpong, KinematicCube, CubeHeap, ConvexPolyhydron, Chain, Ragdoll, Constraints }
