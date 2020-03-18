@@ -150,6 +150,7 @@ function useBody(type: ShapeType, fn: BodyFn, argFn: ArgFn, deps: any[] = []): A
     } else props = [prepare(object, fn(0), argFn)]
 
     props.forEach((props, index) => {
+      delete props.ref
       if (props.onCollide) {
         refs[uuid[index]] = object
         events[uuid[index]] = props.onCollide
