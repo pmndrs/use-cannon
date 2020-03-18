@@ -1,10 +1,18 @@
 import * as THREE from 'three'
 import React from 'react'
 import { Canvas, useFrame } from 'react-three-fiber'
-import { Physics, useSphere, useBox, usePointToPointConstraint } from '../../../dist/index'
+import {
+  Physics,
+  useSphere,
+  useBox,
+  usePointToPointConstraint,
+  useConeTwistConstraint,
+  useDistanceConstraint,
+} from '../../../dist/index'
+import { niceColors } from 'nice-color-palettes'
 
 const Link = ({ parentRef, ...props }) => {
-  const chainSize = [0.5, 1, 0.5]
+  const chainSize = [0.15, 1, 0.15]
 
   const [ref, api] = useBox(() => ({
     mass: 1,
@@ -13,18 +21,24 @@ const Link = ({ parentRef, ...props }) => {
     position: props.position,
   }))
 
-  const [bodyA, bodyB] = usePointToPointConstraint(parentRef, ref, {
+  useConeTwistConstraint(parentRef, ref, {
     pivotA: [0, -chainSize[1] / 2, 0],
     pivotB: [0, chainSize[1] / 2, 0],
+    axisA: [0, 1, 0],
+    axisB: [0, 1, 0],
+    twistAngle: 0,
+    angle: Math.PI / 8,
   })
 
   return (
     <>
-      <mesh ref={bodyB} {...props}>
-        <boxBufferGeometry attach="geometry" args={chainSize}></boxBufferGeometry>
+      <mesh ref={ref} {...props}>
+        <cylinderBufferGeometry
+          attach="geometry"
+          args={[chainSize[0], chainSize[0], chainSize[1], 8]}></cylinderBufferGeometry>
         <meshStandardMaterial attach="material" />
       </mesh>
-      {props.children && props.children(bodyB)}
+      {props.children && props.children(ref)}
     </>
   )
 }
@@ -34,24 +48,21 @@ const ChainLink = React.forwardRef((props, ref) => {
 })
 
 const Handle = props => {
-  const [handle, api] = useSphere(() => ({ type: 'Static', mass: 0, args: 0.5, position: [0, 0, 0] }))
+  const [ref, api] = useSphere(() => ({ type: 'Static', args: 0.5, position: [0, 0, 0] }))
 
   useFrame(e => {
-    api.setPosition((e.mouse.x * e.viewport.width) / 2, (e.mouse.y * e.viewport.height) / 2, 0)
+    api.position.set((e.mouse.x * e.viewport.width) / 2, (e.mouse.y * e.viewport.height) / 2, 0)
   })
 
-  const [bodyA, bodyB] = usePointToPointConstraint(handle, null, {
-    pivotA: [0, 0, 0],
-    pivotB: [0, 0, 0],
-  })
+  useDistanceConstraint(ref, null, { distance: 1 })
 
   return (
     <group>
-      <mesh ref={bodyA} position={props.position}>
+      <mesh ref={ref} position={props.position}>
         <sphereBufferGeometry attach="geometry" args={[0.5, 64, 64]}></sphereBufferGeometry>
         <meshStandardMaterial attach="material" />
       </mesh>
-      {props.children && props.children(handle)}
+      {props.children && props.children(ref)}
     </group>
   )
 }
@@ -86,7 +97,7 @@ const Chain = props => {
   )
 }
 
-const Chain = () => {
+const ChainScene = () => {
   return (
     <Canvas shadowMap sRGB camera={{ position: [0, 5, 20], fov: 50 }}>
       <color attach="background" args={['#171720']} />
@@ -100,4 +111,4 @@ const Chain = () => {
   )
 }
 
-export default Chain
+export default ChainScene
