@@ -79,7 +79,8 @@ type WorkerApi = AtomicProps & {
   applyLocalImpulse: (impulse: number[], localPoint: number[]) => void
 }
 
-type Api = [React.MutableRefObject<THREE.Object3D | undefined>, WorkerApi]
+type PublicApi = WorkerApi & { at: (index: number) => WorkerApi }
+type Api = [React.MutableRefObject<THREE.Object3D | undefined>, PublicApi]
 
 type ConstraintTypes = 'PointToPoint' | 'ConeTwist' | 'Distance' | 'Hinge' | 'Lock'
 
