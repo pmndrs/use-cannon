@@ -14,8 +14,8 @@ const Box = React.forwardRef((props, ref) => {
 })
 
 const Ball = React.forwardRef((props, ref) => {
-  const [ball, { setPosition }] = useSphere(() => ({ type: 'Static', mass: 1, args: 0.5, ...props }))
-  useFrame(e => setPosition((e.mouse.x * e.viewport.width) / 2, (e.mouse.y * e.viewport.height) / 2, 0))
+  const [ball, { position }] = useSphere(() => ({ type: 'Static', mass: 1, args: 0.5, ...props }))
+  useFrame(e => position.set((e.mouse.x * e.viewport.width) / 2, (e.mouse.y * e.viewport.height) / 2, 0))
   return (
     <mesh ref={mergeRefs([ball, ref])}>
       <sphereBufferGeometry attach="geometry" args={[0.5, 64, 64]} />

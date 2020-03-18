@@ -165,33 +165,62 @@ self.onmessage = e => {
       syncBodies()
       break
     }
-    case 'setPosition': {
+    case 'setPosition':
       bodies[uuid].position.set(props[0], props[1], props[2])
       break
-    }
-    case 'setRotation': {
+    case 'setRotation':
       bodies[uuid].quaternion.setFromEuler(props[0], props[1], props[2], 'XYZ')
       break
-    }
-    case 'applyForce': {
+    case 'setVelocity':
+      bodies[uuid].velocity.set(props[0], props[1], props[2])
+      break
+    case 'setAngularVelocity':
+      bodies[uuid].angularVelocity.set(props[0], props[1], props[2])
+      break
+    case 'setMass':
+      bodies[uuid].mass = props
+      break
+    case 'setLinearDamping':
+      bodies[uuid].linearDamping = props
+      break
+    case 'setAngularDamping':
+      bodies[uuid].angularDamping = props
+      break
+    case 'setAllowSleep':
+      bodies[uuid].allowSleep = props
+      break
+    case 'setSleepSpeedLimit':
+      bodies[uuid].sleepSpeedLimit = props
+      break
+    case 'setSleepTimeLimit':
+      bodies[uuid].sleepTimeLimit = props
+      break
+    case 'setCollisionFilterGroup':
+      bodies[uuid].collisionFilterGroup = props
+      break
+    case 'setCollisionFilterMask':
+      bodies[uuid].collisionFilterMask = props
+      break
+    case 'setCollisionFilterMask':
+      bodies[uuid].collisionFilterMask = props
+      break
+    case 'setFixedRotation':
+      bodies[uuid].fixedRotation = props
+      break
+    case 'applyForce':
       bodies[uuid].applyForce(new Vec3(...props[0]), new Vec3(...props[1]))
       break
-    }
-    case 'applyImpulse': {
+    case 'applyImpulse':
       bodies[uuid].applyImpulse(new Vec3(...props[0]), new Vec3(...props[1]))
       break
-    }
-    case 'applyLocalForce': {
+    case 'applyLocalForce':
       bodies[uuid].applyLocalForce(new Vec3(...props[0]), new Vec3(...props[1]))
       break
-    }
-    case 'applyLocalImpulse': {
+    case 'applyLocalImpulse':
       bodies[uuid].applyLocalImpulse(new Vec3(...props[0]), new Vec3(...props[1]))
       break
-    }
     case 'addConstraint': {
       const [bodyA, bodyB, optns] = props
-
       let { pivotA, pivotB, axisA, axisB, ...options } = optns
 
       // is there a better way to enforce defaults?
@@ -241,16 +270,13 @@ self.onmessage = e => {
           constraint = new Constraint(bodies[bodyA], bodies[bodyB], optns)
           break
       }
-
       constraint.uuid = uuid
-
       world.addConstraint(constraint)
       break
     }
-    case 'removeConstraint': {
+    case 'removeConstraint':
       world.removeConstraint(uuid)
       break
-    }
     case 'addSpring': {
       const [bodyA, bodyB, optns] = props
       let { worldAnchorA, worldAnchorB, localAnchorA, localAnchorB, restLength, stiffness, damping } = optns
