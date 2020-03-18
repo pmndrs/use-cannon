@@ -1,12 +1,11 @@
 import React, { useRef } from 'react'
 import { Canvas, useFrame } from 'react-three-fiber'
 import { Physics, useSphere, useBox, useSpring } from 'use-cannon'
-import mergeRefs from 'react-merge-refs'
 
 const Box = React.forwardRef((props, ref) => {
-  const [box] = useBox(() => ({ mass: 1, args: [0.5, 0.5, 0.5], ...props }))
+  const [box] = useBox(() => ({ ref, mass: 1, args: [0.5, 0.5, 0.5], ...props }))
   return (
-    <mesh ref={mergeRefs([box, ref])}>
+    <mesh ref={ref}>
       <boxBufferGeometry attach="geometry" args={[1, 1, 1]} />
       <meshStandardMaterial attach="material" />
     </mesh>
@@ -14,10 +13,10 @@ const Box = React.forwardRef((props, ref) => {
 })
 
 const Ball = React.forwardRef((props, ref) => {
-  const [ball, { position }] = useSphere(() => ({ type: 'Static', mass: 1, args: 0.5, ...props }))
+  const [ball, { position }] = useSphere(() => ({ ref, type: 'Static', mass: 1, args: 0.5, ...props }))
   useFrame(e => position.set((e.mouse.x * e.viewport.width) / 2, (e.mouse.y * e.viewport.height) / 2, 0))
   return (
-    <mesh ref={mergeRefs([ball, ref])}>
+    <mesh ref={ball}>
       <sphereBufferGeometry attach="geometry" args={[0.5, 64, 64]} />
       <meshStandardMaterial attach="material" />
     </mesh>
