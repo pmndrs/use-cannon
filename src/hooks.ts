@@ -4,13 +4,8 @@ import { useFrame } from 'react-three-fiber'
 import { Buffers } from './Provider'
 import { context, Event } from './index'
 
-type BodyProps = {
-  args?: any
-  position?: number[]
-  rotation?: number[]
-  scale?: number[]
+type AtomicProps = {
   mass?: number
-  velocity?: number[]
   linearDamping?: number
   angularDamping?: number
   allowSleep?: boolean
@@ -19,6 +14,15 @@ type BodyProps = {
   collisionFilterGroup?: number
   collisionFilterMask?: number
   fixedRotation?: boolean
+}
+
+type BodyProps = AtomicProps & {
+  args?: any
+  position?: number[]
+  rotation?: number[]
+  velocity?: number[]
+  angularVelocity?: number[]
+  scale?: number[]
   type?: 'Dynamic' | 'Static' | 'Kinematic'
   onCollide?: (e: Event) => void
 }
@@ -61,14 +65,14 @@ type ArgFn = (props: any) => any[]
 type Api = [
   React.MutableRefObject<THREE.Object3D | undefined>,
   {
-    setPosition: (x: number, y: number, z: number) => void
+    /*setPosition: (x: number, y: number, z: number) => void
     setRotation: (x: number, y: number, z: number) => void
     setPositionAt: (index: number, x: number, y: number, z: number) => void
     setRotationAt: (index: number, x: number, y: number, z: number) => void
     applyForce: (force: [number, number, number], worldPoint: [number, number, number]) => void
     applyImpulse: (impulse: [number, number, number], worldPoint: [number, number, number]) => void
     applyLocalForce: (force: [number, number, number], localPoint: [number, number, number]) => void
-    applyLocalImpulse: (impulse: [number, number, number], localPoint: [number, number, number]) => void
+    applyLocalImpulse: (impulse: [number, number, number], localPoint: [number, number, number]) => void*/
   }
 ]
 
@@ -147,9 +151,70 @@ function useBody(type: ShapeType, fn: BodyFn, argFn: ArgFn, deps: any[] = []): A
     }
   })
 
-  const api = useMemo(() => {
+  const getUUID = (index?: number) =>
+    index !== undefined ? `${ref.current.uuid}/${index}` : ref.current.uuid
+  const captilaize = (name: string) => name.charAt(0).toUpperCase() + name.slice(1)
+  const post = (op: string, index: number | undefined, props: any) =>
+    ref.current && worker.postMessage({ op: `set${captilaize(op)}`, uuid: getUUID(index), props })
+  const makeVec = (op: string, index: number | undefined) => ({
+    set: (x: number, y: number, z: number) => post(op, index, [x, y, z]),
+    copy: ({ x, y, z }: THREE.Vector3 | THREE.Euler) => post(op, index, [x, y, z]),
+  })
+
+  type WorkerVec = {
+    set: (x: number, y: number, z: number) => void
+    copy: ({ x, y, z }: THREE.Vector3 | THREE.Euler) => void
+  }
+
+  type WorkerApi = AtomicProps & {
+    position: WorkerVec
+    rotation: WorkerVec
+    velocity: WorkerVec
+    angularVelocity: WorkerVec
+  }
+
+  function makeApi(index?: number): WorkerApi {
     return {
-      setPosition(x: number, y: number, z: number) {
+      position: makeVec('position', index),
+      rotation: makeVec('rotation', index),
+      velocity: makeVec('velocity', index),
+      angularVelocity: makeVec('angularVelocity', index),
+      set mass(value: number) {
+        post('mass', index, value)
+      },
+      set linearDamping(value: number) {
+        post('linearDamping', index, value)
+      },
+      set angularDamping(value: number) {
+        post('angularDamping', index, value)
+      },
+      set allowSleep(value: boolean) {
+        post('allowSleep', index, value)
+      },
+      set sleepSpeedLimit(value: number) {
+        post('sleepSpeedLimit', index, value)
+      },
+      set sleepTimeLimit(value: number) {
+        post('sleepTimeLimit', index, value)
+      },
+      set collisionFilterGroup(value: number) {
+        post('collisionFilterGroup', index, value)
+      },
+      set collisionFilterMask(value: number) {
+        post('collisionFilterMask', index, value)
+      },
+      set fixedRotation(value: boolean) {
+        post('fixedRotation', index, value)
+      },
+    }
+  }
+
+  const api = useMemo(() => {
+    const cache: { [index: number]: WorkerApi } = {}
+    return {
+      ...makeApi(undefined),
+      at: (index: number) => cache[index] || (cache[index] = makeApi(index)),
+      /*setPosition(x: number, y: number, z: number) {
         if (ref.current) worker.postMessage({ op: 'setPosition', uuid: ref.current.uuid, props: [x, y, z] })
       },
       setRotation(x: number, y: number, z: number) {
@@ -202,7 +267,7 @@ function useBody(type: ShapeType, fn: BodyFn, argFn: ArgFn, deps: any[] = []): A
             uuid: ref.current.uuid,
             props: [impulse, localPoint],
           })
-      },
+      },*/
     }
   }, [])
   return [ref, api]
