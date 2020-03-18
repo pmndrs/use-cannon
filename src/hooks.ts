@@ -1,16 +1,11 @@
 import * as THREE from 'three'
-import React, { useLayoutEffect, useContext, useRef, useMemo, useEffect } from 'react'
+import React, { useLayoutEffect, useContext, useRef, useMemo, useEffect, useState } from 'react'
 import { useFrame } from 'react-three-fiber'
 import { Buffers } from './Provider'
 import { context, Event } from './index'
 
-type BodyProps = {
-  args?: any
-  position?: number[]
-  rotation?: number[]
-  scale?: number[]
+type AtomicProps = {
   mass?: number
-  velocity?: number[]
   linearDamping?: number
   angularDamping?: number
   allowSleep?: boolean
@@ -19,6 +14,15 @@ type BodyProps = {
   collisionFilterGroup?: number
   collisionFilterMask?: number
   fixedRotation?: boolean
+}
+
+type BodyProps = AtomicProps & {
+  args?: any
+  position?: number[]
+  rotation?: number[]
+  velocity?: number[]
+  angularVelocity?: number[]
+  scale?: number[]
   type?: 'Dynamic' | 'Static' | 'Kinematic'
   onCollide?: (e: Event) => void
 }
@@ -58,19 +62,49 @@ type TrimeshFn = (index: number) => TrimeshProps
 type ConvexPolyhedronFn = (index: number) => ConvexPolyhedronProps
 type ArgFn = (props: any) => any[]
 
-type Api = [
-  React.MutableRefObject<THREE.Object3D | undefined>,
-  {
-    setPosition: (x: number, y: number, z: number) => void
-    setRotation: (x: number, y: number, z: number) => void
-    setPositionAt: (index: number, x: number, y: number, z: number) => void
-    setRotationAt: (index: number, x: number, y: number, z: number) => void
-    applyForce: (force: [number, number, number], worldPoint: [number, number, number]) => void
-    applyImpulse: (impulse: [number, number, number], worldPoint: [number, number, number]) => void
-    applyLocalForce: (force: [number, number, number], localPoint: [number, number, number]) => void
-    applyLocalImpulse: (impulse: [number, number, number], localPoint: [number, number, number]) => void
-  }
-]
+type WorkerVec = {
+  set: (x: number, y: number, z: number) => void
+  copy: ({ x, y, z }: THREE.Vector3 | THREE.Euler) => void
+}
+
+type WorkerApi = AtomicProps & {
+  position: WorkerVec
+  rotation: WorkerVec
+  velocity: WorkerVec
+  angularVelocity: WorkerVec
+  applyForce: (force: number[], worldPoint: number[]) => void
+  applyImpulse: (impulse: number[], worldPoint: number[]) => void
+  applyLocalForce: (force: number[], localPoint: number[]) => void
+  applyLocalImpulse: (impulse: number[], localPoint: number[]) => void
+}
+
+type Api = [React.MutableRefObject<THREE.Object3D | undefined>, WorkerApi]
+
+type ConstraintTypes = 'PointToPoint' | 'ConeTwist' | 'Distance' | 'Hinge' | 'Lock'
+
+type ConstraintOptns = { maxForce?: number; collideConnected?: boolean; wakeUpBodies?: boolean }
+
+type PointToPointConstraintOpts = ConstraintOptns & {
+  pivotA: number[]
+  pivotB: number[]
+}
+
+type ConeTwistConstraintOpts = ConstraintOptns & {
+  pivotA?: number[]
+  axisA?: number[]
+  pivotB?: number[]
+  axisB?: number[]
+}
+type DistanceConstraintOpts = ConstraintOptns & { distance?: number }
+
+type HingeConstraintOpts = ConstraintOptns & {
+  pivotA?: number[]
+  axisA?: number[]
+  pivotB?: number[]
+  axisB?: number[]
+}
+
+type LockConstraintOpts = ConstraintOptns & {}
 
 const temp = new THREE.Object3D()
 
@@ -148,61 +182,70 @@ function useBody(type: ShapeType, fn: BodyFn, argFn: ArgFn, deps: any[] = []): A
   })
 
   const api = useMemo(() => {
+    const getUUID = (index?: number) =>
+      index !== undefined ? `${ref.current.uuid}/${index}` : ref.current.uuid
+    const post = (op: string, index: number | undefined, props: any) =>
+      ref.current && worker.postMessage({ op, uuid: getUUID(index), props })
+    const makeVec = (op: string, index: number | undefined) => ({
+      set: (x: number, y: number, z: number) => post(op, index, [x, y, z]),
+      copy: ({ x, y, z }: THREE.Vector3 | THREE.Euler) => post(op, index, [x, y, z]),
+    })
+
+    function makeApi(index?: number): WorkerApi {
+      return {
+        // Vectors
+        position: makeVec('setPosition', index),
+        rotation: makeVec('setRotation', index),
+        velocity: makeVec('setVelocity', index),
+        angularVelocity: makeVec('setAngularVelocity', index),
+        // Setters
+        set mass(value: number) {
+          post('setMass', index, value)
+        },
+        set linearDamping(value: number) {
+          post('setLinearDamping', index, value)
+        },
+        set angularDamping(value: number) {
+          post('setAngularDamping', index, value)
+        },
+        set allowSleep(value: boolean) {
+          post('setAllowSleep', index, value)
+        },
+        set sleepSpeedLimit(value: number) {
+          post('setSleepSpeedLimit', index, value)
+        },
+        set sleepTimeLimit(value: number) {
+          post('setSleepTimeLimit', index, value)
+        },
+        set collisionFilterGroup(value: number) {
+          post('setCollisionFilterGroup', index, value)
+        },
+        set collisionFilterMask(value: number) {
+          post('setCollisionFilterMask', index, value)
+        },
+        set fixedRotation(value: boolean) {
+          post('setFixedRotation', index, value)
+        },
+        // Apply functions
+        applyForce(force: number[], worldPoint: number[]) {
+          post('applyForce', index, [force, worldPoint])
+        },
+        applyImpulse(impulse: number[], worldPoint: number[]) {
+          post('applyImpulse', index, [impulse, worldPoint])
+        },
+        applyLocalForce(force: number[], localPoint: number[]) {
+          post('applyLocalForce', index, [force, localPoint])
+        },
+        applyLocalImpulse(impulse: number[], localPoint: number[]) {
+          post('applyLocalImpulse', index, [impulse, localPoint])
+        },
+      }
+    }
+
+    const cache: { [index: number]: WorkerApi } = {}
     return {
-      setPosition(x: number, y: number, z: number) {
-        if (ref.current) worker.postMessage({ op: 'setPosition', uuid: ref.current.uuid, props: [x, y, z] })
-      },
-      setRotation(x: number, y: number, z: number) {
-        if (ref.current) worker.postMessage({ op: 'setRotation', uuid: ref.current.uuid, props: [x, y, z] })
-      },
-      setPositionAt(index: number, x: number, y: number, z: number) {
-        if (ref.current)
-          worker.postMessage({
-            op: 'setPosition',
-            uuid: `${ref.current.uuid}/${index}`,
-            props: [x, y, z],
-          })
-      },
-      setRotationAt(index: number, x: number, y: number, z: number) {
-        if (ref.current)
-          worker.postMessage({
-            op: 'setRotation',
-            uuid: `${ref.current.uuid}/${index}`,
-            props: [x, y, z],
-          })
-      },
-      applyForce(force: [number, number, number], worldPoint: [number, number, number]) {
-        if (ref.current)
-          worker.postMessage({
-            op: 'applyForce',
-            uuid: ref.current.uuid,
-            props: [force, worldPoint],
-          })
-      },
-      applyImpulse(impulse: [number, number, number], worldPoint: [number, number, number]) {
-        if (ref.current)
-          worker.postMessage({
-            op: 'applyImpulse',
-            uuid: ref.current.uuid,
-            props: [impulse, worldPoint],
-          })
-      },
-      applyLocalForce(force: [number, number, number], localPoint: [number, number, number]) {
-        if (ref.current)
-          worker.postMessage({
-            op: 'applyLocalForce',
-            uuid: ref.current.uuid,
-            props: [force, localPoint],
-          })
-      },
-      applyLocalImpulse(impulse: [number, number, number], localPoint: [number, number, number]) {
-        if (ref.current)
-          worker.postMessage({
-            op: 'applyLocalImpulse',
-            uuid: ref.current.uuid,
-            props: [impulse, localPoint],
-          })
-      },
+      ...makeApi(undefined),
+      at: (index: number) => cache[index] || (cache[index] = makeApi(index)),
     }
   }, [])
   return [ref, api]
@@ -259,32 +302,6 @@ export function useConvexPolyhedron(fn: ConvexPolyhedronFn, deps: any[] = []) {
   )
 }
 
-type ConstraintTypes = 'PointToPoint' | 'ConeTwist' | 'Distance' | 'Hinge' | 'Lock'
-
-type ConstraintOptns = { maxForce?: number; collideConnected?: boolean; wakeUpBodies?: boolean }
-
-type PointToPointConstraintOpts = ConstraintOptns & {
-  pivotA: [number, number, number]
-  pivotB: [number, number, number]
-}
-
-type ConeTwistConstraintOpts = ConstraintOptns & {
-  pivotA?: [number, number, number]
-  axisA?: [number, number, number]
-  pivotB?: [number, number, number]
-  axisB?: [number, number, number]
-}
-type DistanceConstraintOpts = ConstraintOptns & { distance?: number }
-
-type HingeConstraintOpts = ConstraintOptns & {
-  pivotA?: [number, number, number]
-  axisA?: [number, number, number]
-  pivotB?: [number, number, number]
-  axisB?: [number, number, number]
-}
-
-type LockConstraintOpts = ConstraintOptns & {}
-
 type ConstraintApi = [
   React.MutableRefObject<THREE.Object3D | undefined>,
   React.MutableRefObject<THREE.Object3D | undefined>,
@@ -293,47 +310,6 @@ type ConstraintApi = [
     disable: () => void
   }
 ]
-
-export function usePointToPointConstraint(
-  bodyA: React.MutableRefObject<THREE.Object3D | undefined>,
-  bodyB: React.MutableRefObject<THREE.Object3D | undefined>,
-  optns: PointToPointConstraintOpts,
-  deps: any[]
-) {
-  return useConstraint('PointToPoint', bodyA, bodyB, optns, deps)
-}
-export function useConeTwistConstraint(
-  bodyA: React.MutableRefObject<THREE.Object3D | undefined>,
-  bodyB: React.MutableRefObject<THREE.Object3D | undefined>,
-  optns: ConeTwistConstraintOpts,
-  deps: any[]
-) {
-  return useConstraint('ConeTwist', bodyA, bodyB, optns, deps)
-}
-export function useDistanceConstraint(
-  bodyA: React.MutableRefObject<THREE.Object3D | undefined>,
-  bodyB: React.MutableRefObject<THREE.Object3D | undefined>,
-  optns: DistanceConstraintOpts,
-  deps: any[]
-) {
-  return useConstraint('Distance', bodyA, bodyB, optns, deps)
-}
-export function useHingeConstraint(
-  bodyA: React.MutableRefObject<THREE.Object3D | undefined>,
-  bodyB: React.MutableRefObject<THREE.Object3D | undefined>,
-  optns: HingeConstraintOpts,
-  deps: any[]
-) {
-  return useConstraint('Hinge', bodyA, bodyB, optns, deps)
-}
-export function useLockConstraint(
-  bodyA: React.MutableRefObject<THREE.Object3D | undefined>,
-  bodyB: React.MutableRefObject<THREE.Object3D | undefined>,
-  optns: LockConstraintOpts,
-  deps: any[]
-) {
-  return useConstraint('Lock', bodyA, bodyB, optns, deps)
-}
 
 function useConstraint(
   type: ConstraintTypes,
@@ -383,6 +359,47 @@ function useConstraint(
   return [bodyA, bodyB, api]
 }
 
+export function usePointToPointConstraint(
+  bodyA: React.MutableRefObject<THREE.Object3D | undefined>,
+  bodyB: React.MutableRefObject<THREE.Object3D | undefined>,
+  optns: PointToPointConstraintOpts,
+  deps: any[]
+) {
+  return useConstraint('PointToPoint', bodyA, bodyB, optns, deps)
+}
+export function useConeTwistConstraint(
+  bodyA: React.MutableRefObject<THREE.Object3D | undefined>,
+  bodyB: React.MutableRefObject<THREE.Object3D | undefined>,
+  optns: ConeTwistConstraintOpts,
+  deps: any[]
+) {
+  return useConstraint('ConeTwist', bodyA, bodyB, optns, deps)
+}
+export function useDistanceConstraint(
+  bodyA: React.MutableRefObject<THREE.Object3D | undefined>,
+  bodyB: React.MutableRefObject<THREE.Object3D | undefined>,
+  optns: DistanceConstraintOpts,
+  deps: any[]
+) {
+  return useConstraint('Distance', bodyA, bodyB, optns, deps)
+}
+export function useHingeConstraint(
+  bodyA: React.MutableRefObject<THREE.Object3D | undefined>,
+  bodyB: React.MutableRefObject<THREE.Object3D | undefined>,
+  optns: HingeConstraintOpts,
+  deps: any[]
+) {
+  return useConstraint('Hinge', bodyA, bodyB, optns, deps)
+}
+export function useLockConstraint(
+  bodyA: React.MutableRefObject<THREE.Object3D | undefined>,
+  bodyB: React.MutableRefObject<THREE.Object3D | undefined>,
+  optns: LockConstraintOpts,
+  deps: any[]
+) {
+  return useConstraint('Lock', bodyA, bodyB, optns, deps)
+}
+
 export function useSpring(
   bodyA: React.MutableRefObject<THREE.Object3D | undefined>,
   bodyB: React.MutableRefObject<THREE.Object3D | undefined>,
@@ -390,7 +407,7 @@ export function useSpring(
   deps: any[] = []
 ) {
   const { worker, events } = useContext(context)
-  const uuid = THREE.MathUtils.generateUUID()
+  const [uuid] = useState(() => THREE.MathUtils.generateUUID())
 
   useEffect(() => {
     if (bodyA.current && bodyB.current) {

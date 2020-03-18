@@ -45,8 +45,8 @@ function Paddle() {
   useFrame(state => {
     values.current[0] = lerp(values.current[0], (state.mouse.x * Math.PI) / 5, 0.2)
     values.current[1] = lerp(values.current[1], (state.mouse.x * Math.PI) / 5, 0.2)
-    api.setPosition(state.mouse.x * 10, state.mouse.y * 5, 0)
-    api.setRotation(0, 0, values.current[1])
+    api.position.set(state.mouse.x * 10, state.mouse.y * 5, 0)
+    api.rotation.set(0, 0, values.current[1])
     model.current.rotation.x = lerp(model.current.rotation.x, welcome ? Math.PI / 2 : 0, 0.2)
     model.current.rotation.y = values.current[0]
   })
