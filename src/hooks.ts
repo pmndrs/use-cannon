@@ -17,6 +17,7 @@ type AtomicProps = {
 }
 
 type BodyProps = AtomicProps & {
+  ref?: React.MutableRefObject<THREE.Object3D>
   args?: any
   position?: number[]
   rotation?: number[]
@@ -127,7 +128,9 @@ function apply(object: THREE.Object3D, index: number, buffers: Buffers) {
 }
 
 function useBody(type: ShapeType, fn: BodyFn, argFn: ArgFn, deps: any[] = []): Api {
-  const ref = useRef<THREE.Object3D>((null as unknown) as THREE.Object3D)
+  const { ref: fwdRef } = fn(0)
+  const localRef = useRef<THREE.Object3D>((null as unknown) as THREE.Object3D)
+  const ref = fwdRef ? fwdRef : localRef
   const { worker, bodies, buffers, refs, events } = useContext(context)
 
   useLayoutEffect(() => {
@@ -150,6 +153,7 @@ function useBody(type: ShapeType, fn: BodyFn, argFn: ArgFn, deps: any[] = []): A
     } else props = [prepare(object, fn(0), argFn)]
 
     props.forEach((props, index) => {
+      delete props.ref
       if (props.onCollide) {
         refs[uuid[index]] = object
         events[uuid[index]] = props.onCollide
