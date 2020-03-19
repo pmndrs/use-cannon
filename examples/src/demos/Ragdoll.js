@@ -1,33 +1,29 @@
 import * as THREE from 'three'
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import { Canvas, useFrame, extend } from 'react-three-fiber'
 import {
   Physics,
   useBox,
   useSphere,
   usePlane,
-  useDistanceConstraint,
   useConeTwistConstraint,
-  useHingeConstraint,
   usePointToPointConstraint,
-  useLockConstraint,
-  useParticle,
 } from 'use-cannon'
 import lerp from 'lerp'
 import create from 'zustand'
 
 // Cong our Ragdoll
-const ragdollConfig = createRagdoll(5, Math.PI / 16, Math.PI / 16, Math.PI / 16)
+const ragdollConfig = createRagdoll(5, Math.PI / 16, Math.PI / 16, 0)
 
 // Setup a store to access our bodies
 const [useStore] = create(set => ({
   bodies: [],
   addBody: (uuid, ref, methods) =>
-    set(
-      ({ bodies }) =>
-        !console.log('adding ' + ref.current.name) && {
-          bodies: [...bodies.filter(body => body.uuid != uuid), { uuid, ref, ...methods }],
-        }
+    set(({ bodies }) =>
+      //!console.log('adding ' + ref.current.name) &&
+      ({
+        bodies: [...bodies.filter(body => body.uuid != uuid), { uuid, ref, ...methods }],
+      })
     ),
   removeBody: uuid => set(({ bodies }) => ({ bodies: bodies.filter(body => body.uuid != uuid) })),
 }))
@@ -43,6 +39,7 @@ const BodyPart = React.forwardRef(({ children = () => null, type, name, ...props
     args,
     mass,
     position,
+    linearDamping: 0.9,
   }))
 
   const sizes = args.map(s => s * 2)
@@ -101,7 +98,7 @@ const Ragdoll = React.forwardRef(({ ...props }, ref) => {
                 name={'lowerRightArm'}
                 ref={upperRightArm}
                 jointConfig={'rightElbowJoint'}>
-                {ref => <Cursor />}
+                {ref => <Cursor ref={ref} />}
               </BodyPartConstraint>
             )}
           </BodyPartConstraint>
@@ -145,9 +142,16 @@ const Ragdoll = React.forwardRef(({ ...props }, ref) => {
   )
 })
 
+const useWindowEvent = (event, callback) => {
+  useEffect(() => {
+    window.addEventListener(event, callback)
+    return () => window.removeEventListener(event, callback)
+  }, [event, callback])
+}
+
 // Mouse grabber...
-const Cursor = React.forwardRef(({ position, ...props }, parent) => {
-  const [ref, api] = useParticle(() => ({ type: 'Static', position }))
+const Cursor = React.forwardRef(({ position = [0, 0, 10000], ...props }, parent) => {
+  const [ref, api] = useSphere(() => ({ type: 'Static', args: [0.25], position }))
 
   const [_, __, { enable, disable }] = usePointToPointConstraint(ref, parent, {
     pivotA: [0, 0, 0],
@@ -163,8 +167,12 @@ const Cursor = React.forwardRef(({ position, ...props }, parent) => {
     api.position.set((e.mouse.x * e.viewport.width) / 2, (e.mouse.y * e.viewport.height) / 2, 0)
   })
 
+  // const handleClick = useCallback(e => !console.log(e) && setToggle(!toggle), [toggle])
+
+  useWindowEvent('click', () => setToggle(!toggle))
+
   return (
-    <mesh ref={ref} {...props} onClick={() => setToggle(!toggle)}>
+    <mesh ref={ref} {...props}>
       <sphereBufferGeometry attach="geometry" args={[0.25, 64, 64]}></sphereBufferGeometry>
       <meshStandardMaterial attach="material" />
     </mesh>
@@ -198,82 +206,83 @@ const RagdollScene = () => {
 
 export default RagdollScene
 
+// Converted from the createRagdoll method in CANNON js ragdoll demo
 function createRagdoll(scale, angleA = 0, angleB = 0, twistAngle = 0) {
-  var shouldersDistance = 0.5 * scale,
+  var shouldersDistance = 0.45 * scale,
     upperArmLength = 0.4 * scale,
     lowerArmLength = 0.4 * scale,
-    upperArmSize = 0.2 * scale,
-    lowerArmSize = 0.2 * scale,
+    upperArmSize = 0.15 * scale,
+    lowerArmSize = 0.15 * scale,
     neckLength = 0.1 * scale,
-    headRadius = 0.25 * scale,
+    headRadius = 0.2 * scale,
     upperBodyLength = 0.6 * scale,
     pelvisLength = 0.2 * scale,
     upperLegLength = 0.5 * scale,
-    upperLegSize = 0.2 * scale,
-    lowerLegSize = 0.2 * scale,
+    upperLegSize = 0.15 * scale,
+    lowerLegSize = 0.15 * scale,
     lowerLegLength = 0.5 * scale
 
   // Lower legs
   var lowerLeftLeg = {
     args: [lowerLegSize * 0.5, lowerLegLength * 0.5, lowerArmSize * 0.5],
-    mass: 1,
+    mass: scale,
     position: [-shouldersDistance / 3, lowerLegLength / 2, 0],
   }
   var lowerRightLeg = {
     args: [lowerLegSize * 0.5, lowerLegLength * 0.5, lowerArmSize * 0.5],
-    mass: 1,
+    mass: scale,
     position: [shouldersDistance / 3, lowerLegLength / 2, 0],
   }
 
   // Upper legs
   var upperLeftLeg = {
     args: [upperLegSize * 0.5, upperLegLength * 0.5, lowerArmSize * 0.5],
-    mass: 1,
+    mass: scale,
     position: [-shouldersDistance / 3, lowerLeftLeg.position[1] + lowerLegLength / 2 + upperLegLength / 2, 0],
   }
   var upperRightLeg = {
     args: [upperLegSize * 0.5, upperLegLength * 0.5, lowerArmSize * 0.5],
-    mass: 1,
+    mass: scale,
     position: [shouldersDistance / 3, lowerRightLeg.position[1] + lowerLegLength / 2 + upperLegLength / 2, 0],
   }
 
   // Pelvis
   var pelvis = {
     args: [shouldersDistance * 0.5, pelvisLength * 0.5, lowerArmSize * 0.5],
-    mass: 1,
+    mass: scale,
     position: [0, upperLeftLeg.position[1] + upperLegLength / 2 + pelvisLength / 2, 0],
   }
 
   // Upper body
   var upperBody = {
     args: [shouldersDistance * 0.5, upperBodyLength * 0.5, lowerArmSize * 0.5],
-    mass: 1,
+    mass: scale,
     position: [0, pelvis.position[1] + pelvisLength / 2 + upperBodyLength / 2, 0],
   }
 
   // Head
   var head = {
     args: [headRadius * 0.5, headRadius * 0.5, headRadius * 0.5],
-    mass: 1,
+    mass: scale,
     position: [0, upperBody.position[1] + upperBodyLength / 2 + headRadius / 2 + neckLength, 0],
   }
 
   // Upper arms
   var upperLeftArm = {
     args: [upperArmLength * 0.5, upperArmSize * 0.5, upperArmSize * 0.5],
-    mass: 1,
+    mass: scale,
     position: [-shouldersDistance / 2 - upperArmLength / 2, upperBody.position[1] + upperBodyLength / 2, 0],
   }
   var upperRightArm = {
     args: [upperArmLength * 0.5, upperArmSize * 0.5, upperArmSize * 0.5],
-    mass: 1,
+    mass: scale,
     position: [shouldersDistance / 2 + upperArmLength / 2, upperBody.position[1] + upperBodyLength / 2, 0],
   }
 
   // lower arms
   var lowerLeftArm = {
     args: [lowerArmLength * 0.5, lowerArmSize * 0.5, lowerArmSize * 0.5],
-    mass: 1,
+    mass: scale,
     position: [
       upperLeftArm.position[0] - lowerArmLength / 2 - upperArmLength / 2,
       upperLeftArm.position[1],
@@ -282,7 +291,7 @@ function createRagdoll(scale, angleA = 0, angleB = 0, twistAngle = 0) {
   }
   var lowerRightArm = {
     args: [lowerArmLength * 0.5, lowerArmSize * 0.5, lowerArmSize * 0.5],
-    mass: 1,
+    mass: scale,
     position: [
       upperRightArm.position[0] + lowerArmLength / 2 + upperArmLength / 2,
       upperRightArm.position[1],
