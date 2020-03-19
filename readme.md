@@ -50,6 +50,43 @@ const [ref, api] = useBox(() => ({ mass: 1 }))
 useFrame(({ clock }) => api.setPosition(Math.sin(clock.getElapsedTime()) * 5, 0, 0))
 ```
 
+## Simple example
+
+Let's make a cube falling onto a plane. You can play with a sandbox [here](https://codesandbox.io/s/r3f-cannon-instanced-physics-l40oh).
+
+```jsx
+import { Canvas } from 'react-three-fiber'
+import { Physics, usePlane, useBox } from 'use-cannon'
+
+function Plane(props) {
+  const [ref] = usePlane(() => ({ rotation: [-Math.PI / 2, 0, 0], ...props }))
+  return (
+    <mesh ref={ref}>
+      <planeBufferGeometry attach="geometry" args={[100, 100]} />
+    </mesh>
+  )
+}
+
+function Cube(props) {
+  const [ref] = useBox(() => ({ mass: 1, position: [0, 5, 0], ...props }))
+  return (
+    <mesh ref={ref}>
+      <boxBufferGeometry attach="geometry" />
+    </mesh>
+  )
+}
+
+ReactDOM.render(
+  <Canvas>
+    <Physics>
+      <Plane />
+      <Cube />
+    </Physics>
+  </Canvas>,
+  document.getElementById('root')
+)
+```
+
 ## Api
 
 ### Exports
@@ -80,22 +117,77 @@ function useParticle(fn: ParticleFn, deps?: any[]): Api
 function useSphere(fn: SphereFn, deps?: any[]): Api
 function useTrimesh(fn: TrimeshFn, deps?: any[]): Api
 function useConvexPolyhedron(fn: ConvexPolyhedronFn, deps?: any[]): Api
+
+function usePointToPointConstraint(
+  bodyA: React.MutableRefObject<THREE.Object3D>,
+  bodyB: React.MutableRefObject<THREE.Object3D>,
+  optns: PointToPointConstraintOpts,
+  deps: any[]
+): ConstraintApi
+
+function useConeTwistConstraint(
+  bodyA: React.MutableRefObject<THREE.Object3D>,
+  bodyB: React.MutableRefObject<THREE.Object3D>,
+  optns: ConeTwistConstraintOpts,
+  deps: any[]
+): ConstraintApi
+
+function useDistanceConstraint(
+  bodyA: React.MutableRefObject<THREE.Object3D>,
+  bodyB: React.MutableRefObject<THREE.Object3D>,
+  optns: DistanceConstraintOpts,
+  deps: any[]
+): ConstraintApi
+
+function useHingeConstraint(
+  bodyA: React.MutableRefObject<THREE.Object3D>,
+  bodyB: React.MutableRefObject<THREE.Object3D>,
+  optns: HingeConstraintOpts,
+  deps: any[]
+): ConstraintApi
+
+function useLockConstraint(
+  bodyA: React.MutableRefObject<THREE.Object3D>,
+  bodyB: React.MutableRefObject<THREE.Object3D>,
+  optns: LockConstraintOpts,
+  deps: any[]
+): ConstraintApi
+
+function useSpring(
+  bodyA: React.MutableRefObject<THREE.Object3D>,
+  bodyB: React.MutableRefObject<THREE.Object3D>,
+  optns?: any,
+  deps?: any[]
+): void
 ```
 
 ### Returned api
 
 ```typescript
+type WorkerApi = AtomicProps & {
+  position: WorkerVec
+  rotation: WorkerVec
+  velocity: WorkerVec
+  angularVelocity: WorkerVec
+  applyForce: (force: number[], worldPoint: number[]) => void
+  applyImpulse: (impulse: number[], worldPoint: number[]) => void
+  applyLocalForce: (force: number[], localPoint: number[]) => void
+  applyLocalImpulse: (impulse: number[], localPoint: number[]) => void
+}
+
 type Api = [
   React.MutableRefObject<THREE.Object3D | undefined>,
+  WorkerApi & {
+    at: (index: number) => WorkerApi
+  }
+]
+
+type ConstraintApi = [
+  React.MutableRefObject<THREE.Object3D>,
+  React.MutableRefObject<THREE.Object3D>,
   {
-    setPosition: (x: number, y: number, z: number) => void
-    setRotation: (x: number, y: number, z: number) => void
-    setPositionAt: (index: number, x: number, y: number, z: number) => void
-    setRotationAt: (index: number, x: number, y: number, z: number) => void
-    applyForce: (force: [number, number, number], worldPoint: [number, number, number]) => void
-    applyImpulse: (impulse: [number, number, number], worldPoint: [number, number, number]) => void
-    applyLocalForce: (force: [number, number, number], localPoint: [number, number, number]) => void
-    applyLocalImpulse: (impulse: [number, number, number], localPoint: [number, number, number]) => void
+    enable: () => void
+    disable: () => void
   }
 ]
 ```
@@ -123,12 +215,8 @@ type ProviderProps = {
   size?: number
 }
 
-type BodyProps = {
-  position?: number[]
-  rotation?: number[]
-  scale?: number[]
+type AtomicProps = {
   mass?: number
-  velocity?: number[]
   linearDamping?: number
   angularDamping?: number
   allowSleep?: boolean
@@ -137,6 +225,16 @@ type BodyProps = {
   collisionFilterGroup?: number
   collisionFilterMask?: number
   fixedRotation?: boolean
+}
+
+type BodyProps = AtomicProps & {
+  ref?: React.MutableRefObject<THREE.Object3D>
+  args?: any
+  position?: number[]
+  rotation?: number[]
+  velocity?: number[]
+  angularVelocity?: number[]
+  scale?: number[]
   type?: 'Dynamic' | 'Static' | 'Kinematic'
   onCollide?: (e: Event) => void
 }
@@ -198,6 +296,7 @@ type HeightfieldFn = (index: number) => HeightfieldProps
 type ParticleFn = (index: number) => ParticleProps
 type SphereFn = (index: number) => SphereProps
 type TrimeshFn = (index: number) => TrimeshProps
+type ConvexPolyhedronFn = (index: number) => ConvexPolyhedronProps
 ```
 
 ### FAQ
