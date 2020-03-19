@@ -15,22 +15,24 @@ import {
 } from 'use-cannon'
 import lerp from 'lerp'
 import create from 'zustand'
-import mergeRefs from 'react-merge-refs'
 
+// Cong our Ragdoll
 const ragdollConfig = createRagdoll(5, Math.PI / 16, Math.PI / 16, Math.PI / 16)
 
+// Setup a store to access our bodies
 const [useStore] = create(set => ({
   bodies: [],
-  addBody: (uuid, ref) =>
+  addBody: (uuid, ref, methods) =>
     set(
       ({ bodies }) =>
         !console.log('adding ' + ref.current.name) && {
-          bodies: [...bodies.filter(body => body.uuid != uuid), { uuid, ref }],
+          bodies: [...bodies.filter(body => body.uuid != uuid), { uuid, ref, ...methods }],
         }
     ),
   removeBody: uuid => set(({ bodies }) => ({ bodies: bodies.filter(body => body.uuid != uuid) })),
 }))
 
+// Body part component
 const BodyPart = React.forwardRef(({ children = () => null, type, name, ...props }, ref) => {
   const shape = ragdollConfig.shapes[name]
   const { args, mass, position } = shape
@@ -66,6 +68,7 @@ const BodyPart = React.forwardRef(({ children = () => null, type, name, ...props
   )
 })
 
+// A container that sets up a joint between the parent and child
 const BodyPartConstraint = React.forwardRef(({ jointConfig, ...props }, parent) => {
   let config = ragdollConfig.joints[jointConfig]
 
@@ -74,6 +77,7 @@ const BodyPartConstraint = React.forwardRef(({ jointConfig, ...props }, parent) 
   return <BodyPart ref={child} {...props} />
 })
 
+// Base Ragdoll Component
 const Ragdoll = React.forwardRef(({ ...props }, ref) => {
   return (
     <BodyPart ref={ref} name={'upperBody'} {...props}>
@@ -141,6 +145,7 @@ const Ragdoll = React.forwardRef(({ ...props }, ref) => {
   )
 })
 
+// Mouse grabber...
 const Cursor = React.forwardRef(({ position, ...props }, parent) => {
   const [ref, api] = useParticle(() => ({ type: 'Static', position }))
 
