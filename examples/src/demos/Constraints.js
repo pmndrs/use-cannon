@@ -5,7 +5,7 @@ import { Physics, useSphere, useBox, useSpring } from 'use-cannon'
 const Box = React.forwardRef((props, ref) => {
   useBox(() => ({
     ref,
-    mass: 100,
+    mass: 1,
     args: [0.5, 0.5, 0.5],
     linearDamping: 0.7,
     ...props,
@@ -19,7 +19,7 @@ const Box = React.forwardRef((props, ref) => {
 })
 
 const Ball = React.forwardRef((props, ref) => {
-  const [_, { position }] = useSphere(() => ({ ref, type: 'Static', mass: 1, args: 0.5, ...props }))
+  const [_, { position }] = useSphere(() => ({ ref, type: 'Kinetic', args: 0.5, ...props }))
   useFrame(e => position.set((e.mouse.x * e.viewport.width) / 2, (e.mouse.y * e.viewport.height) / 2, 0))
   return (
     <mesh ref={ref}>
