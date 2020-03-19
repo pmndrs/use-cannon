@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import React, { useState, useEffect, useMemo } from 'react'
-import { Canvas, useFrame } from 'react-three-fiber'
+import { Canvas, useFrame, extend } from 'react-three-fiber'
 import {
   Physics,
   useBox,
@@ -11,150 +11,160 @@ import {
   useHingeConstraint,
   usePointToPointConstraint,
   useLockConstraint,
-} from '../../../dist/index'
+  useParticle,
+} from 'use-cannon'
 import lerp from 'lerp'
 import create from 'zustand'
 import mergeRefs from 'react-merge-refs'
 
-const ragdollConfig = createRagdoll(5, Math.PI / 4, Math.PI / 3, Math.PI / 8)
+const ragdollConfig = createRagdoll(5, Math.PI / 16, Math.PI / 16, Math.PI / 16)
 
 const [useStore] = create(set => ({
   bodies: [],
-  addBody: ({ name, args, ref, api }) =>
-    set(({ bodies }) => ({ bodies: [...bodies, { name, args, ref, api }] })),
-  removeBody: name => set(({ bodies }) => ({ bodies: bodies.filter(body => body.name != name) })),
+  addBody: (uuid, ref) =>
+    set(
+      ({ bodies }) =>
+        !console.log('adding ' + ref.current.name) && {
+          bodies: [...bodies.filter(body => body.uuid != uuid), { uuid, ref }],
+        }
+    ),
+  removeBody: uuid => set(({ bodies }) => ({ bodies: bodies.filter(body => body.uuid != uuid) })),
 }))
 
-// const Joint = ({ bodyA, bodyB, ...props }) => {
-//   const ref = React.createRef(null)
-
-//   useFrame(() => {
-//     if (bodyA && bodyB) {
-//       if (ref.current && bodyA.current && bodyB.current) {
-//         ref.current.position.set(bodyA.current.position.x, bodyA.current.position.y, bodyA.current.position.z)
-//       }
-//     }
-//   })
-
-//   return (
-//     <mesh ref={ref} {...props}>
-//       <sphereBufferGeometry attach="geometry" args={[1.25, 64, 64]}></sphereBufferGeometry>
-//       <meshStandardMaterial attach="material" color="#171717" />
-//     </mesh>
-//   )
-// }
-
-const BodyPart = ({ parentRef, children = () => null, jointConfig, name, ...props }) => {
+const BodyPart = React.forwardRef(({ children = () => null, type, name, ...props }, ref) => {
   const shape = ragdollConfig.shapes[name]
   const { args, mass, position } = shape
 
   const [thisbody, api] = useBox(() => ({
-    // type: 'Kinematic',
+    ref,
+    type,
     args,
     mass,
     position,
   }))
 
-  const { addBody, removeBody } = useStore()
+  const sizes = args.map(s => s * 2)
+
+  const { addBody, removeBody, bodies } = useStore()
 
   useEffect(() => {
-    addBody({ name, ref: thisbody, api, args })
-    return () => removeBody(name)
+    if (thisbody && thisbody.current) {
+      const uuid = thisbody.current.uuid
+      addBody(uuid, thisbody)
+      return () => removeBody(uuid)
+    }
   }, [thisbody])
-
-  let config = ragdollConfig.joints[jointConfig]
-  useConeTwistConstraint(thisbody, parentRef, config)
-
-  const sizes = args.map(s => s * 2)
 
   return (
     <>
       <mesh ref={thisbody} {...props} name={name}>
         <boxBufferGeometry attach="geometry" args={sizes}></boxBufferGeometry>
-        <meshStandardMaterial attach="material" />
+        <meshNormalMaterial attach="material" />
       </mesh>
-      {/* {thisbody && parentRef && <Joint bodyA={thisbody} bodyB={parentRef}></Joint>} */}
       {children(thisbody)}
     </>
   )
-}
+})
 
-const RagdollBodyPart = React.forwardRef(({ ...props }, ref) => <BodyPart parentRef={ref} {...props} />)
+const BodyPartConstraint = React.forwardRef(({ jointConfig, ...props }, parent) => {
+  let config = ragdollConfig.joints[jointConfig]
 
-const Cursor = ({ position, ...props }) => {
-  const [ref, api] = useSphere(() => ({ type: 'Static', args: 0.5, position }))
-  const { bodies } = useStore()
+  const [child] = useConeTwistConstraint(null, parent, config)
 
-  const [grabRef, setGrabRef] = useState(null)
+  return <BodyPart ref={child} {...props} />
+})
 
-  const [bodyA, bodyB, { enable, disable }] = usePointToPointConstraint(ref, grabRef, {
-    pivotA: [0, 0, 0],
-    pivotB: [0, 0, 0],
-  })
-  const [toggle, setToggle] = useState(true)
-
-  useEffect(() => {
-    toggle ? enable() : disable()
-  }, [toggle])
-
-  useEffect(() => {
-    let grabbedBody = bodies.filter(body => body.name == 'head')
-    if (grabbedBody.length) setGrabRef(grabbedBody[0].ref)
-  }, [bodies])
-
-  useFrame(e => {
-    api.setPosition((e.mouse.x * e.viewport.width) / 2, (e.mouse.y * e.viewport.height) / 2, 0)
-  })
-
+const Ragdoll = React.forwardRef(({ ...props }, ref) => {
   return (
-    <mesh ref={bodyA} {...props} onClick={() => setToggle(!toggle)}>
-      <sphereBufferGeometry attach="geometry" args={[0.25, 64, 64]}></sphereBufferGeometry>
-      <meshStandardMaterial attach="material" />
-    </mesh>
-  )
-}
-
-const Ragdoll = ({ position, ...props }) => {
-  return (
-    <RagdollBodyPart name={'upperBody'} {...props} position={position}>
+    <BodyPart ref={ref} name={'upperBody'} {...props}>
       {ref => (
         <>
-          <RagdollBodyPart name={'head'} ref={ref} jointConfig={'neckJoint'} />
-          <RagdollBodyPart name={'upperLeftArm'} ref={ref} jointConfig={'leftShoulder'}>
+          <BodyPartConstraint {...props} name={'head'} ref={ref} jointConfig={'neckJoint'} />
+          <BodyPartConstraint {...props} name={'upperLeftArm'} ref={ref} jointConfig={'leftShoulder'}>
             {upperLeftArm => (
-              <RagdollBodyPart name={'lowerLeftArm'} ref={upperLeftArm} jointConfig={'leftElbowJoint'} />
+              <BodyPartConstraint
+                {...props}
+                name={'lowerLeftArm'}
+                ref={upperLeftArm}
+                jointConfig={'leftElbowJoint'}
+              />
             )}
-          </RagdollBodyPart>
-          <RagdollBodyPart name={'upperRightArm'} ref={ref} jointConfig={'rightShoulder'}>
+          </BodyPartConstraint>
+          <BodyPartConstraint {...props} name={'upperRightArm'} ref={ref} jointConfig={'rightShoulder'}>
             {upperRightArm => (
-              <RagdollBodyPart name={'lowerRightArm'} ref={upperRightArm} jointConfig={'rightElbowJoint'} />
+              <BodyPartConstraint
+                {...props}
+                name={'lowerRightArm'}
+                ref={upperRightArm}
+                jointConfig={'rightElbowJoint'}>
+                {ref => <Cursor />}
+              </BodyPartConstraint>
             )}
-          </RagdollBodyPart>
-          <RagdollBodyPart name={'pelvis'} ref={ref} jointConfig={'spineJoint'}>
+          </BodyPartConstraint>
+          <BodyPartConstraint {...props} name={'pelvis'} ref={ref} jointConfig={'spineJoint'}>
             {pelvis => (
               <>
-                <RagdollBodyPart name={'upperLeftLeg'} ref={pelvis} jointConfig={'leftHipJoint'}>
+                <BodyPartConstraint
+                  {...props}
+                  name={'upperLeftLeg'}
+                  ref={pelvis}
+                  jointConfig={'leftHipJoint'}>
                   {upperLeftLeg => (
-                    <RagdollBodyPart name={'lowerLeftLeg'} ref={upperLeftLeg} jointConfig={'leftKneeJoint'} />
+                    <BodyPartConstraint
+                      {...props}
+                      name={'lowerLeftLeg'}
+                      ref={upperLeftLeg}
+                      jointConfig={'leftKneeJoint'}
+                    />
                   )}
-                </RagdollBodyPart>
-                <RagdollBodyPart name={'upperRightLeg'} ref={pelvis} jointConfig={'rightHipJoint'}>
+                </BodyPartConstraint>
+                <BodyPartConstraint
+                  {...props}
+                  name={'upperRightLeg'}
+                  ref={pelvis}
+                  jointConfig={'rightHipJoint'}>
                   {upperRightLeg => (
-                    <RagdollBodyPart
+                    <BodyPartConstraint
+                      {...props}
                       name={'lowerRightLeg'}
                       ref={upperRightLeg}
                       jointConfig={'rightKneeJoint'}
                     />
                   )}
-                </RagdollBodyPart>
+                </BodyPartConstraint>
               </>
             )}
-          </RagdollBodyPart>
+          </BodyPartConstraint>
         </>
       )}
-    </RagdollBodyPart>
+    </BodyPart>
   )
-}
+})
+
+const Cursor = React.forwardRef(({ position, ...props }, parent) => {
+  const [ref, api] = useParticle(() => ({ type: 'Static', position }))
+
+  const [_, __, { enable, disable }] = usePointToPointConstraint(ref, parent, {
+    pivotA: [0, 0, 0],
+    pivotB: [0, 0, 0],
+  })
+  const [toggle, setToggle] = useState(false)
+
+  useEffect(() => {
+    toggle ? enable() : disable()
+  }, [toggle])
+
+  useFrame(e => {
+    api.position.set((e.mouse.x * e.viewport.width) / 2, (e.mouse.y * e.viewport.height) / 2, 0)
+  })
+
+  return (
+    <mesh ref={ref} {...props} onClick={() => setToggle(!toggle)}>
+      <sphereBufferGeometry attach="geometry" args={[0.25, 64, 64]}></sphereBufferGeometry>
+      <meshStandardMaterial attach="material" />
+    </mesh>
+  )
+})
 
 function Plane(props) {
   const [ref] = usePlane(() => ({ ...props }))
@@ -168,14 +178,13 @@ function Plane(props) {
 
 const RagdollScene = () => {
   return (
-    <Canvas shadowMap sRGB camera={{ position: [0, 5, 20], fov: 50 }}>
+    <Canvas shadowMap sRGB camera={{ position: [0, 10, 30], fov: 50 }}>
       <color attach="background" args={['#171720']} />
       <ambientLight intensity={0.5} />
       <pointLight position={[-10, -10, -10]} />
       <spotLight position={[10, 10, 10]} angle={0.3} penumbra={1} intensity={1} castShadow />
-      <Physics gravity={[0, -10, 0]} allowSleep={false}>
-        {/* <Cursor /> */}
-        <Ragdoll position={[0, 10, 0]} />
+      <Physics gravity={[0, -50, 0]} allowSleep={false}>
+        <Ragdoll position={[0, 0, 0]} />
         <Plane position={[0, -5, 0]} rotation={[-Math.PI / 2, 0, 0]} />
       </Physics>
     </Canvas>
@@ -193,7 +202,7 @@ function createRagdoll(scale, angleA = 0, angleB = 0, twistAngle = 0) {
     neckLength = 0.1 * scale,
     headRadius = 0.25 * scale,
     upperBodyLength = 0.6 * scale,
-    pelvisLength = 0.4 * scale,
+    pelvisLength = 0.2 * scale,
     upperLegLength = 0.5 * scale,
     upperLegSize = 0.2 * scale,
     lowerLegSize = 0.2 * scale,
@@ -317,7 +326,7 @@ function createRagdoll(scale, angleA = 0, angleB = 0, twistAngle = 0) {
     bodyA: 'upperLeftLeg',
     bodyB: 'pelvis',
     pivotA: [0, upperLegLength / 2, 0],
-    pivotB: [-shouldersDistance / 2, -pelvisLength / 2, 0],
+    pivotB: [-shouldersDistance / 3, -pelvisLength / 2, 0],
     axisA: [0, 1, 0],
     axisB: [0, 1, 0],
     angle: angleA,
@@ -327,7 +336,7 @@ function createRagdoll(scale, angleA = 0, angleB = 0, twistAngle = 0) {
     bodyA: 'upperRightLeg',
     bodyB: 'pelvis',
     pivotA: [0, upperLegLength / 2, 0],
-    pivotB: [shouldersDistance / 2, -pelvisLength / 2, 0],
+    pivotB: [shouldersDistance / 3, -pelvisLength / 2, 0],
     axisA: [0, 1, 0],
     axisB: [0, 1, 0],
     angle: angleA,
@@ -350,8 +359,8 @@ function createRagdoll(scale, angleA = 0, angleB = 0, twistAngle = 0) {
   var leftShoulder = {
     bodyA: 'upperBody',
     bodyB: 'upperLeftArm',
-    pivotA: [-shouldersDistance / 2, upperBodyLength / 2, 0],
-    pivotB: [-upperArmLength / 2, 0, 0],
+    pivotA: [upperArmLength / 2, 0, 0],
+    pivotB: [-shouldersDistance / 2, upperBodyLength / 2, 0],
     axisA: [1, 0, 0],
     axisB: [1, 0, 0],
     angle: angleB,
@@ -359,8 +368,8 @@ function createRagdoll(scale, angleA = 0, angleB = 0, twistAngle = 0) {
   var rightShoulder = {
     bodyA: 'upperBody',
     bodyB: 'upperRightArm',
-    pivotA: [shouldersDistance / 2, upperBodyLength / 2, 0],
-    pivotB: [upperArmLength / 2, 0, 0],
+    pivotA: [-upperArmLength / 2, 0, 0],
+    pivotB: [shouldersDistance / 2, upperBodyLength / 2, 0],
     axisA: [1, 0, 0],
     axisB: [1, 0, 0],
     angle: angleB,
