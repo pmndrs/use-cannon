@@ -407,14 +407,30 @@ export function useLockConstraint(
   return useConstraint('Lock', bodyA, bodyB, optns, deps)
 }
 
+type SpringOptns = {
+  restLength?: number
+  stiffness?: number
+  damping?: number
+  worldAnchorA?: number[]
+  worldAnchorB?: number[]
+  localAnchorA?: number[]
+  localAnchorB?: number[]
+}
+
 export function useSpring(
   bodyA: React.MutableRefObject<THREE.Object3D | undefined>,
   bodyB: React.MutableRefObject<THREE.Object3D | undefined>,
-  optns: any = {},
+  optns: SpringOptns,
   deps: any[] = []
 ) {
   const { worker, events } = useContext(context)
   const [uuid] = useState(() => THREE.MathUtils.generateUUID())
+
+  if (bodyA === undefined || bodyA === null)
+    bodyA = useRef<THREE.Object3D>((null as unknown) as THREE.Object3D)
+
+  if (bodyB === undefined || bodyB === null)
+    bodyB = useRef<THREE.Object3D>((null as unknown) as THREE.Object3D)
 
   useEffect(() => {
     if (bodyA.current && bodyB.current) {
@@ -430,4 +446,6 @@ export function useSpring(
       }
     }
   }, deps)
+
+  return [bodyA, bodyB]
 }
