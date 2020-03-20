@@ -153,7 +153,7 @@ const useWindowEvent = (event, callback) => {
 const Cursor = React.forwardRef(({ position = [0, 0, 10000], ...props }, parent) => {
   const [ref, api] = useSphere(() => ({ type: 'Static', args: [0.25], position }))
 
-  const [_, __, { enable, disable }] = usePointToPointConstraint(ref, parent, {
+  const [, , { enable, disable }] = usePointToPointConstraint(ref, parent, {
     pivotA: [0, 0, 0],
     pivotB: [0, 0, 0],
   })
