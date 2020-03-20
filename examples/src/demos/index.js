@@ -2,10 +2,10 @@ import { lazy } from 'react'
 
 const KinematicCube = { descr: '', tags: [], Component: lazy(() => import('./KinematicCube')), bright: false }
 const CubeHeap = { descr: '', tags: [], Component: lazy(() => import('./CubeHeap')), bright: false }
-const ConvexPolyhydron = {
+const ConvexPolyhedron = {
   descr: '',
   tags: [],
-  Component: lazy(() => import('./ConvexPolyhydron')),
+  Component: lazy(() => import('./ConvexPolyhedron')),
   bright: false,
 }
 const Pingpong = { descr: '', tags: [], Component: lazy(() => import('./Pingpong')), bright: false }
@@ -13,4 +13,4 @@ const Constraints = { descr: '', tags: [], Component: lazy(() => import('./Const
 const Ragdoll = { descr: '', tags: [], Component: lazy(() => import('./Ragdoll')), bright: false }
 const Chain = { descr: '', tags: [], Component: lazy(() => import('./Chain')), bright: false }
 
-export { Pingpong, KinematicCube, CubeHeap, ConvexPolyhydron, Chain, Ragdoll, Constraints }
+export { Pingpong, KinematicCube, CubeHeap, ConvexPolyhedron, Chain, Ragdoll, Constraints }
