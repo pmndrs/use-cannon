@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import React, { createContext, useContext, useCallback, useEffect, useMemo } from 'react'
-import { Canvas, useFrame } from 'react-three-fiber'
+import { Canvas, useFrame, useThree } from 'react-three-fiber'
 import {
   Physics,
   useBox,
@@ -39,8 +39,14 @@ const BodyPartConstraint = ({ config, cursor, ...props }) => {
     pivotB: [0, 0, 0],
   })
   useEffect(() => void disable(), [])
-  const onPointerUp = useCallback(e => disable(), [])
+
+  const state = useThree()
+  const onPointerUp = useCallback(e => {
+    console.log(props.name, "let go")
+    disable()}
+  , [])
   const onPointerDown = useCallback(e => {
+    console.log(props.name, "picked up")
     e.stopPropagation()
     e.target.setPointerCapture(e.pointerId)
     enable()
@@ -51,7 +57,6 @@ const BodyPartConstraint = ({ config, cursor, ...props }) => {
       {...props}
       onPointerDown={onPointerDown}
       onPointerUp={onPointerUp}
-      onPointerLeave={onPointerUp}
     />
   )
 }
