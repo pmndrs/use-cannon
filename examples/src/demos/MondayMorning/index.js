@@ -42,23 +42,16 @@ const BodyPartConstraint = ({ config, cursor, ...props }) => {
 
   const state = useThree()
   const onPointerUp = useCallback(e => {
-    console.log(props.name, "let go")
-    disable()}
-  , [])
+    console.log(props.name, 'let go')
+    disable()
+  }, [])
   const onPointerDown = useCallback(e => {
-    console.log(props.name, "picked up")
+    console.log(props.name, 'picked up')
     e.stopPropagation()
     e.target.setPointerCapture(e.pointerId)
     enable()
   }, [])
-  return (
-    <BodyPart
-      ref={child}
-      {...props}
-      onPointerDown={onPointerDown}
-      onPointerUp={onPointerUp}
-    />
-  )
+  return <BodyPart ref={child} {...props} onPointerDown={onPointerDown} onPointerUp={onPointerUp} />
 }
 
 // Base Ragdoll Component
@@ -107,11 +100,11 @@ function Plane(props) {
   )
 }
 
-const Box = React.forwardRef((props, ref) => {
+const Box = React.forwardRef(({ color }, ref) => {
   return (
     <mesh receiveShadow castShadow ref={ref}>
       <boxBufferGeometry attach="geometry" />
-      <meshStandardMaterial attach="material" />
+      <meshStandardMaterial attach="material" color={color} />
     </mesh>
   )
 })
@@ -168,34 +161,35 @@ function Chair() {
 function Table() {
   const [seat] = useBox(() => ({
     type: 'Static',
-    position: [5 + 0, -0.8, 5 + 0],
+    position: [9 + 0, -0.8, 0],
     scale: [6, 0.5, 6],
     args: [3, 0.25, 3],
   }))
   const [leg1] = useBox(() => ({
     type: 'Static',
-    position: [5 + -1.8, -3, 5 + 1.8],
+    position: [9 + -1.8, -3, 1.8],
     scale: [0.5, 4, 0.5],
     args: [0.25, 2, 0.25],
   }))
   const [leg2] = useBox(() => ({
     type: 'Static',
-    position: [5 + 1.8, -3, 5 + 1.8],
+    position: [9 + 1.8, -3, 1.8],
     scale: [0.5, 4, 0.5],
     args: [0.25, 2, 0.25],
   }))
   const [leg3] = useBox(() => ({
     type: 'Static',
-    position: [5 + -1.8, -3, 5 + -1.8],
+    position: [9 + -1.8, -3, -1.8],
     scale: [0.5, 4, 0.5],
     args: [0.25, 2, 0.25],
   }))
   const [leg4] = useBox(() => ({
     type: 'Static',
-    position: [5 + 1.8, -3, 5 + -1.8],
+    position: [9 + 1.8, -3, -1.8],
     scale: [0.5, 4, 0.5],
     args: [0.25, 2, 0.25],
   }))
+  const [cup] = useBox(() => ({ mass: 1, position: [9, 0, 0], scale: [1, 1, 1], args: [0.5, 0.5, 0.5] }))
   return (
     <>
       <Box ref={seat} />
@@ -203,6 +197,7 @@ function Table() {
       <Box ref={leg2} />
       <Box ref={leg3} />
       <Box ref={leg4} />
+      <Box ref={cup} color="red" />
     </>
   )
 }
