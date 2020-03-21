@@ -328,11 +328,10 @@ function useConstraint(
   const { worker } = useContext(context)
   const uuid = THREE.MathUtils.generateUUID()
 
-  if (bodyA === undefined || bodyA === null)
-    bodyA = useRef<THREE.Object3D>((null as unknown) as THREE.Object3D)
-
-  if (bodyB === undefined || bodyB === null)
-    bodyB = useRef<THREE.Object3D>((null as unknown) as THREE.Object3D)
+  const nullRef1 = useRef((null as unknown) as THREE.Object3D)
+  const nullRef2 = useRef((null as unknown) as THREE.Object3D)
+  bodyA = bodyA === undefined || bodyA === null ? nullRef1 : bodyA
+  bodyB = bodyB === undefined || bodyB === null ? nullRef2 : bodyB
 
   useEffect(() => {
     if (bodyA.current && bodyB.current) {
@@ -346,22 +345,13 @@ function useConstraint(
     }
   }, deps)
 
-  const api = useMemo(() => {
-    return {
-      enable() {
-        worker.postMessage({
-          op: 'enableConstraint',
-          uuid,
-        })
-      },
-      disable() {
-        worker.postMessage({
-          op: 'disableConstraint',
-          uuid,
-        })
-      },
-    }
-  }, deps)
+  const api = useMemo(
+    () => ({
+      enable: () => worker.postMessage({ op: 'enableConstraint', uuid }),
+      disable: () => worker.postMessage({ op: 'disableConstraint', uuid }),
+    }),
+    deps
+  )
 
   return [bodyA, bodyB, api]
 }
@@ -426,11 +416,10 @@ export function useSpring(
   const { worker, events } = useContext(context)
   const [uuid] = useState(() => THREE.MathUtils.generateUUID())
 
-  if (bodyA === undefined || bodyA === null)
-    bodyA = useRef<THREE.Object3D>((null as unknown) as THREE.Object3D)
-
-  if (bodyB === undefined || bodyB === null)
-    bodyB = useRef<THREE.Object3D>((null as unknown) as THREE.Object3D)
+  const nullRef1 = useRef((null as unknown) as THREE.Object3D)
+  const nullRef2 = useRef((null as unknown) as THREE.Object3D)
+  bodyA = bodyA === undefined || bodyA === null ? nullRef1 : bodyA
+  bodyB = bodyB === undefined || bodyB === null ? nullRef2 : bodyB
 
   useEffect(() => {
     if (bodyA.current && bodyB.current) {
