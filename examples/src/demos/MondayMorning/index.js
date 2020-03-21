@@ -1,6 +1,5 @@
-import * as THREE from 'three'
-import React, { createContext, useContext, useCallback, useEffect, useMemo } from 'react'
-import { Canvas, useFrame, useThree } from 'react-three-fiber'
+import React, { createContext, useContext, useCallback, useEffect, useMemo, useRef } from 'react'
+import { Canvas, useFrame } from 'react-three-fiber'
 import {
   Physics,
   useBox,
@@ -8,10 +7,11 @@ import {
   usePlane,
   useConeTwistConstraint,
   usePointToPointConstraint,
+  useSpring,
 } from 'use-cannon'
 import { createRagdoll } from './createConfig'
 
-const config = createRagdoll(5, Math.PI / 16, Math.PI / 16, 0)
+const config = createRagdoll(4.8, Math.PI / 16, Math.PI / 16, 0)
 const context = createContext()
 
 // Component for limbs and body
@@ -39,34 +39,29 @@ const BodyPartConstraint = ({ config, cursor, ...props }) => {
     pivotB: [0, 0, 0],
   })
   useEffect(() => void disable(), [])
-
-  const state = useThree()
-  const onPointerUp = useCallback(e => {
-    console.log(props.name, 'let go')
-    disable()
-  }, [])
+  const onPointerUp = useCallback(e => disable(), [])
   const onPointerDown = useCallback(e => {
-    console.log(props.name, 'picked up')
     e.stopPropagation()
     e.target.setPointerCapture(e.pointerId)
     enable()
   }, [])
-  return <BodyPart ref={child} {...props} onPointerDown={onPointerDown} onPointerUp={onPointerUp} />
+  return (
+    <BodyPart
+      ref={child}
+      {...props}
+      onPointerDown={onPointerDown}
+      onPointerUp={onPointerUp}
+      onPointerLeave={onPointerUp}
+    />
+  )
 }
 
 // Base Ragdoll Component
 const Ragdoll = React.forwardRef(({ ...props }, ref) => {
   const [cursor, api] = useSphere(() => ({ type: 'Static', args: [0.25], position: [0, 0, 10000] }))
   props = { ...props, cursor }
-
-  const vector = new THREE.Vector3()
   useFrame(e => {
-    vector.set(e.mouse.x, e.mouse.y, (e.camera.near + e.camera.far) / (e.camera.near - e.camera.far))
-    vector.unproject(e.camera)
-    //console.log(vector)
-
     api.position.set((e.mouse.x * e.viewport.height) / 25 / 2, (e.mouse.y * e.viewport.width) / 25 / 2, 0)
-    //api.position.set(vector.x, vector.y, vector.z)
   })
   return (
     <BodyPartConstraint ref={ref} name={'upperBody'} {...props}>
@@ -112,39 +107,39 @@ const Box = React.forwardRef(({ color }, ref) => {
 function Chair() {
   const [back] = useBox(() => ({
     type: 'Static',
-    position: [-5 + 0, 1.4, -1.8],
-    scale: [4, 4, 0.5],
-    args: [2, 2, 0.25],
+    position: [-5 + 0, -0.5, -1.25],
+    scale: [3, 3, 0.5],
+    args: [1.5, 1.5, 0.25],
   }))
   const [seat] = useBox(() => ({
     type: 'Static',
-    position: [-5 + 0, -0.8, 0],
-    scale: [4, 0.5, 4],
-    args: [2, 0.25, 2],
+    position: [-5 + 0, -2.25, 0],
+    scale: [3, 0.5, 3],
+    args: [1.5, 0.25, 1.5],
   }))
   const [leg1] = useBox(() => ({
     type: 'Static',
-    position: [-5 + -1.8, -3, 1.8],
-    scale: [0.5, 4, 0.5],
-    args: [0.25, 2, 0.25],
+    position: [-5 + -1.25, -4, 1.25],
+    scale: [0.5, 3, 0.5],
+    args: [0.25, 1.5, 0.25],
   }))
   const [leg2] = useBox(() => ({
     type: 'Static',
-    position: [-5 + 1.8, -3, 1.8],
-    scale: [0.5, 4, 0.5],
-    args: [0.25, 2, 0.25],
+    position: [-5 + 1.25, -4, 1.25],
+    scale: [0.5, 3, 0.5],
+    args: [0.25, 1.5, 0.25],
   }))
   const [leg3] = useBox(() => ({
     type: 'Static',
-    position: [-5 + -1.8, -3, -1.8],
-    scale: [0.5, 4, 0.5],
-    args: [0.25, 2, 0.25],
+    position: [-5 + -1.25, -4, -1.25],
+    scale: [0.5, 3, 0.5],
+    args: [0.25, 1.5, 0.25],
   }))
   const [leg4] = useBox(() => ({
     type: 'Static',
-    position: [-5 + 1.8, -3, -1.8],
-    scale: [0.5, 4, 0.5],
-    args: [0.25, 2, 0.25],
+    position: [-5 + 1.25, -4, -1.25],
+    scale: [0.5, 3, 0.5],
+    args: [0.25, 1.5, 0.25],
   }))
   return (
     <>
@@ -202,23 +197,41 @@ function Table() {
   )
 }
 
+const Lamp = () => {
+  const light = useRef()
+  const [fixed] = useSphere(() => ({ type: 'Static', args: 1, position: [0, 15, 0] }))
+  const [lamp] = useBox(() => ({ mass: 1, args: [1, 0, 5, 1], linearDamping: 0.9, position: [0, 15, 0] }))
+  useSpring(fixed, lamp, { restLength: 0, stiffness: 100, damping: 1 })
+  return (
+    <>
+      <mesh ref={fixed} />
+      <mesh ref={lamp}>
+        <coneBufferGeometry attach="geometry" args={[2, 2.5, 32]} />
+        <meshBasicMaterial attach="material" />
+        <pointLight intensity={10} distance={5} />
+        <spotLight ref={light} position={[15, 15, 15]} angle={0.3} penumbra={1} intensity={0.5} castShadow />
+      </mesh>
+    </>
+  )
+}
+
 export default () => (
   <Canvas
     concurrent
     sRGB
     shadowMap
     orthographic
-    camera={{ position: [-25, 15, 25], zoom: 22, near: 1, far: 100 }}>
+    camera={{ position: [-25, 20, 25], zoom: 25, near: 1, far: 100 }}>
     <color attach="background" args={['#171720']} />
-    <fog attach="fog" args={['#171720', 20, 60]} />
+    <fog attach="fog" args={['#171720', 20, 70]} />
     <ambientLight intensity={0.2} />
     <pointLight position={[-10, -10, -10]} color="red" intensity={1} />
-    <spotLight position={[30, 30, 30]} angle={0.3} penumbra={1} intensity={0.5} castShadow />
-    <Physics gravity={[0, -100, 0]} allowSleep={false}>
+    <Physics iterations={5} gravity={[0, -100, 0]} allowSleep={false}>
       <Ragdoll position={[0, 0, 0]} />
       <Plane position={[0, -5, 0]} rotation={[-Math.PI / 2, 0, 0]} />
       <Chair />
       <Table />
+      <Lamp />
     </Physics>
   </Canvas>
 )
