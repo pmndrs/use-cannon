@@ -208,7 +208,7 @@ export default () => (
     sRGB
     shadowMap
     orthographic
-    camera={{ position: [-15, 15, 25], zoom: 25, near: 1, far: 100 }}>
+    camera={{ position: [-25, 15, 25], zoom: 22, near: 1, far: 100 }}>
     <color attach="background" args={['#171720']} />
     <fog attach="fog" args={['#171720', 20, 60]} />
     <ambientLight intensity={0.2} />
