@@ -134,6 +134,12 @@ function useBody(type: ShapeType, fn: BodyFn, argFn: ArgFn, deps: any[] = []): A
   const { worker, bodies, buffers, refs, events } = useContext(context)
 
   useLayoutEffect(() => {
+    if (!ref.current) {
+      // When the reference isn't used we create a stub
+      // The body doesn't have a visual representation but can still be consrtained
+      ref.current = new THREE.Object3D()
+    }
+
     const object = ref.current
     const currentWorker = worker
     let uuid: string[] = [object.uuid],

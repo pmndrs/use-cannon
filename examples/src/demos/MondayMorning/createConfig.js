@@ -19,13 +19,13 @@ export function createRagdoll(scale, angleA = 0, angleB = 0, twistAngle = 0) {
     color: 'lightblue',
     args: [lowerLegSize * 0.5, lowerLegLength * 0.5, lowerArmSize * 0.5],
     mass: scale,
-    position: [-shouldersDistance / 3, lowerLegLength / 2, 0]
+    position: [-shouldersDistance / 3, lowerLegLength / 2, 0],
   }
   const lowerRightLeg = {
     color: 'lightblue',
     args: [lowerLegSize * 0.5, lowerLegLength * 0.5, lowerArmSize * 0.5],
     mass: scale,
-    position: [shouldersDistance / 3, lowerLegLength / 2, 0]
+    position: [shouldersDistance / 3, lowerLegLength / 2, 0],
   }
 
   // Upper legs
@@ -33,13 +33,13 @@ export function createRagdoll(scale, angleA = 0, angleB = 0, twistAngle = 0) {
     color: 'lightblue',
     args: [upperLegSize * 0.5, upperLegLength * 0.5, lowerArmSize * 0.5],
     mass: scale,
-    position: [-shouldersDistance / 3, lowerLeftLeg.position[1] + lowerLegLength / 2 + upperLegLength / 2, 0]
+    position: [-shouldersDistance / 3, lowerLeftLeg.position[1] + lowerLegLength / 2 + upperLegLength / 2, 0],
   }
   const upperRightLeg = {
     color: 'lightblue',
     args: [upperLegSize * 0.5, upperLegLength * 0.5, lowerArmSize * 0.5],
     mass: scale,
-    position: [shouldersDistance / 3, lowerRightLeg.position[1] + lowerLegLength / 2 + upperLegLength / 2, 0]
+    position: [shouldersDistance / 3, lowerRightLeg.position[1] + lowerLegLength / 2 + upperLegLength / 2, 0],
   }
 
   // Pelvis
@@ -47,15 +47,15 @@ export function createRagdoll(scale, angleA = 0, angleB = 0, twistAngle = 0) {
     color: 'lightblue',
     args: [shouldersDistance * 0.5, pelvisLength * 0.5, lowerArmSize * 0.5],
     mass: scale,
-    position: [0, upperLeftLeg.position[1] + upperLegLength / 2 + pelvisLength / 2, 0]
+    position: [0, upperLeftLeg.position[1] + upperLegLength / 2 + pelvisLength / 2, 0],
   }
 
   // Upper body
   const upperBody = {
     color: 'indianred',
-    args: [shouldersDistance * 0.5, upperBodyLength * 0.5, lowerArmSize * 0.5],
+    args: [shouldersDistance * 0.5, upperBodyLength * 0.5, lowerArmSize * 0.75],
     mass: scale,
-    position: [0, pelvis.position[1] + pelvisLength / 2 + upperBodyLength / 2, 0]
+    position: [0, pelvis.position[1] + pelvisLength / 2 + upperBodyLength / 2, 0],
   }
 
   // Head
@@ -63,7 +63,7 @@ export function createRagdoll(scale, angleA = 0, angleB = 0, twistAngle = 0) {
     color: 'lightpink',
     args: [headRadius * 0.6, headRadius * 0.7, headRadius * 0.6],
     mass: scale,
-    position: [0, upperBody.position[1] + upperBodyLength / 2 + headRadius / 2 + neckLength, 0]
+    position: [0, upperBody.position[1] + upperBodyLength / 2 + headRadius / 2 + neckLength, 0],
   }
 
   // Upper arms
@@ -71,13 +71,13 @@ export function createRagdoll(scale, angleA = 0, angleB = 0, twistAngle = 0) {
     color: 'indianred',
     args: [upperArmLength * 0.5, upperArmSize * 0.5, upperArmSize * 0.5],
     mass: scale,
-    position: [-shouldersDistance / 2 - upperArmLength / 2, upperBody.position[1] + upperBodyLength / 2, 0]
+    position: [-shouldersDistance / 2 - upperArmLength / 2, upperBody.position[1] + upperBodyLength / 2, 0],
   }
   const upperRightArm = {
     color: 'indianred',
     args: [upperArmLength * 0.5, upperArmSize * 0.5, upperArmSize * 0.5],
     mass: scale,
-    position: [shouldersDistance / 2 + upperArmLength / 2, upperBody.position[1] + upperBodyLength / 2, 0]
+    position: [shouldersDistance / 2 + upperArmLength / 2, upperBody.position[1] + upperBodyLength / 2, 0],
   }
 
   // lower arms
@@ -85,13 +85,21 @@ export function createRagdoll(scale, angleA = 0, angleB = 0, twistAngle = 0) {
     color: 'lightpink',
     args: [lowerArmLength * 0.5, lowerArmSize * 0.5, lowerArmSize * 0.5],
     mass: scale,
-    position: [upperLeftArm.position[0] - lowerArmLength / 2 - upperArmLength / 2, upperLeftArm.position[1], 0]
+    position: [
+      upperLeftArm.position[0] - lowerArmLength / 2 - upperArmLength / 2,
+      upperLeftArm.position[1],
+      0,
+    ],
   }
   const lowerRightArm = {
     color: 'lightpink',
     args: [lowerArmLength * 0.5, lowerArmSize * 0.5, lowerArmSize * 0.5],
     mass: scale,
-    position: [upperRightArm.position[0] + lowerArmLength / 2 + upperArmLength / 2, upperRightArm.position[1], 0]
+    position: [
+      upperRightArm.position[0] + lowerArmLength / 2 + upperArmLength / 2,
+      upperRightArm.position[1],
+      0,
+    ],
   }
 
   // joints
@@ -105,7 +113,7 @@ export function createRagdoll(scale, angleA = 0, angleB = 0, twistAngle = 0) {
     axisA: [0, 1, 0],
     axisB: [0, 1, 0],
     angle: angleA,
-    twistAngle: twistAngle
+    twistAngle: twistAngle,
   }
 
   // Knee joints
@@ -117,7 +125,7 @@ export function createRagdoll(scale, angleA = 0, angleB = 0, twistAngle = 0) {
     axisA: [0, 1, 0],
     axisB: [0, 1, 0],
     angle: angleA,
-    twistAngle: twistAngle
+    twistAngle: twistAngle,
   }
   const rightKneeJoint = {
     bodyA: 'lowerRightLeg',
@@ -127,7 +135,7 @@ export function createRagdoll(scale, angleA = 0, angleB = 0, twistAngle = 0) {
     axisA: [0, 1, 0],
     axisB: [0, 1, 0],
     angle: angleA,
-    twistAngle: twistAngle
+    twistAngle: twistAngle,
   }
 
   // Hip joints
@@ -139,7 +147,7 @@ export function createRagdoll(scale, angleA = 0, angleB = 0, twistAngle = 0) {
     axisA: [0, 1, 0],
     axisB: [0, 1, 0],
     angle: angleA,
-    twistAngle: twistAngle
+    twistAngle: twistAngle,
   }
   const rightHipJoint = {
     bodyA: 'upperRightLeg',
@@ -149,7 +157,7 @@ export function createRagdoll(scale, angleA = 0, angleB = 0, twistAngle = 0) {
     axisA: [0, 1, 0],
     axisB: [0, 1, 0],
     angle: angleA,
-    twistAngle: twistAngle
+    twistAngle: twistAngle,
   }
 
   // Spine
@@ -161,7 +169,7 @@ export function createRagdoll(scale, angleA = 0, angleB = 0, twistAngle = 0) {
     axisA: [0, 1, 0],
     axisB: [0, 1, 0],
     angle: angleA,
-    twistAngle: twistAngle
+    twistAngle: twistAngle,
   }
 
   // Shoulders
@@ -172,7 +180,7 @@ export function createRagdoll(scale, angleA = 0, angleB = 0, twistAngle = 0) {
     pivotB: [-shouldersDistance / 2, upperBodyLength / 2, 0],
     axisA: [1, 0, 0],
     axisB: [1, 0, 0],
-    angle: angleB
+    angle: angleB,
   }
   const rightShoulder = {
     bodyA: 'upperBody',
@@ -182,7 +190,7 @@ export function createRagdoll(scale, angleA = 0, angleB = 0, twistAngle = 0) {
     axisA: [1, 0, 0],
     axisB: [1, 0, 0],
     angle: angleB,
-    twistAngle: twistAngle
+    twistAngle: twistAngle,
   }
 
   // Elbow joint
@@ -194,7 +202,7 @@ export function createRagdoll(scale, angleA = 0, angleB = 0, twistAngle = 0) {
     axisA: [1, 0, 0],
     axisB: [1, 0, 0],
     angle: angleA,
-    twistAngle: twistAngle
+    twistAngle: twistAngle,
   }
   const rightElbowJoint = {
     bodyA: 'lowerRightArm',
@@ -204,7 +212,7 @@ export function createRagdoll(scale, angleA = 0, angleB = 0, twistAngle = 0) {
     axisA: [1, 0, 0],
     axisB: [1, 0, 0],
     angle: angleA,
-    twistAngle: twistAngle
+    twistAngle: twistAngle,
   }
 
   return {
@@ -219,7 +227,7 @@ export function createRagdoll(scale, angleA = 0, angleB = 0, twistAngle = 0) {
       upperLeftArm,
       upperRightArm,
       lowerLeftArm,
-      lowerRightArm
+      lowerRightArm,
     },
     joints: {
       neckJoint,
@@ -231,7 +239,7 @@ export function createRagdoll(scale, angleA = 0, angleB = 0, twistAngle = 0) {
       leftShoulder,
       rightShoulder,
       leftElbowJoint,
-      rightElbowJoint
-    }
+      rightElbowJoint,
+    },
   }
 }
