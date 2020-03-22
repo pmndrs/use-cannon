@@ -21,25 +21,9 @@ import {
 } from 'use-cannon'
 import { createRagdoll } from './createConfig'
 
-const config = createRagdoll(4.8, Math.PI / 16, Math.PI / 16, 0)
+const { shapes, joints } = createRagdoll(4.8, Math.PI / 16, Math.PI / 16, 0)
 const context = createContext()
 const cursor = createRef()
-
-const BodyPart = React.forwardRef(({ children, render, type, name, ...props }, ref) => {
-  const { color, args, mass, position } = config.shapes[name]
-  const [thisbody] = useBox(() => ({ ref, type, mass, args, position, linearDamping: 0.9 }))
-  const sizes = useMemo(() => args.map(s => s * 2), [args])
-  return (
-    <context.Provider value={thisbody}>
-      <mesh castShadow receiveShadow ref={thisbody} {...props} name={name}>
-        <boxBufferGeometry attach="geometry" args={sizes} />
-        <meshStandardMaterial attach="material" color={color} />
-        {render}
-      </mesh>
-      {children}
-    </context.Provider>
-  )
-})
 
 function useDragConstraint(child) {
   const [, , api] = usePointToPointConstraint(cursor, child, { pivotA: [0, 0, 0], pivotB: [0, 0, 0] })
@@ -53,14 +37,23 @@ function useDragConstraint(child) {
   return { onPointerUp, onPointerDown }
 }
 
-const BodyPartConstraint = ({ config, ...props }) => {
+const BodyPart = ({ config, children, render, name, ...props }) => {
+  const { color, args, mass, position } = shapes[name]
+  const scale = useMemo(() => args.map(s => s * 2), [args])
   const parent = useContext(context)
-  const [child] = useConeTwistConstraint(null, parent, config)
-  const bind = useDragConstraint(child)
-  return <BodyPart ref={child} {...props} {...bind} />
+  const [ref] = useBox(() => ({ mass, args, scale, position, linearDamping: 0.9 }))
+  useConeTwistConstraint(ref, parent, config)
+  const bind = useDragConstraint(ref)
+  return (
+    <context.Provider value={ref}>
+      <Box castShadow receiveShadow ref={ref} {...props} {...bind} name={name} color={color}>
+        {render}
+      </Box>
+      {children}
+    </context.Provider>
+  )
 }
 
-// Base Ragdoll Component
 function Ragdoll(props) {
   const mouth = useRef()
   const eyes = useRef()
@@ -73,23 +66,23 @@ function Ragdoll(props) {
     api.position.set(x / 1.4, y, 0)
   })
   return (
-    <BodyPartConstraint name={'upperBody'} {...props}>
-      <BodyPartConstraint
+    <BodyPart name={'upperBody'} {...props}>
+      <BodyPart
         {...props}
         name={'head'}
-        config={config.joints['neckJoint']}
+        config={joints['neckJoint']}
         render={
           <>
             <group ref={eyes}>
               <Box
-                position={[-0.35, 0.2, 0.55]}
+                position={[-0.3, 0.18, 0.5]}
                 args={[0.3, 0.01, 0.1]}
                 color="black"
                 transparent
                 opacity={0.8}
               />
               <Box
-                position={[0.35, 0.2, 0.55]}
+                position={[0.3, 0.18, 0.5]}
                 args={[0.3, 0.01, 0.1]}
                 color="black"
                 transparent
@@ -98,7 +91,7 @@ function Ragdoll(props) {
             </group>
             <Box
               ref={mouth}
-              position={[0, -0.4, 0.55]}
+              position={[0, -0.2, 0.5]}
               args={[0.3, 0.05, 0.1]}
               color="#270000"
               transparent
@@ -107,21 +100,21 @@ function Ragdoll(props) {
           </>
         }
       />
-      <BodyPartConstraint {...props} name={'upperLeftArm'} config={config.joints['leftShoulder']}>
-        <BodyPartConstraint {...props} name={'lowerLeftArm'} config={config.joints['leftElbowJoint']} />
-      </BodyPartConstraint>
-      <BodyPartConstraint {...props} name={'upperRightArm'} config={config.joints['rightShoulder']}>
-        <BodyPartConstraint {...props} name={'lowerRightArm'} config={config.joints['rightElbowJoint']} />
-      </BodyPartConstraint>
-      <BodyPartConstraint {...props} name={'pelvis'} config={config.joints['spineJoint']}>
-        <BodyPartConstraint {...props} name={'upperLeftLeg'} config={config.joints['leftHipJoint']}>
-          <BodyPartConstraint {...props} name={'lowerLeftLeg'} config={config.joints['leftKneeJoint']} />
-        </BodyPartConstraint>
-        <BodyPartConstraint {...props} name={'upperRightLeg'} config={config.joints['rightHipJoint']}>
-          <BodyPartConstraint {...props} name={'lowerRightLeg'} config={config.joints['rightKneeJoint']} />
-        </BodyPartConstraint>
-      </BodyPartConstraint>
-    </BodyPartConstraint>
+      <BodyPart {...props} name={'upperLeftArm'} config={joints['leftShoulder']}>
+        <BodyPart {...props} name={'lowerLeftArm'} config={joints['leftElbowJoint']} />
+      </BodyPart>
+      <BodyPart {...props} name={'upperRightArm'} config={joints['rightShoulder']}>
+        <BodyPart {...props} name={'lowerRightArm'} config={joints['rightElbowJoint']} />
+      </BodyPart>
+      <BodyPart {...props} name={'pelvis'} config={joints['spineJoint']}>
+        <BodyPart {...props} name={'upperLeftLeg'} config={joints['leftHipJoint']}>
+          <BodyPart {...props} name={'lowerLeftLeg'} config={joints['leftKneeJoint']} />
+        </BodyPart>
+        <BodyPart {...props} name={'upperRightLeg'} config={joints['rightHipJoint']}>
+          <BodyPart {...props} name={'lowerRightLeg'} config={joints['rightKneeJoint']} />
+        </BodyPart>
+      </BodyPart>
+    </BodyPart>
   )
 }
 
@@ -136,11 +129,12 @@ function Plane(props) {
 }
 
 const Box = React.forwardRef(
-  ({ transparent = false, opacity = 1, color = 'white', args = [1, 1, 1], ...props }, ref) => {
+  ({ children, transparent = false, opacity = 1, color = 'white', args = [1, 1, 1], ...props }, ref) => {
     return (
       <mesh receiveShadow castShadow ref={ref} {...props}>
         <boxBufferGeometry attach="geometry" args={args} />
         <meshStandardMaterial attach="material" color={color} transparent={transparent} opacity={opacity} />
+        {children}
       </mesh>
     )
   }
@@ -284,7 +278,6 @@ const Lamp = () => {
   const bind = useDragConstraint(lamp)
   return (
     <>
-
       <mesh ref={lamp} {...bind}>
         <coneBufferGeometry attach="geometry" args={[2, 2.5, 32]} />
         <meshStandardMaterial attach="material" />

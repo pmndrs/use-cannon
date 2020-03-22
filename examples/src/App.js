@@ -23,7 +23,7 @@ const Page = styled(PageImpl)`
   }
 `
 
-const defaultComponent = 'Pingpong'
+const defaultComponent = 'MondayMorning'
 const visibleComponents = Object.entries(demos)
   //.filter(([name, item]) => !item.dev)
   .reduce((acc, [name, item]) => ({ ...acc, [name]: item }), {})
