@@ -41,7 +41,7 @@ const BodyPart = ({ config, children, render, name, ...props }) => {
   const { color, args, mass, position } = shapes[name]
   const scale = useMemo(() => args.map(s => s * 2), [args])
   const parent = useContext(context)
-  const [ref] = useBox(() => ({ mass, args, scale, position, linearDamping: 0.9 }))
+  const [ref] = useBox(() => ({ mass, args, scale, position, linearDamping: 0.99 }))
   useConeTwistConstraint(ref, parent, config)
   const bind = useDragConstraint(ref)
   return (
@@ -59,8 +59,8 @@ function Ragdoll(props) {
   const eyes = useRef()
   const [, api] = useSphere(() => ({ ref: cursor, type: 'Static', args: [0.25], position: [0, 0, 10000] }))
   useFrame(e => {
-    eyes.current.position.y = Math.sin(e.clock.getElapsedTime() * 2) * 0.1
-    mouth.current.scale.y = Math.sin(e.clock.getElapsedTime()) * 6
+    eyes.current.position.y = Math.sin(e.clock.getElapsedTime() * 1) * 0.06
+    mouth.current.scale.y = (1 + Math.sin(e.clock.getElapsedTime())) * 1.5
     const x = (e.mouse.x * e.viewport.width) / e.camera.zoom
     const y = (e.mouse.y * e.viewport.height) / e.camera.zoom / 1.9 + -x / 3.5
     api.position.set(x / 1.4, y, 0)
@@ -75,14 +75,14 @@ function Ragdoll(props) {
           <>
             <group ref={eyes}>
               <Box
-                position={[-0.3, 0.18, 0.5]}
+                position={[-0.3, 0.1, 0.5]}
                 args={[0.3, 0.01, 0.1]}
                 color="black"
                 transparent
                 opacity={0.8}
               />
               <Box
-                position={[0.3, 0.18, 0.5]}
+                position={[0.3, 0.1, 0.5]}
                 args={[0.3, 0.01, 0.1]}
                 color="black"
                 transparent
