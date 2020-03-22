@@ -47,7 +47,7 @@ const [ref, api] = useBox(() => ({ mass: 1 }))
 5. You can interact with it by using the api, which lets you apply positions and rotations.
 
 ```jsx
-useFrame(({ clock }) => api.setPosition(Math.sin(clock.getElapsedTime()) * 5, 0, 0))
+useFrame(({ clock }) => api.position.set(Math.sin(clock.getElapsedTime()) * 5, 0, 0))
 ```
 
 ## Simple example
