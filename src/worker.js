@@ -19,6 +19,7 @@ import {
   LockConstraint,
   Constraint,
   Spring,
+  Material,
   Quaternion,
 } from 'cannon-es'
 
@@ -116,12 +117,18 @@ self.onmessage = (e) => {
           scale = [1, 1, 1],
           type: bodyType,
           mass,
+          material,
           shapes,
           onCollide,
           ...extra
         } = props[i]
 
-        const body = new Body({ ...extra, mass: bodyType === 'Static' ? 0 : mass, type: TYPES[bodyType] })
+        const body = new Body({
+          ...extra,
+          mass: bodyType === 'Static' ? 0 : mass,
+          type: TYPES[bodyType],
+          material: material ? new Material(material) : undefined,
+        })
         body.uuid = uuid[i]
 
         if (type === 'Compound') {

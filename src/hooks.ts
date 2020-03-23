@@ -1,3 +1,4 @@
+import type { MaterialOptions } from 'cannon-es'
 import * as THREE from 'three'
 import React, { useLayoutEffect, useContext, useRef, useMemo, useEffect, useState } from 'react'
 import { useFrame } from 'react-three-fiber'
@@ -6,6 +7,7 @@ import { context, Event } from './index'
 
 type AtomicProps = {
   mass?: number
+  material?: MaterialOptions
   linearDamping?: number
   angularDamping?: number
   allowSleep?: boolean
