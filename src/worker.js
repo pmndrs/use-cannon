@@ -33,11 +33,49 @@ const TYPES = {
 }
 
 function syncBodies() {
-  self.postMessage({ op: 'sync', bodies: world.bodies.map(body => body.uuid) })
+  self.postMessage({ op: 'sync', bodies: world.bodies.map((body) => body.uuid) })
   bodies = world.bodies.reduce((acc, body) => ({ ...acc, [body.uuid]: body }), {})
 }
 
-self.onmessage = e => {
+function createShape(type, args) {
+  let shape
+
+  switch (type) {
+    case 'Box':
+      shape = new Box(new Vec3(...args)) // halfExtents
+      break
+    case 'ConvexPolyhedron':
+      const [v, f, n] = args
+      shape = new ConvexPolyhedron({
+        vertices: v.map(([x, y, z]) => new Vec3(x, y, z)),
+        normals: n ? n.map(([x, y, z]) => new Vec3(x, y, z)) : null,
+        faces: f,
+      })
+      break
+    case 'Cylinder':
+      shape = new Cylinder(...args) // [ radiusTop, radiusBottom, height, numSegments ] = args
+      break
+    case 'Heightfield':
+      shape = new Heightfield(...args) // [ Array data, options: {minValue, maxValue, elementSize}  ] = args
+      break
+    case 'Particle':
+      shape = new Particle() // no args
+      break
+    case 'Plane':
+      shape = new Plane() // no args, infinite x and y
+      break
+    case 'Sphere':
+      shape = new Sphere(...args) // [radius] = args
+      break
+    case 'Trimesh':
+      shape = new Trimesh(...args) // [vertices, indices] = args
+      break
+  }
+
+  return shape
+}
+
+self.onmessage = (e) => {
   const { op, uuid, type, positions, quaternions, props } = e.data
 
   switch (op) {
@@ -96,38 +134,8 @@ self.onmessage = e => {
         const body = new Body({ ...extra, mass: bodyType === 'Static' ? 0 : mass, type: TYPES[bodyType] })
         body.uuid = uuid[i]
 
-        switch (type) {
-          case 'Box':
-            body.addShape(new Box(new Vec3(...args))) // halfExtents
-            break
-          case 'ConvexPolyhedron':
-            const [v, f, n] = args
-            const shape = new ConvexPolyhedron({
-              vertices: v.map(([x, y, z]) => new Vec3(x, y, z)),
-              normals: n ? n.map(([x, y, z]) => new Vec3(x, y, z)) : null,
-              faces: f,
-            })
-            body.addShape(shape)
-            break
-          case 'Cylinder':
-            body.addShape(new Cylinder(...args)) // [ radiusTop, radiusBottom, height, numSegments ] = args
-            break
-          case 'Heightfield':
-            body.addShape(new Heightfield(...args)) // [ Array data, options: {minValue, maxValue, elementSize}  ] = args
-            break
-          case 'Particle':
-            body.addShape(new Particle()) // no args
-            break
-          case 'Plane':
-            body.addShape(new Plane()) // no args, infinite x and y
-            break
-          case 'Sphere':
-            body.addShape(new Sphere(...args)) // [radius] = args
-            break
-          case 'Trimesh':
-            body.addShape(new Trimesh(...args)) // [vertices, indices] = args
-            break
-        }
+        const shape = createShape(type, args)
+        body.addShape(shape)
 
         body.position.set(position[0], position[1], position[2])
         body.quaternion.setFromEuler(rotation[0], rotation[1], rotation[2])
@@ -278,11 +286,11 @@ self.onmessage = e => {
       break
 
     case 'enableConstraint':
-      world.constraints.filter(({ uuid: thisId }) => thisId === uuid).map(c => c.enable())
+      world.constraints.filter(({ uuid: thisId }) => thisId === uuid).map((c) => c.enable())
       break
 
     case 'disableConstraint':
-      world.constraints.filter(({ uuid: thisId }) => thisId === uuid).map(c => c.disable())
+      world.constraints.filter(({ uuid: thisId }) => thisId === uuid).map((c) => c.disable())
       break
 
     case 'addSpring': {
@@ -306,7 +314,7 @@ self.onmessage = e => {
 
       spring.uuid = uuid
 
-      let postStepSpring = e => spring.applyForce()
+      let postStepSpring = (e) => spring.applyForce()
 
       springs[uuid] = postStepSpring
 
