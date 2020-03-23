@@ -54,7 +54,7 @@ type HeightfieldProps = BodyProps & {
 type ConvexPolyhedronProps = BodyProps & {
   args?: THREE.Geometry | [(THREE.Vector3 | number[])[], (THREE.Face3 | number[])[]]
 }
-type CompoundShapeProps = BodyProps & {
+type CompoundBodyProps = BodyProps & {
   shapes: { type: ShapeType; args?: any; position?: number[]; rotation?: number[] }[]
 }
 
@@ -67,7 +67,7 @@ type ParticleFn = (index: number) => ParticleProps
 type SphereFn = (index: number) => SphereProps
 type TrimeshFn = (index: number) => TrimeshProps
 type ConvexPolyhedronFn = (index: number) => ConvexPolyhedronProps
-type CompoundShapeFn = (index: number) => CompoundShapeProps
+type CompoundBodyFn = (index: number) => CompoundBodyProps
 type ArgFn = (props: any) => any[]
 
 type WorkerVec = {
@@ -321,7 +321,7 @@ export function useConvexPolyhedron(fn: ConvexPolyhedronFn, deps: any[] = []) {
     deps
   )
 }
-export function useCompoundBody(fn: CompoundShapeFn, deps: any[] = []) {
+export function useCompoundBody(fn: CompoundBodyFn, deps: any[] = []) {
   return useBody('Compound', fn, (args) => args, deps)
 }
 
