@@ -12,5 +12,15 @@ const Pingpong = { descr: '', tags: [], Component: lazy(() => import('./Pingpong
 const MondayMorning = { descr: '', tags: [], Component: lazy(() => import('./MondayMorning')), bright: false }
 const Constraints = { descr: '', tags: [], Component: lazy(() => import('./Constraints')), bright: false }
 const Chain = { descr: '', tags: [], Component: lazy(() => import('./Chain')), bright: false }
+const CompoundBody = { descr: '', tags: [], Component: lazy(() => import('./CompoundBody')), bright: false }
 
-export { MondayMorning, Pingpong, KinematicCube, CubeHeap, ConvexPolyhedron, Chain, Constraints }
+export {
+  MondayMorning,
+  Pingpong,
+  KinematicCube,
+  CubeHeap,
+  ConvexPolyhedron,
+  Chain,
+  Constraints,
+  CompoundBody,
+}

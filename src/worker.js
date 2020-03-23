@@ -19,6 +19,7 @@ import {
   LockConstraint,
   Constraint,
   Spring,
+  Quaternion,
 } from 'cannon-es'
 
 let bodies = {}
@@ -32,12 +33,38 @@ const TYPES = {
   Kinematic: Body.KINEMATIC,
 }
 
+function createShape(type, args) {
+  switch (type) {
+    case 'Box':
+      return new Box(new Vec3(...args)) // halfExtents
+    case 'ConvexPolyhedron':
+      const [v, f, n] = args
+      return new ConvexPolyhedron({
+        vertices: v.map(([x, y, z]) => new Vec3(x, y, z)),
+        normals: n ? n.map(([x, y, z]) => new Vec3(x, y, z)) : null,
+        faces: f,
+      })
+    case 'Cylinder':
+      return new Cylinder(...args) // [ radiusTop, radiusBottom, height, numSegments ] = args
+    case 'Heightfield':
+      return new Heightfield(...args) // [ Array data, options: {minValue, maxValue, elementSize}  ] = args
+    case 'Particle':
+      return new Particle() // no args
+    case 'Plane':
+      return new Plane() // no args, infinite x and y
+    case 'Sphere':
+      return new Sphere(...args) // [radius] = args
+    case 'Trimesh':
+      return new Trimesh(...args) // [vertices, indices] = args
+  }
+}
+
 function syncBodies() {
-  self.postMessage({ op: 'sync', bodies: world.bodies.map(body => body.uuid) })
+  self.postMessage({ op: 'sync', bodies: world.bodies.map((body) => body.uuid) })
   bodies = world.bodies.reduce((acc, body) => ({ ...acc, [body.uuid]: body }), {})
 }
 
-self.onmessage = e => {
+self.onmessage = (e) => {
   const { op, uuid, type, positions, quaternions, props } = e.data
 
   switch (op) {
@@ -89,6 +116,7 @@ self.onmessage = e => {
           scale = [1, 1, 1],
           type: bodyType,
           mass,
+          shapes,
           onCollide,
           ...extra
         } = props[i]
@@ -96,37 +124,12 @@ self.onmessage = e => {
         const body = new Body({ ...extra, mass: bodyType === 'Static' ? 0 : mass, type: TYPES[bodyType] })
         body.uuid = uuid[i]
 
-        switch (type) {
-          case 'Box':
-            body.addShape(new Box(new Vec3(...args))) // halfExtents
-            break
-          case 'ConvexPolyhedron':
-            const [v, f, n] = args
-            const shape = new ConvexPolyhedron({
-              vertices: v.map(([x, y, z]) => new Vec3(x, y, z)),
-              normals: n ? n.map(([x, y, z]) => new Vec3(x, y, z)) : null,
-              faces: f,
-            })
-            body.addShape(shape)
-            break
-          case 'Cylinder':
-            body.addShape(new Cylinder(...args)) // [ radiusTop, radiusBottom, height, numSegments ] = args
-            break
-          case 'Heightfield':
-            body.addShape(new Heightfield(...args)) // [ Array data, options: {minValue, maxValue, elementSize}  ] = args
-            break
-          case 'Particle':
-            body.addShape(new Particle()) // no args
-            break
-          case 'Plane':
-            body.addShape(new Plane()) // no args, infinite x and y
-            break
-          case 'Sphere':
-            body.addShape(new Sphere(...args)) // [radius] = args
-            break
-          case 'Trimesh':
-            body.addShape(new Trimesh(...args)) // [vertices, indices] = args
-            break
+        if (type === 'Compound') {
+          shapes.forEach(({ type, args, position, rotation }) =>
+            body.addShape(createShape(type, args), new Vec3(...position), new Quaternion(...rotation))
+          )
+        } else {
+          body.addShape(createShape(type, args))
         }
 
         body.position.set(position[0], position[1], position[2])
@@ -278,11 +281,11 @@ self.onmessage = e => {
       break
 
     case 'enableConstraint':
-      world.constraints.filter(({ uuid: thisId }) => thisId === uuid).map(c => c.enable())
+      world.constraints.filter(({ uuid: thisId }) => thisId === uuid).map((c) => c.enable())
       break
 
     case 'disableConstraint':
-      world.constraints.filter(({ uuid: thisId }) => thisId === uuid).map(c => c.disable())
+      world.constraints.filter(({ uuid: thisId }) => thisId === uuid).map((c) => c.disable())
       break
 
     case 'addSpring': {
@@ -306,7 +309,7 @@ self.onmessage = e => {
 
       spring.uuid = uuid
 
-      let postStepSpring = e => spring.applyForce()
+      let postStepSpring = (e) => spring.applyForce()
 
       springs[uuid] = postStepSpring
 
