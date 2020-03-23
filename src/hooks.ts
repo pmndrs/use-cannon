@@ -73,6 +73,7 @@ type WorkerApi = AtomicProps & {
   rotation: WorkerVec
   velocity: WorkerVec
   angularVelocity: WorkerVec
+  addShapes: (shapes: { type: ShapeType; position: number[]; rotation?: number[]; args?: any[] }[]) => void
   applyForce: (force: number[], worldPoint: number[]) => void
   applyImpulse: (impulse: number[], worldPoint: number[]) => void
   applyLocalForce: (force: number[], localPoint: number[]) => void
@@ -239,6 +240,10 @@ function useBody(type: ShapeType, fn: BodyFn, argFn: ArgFn, deps: any[] = []): A
         set fixedRotation(value: boolean) {
           post('setFixedRotation', index, value)
         },
+        // Shape functions
+        addShapes(shapes: { type: ShapeType; position: number[]; rotation?: number[]; args?: any[] }[]) {
+          post('addShapes', index, shapes)
+        },
         // Apply functions
         applyForce(force: number[], worldPoint: number[]) {
           post('applyForce', index, [force, worldPoint])
@@ -268,25 +273,25 @@ export function usePlane(fn: PlaneFn, deps: any[] = []) {
   return useBody('Plane', fn, () => [], deps)
 }
 export function useBox(fn: BoxFn, deps: any[] = []) {
-  return useBody('Box', fn, args => args || [0.5, 0.5, 0.5], deps)
+  return useBody('Box', fn, (args) => args || [0.5, 0.5, 0.5], deps)
 }
 export function useCylinder(fn: CylinderFn, deps: any[] = []) {
-  return useBody('Cylinder', fn, args => args, deps)
+  return useBody('Cylinder', fn, (args) => args, deps)
 }
 export function useHeightfield(fn: HeightfieldFn, deps: any[] = []) {
-  return useBody('Heightfield', fn, args => args, deps)
+  return useBody('Heightfield', fn, (args) => args, deps)
 }
 export function useParticle(fn: ParticleFn, deps: any[] = []) {
   return useBody('Particle', fn, () => [], deps)
 }
 export function useSphere(fn: SphereFn, deps: any[] = []) {
-  return useBody('Sphere', fn, radius => [radius ?? 1], deps)
+  return useBody('Sphere', fn, (radius) => [radius ?? 1], deps)
 }
 export function useTrimesh(fn: TrimeshFn, deps: any[] = []) {
   return useBody(
     'Trimesh',
     fn,
-    args => {
+    (args) => {
       const vertices = args instanceof THREE.Geometry ? args.vertices : args[0]
       const indices = args instanceof THREE.Geometry ? args.faces : args[1]
       return [
@@ -301,10 +306,10 @@ export function useConvexPolyhedron(fn: ConvexPolyhedronFn, deps: any[] = []) {
   return useBody(
     'ConvexPolyhedron',
     fn,
-    args => {
+    (args) => {
       const vertices = args instanceof THREE.Geometry ? args.vertices : args[0]
       const faces = args instanceof THREE.Geometry ? args.faces : args[1]
-      const normals = args instanceof THREE.Geometry ? args.faces.map(f => f.normal) : args[2]
+      const normals = args instanceof THREE.Geometry ? args.faces.map((f) => f.normal) : args[2]
       return [
         vertices.map((v: any) => (v instanceof THREE.Vector3 ? [v.x, v.y, v.z] : v)),
         faces.map((f: any) => (f instanceof THREE.Face3 ? [f.a, f.b, f.c] : f)),

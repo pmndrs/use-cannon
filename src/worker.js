@@ -19,6 +19,7 @@ import {
   LockConstraint,
   Constraint,
   Spring,
+  Quaternion,
 } from 'cannon-es'
 
 let bodies = {}
@@ -213,6 +214,15 @@ self.onmessage = (e) => {
       break
     case 'setFixedRotation':
       bodies[uuid].fixedRotation = props
+      break
+    case 'addShapes':
+      props.forEach(({ type, position, rotation, args }) =>
+        bodies[uuid].addShape(
+          createShape(type, args),
+          new Vec3(...position),
+          rotation ? new Quaternion(...rotation) : undefined
+        )
+      )
       break
     case 'applyForce':
       bodies[uuid].applyForce(new Vec3(...props[0]), new Vec3(...props[1]))
