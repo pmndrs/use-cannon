@@ -133,7 +133,11 @@ self.onmessage = (e) => {
 
         if (type === 'Compound') {
           shapes.forEach(({ type, args, position, rotation }) =>
-            body.addShape(createShape(type, args), new Vec3(...position), new Quaternion(...rotation))
+            body.addShape(
+              createShape(type, args),
+              position ? new Vec3(...position) : undefined,
+              rotation ? new Quaternion(...rotation) : undefined
+            )
           )
         } else {
           body.addShape(createShape(type, args))

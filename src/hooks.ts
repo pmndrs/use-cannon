@@ -322,7 +322,7 @@ export function useConvexPolyhedron(fn: ConvexPolyhedronFn, deps: any[] = []) {
   )
 }
 export function useCompoundBody(fn: CompoundBodyFn, deps: any[] = []) {
-  return useBody('Compound', fn, (args) => args, deps)
+  return useBody('Compound', fn, (args) => args || [], deps)
 }
 
 type ConstraintApi = [
