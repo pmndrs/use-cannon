@@ -217,6 +217,7 @@ type ProviderProps = {
 
 type AtomicProps = {
   mass?: number
+  material?: { friction?: number; restitution?: number }
   linearDamping?: number
   angularDamping?: number
   allowSleep?: boolean

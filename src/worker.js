@@ -19,6 +19,7 @@ import {
   LockConstraint,
   Constraint,
   Spring,
+  Material,
 } from 'cannon-es'
 
 let bodies = {}
@@ -33,11 +34,11 @@ const TYPES = {
 }
 
 function syncBodies() {
-  self.postMessage({ op: 'sync', bodies: world.bodies.map(body => body.uuid) })
+  self.postMessage({ op: 'sync', bodies: world.bodies.map((body) => body.uuid) })
   bodies = world.bodies.reduce((acc, body) => ({ ...acc, [body.uuid]: body }), {})
 }
 
-self.onmessage = e => {
+self.onmessage = (e) => {
   const { op, uuid, type, positions, quaternions, props } = e.data
 
   switch (op) {
@@ -89,11 +90,17 @@ self.onmessage = e => {
           scale = [1, 1, 1],
           type: bodyType,
           mass,
+          material,
           onCollide,
           ...extra
         } = props[i]
 
-        const body = new Body({ ...extra, mass: bodyType === 'Static' ? 0 : mass, type: TYPES[bodyType] })
+        const body = new Body({
+          ...extra,
+          mass: bodyType === 'Static' ? 0 : mass,
+          type: TYPES[bodyType],
+          material: material ? new Material(material) : undefined,
+        })
         body.uuid = uuid[i]
 
         switch (type) {
@@ -278,11 +285,11 @@ self.onmessage = e => {
       break
 
     case 'enableConstraint':
-      world.constraints.filter(({ uuid: thisId }) => thisId === uuid).map(c => c.enable())
+      world.constraints.filter(({ uuid: thisId }) => thisId === uuid).map((c) => c.enable())
       break
 
     case 'disableConstraint':
-      world.constraints.filter(({ uuid: thisId }) => thisId === uuid).map(c => c.disable())
+      world.constraints.filter(({ uuid: thisId }) => thisId === uuid).map((c) => c.disable())
       break
 
     case 'addSpring': {
@@ -306,7 +313,7 @@ self.onmessage = e => {
 
       spring.uuid = uuid
 
-      let postStepSpring = e => spring.applyForce()
+      let postStepSpring = (e) => spring.applyForce()
 
       springs[uuid] = postStepSpring
 
