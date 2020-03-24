@@ -39,6 +39,7 @@ type ShapeType =
   | 'Sphere'
   | 'Trimesh'
   | 'ConvexPolyhedron'
+type BodyShapeType = ShapeType | 'Compound'
 type PlaneProps = BodyProps & {}
 type BoxProps = BodyProps & { args?: number[] }
 type CylinderProps = BodyProps & { args?: [number, number, number, number] }
@@ -53,6 +54,9 @@ type HeightfieldProps = BodyProps & {
 type ConvexPolyhedronProps = BodyProps & {
   args?: THREE.Geometry | [(THREE.Vector3 | number[])[], (THREE.Face3 | number[])[]]
 }
+type CompoundBodyProps = BodyProps & {
+  shapes: { type: ShapeType; args?: any; position?: number[]; rotation?: number[] }[]
+}
 
 type BodyFn = (index: number) => BodyProps
 type PlaneFn = (index: number) => PlaneProps
@@ -63,6 +67,7 @@ type ParticleFn = (index: number) => ParticleProps
 type SphereFn = (index: number) => SphereProps
 type TrimeshFn = (index: number) => TrimeshProps
 type ConvexPolyhedronFn = (index: number) => ConvexPolyhedronProps
+type CompoundBodyFn = (index: number) => CompoundBodyProps
 type ArgFn = (props: any) => any[]
 
 type WorkerVec = {
@@ -129,7 +134,7 @@ function apply(object: THREE.Object3D, index: number, buffers: Buffers) {
   }
 }
 
-function useBody(type: ShapeType, fn: BodyFn, argFn: ArgFn, deps: any[] = []): Api {
+function useBody(type: BodyShapeType, fn: BodyFn, argFn: ArgFn, deps: any[] = []): Api {
   const { ref: fwdRef } = fn(0)
   const localRef = useRef<THREE.Object3D>((null as unknown) as THREE.Object3D)
   const ref = fwdRef ? fwdRef : localRef
@@ -315,6 +320,9 @@ export function useConvexPolyhedron(fn: ConvexPolyhedronFn, deps: any[] = []) {
     },
     deps
   )
+}
+export function useCompoundBody(fn: CompoundBodyFn, deps: any[] = []) {
+  return useBody('Compound', fn, (args) => args || [], deps)
 }
 
 type ConstraintApi = [

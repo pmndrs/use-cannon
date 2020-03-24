@@ -117,6 +117,7 @@ function useParticle(fn: ParticleFn, deps?: any[]): Api
 function useSphere(fn: SphereFn, deps?: any[]): Api
 function useTrimesh(fn: TrimeshFn, deps?: any[]): Api
 function useConvexPolyhedron(fn: ConvexPolyhedronFn, deps?: any[]): Api
+function useCompoundBody(fn: CompoundBodyFn, deps?: any[]): Api
 
 function usePointToPointConstraint(
   bodyA: React.MutableRefObject<THREE.Object3D>,
@@ -289,6 +290,14 @@ type HeightfieldProps = BodyProps & {
     }
   ]
 }
+type CompoundBodyProps = BodyProps & {
+  shapes: {
+    type: ShapeType
+    args?: any
+    position?: number[]
+    rotation?: number[]
+  }[]
+}
 
 type PlaneFn = (index: number) => PlaneProps
 type BoxFn = (index: number) => BoxProps
@@ -298,6 +307,7 @@ type ParticleFn = (index: number) => ParticleProps
 type SphereFn = (index: number) => SphereProps
 type TrimeshFn = (index: number) => TrimeshProps
 type ConvexPolyhedronFn = (index: number) => ConvexPolyhedronProps
+type CompoundBodyFn = (index: number) => CompoundBodyProps
 ```
 
 ### FAQ

@@ -20,6 +20,7 @@ import {
   Constraint,
   Spring,
   Material,
+  Quaternion,
 } from 'cannon-es'
 
 let bodies = {}
@@ -31,6 +32,32 @@ const TYPES = {
   Dynamic: Body.DYNAMIC,
   Static: Body.STATIC,
   Kinematic: Body.KINEMATIC,
+}
+
+function createShape(type, args) {
+  switch (type) {
+    case 'Box':
+      return new Box(new Vec3(...args)) // halfExtents
+    case 'ConvexPolyhedron':
+      const [v, f, n] = args
+      return new ConvexPolyhedron({
+        vertices: v.map(([x, y, z]) => new Vec3(x, y, z)),
+        normals: n ? n.map(([x, y, z]) => new Vec3(x, y, z)) : null,
+        faces: f,
+      })
+    case 'Cylinder':
+      return new Cylinder(...args) // [ radiusTop, radiusBottom, height, numSegments ] = args
+    case 'Heightfield':
+      return new Heightfield(...args) // [ Array data, options: {minValue, maxValue, elementSize}  ] = args
+    case 'Particle':
+      return new Particle() // no args
+    case 'Plane':
+      return new Plane() // no args, infinite x and y
+    case 'Sphere':
+      return new Sphere(...args) // [radius] = args
+    case 'Trimesh':
+      return new Trimesh(...args) // [vertices, indices] = args
+  }
 }
 
 function syncBodies() {
@@ -91,6 +118,7 @@ self.onmessage = (e) => {
           type: bodyType,
           mass,
           material,
+          shapes,
           onCollide,
           ...extra
         } = props[i]
@@ -103,37 +131,16 @@ self.onmessage = (e) => {
         })
         body.uuid = uuid[i]
 
-        switch (type) {
-          case 'Box':
-            body.addShape(new Box(new Vec3(...args))) // halfExtents
-            break
-          case 'ConvexPolyhedron':
-            const [v, f, n] = args
-            const shape = new ConvexPolyhedron({
-              vertices: v.map(([x, y, z]) => new Vec3(x, y, z)),
-              normals: n ? n.map(([x, y, z]) => new Vec3(x, y, z)) : null,
-              faces: f,
-            })
-            body.addShape(shape)
-            break
-          case 'Cylinder':
-            body.addShape(new Cylinder(...args)) // [ radiusTop, radiusBottom, height, numSegments ] = args
-            break
-          case 'Heightfield':
-            body.addShape(new Heightfield(...args)) // [ Array data, options: {minValue, maxValue, elementSize}  ] = args
-            break
-          case 'Particle':
-            body.addShape(new Particle()) // no args
-            break
-          case 'Plane':
-            body.addShape(new Plane()) // no args, infinite x and y
-            break
-          case 'Sphere':
-            body.addShape(new Sphere(...args)) // [radius] = args
-            break
-          case 'Trimesh':
-            body.addShape(new Trimesh(...args)) // [vertices, indices] = args
-            break
+        if (type === 'Compound') {
+          shapes.forEach(({ type, args, position, rotation }) =>
+            body.addShape(
+              createShape(type, args),
+              position ? new Vec3(...position) : undefined,
+              rotation ? new Quaternion(...rotation) : undefined
+            )
+          )
+        } else {
+          body.addShape(createShape(type, args))
         }
 
         body.position.set(position[0], position[1], position[2])
