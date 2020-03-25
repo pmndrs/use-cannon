@@ -21,18 +21,15 @@ import {
   Spring,
   Material,
   Quaternion,
+  Ray,
+  RaycastResult,
 } from 'cannon-es'
 
 let bodies = {}
-let springs = {}
-let world = new World()
-let config = { step: 1 / 60 }
-
-const TYPES = {
-  Dynamic: Body.DYNAMIC,
-  Static: Body.STATIC,
-  Kinematic: Body.KINEMATIC,
-}
+const springs = {}
+const rays = {}
+const world = new World()
+const config = { step: 1 / 60 }
 
 function createShape(type, args) {
   switch (type) {
@@ -126,7 +123,7 @@ self.onmessage = (e) => {
         const body = new Body({
           ...extra,
           mass: bodyType === 'Static' ? 0 : mass,
-          type: TYPES[bodyType],
+          type: bodyType ? Body[bodyType.toUpperCase()] : undefined,
           material: material ? new Material(material) : undefined,
         })
         body.uuid = uuid[i]
@@ -274,7 +271,6 @@ self.onmessage = (e) => {
           break
         case 'Distance':
           constraint = new DistanceConstraint(bodies[bodyA], bodies[bodyB], optns.distance, optns.maxForce)
-          console.log(constraint)
           break
         case 'Lock':
           constraint = new LockConstraint(bodies[bodyA], bodies[bodyB], optns)
@@ -330,6 +326,43 @@ self.onmessage = (e) => {
     }
     case 'removeSpring': {
       world.removeEventListener('postStep', springs[uuid])
+      break
+    }
+    case 'addRay': {
+      const { from, to, ...options } = props
+      const ray = new Ray(from ? new Vec3(...from) : undefined, to ? new Vec3(...to) : undefined)
+      options.mode = Ray[options.mode.toUpperCase()]
+      options.result = new RaycastResult()
+      rays[uuid] = () => {
+        ray.intersectWorld(world, options)
+        const {
+          body,
+          shape,
+          rayFromWorld,
+          rayToWorld,
+          hitNormalWorld,
+          hitPointWorld,
+          ...rest
+        } = options.result
+        self.postMessage({
+          op: 'event',
+          type: 'rayhit',
+          ray: uuid,
+          body: body ? body.uuid : null,
+          shape: shape ? { ...shape, body: body.uuid } : null,
+          rayFromWorld: rayFromWorld.toArray(),
+          rayToWorld: rayToWorld.toArray(),
+          hitNormalWorld: hitNormalWorld.toArray(),
+          hitPointWorld: hitPointWorld.toArray(),
+          ...rest,
+        })
+      }
+      world.addEventListener('preStep', rays[uuid])
+      break
+    }
+    case 'removeRay': {
+      world.removeEventListener('preStep', rays[uuid])
+      delete rays[uuid]
       break
     }
   }

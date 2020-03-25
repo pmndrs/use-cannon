@@ -1,26 +1,12 @@
+import type { WorkerCollideEvent, WorkerRayhitEvent } from './Provider'
 import React, { Suspense, createContext, lazy } from 'react'
 import { ProviderProps } from './Provider'
 export * from './hooks'
 
 export type Refs = { [uuid: string]: THREE.Object3D }
-export type Event = {
-  op: string
-  type: string
-  body: THREE.Object3D
-  target: THREE.Object3D
-  contact: {
-    ni: number[]
-    ri: number[]
-    rj: number[]
-    impactVelocity: number
-  }
-  collisionFilters: {
-    bodyFilterGroup: number
-    bodyFilterMask: number
-    targetFilterGroup: number
-    targetFilterMask: number
-  }
-}
+export type Event =
+  | WorkerRayhitEvent['data']
+  | (Omit<WorkerCollideEvent['data'], 'body' | 'target'> & { body: THREE.Object3D; target: THREE.Object3D })
 export type Events = { [uuid: string]: (e: Event) => void }
 
 export type ProviderContext = {
