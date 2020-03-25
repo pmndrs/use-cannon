@@ -470,13 +470,12 @@ function useRay(
   const [uuid] = useState(() => THREE.MathUtils.generateUUID())
 
   useEffect(() => {
+    events[uuid] = callback
     worker.postMessage({
       op: 'addRay',
       uuid,
       props: { mode, ...options },
     })
-    events[uuid] = callback
-
     return () => {
       worker.postMessage({ op: 'removeRay', uuid })
       delete events[uuid]
