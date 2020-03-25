@@ -60,7 +60,7 @@ function Ray({ from, to, setHit }) {
 
 function Text({ hit, screenSize }) {
   return (
-    <Dom position={[0, 0, 0]} center={true}>
+    <Dom center={true}>
       <pre>{JSON.stringify(hit, null, 2)}</pre>
     </Dom>
   )
