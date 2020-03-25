@@ -94,7 +94,7 @@ export default () => (
     <Suspense fallback={null}>
       <Physics iterations={6}>
         <Plane rotation={[-Math.PI / 2, 0, 0]} />
-        <Cube position={[0, 1.5, 0]} />
+        <Sphere position={[0, 1.5, 0]} />
         <Raycast />
       </Physics>
     </Suspense>

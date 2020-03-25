@@ -53,14 +53,17 @@ export type WorkerRayhitEvent = {
     op: 'event'
     type: 'rayhit'
     ray: string
-  } & (Exclude<RaycastResult, Vec3> & {
+    hasHit: boolean
     body: string | null
     shape: (Omit<Shape, 'body'> & { body: string }) | null
     rayFromWorld: number[]
     rayToWorld: number[]
     hitNormalWorld: number[]
     hitPointWorld: number[]
-  })
+    hitFaceIndex: number
+    distance: number
+    shouldStop: boolean
+  }
 }
 type WorkerEventMessage = WorkerCollideEvent | WorkerRayhitEvent
 type IncomingWorkerMessage = WorkerFrameMessage | WorkerSyncMessage | WorkerEventMessage

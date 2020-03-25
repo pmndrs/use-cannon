@@ -5,7 +5,7 @@ export * from './hooks'
 
 export type Refs = { [uuid: string]: THREE.Object3D }
 export type Event =
-  | WorkerRayhitEvent['data']
+  | Omit<WorkerRayhitEvent['data'], 'body'>
   | (Omit<WorkerCollideEvent['data'], 'body' | 'target'> & { body: THREE.Object3D; target: THREE.Object3D })
 export type Events = { [uuid: string]: (e: Event) => void }
 
