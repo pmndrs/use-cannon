@@ -44,7 +44,7 @@ const [ref, api] = useBox(() => ({ mass: 1 }))
 <mesh ref={ref} geometry={...} material={...} />
 ```
 
-5. You can interact with it by using the api, which lets you apply positions and rotations.
+5. You can interact with it by using [the api](#returned-api), which lets you apply positions, rotations, velocities, forces and impulses.
 
 ```jsx
 useFrame(({ clock }) => api.position.set(Math.sin(clock.getElapsedTime()) * 5, 0, 0))
