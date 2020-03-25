@@ -1,7 +1,10 @@
-import React, { Suspense, useState } from 'react'
-import { Canvas, useFrame, useThree, Dom } from 'react-three-fiber'
+import React, { Suspense, useState, useRef, useEffect } from 'react'
+import { Canvas, useFrame, useThree, Dom, extend } from 'react-three-fiber'
 import { Physics, useSphere, useBox, useRaycastAll } from 'use-cannon'
 import { Vector3 } from 'three'
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
+
+extend({ OrbitControls })
 
 function Plane(props) {
   return (
@@ -60,7 +63,7 @@ function Ray({ from, to, setHit }) {
 
 function Text({ hit, screenSize }) {
   return (
-    <Dom center={true}>
+    <Dom center={true} style={{ pointerEvents: 'none' }}>
       <pre>{JSON.stringify(hit, null, 2)}</pre>
     </Dom>
   )
@@ -78,8 +81,38 @@ function Raycast() {
   )
 }
 
+const Camera = (props) => {
+  const cameraRef = useRef()
+  const controlsRef = useRef()
+  const { gl, camera, setDefaultCamera } = useThree()
+  useEffect(() => void cameraRef.current ?? setDefaultCamera(cameraRef.current), [])
+  useFrame(() => {
+    if (cameraRef.current && controlsRef.current) {
+      cameraRef.current.updateMatrixWorld()
+      controlsRef.current.update()
+    }
+  })
+
+  return (
+    <>
+      <perspectiveCamera {...props} ref={cameraRef} position={[0, -15, 10]} />
+      <orbitControls
+        autoRotate
+        enableDamping
+        ref={controlsRef}
+        args={[camera, gl.domElement]}
+        dampingFactor={0.2}
+        rotateSpeed={0.5}
+        minPolarAngle={Math.PI / 3}
+        maxPolarAngle={Math.PI / 3}
+      />
+    </>
+  )
+}
+
 export default () => (
-  <Canvas shadowMap gl={{ alpha: false }} camera={{ position: [-4, 1, 5], fov: 50 }}>
+  <Canvas shadowMap gl={{ alpha: false }}>
+    <Camera />
     <color attach="background" args={['#fcb89d']} />
     <hemisphereLight intensity={0.35} />
     <spotLight
