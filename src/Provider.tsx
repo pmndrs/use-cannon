@@ -1,4 +1,4 @@
-import type { RaycastResult, Vec3, Shape } from 'cannon-es'
+import type { Shape } from 'cannon-es'
 import React, { useState, useEffect, useRef, useMemo } from 'react'
 // @ts-ignore
 import CannonWorker from '../src/worker'
