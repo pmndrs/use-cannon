@@ -22,7 +22,7 @@ function Plane(props) {
 }
 
 function Sphere({ position }) {
-  const [ref, api] = useSphere(() => ({ type: 'Static', position }))
+  const [ref, api] = useSphere(() => ({ type: 'Static', position, args: 0.5 }))
   useFrame(({ clock: { elapsedTime } }) => {
     api.position.set(Math.sin(elapsedTime / 2) * 2, position[1], position[2])
   })
@@ -85,7 +85,7 @@ const Camera = (props) => {
   const cameraRef = useRef()
   const controlsRef = useRef()
   const { gl, camera, setDefaultCamera } = useThree()
-  useEffect(() => void cameraRef.current ?? setDefaultCamera(cameraRef.current), [])
+  useEffect(() => void cameraRef.current ?? setDefaultCamera(cameraRef.current))
   useFrame(() => {
     if (cameraRef.current && controlsRef.current) {
       cameraRef.current.updateMatrixWorld()
