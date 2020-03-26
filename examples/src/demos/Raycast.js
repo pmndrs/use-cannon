@@ -85,7 +85,7 @@ const Camera = (props) => {
   const cameraRef = useRef()
   const controlsRef = useRef()
   const { gl, camera, setDefaultCamera } = useThree()
-  useEffect(() => void cameraRef.current ?? setDefaultCamera(cameraRef.current), [])
+  useEffect(() => void cameraRef.current ?? setDefaultCamera(cameraRef.current))
   useFrame(() => {
     if (cameraRef.current && controlsRef.current) {
       cameraRef.current.updateMatrixWorld()
