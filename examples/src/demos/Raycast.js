@@ -21,27 +21,27 @@ function Plane(props) {
   )
 }
 
-function Sphere({ position }) {
-  const [ref, api] = useSphere(() => ({ type: 'Static', position }))
+function Sphere({ radius, position }) {
+  const [ref, api] = useSphere(() => ({ type: 'Static', args: radius, position }))
   useFrame(({ clock: { elapsedTime } }) => {
-    api.position.set(Math.sin(elapsedTime / 2) * 2, position[1], position[2])
+    api.position.set(position[0], position[1], Math.sin(elapsedTime / 3) * 2)
   })
   return (
     <mesh castShadow ref={ref}>
-      <sphereBufferGeometry attach="geometry" args={[0.5, 32, 32]} />
+      <sphereBufferGeometry attach="geometry" args={[radius, 32, 32]} />
       <meshNormalMaterial attach="material" />
     </mesh>
   )
 }
 
-function Cube({ position }) {
-  const [ref, api] = useBox(() => ({ type: 'Static', position }))
+function Cube({ size, position }) {
+  const [ref, api] = useBox(() => ({ type: 'Static', args: size.map((n) => n * 0.5), position }))
   useFrame(({ clock: { elapsedTime } }) => {
     api.position.set(Math.sin(elapsedTime / 2) * 2, position[1], position[2])
   })
   return (
     <mesh castShadow ref={ref} position={position}>
-      <boxBufferGeometry attach="geometry" args={[0.5, 0.5, 0.5]} />
+      <boxBufferGeometry attach="geometry" args={size} />
       <meshNormalMaterial attach="material" />
     </mesh>
   )
@@ -95,7 +95,7 @@ const Camera = (props) => {
 
   return (
     <>
-      <perspectiveCamera {...props} ref={cameraRef} position={[0, -15, 10]} />
+      <perspectiveCamera {...props} ref={cameraRef} position={[0, -10, 10]} />
       <orbitControls
         autoRotate
         enableDamping
@@ -127,7 +127,8 @@ export default () => (
     <Suspense fallback={null}>
       <Physics iterations={6}>
         <Plane rotation={[-Math.PI / 2, 0, 0]} />
-        <Sphere position={[0, 1.5, 0]} />
+        <Sphere radius={0.5} position={[0, 1.5, 0]} />
+        <Cube size={[0.75, 0.75, 0.75]} position={[0, 1.5, 0]} />
         <Raycast />
       </Physics>
     </Suspense>
