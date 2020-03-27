@@ -62,7 +62,7 @@ function Ray({ from, to, setHit }) {
   )
 }
 
-function Text({ hit, screenSize }) {
+function Text({ hit }) {
   return (
     <Dom center={true} style={{ pointerEvents: 'none' }}>
       <pre>{prettyPrint(hit)}</pre>
@@ -72,12 +72,11 @@ function Text({ hit, screenSize }) {
 
 function Raycast() {
   const [hit, setHit] = useState({})
-  const { size } = useThree()
 
   return (
     <>
       <Ray from={[0, 0, 0]} to={[0, 1.5, 0]} setHit={setHit} />
-      <Text hit={hit} screenSize={size} />
+      <Text hit={hit} />
     </>
   )
 }
