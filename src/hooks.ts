@@ -143,7 +143,7 @@ function useBody(type: BodyShapeType, fn: BodyFn, argFn: ArgFn, deps: any[] = []
   useLayoutEffect(() => {
     if (!ref.current) {
       // When the reference isn't used we create a stub
-      // The body doesn't have a visual representation but can still be consrtained
+      // The body doesn't have a visual representation but can still be constrained
       ref.current = new THREE.Object3D()
     }
 
@@ -167,8 +167,8 @@ function useBody(type: BodyShapeType, fn: BodyFn, argFn: ArgFn, deps: any[] = []
 
     props.forEach((props, index) => {
       delete props.ref
+      refs[uuid[index]] = object
       if (props.onCollide) {
-        refs[uuid[index]] = object
         events[uuid[index]] = props.onCollide
         ;(props as any).onCollide = true
       }
@@ -455,7 +455,7 @@ export function useSpring(
   return [bodyA, bodyB]
 }
 
-type RayOptns = Omit<RayOptions, 'mode' | 'result' | 'callback'> & {
+type RayOptns = Omit<RayOptions, 'mode' | 'from' | 'to' | 'result' | 'callback'> & {
   from?: number[]
   to?: number[]
 }
