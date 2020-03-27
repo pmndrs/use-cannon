@@ -19,6 +19,9 @@ function Plane(props) {
 }
 
 function CompoundBody(props) {
+  useFrame(() => {
+    console.log("...")
+  })
   const [ref] = useCompoundBody(() => ({
     mass: 12,
     ...props,

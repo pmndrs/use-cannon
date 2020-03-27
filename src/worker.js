@@ -102,7 +102,15 @@ self.onmessage = (e) => {
         quaternions[4 * i + 2] = q.z
         quaternions[4 * i + 3] = q.w
       }
-      self.postMessage({ op: 'frame', positions, quaternions }, [positions.buffer, quaternions.buffer])
+      self.postMessage(
+        {
+          op: 'frame',
+          positions,
+          quaternions,
+          active: world.bodies.some((body) => body.sleepState !== Body.SLEEPING),
+        },
+        [positions.buffer, quaternions.buffer]
+      )
       break
     }
     case 'addBodies': {

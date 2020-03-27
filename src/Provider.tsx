@@ -1,5 +1,6 @@
 import type { Shape } from 'cannon-es'
 import React, { useState, useEffect, useRef, useMemo } from 'react'
+import { useThree } from 'react-three-fiber'
 // @ts-ignore
 import CannonWorker from '../src/worker'
 import { context, ProviderContext, Refs, Events } from './index'
@@ -26,7 +27,7 @@ export type ProviderProps = {
 
 export type Buffers = { positions: Float32Array; quaternions: Float32Array }
 
-type WorkerFrameMessage = { data: Buffers & { op: 'frame' } }
+type WorkerFrameMessage = { data: Buffers & { op: 'frame'; active: boolean } }
 type WorkerSyncMessage = { data: { op: 'sync'; bodies: string[] } }
 export type WorkerCollideEvent = {
   data: {
@@ -89,6 +90,7 @@ export default function Provider({
   },
   size = 1000,
 }: ProviderProps): JSX.Element {
+  const { invalidate } = useThree()
   const [worker] = useState<Worker>(() => new CannonWorker() as Worker)
   const [events] = useState<Events>({})
   const [refs] = useState<Refs>({})
@@ -123,6 +125,7 @@ export default function Provider({
           buffers.positions = e.data.positions
           buffers.quaternions = e.data.quaternions
           requestAnimationFrame(loop)
+          if (e.data.active) invalidate()
           break
         case 'sync':
           bodies.current = e.data.bodies.reduce(
