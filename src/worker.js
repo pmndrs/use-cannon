@@ -347,7 +347,14 @@ self.onmessage = (e) => {
         self.postMessage({
           op: 'event',
           type: 'rayhit',
-          ray: uuid,
+          ray: {
+            from,
+            to,
+            direction: ray.direction.toArray(),
+            collisionFilterGroup: ray.collisionFilterGroup,
+            collisionFilterMask: ray.collisionFilterMask,
+            uuid,
+          },
           body: body ? body.uuid : null,
           shape: shape ? { ...shape, body: body.uuid } : null,
           rayFromWorld: rayFromWorld.toArray(),

@@ -2,7 +2,7 @@ import type { Shape } from 'cannon-es'
 import React, { useState, useEffect, useRef, useMemo } from 'react'
 // @ts-ignore
 import CannonWorker from '../src/worker'
-import { context, ProviderContext, Refs, Events, Event } from './index'
+import { context, ProviderContext, Refs, Events } from './index'
 
 export type ProviderProps = {
   children: React.ReactNode
@@ -52,7 +52,14 @@ export type WorkerRayhitEvent = {
   data: {
     op: 'event'
     type: 'rayhit'
-    ray: string
+    ray: {
+      from: number[]
+      to: number[]
+      direction: number[]
+      collisionFilterGroup: number
+      collisionFilterMask: number
+      uuid: string
+    }
     hasHit: boolean
     body: string | null
     shape: (Omit<Shape, 'body'> & { body: string }) | null
@@ -133,7 +140,10 @@ export default function Provider({
               })
               break
             case 'rayhit':
-              events[e.data.ray](e.data)
+              events[e.data.ray.uuid]({
+                ...e.data,
+                body: e.data.body ? refs[e.data.body] : null,
+              })
               break
           }
           break
