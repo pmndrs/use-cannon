@@ -29,11 +29,11 @@ function CompoundBody(props) {
   }))
   return (
     <group ref={ref}>
-      <mesh castShadow dispose={null}>
+      <mesh castShadow>
         <boxBufferGeometry attach="geometry" args={[1, 1, 1]} />
         <meshNormalMaterial attach="material" />
       </mesh>
-      <mesh castShadow position={[1, 0, 0]} dispose={null}>
+      <mesh castShadow position={[1, 0, 0]}>
         <sphereBufferGeometry attach="geometry" args={[0.65, 16, 16]} />
         <meshNormalMaterial attach="material" />
       </mesh>

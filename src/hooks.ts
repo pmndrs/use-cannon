@@ -25,7 +25,6 @@ type BodyProps = AtomicProps & {
   rotation?: number[]
   velocity?: number[]
   angularVelocity?: number[]
-  scale?: number[]
   type?: 'Dynamic' | 'Static' | 'Kinematic'
   onCollide?: (e: Event) => void
 }
@@ -123,7 +122,6 @@ function prepare(object: THREE.Object3D, props: BodyProps, argFn: ArgFn) {
   props.args = argFn(props.args)
   object.position.set(...((props.position || [0, 0, 0]) as [number, number, number]))
   object.rotation.set(...((props.rotation || [0, 0, 0]) as [number, number, number]))
-  object.scale.set(...((props.scale || [1, 1, 1]) as [number, number, number]))
   return props
 }
 

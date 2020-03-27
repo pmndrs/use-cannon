@@ -236,7 +236,6 @@ type BodyProps = AtomicProps & {
   rotation?: number[]
   velocity?: number[]
   angularVelocity?: number[]
-  scale?: number[]
   type?: 'Dynamic' | 'Static' | 'Kinematic'
   onCollide?: (e: Event) => void
 }

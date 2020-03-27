@@ -13,6 +13,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import {
   Physics,
   useBox,
+  useCompoundBody,
   useCylinder,
   useSphere,
   usePlane,
@@ -28,8 +29,8 @@ const cursor = createRef()
 function useDragConstraint(child) {
   const [, , api] = usePointToPointConstraint(cursor, child, { pivotA: [0, 0, 0], pivotB: [0, 0, 0] })
   useEffect(() => void api.disable(), [])
-  const onPointerUp = useCallback(e => api.disable(), [])
-  const onPointerDown = useCallback(e => {
+  const onPointerUp = useCallback((e) => api.disable(), [])
+  const onPointerDown = useCallback((e) => {
     e.stopPropagation()
     e.target.setPointerCapture(e.pointerId)
     api.enable()
@@ -39,14 +40,14 @@ function useDragConstraint(child) {
 
 const BodyPart = ({ config, children, render, name, ...props }) => {
   const { color, args, mass, position } = shapes[name]
-  const scale = useMemo(() => args.map(s => s * 2), [args])
+  const scale = useMemo(() => args.map((s) => s * 2), [args])
   const parent = useContext(context)
-  const [ref] = useBox(() => ({ mass, args, scale, position, linearDamping: 0.99 }))
+  const [ref] = useBox(() => ({ mass, args, position, linearDamping: 0.99 }))
   useConeTwistConstraint(ref, parent, config)
   const bind = useDragConstraint(ref)
   return (
     <context.Provider value={ref}>
-      <Box castShadow receiveShadow ref={ref} {...props} {...bind} name={name} color={color}>
+      <Box castShadow receiveShadow ref={ref} {...props} {...bind} scale={scale} name={name} color={color}>
         {render}
       </Box>
       {children}
@@ -58,7 +59,7 @@ function Ragdoll(props) {
   const mouth = useRef()
   const eyes = useRef()
   const [, api] = useSphere(() => ({ ref: cursor, type: 'Static', args: [0.25], position: [0, 0, 10000] }))
-  useFrame(e => {
+  useFrame((e) => {
     eyes.current.position.y = Math.sin(e.clock.getElapsedTime() * 1) * 0.06
     mouth.current.scale.y = (1 + Math.sin(e.clock.getElapsedTime())) * 1.5
     const x = (e.mouse.x * e.viewport.width) / e.camera.zoom
@@ -141,51 +142,29 @@ const Box = React.forwardRef(
 )
 
 function Chair() {
-  const [back] = useBox(() => ({
-    type: 'Static',
-    position: [-5 + 0, -0.5, -1.25],
-    scale: [3, 3, 0.5],
-    args: [1.5, 1.5, 0.25],
+  const [ref] = useCompoundBody(() => ({
+    mass: 10,
+    type: 'Danymic',
+    position: [-6, 0, 0],
+    shapes: [
+      { type: 'Box', position: [0, 0, 0], args: [1.5, 1.5, 0.25] },
+      { type: 'Box', position: [0, -1.75, 1.25], args: [1.5, 0.25, 1.5] },
+      { type: 'Box', position: [5 + -6.25, -3.5, 0], args: [0.25, 1.5, 0.25] },
+      { type: 'Box', position: [5 + -3.75, -3.5, 0], args: [0.25, 1.5, 0.25] },
+      { type: 'Box', position: [5 + -6.25, -3.5, 2.5], args: [0.25, 1.5, 0.25] },
+      { type: 'Box', position: [5 + -3.75, -3.5, 2.5], args: [0.25, 1.5, 0.25] },
+    ],
   }))
-  const [seat] = useBox(() => ({
-    type: 'Static',
-    position: [-5 + 0, -2.25, 0],
-    scale: [3, 0.5, 3],
-    args: [1.5, 0.25, 1.5],
-  }))
-  const [leg1] = useBox(() => ({
-    type: 'Static',
-    position: [-5 + -1.25, -4, 1.25],
-    scale: [0.5, 3, 0.5],
-    args: [0.25, 1.5, 0.25],
-  }))
-  const [leg2] = useBox(() => ({
-    type: 'Static',
-    position: [-5 + 1.25, -4, 1.25],
-    scale: [0.5, 3, 0.5],
-    args: [0.25, 1.5, 0.25],
-  }))
-  const [leg3] = useBox(() => ({
-    type: 'Static',
-    position: [-5 + -1.25, -4, -1.25],
-    scale: [0.5, 3, 0.5],
-    args: [0.25, 1.5, 0.25],
-  }))
-  const [leg4] = useBox(() => ({
-    type: 'Static',
-    position: [-5 + 1.25, -4, -1.25],
-    scale: [0.5, 3, 0.5],
-    args: [0.25, 1.5, 0.25],
-  }))
+  const bind = useDragConstraint(ref)
   return (
-    <>
-      <Box ref={back} />
-      <Box ref={seat} />
-      <Box ref={leg1} />
-      <Box ref={leg2} />
-      <Box ref={leg3} />
-      <Box ref={leg4} />
-    </>
+    <group ref={ref} {...bind}>
+      <Box position={[0, 0, 0]} scale={[3, 3, 0.5]} />
+      <Box position={[0, -1.75, 1.25]} scale={[3, 0.5, 3]} />
+      <Box position={[5 + -6.25, -3.5, 0]} scale={[0.5, 3, 0.5]} />
+      <Box position={[5 + -3.75, -3.5, 0]} scale={[0.5, 3, 0.5]} />
+      <Box position={[5 + -6.25, -3.5, 2.5]} scale={[0.5, 3, 0.5]} />
+      <Box position={[5 + -3.75, -3.5, 2.5]} scale={[0.5, 3, 0.5]} />
+    </group>
   )
 }
 
@@ -205,7 +184,7 @@ function Mug() {
         <mesh
           receiveShadow
           castShadow
-          material={materials['default']}
+          material={materials.default}
           geometry={nodes['buffer-0-mesh-0_0'].geometry}
         />
         <mesh
@@ -220,43 +199,18 @@ function Mug() {
 }
 
 function Table() {
-  const [seat] = useBox(() => ({
-    type: 'Static',
-    position: [9 + 0, -0.8, 0],
-    scale: [5, 0.5, 5],
-    args: [2.5, 0.25, 2.5],
-  }))
-  const [leg1] = useBox(() => ({
-    type: 'Static',
-    position: [9 + -1.8, -3, 1.8],
-    scale: [0.5, 4, 0.5],
-    args: [0.25, 2, 0.25],
-  }))
-  const [leg2] = useBox(() => ({
-    type: 'Static',
-    position: [9 + 1.8, -3, 1.8],
-    scale: [0.5, 4, 0.5],
-    args: [0.25, 2, 0.25],
-  }))
-  const [leg3] = useBox(() => ({
-    type: 'Static',
-    position: [9 + -1.8, -3, -1.8],
-    scale: [0.5, 4, 0.5],
-    args: [0.25, 2, 0.25],
-  }))
-  const [leg4] = useBox(() => ({
-    type: 'Static',
-    position: [9 + 1.8, -3, -1.8],
-    scale: [0.5, 4, 0.5],
-    args: [0.25, 2, 0.25],
-  }))
+  const [seat] = useBox(() => ({ type: 'Static', position: [9, -0.8, 0], args: [2.5, 0.25, 2.5] }))
+  const [leg1] = useBox(() => ({ type: 'Static', position: [7.2, -3, 1.8], args: [0.25, 2, 0.25] }))
+  const [leg2] = useBox(() => ({ type: 'Static', position: [10.8, -3, 1.8], args: [0.25, 2, 0.25] }))
+  const [leg3] = useBox(() => ({ type: 'Static', position: [7.2, -3, -1.8], args: [0.25, 2, 0.25] }))
+  const [leg4] = useBox(() => ({ type: 'Static', position: [10.8, -3, -1.8], args: [0.25, 2, 0.25] }))
   return (
     <>
-      <Box ref={seat} />
-      <Box ref={leg1} />
-      <Box ref={leg2} />
-      <Box ref={leg3} />
-      <Box ref={leg4} />
+      <Box scale={[5, 0.5, 5]} ref={seat} />
+      <Box scale={[0.5, 4, 0.5]} ref={leg1} />
+      <Box scale={[0.5, 4, 0.5]} ref={leg2} />
+      <Box scale={[0.5, 4, 0.5]} ref={leg3} />
+      <Box scale={[0.5, 4, 0.5]} ref={leg4} />
       <Suspense fallback={null}>
         <Mug />
       </Suspense>
