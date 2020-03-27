@@ -3,6 +3,7 @@ import { Canvas, useFrame, useThree, Dom, extend } from 'react-three-fiber'
 import { Physics, useSphere, useBox, useRaycastAll } from 'use-cannon'
 import { Vector3 } from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
+import { prettyPrint } from './prettyPrint'
 
 extend({ OrbitControls })
 
@@ -64,7 +65,7 @@ function Ray({ from, to, setHit }) {
 function Text({ hit, screenSize }) {
   return (
     <Dom center={true} style={{ pointerEvents: 'none' }}>
-      <pre>{JSON.stringify(hit, null, 2)}</pre>
+      <pre>{prettyPrint(hit)}</pre>
     </Dom>
   )
 }
