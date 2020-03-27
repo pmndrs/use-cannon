@@ -1,4 +1,4 @@
-import type { MaterialOptions } from 'cannon-es'
+import type { MaterialOptions, RayOptions, RaycastResult, RAY_MODES } from 'cannon-es'
 import * as THREE from 'three'
 import React, { useLayoutEffect, useContext, useRef, useMemo, useEffect, useState } from 'react'
 import { useFrame } from 'react-three-fiber'
@@ -141,7 +141,7 @@ function useBody(type: BodyShapeType, fn: BodyFn, argFn: ArgFn, deps: any[] = []
   useLayoutEffect(() => {
     if (!ref.current) {
       // When the reference isn't used we create a stub
-      // The body doesn't have a visual representation but can still be consrtained
+      // The body doesn't have a visual representation but can still be constrained
       ref.current = new THREE.Object3D()
     }
 
@@ -165,8 +165,8 @@ function useBody(type: BodyShapeType, fn: BodyFn, argFn: ArgFn, deps: any[] = []
 
     props.forEach((props, index) => {
       delete props.ref
+      refs[uuid[index]] = object
       if (props.onCollide) {
-        refs[uuid[index]] = object
         events[uuid[index]] = props.onCollide
         ;(props as any).onCollide = true
       }
@@ -352,7 +352,7 @@ function useConstraint(
       worker.postMessage({
         op: 'addConstraint',
         uuid,
-        type: type,
+        type,
         props: [bodyA.current.uuid, bodyB.current.uuid, optns],
       })
       return () => worker.postMessage({ op: 'removeConstraint', uuid })
@@ -451,4 +451,44 @@ export function useSpring(
   }, deps)
 
   return [bodyA, bodyB]
+}
+
+type RayOptns = Omit<RayOptions, 'mode' | 'from' | 'to' | 'result' | 'callback'> & {
+  from?: number[]
+  to?: number[]
+}
+
+function useRay(
+  mode: 'Closest' | 'Any' | 'All',
+  options: RayOptns,
+  callback: (e: Event) => void,
+  deps: any[] = []
+) {
+  const { worker, events } = useContext(context)
+  const [uuid] = useState(() => THREE.MathUtils.generateUUID())
+
+  useEffect(() => {
+    events[uuid] = callback
+    worker.postMessage({
+      op: 'addRay',
+      uuid,
+      props: { mode, ...options },
+    })
+    return () => {
+      worker.postMessage({ op: 'removeRay', uuid })
+      delete events[uuid]
+    }
+  }, deps)
+}
+
+export function useRaycastClosest(options: RayOptns, callback: (e: Event) => void, deps: any[] = []) {
+  useRay('Closest', options, callback, deps)
+}
+
+export function useRaycastAny(options: RayOptns, callback: (e: Event) => void, deps: any[] = []) {
+  useRay('Any', options, callback, deps)
+}
+
+export function useRaycastAll(options: RayOptns, callback: (e: Event) => void, deps: any[] = []) {
+  useRay('All', options, callback, deps)
 }

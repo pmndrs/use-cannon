@@ -1,23 +1,14 @@
-import * as THREE from 'three'
 import React from 'react'
 import { Canvas, useFrame } from 'react-three-fiber'
-import {
-  Physics,
-  useSphere,
-  useBox,
-  usePointToPointConstraint,
-  useConeTwistConstraint,
-  useDistanceConstraint,
-} from 'use-cannon'
-import { niceColors } from 'nice-color-palettes'
+import { Physics, useSphere, useBox, useConeTwistConstraint, useDistanceConstraint } from 'use-cannon'
 
 const Link = ({ parentRef, ...props }) => {
   const chainSize = [0.15, 1, 0.15]
 
-  const [ref, api] = useBox(() => ({
+  const [ref] = useBox(() => ({
     mass: 1,
     linearDamping: 0.8,
-    args: chainSize.map(s => s / 2),
+    args: chainSize.map((s) => s / 2),
     position: props.position,
   }))
 
@@ -47,10 +38,10 @@ const ChainLink = React.forwardRef((props, ref) => {
   return <Link parentRef={ref} {...props} name={'link'} />
 })
 
-const Handle = props => {
+const Handle = (props) => {
   const [ref, api] = useSphere(() => ({ type: 'Static', args: 0.5, position: [0, 0, 0] }))
 
-  useFrame(e => {
+  useFrame((e) => {
     api.position.set((e.mouse.x * e.viewport.width) / 2, (e.mouse.y * e.viewport.height) / 2, 0)
   })
 
@@ -67,21 +58,23 @@ const Handle = props => {
   )
 }
 
-const Chain = props => {
+const Chain = (props) => {
   return (
     <Handle>
-      {ref => (
+      {(ref) => (
         <ChainLink ref={ref}>
-          {ref => (
+          {(ref) => (
             <ChainLink ref={ref}>
-              {ref => (
+              {(ref) => (
                 <ChainLink ref={ref}>
-                  {ref => (
+                  {(ref) => (
                     <ChainLink ref={ref}>
-                      {ref => (
+                      {(ref) => (
                         <ChainLink ref={ref}>
-                          {ref => (
-                            <ChainLink ref={ref}>{ref => <ChainLink parentRef={ref}></ChainLink>}</ChainLink>
+                          {(ref) => (
+                            <ChainLink ref={ref}>
+                              {(ref) => <ChainLink parentRef={ref}></ChainLink>}
+                            </ChainLink>
                           )}
                         </ChainLink>
                       )}

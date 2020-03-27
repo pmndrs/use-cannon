@@ -1,7 +1,8 @@
+import type { Shape } from 'cannon-es'
 import React, { useState, useEffect, useRef, useMemo } from 'react'
 // @ts-ignore
 import CannonWorker from '../src/worker'
-import { context, ProviderContext, Refs, Events, Event } from './index'
+import { context, ProviderContext, Refs, Events } from './index'
 
 export type ProviderProps = {
   children: React.ReactNode
@@ -25,13 +26,12 @@ export type ProviderProps = {
 
 export type Buffers = { positions: Float32Array; quaternions: Float32Array }
 
-type WorkerEvent = {
+type WorkerFrameMessage = { data: Buffers & { op: 'frame' } }
+type WorkerSyncMessage = { data: { op: 'sync'; bodies: string[] } }
+export type WorkerCollideEvent = {
   data: {
-    op: string
-    positions: Float32Array
-    quaternions: Float32Array
-    bodies: string[]
-    type: string
+    op: 'event'
+    type: 'collide'
     body: string
     target: string
     contact: {
@@ -48,6 +48,32 @@ type WorkerEvent = {
     }
   }
 }
+export type WorkerRayhitEvent = {
+  data: {
+    op: 'event'
+    type: 'rayhit'
+    ray: {
+      from: number[]
+      to: number[]
+      direction: number[]
+      collisionFilterGroup: number
+      collisionFilterMask: number
+      uuid: string
+    }
+    hasHit: boolean
+    body: string | null
+    shape: (Omit<Shape, 'body'> & { body: string }) | null
+    rayFromWorld: number[]
+    rayToWorld: number[]
+    hitNormalWorld: number[]
+    hitPointWorld: number[]
+    hitFaceIndex: number
+    distance: number
+    shouldStop: boolean
+  }
+}
+type WorkerEventMessage = WorkerCollideEvent | WorkerRayhitEvent
+type IncomingWorkerMessage = WorkerFrameMessage | WorkerSyncMessage | WorkerEventMessage
 
 export default function Provider({
   children,
@@ -91,7 +117,7 @@ export default function Provider({
       worker.postMessage({ op: 'step', ...buffers }, [buffers.positions.buffer, buffers.quaternions.buffer])
     }
 
-    worker.onmessage = (e: WorkerEvent) => {
+    worker.onmessage = (e: IncomingWorkerMessage) => {
       switch (e.data.op) {
         case 'frame':
           buffers.positions = e.data.positions
@@ -100,7 +126,7 @@ export default function Provider({
           break
         case 'sync':
           bodies.current = e.data.bodies.reduce(
-            (acc, id) => ({ ...acc, [id]: e.data.bodies.indexOf(id) }),
+            (acc, id) => ({ ...acc, [id]: (e.data as any).bodies.indexOf(id) }),
             {}
           )
           break
@@ -111,6 +137,12 @@ export default function Provider({
                 ...e.data,
                 body: refs[e.data.body],
                 target: refs[e.data.target],
+              })
+              break
+            case 'rayhit':
+              events[e.data.ray.uuid]({
+                ...e.data,
+                body: e.data.body ? refs[e.data.body] : null,
               })
               break
           }
