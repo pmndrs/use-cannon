@@ -144,7 +144,7 @@ const Box = React.forwardRef(
 function Chair() {
   const [ref] = useCompoundBody(() => ({
     mass: 10,
-    type: 'Danymic',
+    type: 'Dynamic',
     position: [-6, 0, 0],
     shapes: [
       { type: 'Box', position: [0, 0, 0], args: [1.5, 1.5, 0.25] },
