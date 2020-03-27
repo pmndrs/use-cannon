@@ -19,9 +19,6 @@ function Plane(props) {
 }
 
 function CompoundBody(props) {
-  useFrame(() => {
-    console.log("...")
-  })
   const [ref] = useCompoundBody(() => ({
     mass: 12,
     ...props,
@@ -45,7 +42,7 @@ function CompoundBody(props) {
 }
 
 export default () => (
-  <Canvas shadowMap gl={{ alpha: false }} camera={{ position: [-2, 1, 7], fov: 50 }}>
+  <Canvas invalidateFrameloop shadowMap gl={{ alpha: false }} camera={{ position: [-2, 1, 7], fov: 50 }}>
     <color attach="background" args={['#f6d186']} />
     <hemisphereLight intensity={0.35} />
     <spotLight
