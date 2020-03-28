@@ -107,7 +107,7 @@ self.onmessage = (e) => {
           op: 'frame',
           positions,
           quaternions,
-          active: world.bodies.some((body) => body.sleepState !== Body.SLEEPING),
+          active: world.hasActiveBodies,
         },
         [positions.buffer, quaternions.buffer]
       )
