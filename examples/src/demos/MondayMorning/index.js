@@ -58,7 +58,7 @@ const BodyPart = ({ config, children, render, name, ...props }) => {
 function Ragdoll(props) {
   const mouth = useRef()
   const eyes = useRef()
-  const [, api] = useSphere(() => ({ ref: cursor, type: 'Static', args: [0.25], position: [0, 0, 10000] }))
+  const [ref, api] = useSphere(() => ({ ref: cursor, type: 'Static', args: [0.5], position: [0, 0, 10000] }))
   useFrame((e) => {
     eyes.current.position.y = Math.sin(e.clock.getElapsedTime() * 1) * 0.06
     mouth.current.scale.y = (1 + Math.sin(e.clock.getElapsedTime())) * 1.5
@@ -68,6 +68,10 @@ function Ragdoll(props) {
   })
   return (
     <BodyPart name={'upperBody'} {...props}>
+      <mesh ref={ref}>
+        <sphereBufferGeometry attach="geometry" args={[0.5, 32, 32]} />
+        <meshBasicMaterial attach="material" fog={false} depthTest={false} transparent opacity={0.5} />
+      </mesh>
       <BodyPart
         {...props}
         name={'head'}
@@ -143,16 +147,16 @@ const Box = React.forwardRef(
 
 function Chair() {
   const [ref] = useCompoundBody(() => ({
-    mass: 10,
+    mass: 1,
     type: 'Dynamic',
     position: [-6, 0, 0],
     shapes: [
-      { type: 'Box', position: [0, 0, 0], args: [1.5, 1.5, 0.25] },
-      { type: 'Box', position: [0, -1.75, 1.25], args: [1.5, 0.25, 1.5] },
-      { type: 'Box', position: [5 + -6.25, -3.5, 0], args: [0.25, 1.5, 0.25] },
-      { type: 'Box', position: [5 + -3.75, -3.5, 0], args: [0.25, 1.5, 0.25] },
-      { type: 'Box', position: [5 + -6.25, -3.5, 2.5], args: [0.25, 1.5, 0.25] },
-      { type: 'Box', position: [5 + -3.75, -3.5, 2.5], args: [0.25, 1.5, 0.25] },
+      { type: 'Box', mass: 1, position: [0, 0, 0], args: [1.5, 1.5, 0.25] },
+      { type: 'Box', mass: 1, position: [0, -1.75, 1.25], args: [1.5, 0.25, 1.5] },
+      { type: 'Box', mass: 10, position: [5 + -6.25, -3.5, 0], args: [0.25, 1.5, 0.25] },
+      { type: 'Box', mass: 10, position: [5 + -3.75, -3.5, 0], args: [0.25, 1.5, 0.25] },
+      { type: 'Box', mass: 10, position: [5 + -6.25, -3.5, 2.5], args: [0.25, 1.5, 0.25] },
+      { type: 'Box', mass: 10, position: [5 + -3.75, -3.5, 2.5], args: [0.25, 1.5, 0.25] },
     ],
   }))
   const bind = useDragConstraint(ref)
@@ -243,7 +247,12 @@ const Lamp = () => {
 }
 
 export default () => (
-  <Canvas sRGB shadowMap orthographic camera={{ position: [-25, 20, 25], zoom: 25, near: 1, far: 100 }}>
+  <Canvas
+    style={{ cursor: 'none' }}
+    sRGB
+    shadowMap
+    orthographic
+    camera={{ position: [-25, 20, 25], zoom: 25, near: 1, far: 100 }}>
     <color attach="background" args={['#171720']} />
     <fog attach="fog" args={['#171720', 20, 70]} />
     <ambientLight intensity={0.2} />

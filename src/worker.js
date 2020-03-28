@@ -137,13 +137,15 @@ self.onmessage = (e) => {
         body.uuid = uuid[i]
 
         if (type === 'Compound') {
-          shapes.forEach(({ type, args, position, rotation }) =>
-            body.addShape(
+          shapes.forEach(({ type, args, position, rotation, material, ...extra }) => {
+            const shapeBody = body.addShape(
               createShape(type, args),
               position ? new Vec3(...position) : undefined,
               rotation ? new Quaternion(...rotation) : undefined
             )
-          )
+            if (material) shapeBody.material = new Material(material)
+            Object.assign(shapeBody, extra)
+          })
         } else {
           body.addShape(createShape(type, args))
         }

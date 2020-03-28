@@ -54,7 +54,7 @@ type ConvexPolyhedronProps = BodyProps & {
   args?: THREE.Geometry | [(THREE.Vector3 | number[])[], (THREE.Face3 | number[])[]]
 }
 type CompoundBodyProps = BodyProps & {
-  shapes: { type: ShapeType; args?: any; position?: number[]; rotation?: number[] }[]
+  shapes: BodyProps & { type: ShapeType }[]
 }
 
 type BodyFn = (index: number) => BodyProps
