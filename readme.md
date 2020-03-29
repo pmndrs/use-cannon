@@ -262,7 +262,7 @@ type Event = {
 type PlaneProps = BodyProps & {}
 type ParticleProps = BodyProps & {}
 type BoxProps = BodyProps & {
-  args?: number[] // hafExtents: [x, y, z]
+  args?: number[] // halfExtents: [x, y, z]
 }
 type CylinderProps = BodyProps & {
   args?: [number, number, number, number] // radiusTop, radiusBottom, height, numSegments
