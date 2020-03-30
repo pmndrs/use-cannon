@@ -19,7 +19,6 @@ type AtomicProps = {
 }
 
 type BodyProps = AtomicProps & {
-  ref?: React.MutableRefObject<THREE.Object3D>
   args?: any
   position?: number[]
   rotation?: number[]
@@ -132,8 +131,12 @@ function apply(object: THREE.Object3D, index: number, buffers: Buffers) {
   }
 }
 
-function useBody(type: BodyShapeType, fn: BodyFn, argFn: ArgFn, deps: any[] = []): Api {
-  const { ref: fwdRef } = fn(0)
+function useBody(
+  type: BodyShapeType,
+  fn: BodyFn,
+  argFn: ArgFn,
+  fwdRef?: React.MutableRefObject<THREE.Object3D>
+): Api {
   const localRef = useRef<THREE.Object3D>((null as unknown) as THREE.Object3D)
   const ref = fwdRef ? fwdRef : localRef
   const { worker, bodies, buffers, refs, events } = useContext(context)
@@ -164,7 +167,6 @@ function useBody(type: BodyShapeType, fn: BodyFn, argFn: ArgFn, deps: any[] = []
     } else props = [prepare(object, fn(0), argFn)]
 
     props.forEach((props, index) => {
-      delete props.ref
       refs[uuid[index]] = object
       if (props.onCollide) {
         events[uuid[index]] = props.onCollide
@@ -181,7 +183,7 @@ function useBody(type: BodyShapeType, fn: BodyFn, argFn: ArgFn, deps: any[] = []
       })
       currentWorker.postMessage({ op: 'removeBodies', uuid })
     }
-  }, deps) // eslint-disable-line react-hooks/exhaustive-deps
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   useFrame(() => {
     if (ref.current && buffers.positions.length && buffers.quaternions.length) {
@@ -269,25 +271,25 @@ function useBody(type: BodyShapeType, fn: BodyFn, argFn: ArgFn, deps: any[] = []
   return [ref, api]
 }
 
-export function usePlane(fn: PlaneFn, deps: any[] = []) {
-  return useBody('Plane', fn, () => [], deps)
+export function usePlane(fn: PlaneFn, fwdRef?: React.MutableRefObject<THREE.Object3D>) {
+  return useBody('Plane', fn, () => [], fwdRef)
 }
-export function useBox(fn: BoxFn, deps: any[] = []) {
-  return useBody('Box', fn, (args) => args || [0.5, 0.5, 0.5], deps)
+export function useBox(fn: BoxFn, fwdRef?: React.MutableRefObject<THREE.Object3D>) {
+  return useBody('Box', fn, (args) => args || [0.5, 0.5, 0.5], fwdRef)
 }
-export function useCylinder(fn: CylinderFn, deps: any[] = []) {
-  return useBody('Cylinder', fn, (args) => args, deps)
+export function useCylinder(fn: CylinderFn, fwdRef?: React.MutableRefObject<THREE.Object3D>) {
+  return useBody('Cylinder', fn, (args) => args, fwdRef)
 }
-export function useHeightfield(fn: HeightfieldFn, deps: any[] = []) {
-  return useBody('Heightfield', fn, (args) => args, deps)
+export function useHeightfield(fn: HeightfieldFn, fwdRef?: React.MutableRefObject<THREE.Object3D>) {
+  return useBody('Heightfield', fn, (args) => args, fwdRef)
 }
-export function useParticle(fn: ParticleFn, deps: any[] = []) {
-  return useBody('Particle', fn, () => [], deps)
+export function useParticle(fn: ParticleFn, fwdRef?: React.MutableRefObject<THREE.Object3D>) {
+  return useBody('Particle', fn, () => [], fwdRef)
 }
-export function useSphere(fn: SphereFn, deps: any[] = []) {
-  return useBody('Sphere', fn, (radius) => [radius ?? 1], deps)
+export function useSphere(fn: SphereFn, fwdRef?: React.MutableRefObject<THREE.Object3D>) {
+  return useBody('Sphere', fn, (radius) => [radius ?? 1], fwdRef)
 }
-export function useTrimesh(fn: TrimeshFn, deps: any[] = []) {
+export function useTrimesh(fn: TrimeshFn, fwdRef?: React.MutableRefObject<THREE.Object3D>) {
   return useBody(
     'Trimesh',
     fn,
@@ -299,10 +301,10 @@ export function useTrimesh(fn: TrimeshFn, deps: any[] = []) {
         indices.map((i: any) => (i instanceof THREE.Face3 ? [i.a, i.b, i.c] : i)),
       ]
     },
-    deps
+    fwdRef
   )
 }
-export function useConvexPolyhedron(fn: ConvexPolyhedronFn, deps: any[] = []) {
+export function useConvexPolyhedron(fn: ConvexPolyhedronFn, fwdRef?: React.MutableRefObject<THREE.Object3D>) {
   return useBody(
     'ConvexPolyhedron',
     fn,
@@ -316,11 +318,11 @@ export function useConvexPolyhedron(fn: ConvexPolyhedronFn, deps: any[] = []) {
         normals && normals.map((n: any) => (n instanceof THREE.Vector3 ? [n.x, n.y, n.z] : n)),
       ]
     },
-    deps
+    fwdRef
   )
 }
-export function useCompoundBody(fn: CompoundBodyFn, deps: any[] = []) {
-  return useBody('Compound', fn, (args) => args || [], deps)
+export function useCompoundBody(fn: CompoundBodyFn, fwdRef?: React.MutableRefObject<THREE.Object3D>) {
+  return useBody('Compound', fn, (args) => args || [], fwdRef)
 }
 
 type ConstraintApi = [
@@ -374,7 +376,7 @@ export function usePointToPointConstraint(
   bodyA: React.MutableRefObject<THREE.Object3D | undefined>,
   bodyB: React.MutableRefObject<THREE.Object3D | undefined>,
   optns: PointToPointConstraintOpts,
-  deps: any[]
+  deps: any[] = []
 ) {
   return useConstraint('PointToPoint', bodyA, bodyB, optns, deps)
 }
@@ -382,7 +384,7 @@ export function useConeTwistConstraint(
   bodyA: React.MutableRefObject<THREE.Object3D | undefined>,
   bodyB: React.MutableRefObject<THREE.Object3D | undefined>,
   optns: ConeTwistConstraintOpts,
-  deps: any[]
+  deps: any[] = []
 ) {
   return useConstraint('ConeTwist', bodyA, bodyB, optns, deps)
 }
@@ -390,7 +392,7 @@ export function useDistanceConstraint(
   bodyA: React.MutableRefObject<THREE.Object3D | undefined>,
   bodyB: React.MutableRefObject<THREE.Object3D | undefined>,
   optns: DistanceConstraintOpts,
-  deps: any[]
+  deps: any[] = []
 ) {
   return useConstraint('Distance', bodyA, bodyB, optns, deps)
 }
@@ -398,7 +400,7 @@ export function useHingeConstraint(
   bodyA: React.MutableRefObject<THREE.Object3D | undefined>,
   bodyB: React.MutableRefObject<THREE.Object3D | undefined>,
   optns: HingeConstraintOpts,
-  deps: any[]
+  deps: any[] = []
 ) {
   return useConstraint('Hinge', bodyA, bodyB, optns, deps)
 }
@@ -406,7 +408,7 @@ export function useLockConstraint(
   bodyA: React.MutableRefObject<THREE.Object3D | undefined>,
   bodyB: React.MutableRefObject<THREE.Object3D | undefined>,
   optns: LockConstraintOpts,
-  deps: any[]
+  deps: any[] = []
 ) {
   return useConstraint('Lock', bodyA, bodyB, optns, deps)
 }
@@ -466,14 +468,9 @@ function useRay(
 ) {
   const { worker, events } = useContext(context)
   const [uuid] = useState(() => THREE.MathUtils.generateUUID())
-
   useEffect(() => {
     events[uuid] = callback
-    worker.postMessage({
-      op: 'addRay',
-      uuid,
-      props: { mode, ...options },
-    })
+    worker.postMessage({ op: 'addRay', uuid, props: { mode, ...options } })
     return () => {
       worker.postMessage({ op: 'removeRay', uuid })
       delete events[uuid]

@@ -8,12 +8,12 @@ import { ConvexGeometry } from 'three/examples/jsm/geometries/ConvexGeometry'
 function Diamond(props) {
   const { nodes } = useLoader(GLTFLoader, '/diamond.glb')
   const geo = useMemo(() => {
-    let geo = new THREE.Geometry().fromBufferGeometry(nodes.Cylinder.geometry)
+    const g = new THREE.Geometry().fromBufferGeometry(nodes.Cylinder.geometry)
     // Merge duplicate vertices resulting from glTF export.
     // Cannon assumes contiguous, closed meshes to work
-    geo.mergeVertices()
+    g.mergeVertices()
     // Ensure loaded mesh is convex and create faces if necessary
-    return new ConvexGeometry(geo.vertices)
+    return new ConvexGeometry(g.vertices)
   }, [nodes])
 
   const [ref] = useConvexPolyhedron(() => ({
@@ -30,8 +30,11 @@ function Diamond(props) {
 
 // A cone is a convex shape by definition...
 function Cone(props) {
-  const geo = new THREE.ConeGeometry(0.7, 0.7, props.sides, 1)
-  geo.mergeVertices()
+  const geo = useMemo(() => {
+    const g = new THREE.ConeGeometry(0.7, 0.7, props.sides, 1)
+    g.mergeVertices()
+    return g
+  }, [])
   const [ref] = useConvexPolyhedron(() => ({ mass: 100, ...props, args: geo }))
   return (
     <mesh castShadow ref={ref} dispose={null}>
@@ -43,8 +46,11 @@ function Cone(props) {
 
 // ...And so is a cube!
 function Cube(props) {
-  const geo = new THREE.BoxGeometry(props.size, props.size, props.size)
-  geo.mergeVertices()
+  const geo = useMemo(() => {
+    const g = new THREE.BoxGeometry(props.size, props.size, props.size)
+    g.mergeVertices()
+    return g
+  }, [])
   const [ref] = useConvexPolyhedron(() => ({ mass: 100, ...props, args: geo }))
   return (
     <mesh castShadow ref={ref} dispose={null}>
