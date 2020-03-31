@@ -16,39 +16,35 @@ function Diamond(props) {
     return new ConvexGeometry(geo.vertices)
   }, [nodes])
 
-  const [ref] = useConvexPolyhedron(() => ({
-    mass: 100,
-    ...props,
-    args: geo,
-  }))
+  const [ref] = useConvexPolyhedron(() => ({ mass: 100, ...props, args: geo }))
   return (
-    <mesh castShadow receiveShadow ref={ref} geometry={geo} dispose={null}>
+    <mesh castShadow receiveShadow ref={ref} geometry={geo} {...props} dispose={null}>
       <meshStandardMaterial attach="material" wireframe />
     </mesh>
   )
 }
 
 // A cone is a convex shape by definition...
-function Cone(props) {
-  const geo = new THREE.ConeGeometry(0.7, 0.7, props.sides, 1)
+function Cone({ sides, ...props }) {
+  const geo = new THREE.ConeGeometry(0.7, 0.7, sides, 1)
   geo.mergeVertices()
   const [ref] = useConvexPolyhedron(() => ({ mass: 100, ...props, args: geo }))
   return (
-    <mesh castShadow ref={ref} dispose={null}>
-      <coneBufferGeometry attach="geometry" args={[0.7, 0.7, props.sides, 1]} />
+    <mesh castShadow ref={ref} {...props} dispose={null}>
+      <coneBufferGeometry attach="geometry" args={[0.7, 0.7, sides, 1]} />
       <meshNormalMaterial attach="material" />
     </mesh>
   )
 }
 
 // ...And so is a cube!
-function Cube(props) {
-  const geo = new THREE.BoxGeometry(props.size, props.size, props.size)
+function Cube({ size, ...props }) {
+  const geo = new THREE.BoxGeometry(size, size, size)
   geo.mergeVertices()
   const [ref] = useConvexPolyhedron(() => ({ mass: 100, ...props, args: geo }))
   return (
-    <mesh castShadow ref={ref} dispose={null}>
-      <boxBufferGeometry attach="geometry" args={[props.size, props.size, props.size]} />
+    <mesh castShadow ref={ref} {...props} dispose={null}>
+      <boxBufferGeometry attach="geometry" args={[size, size, size]} />
       <meshNormalMaterial attach="material" />
     </mesh>
   )

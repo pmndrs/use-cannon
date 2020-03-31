@@ -13,10 +13,10 @@
     "react-dom": "16.13.1",
     "react-router-dom": "^5.1.2",
     "react-scripts": "3.4.1",
-    "react-three-fiber": "4.0.23",
+    "react-three-fiber": "4.0.24",
     "styled-components": "^5.0.1",
     "three": "0.115.0",
-    "use-cannon": "0.2.6",
+    "use-cannon": "0.2.10",
     "zustand": "^2.2.3"
   },
   "devDependencies": {
