@@ -58,7 +58,7 @@ const BodyPart = ({ config, children, render, name, ...props }) => {
 function Ragdoll(props) {
   const mouth = useRef()
   const eyes = useRef()
-  const [ref, api] = useSphere(() => ({ ref: cursor, type: 'Static', args: [0.5], position: [0, 0, 10000] }))
+  const [ref, api] = useSphere(() => ({ type: 'Static', args: [0.5], position: [0, 0, 10000] }), cursor)
   useFrame((e) => {
     eyes.current.position.y = Math.sin(e.clock.getElapsedTime() * 1) * 0.06
     mouth.current.scale.y = (1 + Math.sin(e.clock.getElapsedTime())) * 1.5

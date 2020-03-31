@@ -8,12 +8,12 @@ import { ConvexGeometry } from 'three/examples/jsm/geometries/ConvexGeometry'
 function Diamond(props) {
   const { nodes } = useLoader(GLTFLoader, '/diamond.glb')
   const geo = useMemo(() => {
-    let geo = new THREE.Geometry().fromBufferGeometry(nodes.Cylinder.geometry)
+    const g = new THREE.Geometry().fromBufferGeometry(nodes.Cylinder.geometry)
     // Merge duplicate vertices resulting from glTF export.
     // Cannon assumes contiguous, closed meshes to work
-    geo.mergeVertices()
+    g.mergeVertices()
     // Ensure loaded mesh is convex and create faces if necessary
-    return new ConvexGeometry(geo.vertices)
+    return new ConvexGeometry(g.vertices)
   }, [nodes])
 
   const [ref] = useConvexPolyhedron(() => ({ mass: 100, ...props, args: geo }))
@@ -26,12 +26,14 @@ function Diamond(props) {
 
 // A cone is a convex shape by definition...
 function Cone({ sides, ...props }) {
-  const geo = new THREE.ConeGeometry(0.7, 0.7, sides, 1)
-  geo.mergeVertices()
+  const geo = useMemo(() => {
+    const g = new THREE.ConeGeometry(0.7, 0.7, sides, 1)
+    g.mergeVertices()
+    return g
+  }, [])
   const [ref] = useConvexPolyhedron(() => ({ mass: 100, ...props, args: geo }))
   return (
-    <mesh castShadow ref={ref} {...props} dispose={null}>
-      <coneBufferGeometry attach="geometry" args={[0.7, 0.7, sides, 1]} />
+    <mesh castShadow ref={ref} {...props} geometry={geo} dispose={null}>
       <meshNormalMaterial attach="material" />
     </mesh>
   )
@@ -39,12 +41,14 @@ function Cone({ sides, ...props }) {
 
 // ...And so is a cube!
 function Cube({ size, ...props }) {
-  const geo = new THREE.BoxGeometry(size, size, size)
-  geo.mergeVertices()
+  const geo = useMemo(() => {
+    const g = new THREE.BoxGeometry(size, size, size)
+    g.mergeVertices()
+    return g
+  }, [])
   const [ref] = useConvexPolyhedron(() => ({ mass: 100, ...props, args: geo }))
   return (
-    <mesh castShadow ref={ref} {...props} dispose={null}>
-      <boxBufferGeometry attach="geometry" args={[size, size, size]} />
+    <mesh castShadow ref={ref} {...props} geometry={geo} dispose={null}>
       <meshNormalMaterial attach="material" />
     </mesh>
   )
