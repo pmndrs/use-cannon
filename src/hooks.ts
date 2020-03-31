@@ -115,6 +115,16 @@ type HingeConstraintOpts = ConstraintOptns & {
 
 type LockConstraintOpts = ConstraintOptns & {}
 
+type SpringOptns = {
+  restLength?: number
+  stiffness?: number
+  damping?: number
+  worldAnchorA?: number[]
+  worldAnchorB?: number[]
+  localAnchorA?: number[]
+  localAnchorB?: number[]
+}
+
 const temp = new THREE.Object3D()
 
 function prepare(object: THREE.Object3D, props: BodyProps, argFn: ArgFn) {
@@ -411,16 +421,6 @@ export function useLockConstraint(
   deps: any[] = []
 ) {
   return useConstraint('Lock', bodyA, bodyB, optns, deps)
-}
-
-type SpringOptns = {
-  restLength?: number
-  stiffness?: number
-  damping?: number
-  worldAnchorA?: number[]
-  worldAnchorB?: number[]
-  localAnchorA?: number[]
-  localAnchorB?: number[]
 }
 
 export function useSpring(

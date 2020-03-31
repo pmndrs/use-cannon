@@ -109,56 +109,56 @@ function Physics({
   size = 1000,
 }: ProviderProps): JSX.Element
 
-function usePlane(fn: PlaneFn, deps?: any[]): Api
-function useBox(fn: BoxFn, deps?: any[]): Api
-function useCylinder(fn: CylinderFn, deps?: any[]): Api
-function useHeightfield(fn: HeightfieldFn, deps?: any[]): Api
-function useParticle(fn: ParticleFn, deps?: any[]): Api
-function useSphere(fn: SphereFn, deps?: any[]): Api
-function useTrimesh(fn: TrimeshFn, deps?: any[]): Api
-function useConvexPolyhedron(fn: ConvexPolyhedronFn, deps?: any[]): Api
-function useCompoundBody(fn: CompoundBodyFn, deps?: any[]): Api
+function usePlane(fn: PlaneFn, ref?: React.MutableRefObject<THREE.Object3D>): Api
+function useBox(fn: BoxFn, ref?: React.MutableRefObject<THREE.Object3D>): Api
+function useCylinder(fn: CylinderFn, ref?: React.MutableRefObject<THREE.Object3D>): Api
+function useHeightfield(fn: HeightfieldFn, ref?: React.MutableRefObject<THREE.Object3D>): Api
+function useParticle(fn: ParticleFn, ref?: React.MutableRefObject<THREE.Object3D>): Api
+function useSphere(fn: SphereFn, ref?: React.MutableRefObject<THREE.Object3D>): Api
+function useTrimesh(fn: TrimeshFn, ref?: React.MutableRefObject<THREE.Object3D>): Api
+function useConvexPolyhedron(fn: ConvexPolyhedronFn, ref?: React.MutableRefObject<THREE.Object3D>): Api
+function useCompoundBody(fn: CompoundBodyFn, ref?: React.MutableRefObject<THREE.Object3D>): Api
 
 function usePointToPointConstraint(
   bodyA: React.MutableRefObject<THREE.Object3D>,
   bodyB: React.MutableRefObject<THREE.Object3D>,
   optns: PointToPointConstraintOpts,
-  deps: any[]
+  deps: any[] = []
 ): ConstraintApi
 
 function useConeTwistConstraint(
   bodyA: React.MutableRefObject<THREE.Object3D>,
   bodyB: React.MutableRefObject<THREE.Object3D>,
   optns: ConeTwistConstraintOpts,
-  deps: any[]
+  deps: any[] = []
 ): ConstraintApi
 
 function useDistanceConstraint(
   bodyA: React.MutableRefObject<THREE.Object3D>,
   bodyB: React.MutableRefObject<THREE.Object3D>,
   optns: DistanceConstraintOpts,
-  deps: any[]
+  deps: any[] = []
 ): ConstraintApi
 
 function useHingeConstraint(
   bodyA: React.MutableRefObject<THREE.Object3D>,
   bodyB: React.MutableRefObject<THREE.Object3D>,
   optns: HingeConstraintOpts,
-  deps: any[]
+  deps: any[] = []
 ): ConstraintApi
 
 function useLockConstraint(
   bodyA: React.MutableRefObject<THREE.Object3D>,
   bodyB: React.MutableRefObject<THREE.Object3D>,
   optns: LockConstraintOpts,
-  deps: any[]
+  deps: any[] = []
 ): ConstraintApi
 
 function useSpring(
   bodyA: React.MutableRefObject<THREE.Object3D>,
   bodyB: React.MutableRefObject<THREE.Object3D>,
-  optns?: any,
-  deps?: any[]
+  optns: SpringOptns,
+  deps: any[] = []
 ): void
 ```
 
@@ -230,7 +230,6 @@ type AtomicProps = {
 }
 
 type BodyProps = AtomicProps & {
-  ref?: React.MutableRefObject<THREE.Object3D>
   args?: any
   position?: number[]
   rotation?: number[]
@@ -307,6 +306,42 @@ type SphereFn = (index: number) => SphereProps
 type TrimeshFn = (index: number) => TrimeshProps
 type ConvexPolyhedronFn = (index: number) => ConvexPolyhedronProps
 type CompoundBodyFn = (index: number) => CompoundBodyProps
+
+type ConstraintOptns = { maxForce?: number; collideConnected?: boolean; wakeUpBodies?: boolean }
+
+type PointToPointConstraintOpts = ConstraintOptns & {
+  pivotA: number[]
+  pivotB: number[]
+}
+
+type ConeTwistConstraintOpts = ConstraintOptns & {
+  pivotA?: number[]
+  axisA?: number[]
+  pivotB?: number[]
+  axisB?: number[]
+  angle?: number
+  twistAngle?: number
+}
+type DistanceConstraintOpts = ConstraintOptns & { distance?: number }
+
+type HingeConstraintOpts = ConstraintOptns & {
+  pivotA?: number[]
+  axisA?: number[]
+  pivotB?: number[]
+  axisB?: number[]
+}
+
+type LockConstraintOpts = ConstraintOptns & {}
+
+type SpringOptns = {
+  restLength?: number
+  stiffness?: number
+  damping?: number
+  worldAnchorA?: number[]
+  worldAnchorB?: number[]
+  localAnchorA?: number[]
+  localAnchorB?: number[]
+}
 ```
 
 ### FAQ
