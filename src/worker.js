@@ -199,7 +199,9 @@ self.onmessage = (e) => {
       bodies[uuid].quaternion.setFromEuler(props[0], props[1], props[2], 'XYZ')
       break
     case 'getRotation':
-      resolveRequest(props, bodies[uuid].quaternion.toArray())
+      const euler = new Vec3()
+      bodies[uuid].quaternion.toEuler(euler)
+      resolveRequest(props, euler.toArray())
       break
     case 'setVelocity':
       bodies[uuid].velocity.set(props[0], props[1], props[2])
