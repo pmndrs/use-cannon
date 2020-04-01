@@ -1,9 +1,11 @@
 import type { Shape } from 'cannon-es'
+import type { Buffers, Refs, Events, Promises, ProviderContext } from './index'
+import type { AtomicProps } from './hooks'
 import React, { useState, useEffect, useRef, useMemo } from 'react'
 import { useThree } from 'react-three-fiber'
+import { context } from './index'
 // @ts-ignore
 import CannonWorker from '../src/worker'
-import { context, ProviderContext, Refs, Events } from './index'
 
 export type ProviderProps = {
   children: React.ReactNode
@@ -25,10 +27,11 @@ export type ProviderProps = {
   size?: number
 }
 
-export type Buffers = { positions: Float32Array; quaternions: Float32Array }
-
 type WorkerFrameMessage = { data: Buffers & { op: 'frame'; active: boolean } }
 type WorkerSyncMessage = { data: { op: 'sync'; bodies: string[] } }
+type WorkerResolveMessage = {
+  data: { op: 'resolve'; promise: string; value: AtomicProps[keyof AtomicProps] }
+}
 export type WorkerCollideEvent = {
   data: {
     op: 'event'
@@ -74,7 +77,11 @@ export type WorkerRayhitEvent = {
   }
 }
 type WorkerEventMessage = WorkerCollideEvent | WorkerRayhitEvent
-type IncomingWorkerMessage = WorkerFrameMessage | WorkerSyncMessage | WorkerEventMessage
+type IncomingWorkerMessage =
+  | WorkerFrameMessage
+  | WorkerSyncMessage
+  | WorkerResolveMessage
+  | WorkerEventMessage
 
 export default function Provider({
   children,
@@ -92,8 +99,9 @@ export default function Provider({
 }: ProviderProps): JSX.Element {
   const { invalidate } = useThree()
   const [worker] = useState<Worker>(() => new CannonWorker() as Worker)
-  const [events] = useState<Events>({})
   const [refs] = useState<Refs>({})
+  const [events] = useState<Events>({})
+  const [promises] = useState<Promises>({})
   const [buffers] = useState<Buffers>(() => ({
     positions: new Float32Array(size * 3),
     quaternions: new Float32Array(size * 4),
@@ -133,6 +141,13 @@ export default function Provider({
             {}
           )
           break
+        case 'resolve':
+          const { promise, value } = e.data
+          if (promises[promise]) {
+            promises[promise](value)
+            delete promises[promise]
+          }
+          break
         case 'event':
           switch (e.data.type) {
             case 'collide':
@@ -156,12 +171,13 @@ export default function Provider({
     return () => worker.terminate()
   }, [])
 
-  const api = useMemo(() => ({ worker, bodies, buffers, refs, events }), [
+  const api = useMemo(() => ({ worker, bodies, buffers, refs, events, promises }), [
     worker,
     bodies,
     buffers,
-    events,
     refs,
+    events,
+    promises,
   ])
   return <context.Provider value={api as ProviderContext}>{children}</context.Provider>
 }

@@ -1,21 +1,25 @@
 import type { Object3D } from 'three'
 import type { WorkerCollideEvent, WorkerRayhitEvent } from './Provider'
+import type { AtomicProps } from './hooks'
 import React, { Suspense, createContext, lazy } from 'react'
 import { ProviderProps } from './Provider'
 export * from './hooks'
 
+export type Buffers = { positions: Float32Array; quaternions: Float32Array }
 export type Refs = { [uuid: string]: Object3D }
 export type Event =
   | (Omit<WorkerRayhitEvent['data'], 'body'> & { body: Object3D | null })
   | (Omit<WorkerCollideEvent['data'], 'body' | 'target'> & { body: Object3D; target: Object3D })
 export type Events = { [uuid: string]: (e: Event) => void }
+export type Promises = { [uuid: string]: (value?: AtomicProps[keyof AtomicProps]) => void }
 
 export type ProviderContext = {
   worker: Worker
   bodies: React.MutableRefObject<{ [uuid: string]: number }>
-  buffers: { positions: Float32Array; quaternions: Float32Array }
+  buffers: Buffers
   refs: Refs
   events: Events
+  promises: Promises
 }
 
 const context = createContext<ProviderContext>({} as ProviderContext)
