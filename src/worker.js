@@ -62,10 +62,6 @@ function syncBodies() {
   bodies = world.bodies.reduce((acc, body) => ({ ...acc, [body.uuid]: body }), {})
 }
 
-function resolveRequest(promise, value) {
-  self.postMessage({ op: 'resolve', promise, value })
-}
-
 self.onmessage = (e) => {
   const { op, uuid, type, positions, quaternions, props } = e.data
 
@@ -192,82 +188,44 @@ self.onmessage = (e) => {
     case 'setPosition':
       bodies[uuid].position.set(props[0], props[1], props[2])
       break
-    case 'getPosition':
-      resolveRequest(props, bodies[uuid].position.toArray())
-      break
     case 'setRotation':
       bodies[uuid].quaternion.setFromEuler(props[0], props[1], props[2], 'XYZ')
-      break
-    case 'getRotation':
-      const euler = new Vec3()
-      bodies[uuid].quaternion.toEuler(euler)
-      resolveRequest(props, euler.toArray())
       break
     case 'setVelocity':
       bodies[uuid].velocity.set(props[0], props[1], props[2])
       break
-    case 'getVelocity':
-      resolveRequest(props, bodies[uuid].velocity.toArray())
-      break
     case 'setAngularVelocity':
       bodies[uuid].angularVelocity.set(props[0], props[1], props[2])
-      break
-    case 'getAngularVelocity':
-      resolveRequest(props, bodies[uuid].angularVelocity.toArray())
       break
     case 'setMass':
       bodies[uuid].mass = props
       break
-    case 'getMass':
-      resolveRequest(props, bodies[uuid].mass)
-      break
     case 'setLinearDamping':
       bodies[uuid].linearDamping = props
-      break
-    case 'getLinearDamping':
-      resolveRequest(props, bodies[uuid].linearDamping)
       break
     case 'setAngularDamping':
       bodies[uuid].angularDamping = props
       break
-    case 'getAngularDamping':
-      resolveRequest(props, bodies[uuid].angularDamping)
-      break
     case 'setAllowSleep':
       bodies[uuid].allowSleep = props
-      break
-    case 'getAllowSleep':
-      resolveRequest(props, bodies[uuid].allowSleep)
       break
     case 'setSleepSpeedLimit':
       bodies[uuid].sleepSpeedLimit = props
       break
-    case 'getSleepSpeedLimit':
-      resolveRequest(props, bodies[uuid].sleepSpeedLimit)
-      break
     case 'setSleepTimeLimit':
       bodies[uuid].sleepTimeLimit = props
-      break
-    case 'getSleepTimeLimit':
-      resolveRequest(props, bodies[uuid].sleepTimeLimit)
       break
     case 'setCollisionFilterGroup':
       bodies[uuid].collisionFilterGroup = props
       break
-    case 'getCollisionFilterGroup':
-      resolveRequest(props, bodies[uuid].collisionFilterGroup)
+    case 'setCollisionFilterMask':
+      bodies[uuid].collisionFilterMask = props
       break
     case 'setCollisionFilterMask':
       bodies[uuid].collisionFilterMask = props
       break
-    case 'getCollisionFilterMask':
-      resolveRequest(props, bodies[uuid].collisionFilterMask)
-      break
     case 'setFixedRotation':
       bodies[uuid].fixedRotation = props
-      break
-    case 'getFixedRotation':
-      resolveRequest(props, bodies[uuid].fixedRotation)
       break
     case 'applyForce':
       bodies[uuid].applyForce(new Vec3(...props[0]), new Vec3(...props[1]))
