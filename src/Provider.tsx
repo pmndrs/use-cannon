@@ -1,9 +1,10 @@
 import type { Shape } from 'cannon-es'
+import type { Buffers, Refs, Events, ProviderContext } from './index'
 import React, { useState, useEffect, useRef, useMemo } from 'react'
 import { useThree } from 'react-three-fiber'
 // @ts-ignore
 import CannonWorker from '../src/worker'
-import { context, ProviderContext, Refs, Events } from './index'
+import { context } from './index'
 
 export type ProviderProps = {
   children: React.ReactNode
@@ -24,8 +25,6 @@ export type ProviderProps = {
   }
   size?: number
 }
-
-export type Buffers = { positions: Float32Array; quaternions: Float32Array }
 
 type WorkerFrameMessage = { data: Buffers & { op: 'frame'; active: boolean } }
 type WorkerSyncMessage = { data: { op: 'sync'; bodies: string[] } }

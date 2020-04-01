@@ -4,6 +4,7 @@ import React, { Suspense, createContext, lazy } from 'react'
 import { ProviderProps } from './Provider'
 export * from './hooks'
 
+export type Buffers = { positions: Float32Array; quaternions: Float32Array }
 export type Refs = { [uuid: string]: Object3D }
 export type Event =
   | (Omit<WorkerRayhitEvent['data'], 'body'> & { body: Object3D | null })
@@ -13,7 +14,7 @@ export type Events = { [uuid: string]: (e: Event) => void }
 export type ProviderContext = {
   worker: Worker
   bodies: React.MutableRefObject<{ [uuid: string]: number }>
-  buffers: { positions: Float32Array; quaternions: Float32Array }
+  buffers: Buffers
   refs: Refs
   events: Events
 }
