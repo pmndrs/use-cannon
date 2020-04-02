@@ -1,11 +1,11 @@
 import type { MaterialOptions, RayOptions } from 'cannon-es'
-import type { Buffers, Event } from './index'
+import type { Buffers, Event, Subscriptions } from './index'
 import * as THREE from 'three'
 import React, { useLayoutEffect, useContext, useRef, useMemo, useEffect, useState } from 'react'
 import { useFrame } from 'react-three-fiber'
 import { context } from './index'
 
-type AtomicProps = {
+export type AtomicProps = {
   mass?: number
   material?: MaterialOptions
   linearDamping?: number
@@ -71,9 +71,16 @@ type ArgFn = (props: any) => any[]
 type WorkerVec = {
   set: (x: number, y: number, z: number) => void
   copy: ({ x, y, z }: THREE.Vector3 | THREE.Euler) => void
+  subscribe: (callback: (value: number[]) => void) => void
 }
 
-type WorkerApi = AtomicProps & {
+type WorkerProp<T> = {
+  [K in keyof T]: {
+    set: (value: T[K]) => void
+    subscribe: (callback: (value: T[K]) => void) => () => void
+  }
+}
+type WorkerApi = WorkerProp<AtomicProps> & {
   position: WorkerVec
   rotation: WorkerVec
   velocity: WorkerVec
@@ -149,7 +156,7 @@ function useBody(
 ): Api {
   const localRef = useRef<THREE.Object3D>((null as unknown) as THREE.Object3D)
   const ref = fwdRef ? fwdRef : localRef
-  const { worker, bodies, buffers, refs, events } = useContext(context)
+  const { worker, bodies, buffers, refs, events, subscriptions } = useContext(context)
 
   useLayoutEffect(() => {
     if (!ref.current) {
@@ -214,48 +221,48 @@ function useBody(
   const api = useMemo(() => {
     const getUUID = (index?: number) =>
       index !== undefined ? `${ref.current.uuid}/${index}` : ref.current.uuid
-    const post = (op: string, index: number | undefined, props: any) =>
+    const post = (op: string, index?: number, props?: any) =>
       ref.current && worker.postMessage({ op, uuid: getUUID(index), props })
-    const makeVec = (op: string, index: number | undefined) => ({
-      set: (x: number, y: number, z: number) => post(op, index, [x, y, z]),
-      copy: ({ x, y, z }: THREE.Vector3 | THREE.Euler) => post(op, index, [x, y, z]),
+    const subscribe = (type: string, index?: number) => {
+      return (callback: (value: any) => void) => {
+        const uuid = getUUID(index)
+        if (subscriptions[uuid]) subscriptions[uuid][type] = callback
+        else subscriptions[uuid] = { [type]: callback }
+        post('subscribe', index, type)
+        return () => {
+          delete subscriptions[uuid][type]
+          post('unsubscribe', index, type)
+        }
+      }
+    }
+    const opString = (action: string, type: string) => action + type.charAt(0).toUpperCase() + type.slice(1)
+    const makeVec = (type: string, index?: number) => ({
+      set: (x: number, y: number, z: number) => post(opString('set', type), index, [x, y, z]),
+      copy: ({ x, y, z }: THREE.Vector3 | THREE.Euler) => post(opString('set', type), index, [x, y, z]),
+      subscribe: subscribe(type, index),
+    })
+    const makeAtomic = (type: string, index?: number) => ({
+      set: (value: any) => post(opString('set', type), index, value),
+      subscribe: subscribe(type, index),
     })
 
     function makeApi(index?: number): WorkerApi {
       return {
         // Vectors
-        position: makeVec('setPosition', index),
-        rotation: makeVec('setRotation', index),
-        velocity: makeVec('setVelocity', index),
-        angularVelocity: makeVec('setAngularVelocity', index),
-        // Setters
-        set mass(value: number) {
-          post('setMass', index, value)
-        },
-        set linearDamping(value: number) {
-          post('setLinearDamping', index, value)
-        },
-        set angularDamping(value: number) {
-          post('setAngularDamping', index, value)
-        },
-        set allowSleep(value: boolean) {
-          post('setAllowSleep', index, value)
-        },
-        set sleepSpeedLimit(value: number) {
-          post('setSleepSpeedLimit', index, value)
-        },
-        set sleepTimeLimit(value: number) {
-          post('setSleepTimeLimit', index, value)
-        },
-        set collisionFilterGroup(value: number) {
-          post('setCollisionFilterGroup', index, value)
-        },
-        set collisionFilterMask(value: number) {
-          post('setCollisionFilterMask', index, value)
-        },
-        set fixedRotation(value: boolean) {
-          post('setFixedRotation', index, value)
-        },
+        position: makeVec('position', index),
+        rotation: makeVec('quaternion', index),
+        velocity: makeVec('velocity', index),
+        angularVelocity: makeVec('angularVelocity', index),
+        // Atomic props
+        mass: makeAtomic('mass', index),
+        linearDamping: makeAtomic('linearDamping', index),
+        angularDamping: makeAtomic('angularDamping', index),
+        allowSleep: makeAtomic('allowSleep', index),
+        sleepSpeedLimit: makeAtomic('sleepSpeedLimit', index),
+        sleepTimeLimit: makeAtomic('sleepTimeLimit', index),
+        collisionFilterGroup: makeAtomic('collisionFilterGroup', index),
+        collisionFilterMask: makeAtomic('collisionFilterMask', index),
+        fixedRotation: makeAtomic('fixedRotation', index),
         // Apply functions
         applyForce(force: number[], worldPoint: number[]) {
           post('applyForce', index, [force, worldPoint])
