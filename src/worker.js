@@ -30,6 +30,7 @@ const springs = {}
 const rays = {}
 const world = new World()
 const config = { step: 1 / 60 }
+const subscriptions = {}
 
 function createShape(type, args) {
   switch (type) {
@@ -90,7 +91,8 @@ self.onmessage = (e) => {
     }
     case 'step': {
       world.step(config.step)
-      for (let i = 0; i < world.bodies.length; i++) {
+      const numberOfBodies = world.bodies.length
+      for (let i = 0; i < numberOfBodies; i++) {
         let b = world.bodies[i],
           p = b.position,
           q = b.quaternion
@@ -111,6 +113,18 @@ self.onmessage = (e) => {
         },
         [positions.buffer, quaternions.buffer]
       )
+      for (const uuid of Object.keys(subscriptions)) {
+        for (const type of subscriptions[uuid]) {
+          let value = bodies[uuid][type]
+          if (value instanceof Vec3) value = value.toArray()
+          else if (value instanceof Quaternion) {
+            const euler = new Vec3()
+            value.toEuler(euler)
+            value = euler.toArray()
+          }
+          self.postMessage({ op: 'observe', uuid, type, value })
+        }
+      }
       break
     }
     case 'addBodies': {
@@ -185,10 +199,24 @@ self.onmessage = (e) => {
       syncBodies()
       break
     }
+    case 'subscribe':
+      if (subscriptions[uuid] && !subscriptions[uuid].includes(props)) subscriptions[uuid].push(props)
+      else subscriptions[uuid] = [props]
+      break
+    case 'unsubscribe':
+      if (!subscriptions[uuid]) return
+      const index = subscriptions[uuid].indexOf(props)
+      if (index !== -1) {
+        subscriptions[uuid] = subscriptions[uuid].splice(index, 1)
+      }
+      if (subscriptions[uuid].length === 0) {
+        delete subscriptions[uuid]
+      }
+      break
     case 'setPosition':
       bodies[uuid].position.set(props[0], props[1], props[2])
       break
-    case 'setRotation':
+    case 'setQuaternion':
       bodies[uuid].quaternion.setFromEuler(props[0], props[1], props[2], 'XYZ')
       break
     case 'setVelocity':

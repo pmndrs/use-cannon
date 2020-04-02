@@ -1,10 +1,10 @@
 import type { Shape } from 'cannon-es'
-import type { Buffers, Refs, Events, ProviderContext } from './index'
+import type { Buffers, Refs, Events, Subscriptions, ProviderContext } from './index'
 import React, { useState, useEffect, useRef, useMemo } from 'react'
 import { useThree } from 'react-three-fiber'
+import { context } from './index'
 // @ts-ignore
 import CannonWorker from '../src/worker'
-import { context } from './index'
 
 export type ProviderProps = {
   children: React.ReactNode
@@ -72,8 +72,13 @@ export type WorkerRayhitEvent = {
     shouldStop: boolean
   }
 }
+type WorkerObserveMessage = { data: { op: 'observe'; uuid: string; type: string; value: any } }
 type WorkerEventMessage = WorkerCollideEvent | WorkerRayhitEvent
-type IncomingWorkerMessage = WorkerFrameMessage | WorkerSyncMessage | WorkerEventMessage
+type IncomingWorkerMessage =
+  | WorkerFrameMessage
+  | WorkerSyncMessage
+  | WorkerEventMessage
+  | WorkerObserveMessage
 
 export default function Provider({
   children,
@@ -91,12 +96,13 @@ export default function Provider({
 }: ProviderProps): JSX.Element {
   const { invalidate } = useThree()
   const [worker] = useState<Worker>(() => new CannonWorker() as Worker)
-  const [events] = useState<Events>({})
   const [refs] = useState<Refs>({})
   const [buffers] = useState<Buffers>(() => ({
     positions: new Float32Array(size * 3),
     quaternions: new Float32Array(size * 4),
   }))
+  const [events] = useState<Events>({})
+  const [subscriptions] = useState<Subscriptions>({})
   const bodies = useRef<{ [uuid: string]: number }>({})
 
   useEffect(() => {
@@ -149,18 +155,23 @@ export default function Provider({
               break
           }
           break
+        case 'observe':
+          const { uuid, type, value } = e.data
+          subscriptions[uuid][type](value)
+          break
       }
     }
     loop()
     return () => worker.terminate()
   }, [])
 
-  const api = useMemo(() => ({ worker, bodies, buffers, refs, events }), [
+  const api = useMemo(() => ({ worker, bodies, refs, buffers, events, subscriptions }), [
     worker,
     bodies,
+    refs,
     buffers,
     events,
-    refs,
+    subscriptions,
   ])
   return <context.Provider value={api as ProviderContext}>{children}</context.Provider>
 }
