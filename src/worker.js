@@ -31,6 +31,7 @@ const rays = {}
 const world = new World()
 const config = { step: 1 / 60 }
 const subscriptions = {}
+const tempVector = new Vec3()
 
 function createShape(type, args) {
   switch (type) {
@@ -104,27 +105,28 @@ self.onmessage = (e) => {
         quaternions[4 * i + 2] = q.z
         quaternions[4 * i + 3] = q.w
       }
-      self.postMessage(
-        {
-          op: 'frame',
-          positions,
-          quaternions,
-          active: world.hasActiveBodies,
-        },
-        [positions.buffer, quaternions.buffer]
-      )
+      const observations = []
       for (const uuid of Object.keys(subscriptions)) {
         for (const type of subscriptions[uuid]) {
           let value = bodies[uuid][type]
           if (value instanceof Vec3) value = value.toArray()
           else if (value instanceof Quaternion) {
-            const euler = new Vec3()
-            value.toEuler(euler)
-            value = euler.toArray()
+            value.toEuler(tempVector)
+            value = tempVector.toArray()
           }
-          self.postMessage({ op: 'observe', uuid, type, value })
+          observations.push([uuid, type, value])
         }
       }
+      self.postMessage(
+        {
+          op: 'frame',
+          positions,
+          quaternions,
+          observations,
+          active: world.hasActiveBodies,
+        },
+        [positions.buffer, quaternions.buffer]
+      )
       break
     }
     case 'addBodies': {

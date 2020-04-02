@@ -26,7 +26,13 @@ export type ProviderProps = {
   size?: number
 }
 
-type WorkerFrameMessage = { data: Buffers & { op: 'frame'; active: boolean } }
+type WorkerFrameMessage = {
+  data: Buffers & {
+    op: 'frame'
+    observations: [string, string, any]
+    active: boolean
+  }
+}
 type WorkerSyncMessage = { data: { op: 'sync'; bodies: string[] } }
 export type WorkerCollideEvent = {
   data: {
@@ -72,13 +78,8 @@ export type WorkerRayhitEvent = {
     shouldStop: boolean
   }
 }
-type WorkerObserveMessage = { data: { op: 'observe'; uuid: string; type: string; value: any } }
 type WorkerEventMessage = WorkerCollideEvent | WorkerRayhitEvent
-type IncomingWorkerMessage =
-  | WorkerFrameMessage
-  | WorkerSyncMessage
-  | WorkerEventMessage
-  | WorkerObserveMessage
+type IncomingWorkerMessage = WorkerFrameMessage | WorkerSyncMessage | WorkerEventMessage
 
 export default function Provider({
   children,
@@ -129,6 +130,7 @@ export default function Provider({
         case 'frame':
           buffers.positions = e.data.positions
           buffers.quaternions = e.data.quaternions
+          e.data.observations.forEach(([uuid, type, value]) => subscriptions[uuid][type](value))
           requestAnimationFrame(loop)
           if (e.data.active) invalidate()
           break
@@ -154,10 +156,6 @@ export default function Provider({
               })
               break
           }
-          break
-        case 'observe':
-          const { uuid, type, value } = e.data
-          subscriptions[uuid][type](value)
           break
       }
     }
