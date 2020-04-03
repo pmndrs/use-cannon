@@ -50,6 +50,13 @@ const [ref, api] = useBox(() => ({ mass: 1 }))
 useFrame(({ clock }) => api.position.set(Math.sin(clock.getElapsedTime()) * 5, 0, 0))
 ```
 
+6. You can use the body api to subscribe to properties to get updates on each frame.
+
+```jsx
+const velocity = useRef([0, 0, 0])
+useEffect(() => api.velocity.subscribe((v) => (velocity.current = v)), [])
+```
+
 ## Simple example
 
 Let's make a cube falling onto a plane. You can play with a sandbox [here](https://codesandbox.io/s/r3f-cannon-instanced-physics-l40oh).
@@ -165,7 +172,7 @@ function useSpring(
 ### Returned api
 
 ```typescript
-type WorkerApi = AtomicProps & {
+type WorkerApi = WorkerProps<AtomicProps> & {
   position: WorkerVec
   rotation: WorkerVec
   velocity: WorkerVec

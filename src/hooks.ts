@@ -74,13 +74,13 @@ type WorkerVec = {
   subscribe: (callback: (value: number[]) => void) => void
 }
 
-type WorkerProp<T> = {
+type WorkerProps<T> = {
   [K in keyof T]: {
     set: (value: T[K]) => void
     subscribe: (callback: (value: T[K]) => void) => () => void
   }
 }
-type WorkerApi = WorkerProp<AtomicProps> & {
+type WorkerApi = WorkerProps<AtomicProps> & {
   position: WorkerVec
   rotation: WorkerVec
   velocity: WorkerVec
