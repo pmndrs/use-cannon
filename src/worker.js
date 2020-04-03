@@ -156,7 +156,7 @@ self.onmessage = (e) => {
             const shapeBody = body.addShape(
               createShape(type, args),
               position ? new Vec3(...position) : undefined,
-              rotation ? new Quaternion(...rotation) : undefined
+              rotation ? new Quaternion().setFromEuler(...rotation) : undefined
             )
             if (material) shapeBody.material = new Material(material)
             Object.assign(shapeBody, extra)
@@ -213,7 +213,7 @@ self.onmessage = (e) => {
       bodies[uuid].position.set(props[0], props[1], props[2])
       break
     case 'setQuaternion':
-      bodies[uuid].quaternion.setFromEuler(props[0], props[1], props[2], 'XYZ')
+      bodies[uuid].quaternion.setFromEuler(props[0], props[1], props[2])
       break
     case 'setVelocity':
       bodies[uuid].velocity.set(props[0], props[1], props[2])
