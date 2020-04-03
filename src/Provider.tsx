@@ -29,7 +29,7 @@ export type ProviderProps = {
 type WorkerFrameMessage = {
   data: Buffers & {
     op: 'frame'
-    observations: [string, string, any]
+    observations: [string, any]
     active: boolean
   }
 }
@@ -130,7 +130,7 @@ export default function Provider({
         case 'frame':
           buffers.positions = e.data.positions
           buffers.quaternions = e.data.quaternions
-          e.data.observations.forEach(([uuid, type, value]) => subscriptions[uuid][type](value))
+          e.data.observations.forEach(([id, value]) => subscriptions[id](value))
           requestAnimationFrame(loop)
           if (e.data.active) invalidate()
           break
