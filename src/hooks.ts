@@ -148,6 +148,8 @@ function apply(object: THREE.Object3D, index: number, buffers: Buffers) {
   }
 }
 
+let subscriptionGuid = 0
+
 function useBody(
   type: BodyShapeType,
   fn: BodyFn,
@@ -225,13 +227,12 @@ function useBody(
       ref.current && worker.postMessage({ op, uuid: getUUID(index), props })
     const subscribe = (type: string, index?: number) => {
       return (callback: (value: any) => void) => {
-        const uuid = getUUID(index)
-        if (subscriptions[uuid]) subscriptions[uuid][type] = callback
-        else subscriptions[uuid] = { [type]: callback }
-        post('subscribe', index, type)
+        const id = subscriptionGuid++
+        subscriptions[id] = callback
+        post('subscribe', index, { id, type })
         return () => {
-          delete subscriptions[uuid][type]
-          post('unsubscribe', index, type)
+          delete subscriptions[id]
+          post('unsubscribe', index, id)
         }
       }
     }

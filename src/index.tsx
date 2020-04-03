@@ -12,7 +12,7 @@ export type Event =
   | (Omit<WorkerCollideEvent['data'], 'body' | 'target'> & { body: Object3D; target: Object3D })
 export type Events = { [uuid: string]: (e: Event) => void }
 export type Subscriptions = {
-  [uuid: string]: { [key: string]: (value: AtomicProps[keyof AtomicProps] | number[]) => void }
+  [id: string]: (value: AtomicProps[keyof AtomicProps] | number[]) => void
 }
 
 export type ProviderContext = {

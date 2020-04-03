@@ -106,16 +106,15 @@ self.onmessage = (e) => {
         quaternions[4 * i + 3] = q.w
       }
       const observations = []
-      for (const uuid of Object.keys(subscriptions)) {
-        for (const type of subscriptions[uuid]) {
-          let value = bodies[uuid][type]
-          if (value instanceof Vec3) value = value.toArray()
-          else if (value instanceof Quaternion) {
-            value.toEuler(tempVector)
-            value = tempVector.toArray()
-          }
-          observations.push([uuid, type, value])
+      for (const id of Object.keys(subscriptions)) {
+        const [uuid, type] = subscriptions[id]
+        let value = bodies[uuid][type]
+        if (value instanceof Vec3) value = value.toArray()
+        else if (value instanceof Quaternion) {
+          value.toEuler(tempVector)
+          value = tempVector.toArray()
         }
+        observations.push([id, value])
       }
       self.postMessage(
         {
@@ -201,20 +200,15 @@ self.onmessage = (e) => {
       syncBodies()
       break
     }
-    case 'subscribe':
-      if (subscriptions[uuid] && !subscriptions[uuid].includes(props)) subscriptions[uuid].push(props)
-      else subscriptions[uuid] = [props]
+    case 'subscribe': {
+      const { id, type } = props
+      subscriptions[id] = [uuid, type]
       break
-    case 'unsubscribe':
-      if (!subscriptions[uuid]) return
-      const index = subscriptions[uuid].indexOf(props)
-      if (index !== -1) {
-        subscriptions[uuid] = subscriptions[uuid].splice(index, 1)
-      }
-      if (subscriptions[uuid].length === 0) {
-        delete subscriptions[uuid]
-      }
+    }
+    case 'unsubscribe': {
+      delete subscriptions[props]
       break
+    }
     case 'setPosition':
       bodies[uuid].position.set(props[0], props[1], props[2])
       break
