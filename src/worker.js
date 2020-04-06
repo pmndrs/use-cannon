@@ -170,7 +170,7 @@ self.onmessage = (e) => {
         world.addBody(body)
 
         if (onCollide)
-          body.addEventListener('collide', ({ type, contact, target }) => {
+          body.addEventListener('collide', ({ type, body, target, contact }) => {
             const { ni, ri, rj } = contact
             self.postMessage({
               op: 'event',

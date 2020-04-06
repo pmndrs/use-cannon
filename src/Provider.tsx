@@ -38,8 +38,8 @@ export type WorkerCollideEvent = {
   data: {
     op: 'event'
     type: 'collide'
-    body: string
     target: string
+    body: string
     contact: {
       ni: number[]
       ri: number[]
@@ -143,10 +143,10 @@ export default function Provider({
         case 'event':
           switch (e.data.type) {
             case 'collide':
-              events[e.data.body]({
+              events[e.data.target]({
                 ...e.data,
-                body: refs[e.data.body],
                 target: refs[e.data.target],
+                body: refs[e.data.body],
               })
               break
             case 'rayhit':
