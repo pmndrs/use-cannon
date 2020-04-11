@@ -16,7 +16,7 @@
     "react-three-fiber": "4.0.24",
     "styled-components": "^5.0.1",
     "three": "0.115.0",
-    "use-cannon": "0.4.1",
+    "use-cannon": "0.4.3",
     "zustand": "^2.2.3"
   },
   "devDependencies": {
