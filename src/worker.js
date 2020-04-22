@@ -137,6 +137,8 @@ self.onmessage = (e) => {
           scale = [1, 1, 1],
           velocity = [0, 0, 0],
           angularVelocity = [0, 0, 0],
+          linearFactor = [1, 1, 1],
+          angularFactor = [1, 1, 1],
           type: bodyType,
           mass,
           material,
@@ -171,6 +173,8 @@ self.onmessage = (e) => {
         body.quaternion.setFromEuler(rotation[0], rotation[1], rotation[2])
         body.velocity.set(velocity[0], velocity[1], velocity[2])
         body.angularVelocity.set(angularVelocity[0], angularVelocity[1], angularVelocity[2])
+        body.linearFactor.set(linearFactor[0], linearFactor[1], linearFactor[2])
+        body.angularFactor.set(angularFactor[0], angularFactor[1], angularFactor[2])
         world.addBody(body)
 
         if (onCollide)
@@ -224,6 +228,12 @@ self.onmessage = (e) => {
       break
     case 'setAngularVelocity':
       bodies[uuid].angularVelocity.set(props[0], props[1], props[2])
+      break
+    case 'setLinearFactor':
+      bodies[uuid].linearFactor.set(props[0], props[1], props[2])
+      break
+    case 'setAngularFactor':
+      bodies[uuid].angularFactor.set(props[0], props[1], props[2])
       break
     case 'setMass':
       bodies[uuid].mass = props

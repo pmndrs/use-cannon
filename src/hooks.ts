@@ -24,6 +24,8 @@ type BodyProps = AtomicProps & {
   rotation?: number[]
   velocity?: number[]
   angularVelocity?: number[]
+  linearFactor?: number[]
+  angularFactor?: number[]
   type?: 'Dynamic' | 'Static' | 'Kinematic'
   onCollide?: (e: Event) => void
 }
@@ -85,6 +87,8 @@ type WorkerApi = WorkerProps<AtomicProps> & {
   rotation: WorkerVec
   velocity: WorkerVec
   angularVelocity: WorkerVec
+  linearFactor: WorkerVec
+  angularFactor: WorkerVec
   applyForce: (force: number[], worldPoint: number[]) => void
   applyImpulse: (impulse: number[], worldPoint: number[]) => void
   applyLocalForce: (force: number[], localPoint: number[]) => void
@@ -254,6 +258,8 @@ function useBody(
         rotation: makeVec('quaternion', index),
         velocity: makeVec('velocity', index),
         angularVelocity: makeVec('angularVelocity', index),
+        linearFactor: makeVec('linearFactor', index),
+        angularFactor: makeVec('angularFactor', index),
         // Atomic props
         mass: makeAtomic('mass', index),
         linearDamping: makeAtomic('linearDamping', index),
