@@ -40,7 +40,8 @@
   "peerDependencies": {
     "react": ">=16.13",
     "react-dom": ">=16.13",
-    "react-three-fiber": ">=4.0"
+    "react-three-fiber": ">=4.0",
+    "typescript": ">=3.8"
   },
   "devDependencies": {
     "@babel/core": "^7.9.0",
