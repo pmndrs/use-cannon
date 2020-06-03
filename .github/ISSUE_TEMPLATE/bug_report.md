@@ -7,4 +7,4 @@ assignees: ''
 
 ---
 
-👋 Hi there, for issues that could be related to cannon itself or threejs etc, please consider using spectrum: https://spectrum.chat/use-cannon
+👋 Hi there, for issues that could be related to cannon itself or threejs etc, please consider using github-discussions: https://github.com/react-spring/use-cannon/discussions
