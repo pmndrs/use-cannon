@@ -17,5 +17,5 @@ module.exports = override(
     'react-three-fiber': path.resolve('node_modules/react-three-fiber'),
     'use-cannon': path.resolve('../dist/debug/index.js'),
   }),
-  addReactRefresh({ disableRefreshCheck: true })
+  addReactRefresh()
 )

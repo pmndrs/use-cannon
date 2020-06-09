@@ -8,21 +8,21 @@
     "lerp": "^1.0.3",
     "lodash-es": "^4.17.15",
     "nice-color-palettes": "3.0.0",
-    "postprocessing": "^6.13.2",
+    "postprocessing": "^6.14.0",
     "react": "16.13.1",
     "react-dom": "16.13.1",
-    "react-router-dom": "^5.1.2",
+    "react-router-dom": "^5.2.0",
     "react-scripts": "3.4.1",
-    "react-three-fiber": "4.0.24",
-    "styled-components": "^5.0.1",
-    "three": "0.115.0",
-    "use-cannon": "0.4.4",
+    "react-three-fiber": "4.2.8",
+    "styled-components": "^5.1.1",
+    "three": "0.117.1",
+    "use-cannon": "file:../dist",
     "zustand": "^2.2.3"
   },
   "devDependencies": {
-    "customize-cra": "^0.9.1",
-    "customize-cra-react-refresh": "^1.0.1",
-    "react-app-rewired": "^2.1.5"
+    "customize-cra": "^1.0.0",
+    "customize-cra-react-refresh": "^1.1.0",
+    "react-app-rewired": "^2.1.6"
   },
   "scripts": {
     "start": "react-app-rewired start",
