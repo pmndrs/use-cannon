@@ -105,7 +105,7 @@ function Physics({
   gravity = [0, -10, 0],
   tolerance = 0.001,
   iterations = 5,
-  allowSleep = true,
+  allowSleep = false,
   broadphase = 'Naive',
   axisIndex = 0,
   defaultContactMaterial = {
