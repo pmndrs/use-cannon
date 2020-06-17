@@ -299,7 +299,7 @@ export function usePlane(fn: PlaneFn, fwdRef?: React.MutableRefObject<THREE.Obje
   return useBody('Plane', fn, () => [], fwdRef)
 }
 export function useBox(fn: BoxFn, fwdRef?: React.MutableRefObject<THREE.Object3D>) {
-  return useBody('Box', fn, (args) => args.map((x: number) => x / 2) || [0.5, 0.5, 0.5], fwdRef)
+  return useBody('Box', fn, (args) => (args ? args.map((x: number) => x / 2) : [0.5, 0.5, 0.5]), fwdRef)
 }
 export function useCylinder(fn: CylinderFn, fwdRef?: React.MutableRefObject<THREE.Object3D>) {
   return useBody('Cylinder', fn, (args) => args, fwdRef)
