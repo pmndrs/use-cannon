@@ -2,7 +2,7 @@ import * as THREE from 'three'
 import React, { useMemo } from 'react'
 import { Canvas, useFrame } from 'react-three-fiber'
 import niceColors from 'nice-color-palettes'
-import { Physics, usePlane, useBox } from 'use-cannon'
+import { Physics, usePlane, useBox } from '../../../dist'
 
 function Plane(props) {
   const [ref] = usePlane(() => ({ ...props }))
@@ -15,9 +15,10 @@ function Plane(props) {
 }
 
 function Cubes({ number }) {
+  const boxSize = [0.1, 0.1, 0.1]
   const [ref, { at }] = useBox(() => ({
     mass: 1,
-    args: [0.05, 0.05, 0.05],
+    args: boxSize,
     position: [Math.random() - 0.5, Math.random() * 2, Math.random() - 0.5],
   }))
 
@@ -36,7 +37,7 @@ function Cubes({ number }) {
 
   return (
     <instancedMesh receiveShadow castShadow ref={ref} args={[null, null, number]}>
-      <boxBufferGeometry attach="geometry" args={[0.1, 0.1, 0.1]}>
+      <boxBufferGeometry attach="geometry" args={boxSize}>
         <instancedBufferAttribute attachObject={['attributes', 'color']} args={[colors, 3]} />
       </boxBufferGeometry>
       <meshLambertMaterial attach="material" vertexColors={THREE.VertexColors} />
