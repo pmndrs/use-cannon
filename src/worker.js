@@ -23,7 +23,7 @@ import {
   Quaternion,
   Ray,
   RaycastResult,
-} from '../../cannon-es'
+} from 'cannon-es'
 
 let bodies = {}
 const springs = {}
