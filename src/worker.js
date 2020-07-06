@@ -23,7 +23,7 @@ import {
   Quaternion,
   Ray,
   RaycastResult,
-} from 'cannon-es'
+} from '../../cannon-es'
 
 let bodies = {}
 const springs = {}
@@ -36,7 +36,7 @@ const tempVector = new Vec3()
 function createShape(type, args) {
   switch (type) {
     case 'Box':
-      return new Box(new Vec3(...args)) // halfExtents
+      return new Box(new Vec3(...args.map((v) => v / 2))) // extents => halfExtents
     case 'ConvexPolyhedron':
       const [v, f, n] = args
       return new ConvexPolyhedron({
