@@ -1,5 +1,6 @@
 import React, { Suspense, useState, useRef, useEffect } from 'react'
-import { Canvas, useFrame, useThree, Dom, extend } from 'react-three-fiber'
+import { Canvas, useFrame, useThree, extend } from 'react-three-fiber'
+import { HTML } from 'drei'
 import { Physics, useSphere, useBox, useRaycastAll } from 'use-cannon'
 import { Vector3 } from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
@@ -36,7 +37,7 @@ function Sphere({ radius, position }) {
 }
 
 function Cube({ size, position }) {
-  const [ref, api] = useBox(() => ({ type: 'Static', args: size.map((n) => n * 0.5), position }))
+  const [ref, api] = useBox(() => ({ type: 'Static', args: size, position }))
   useFrame(({ clock: { elapsedTime } }) => {
     api.position.set(Math.sin(elapsedTime / 2) * 2, position[1], position[2])
   })
@@ -64,9 +65,9 @@ function Ray({ from, to, setHit }) {
 
 function Text({ hit }) {
   return (
-    <Dom center={true} style={{ pointerEvents: 'none' }}>
+    <HTML center style={{ pointerEvents: 'none' }}>
       <pre>{prettyPrint(hit)}</pre>
-    </Dom>
+    </HTML>
   )
 }
 
