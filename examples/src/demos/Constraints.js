@@ -3,10 +3,11 @@ import { Canvas, useFrame } from 'react-three-fiber'
 import { Physics, useSphere, useBox, useSpring } from 'use-cannon'
 
 const Box = React.forwardRef((props, ref) => {
+  const boxSize = [1, 1, 1]
   useBox(
     () => ({
       mass: 1,
-      args: [0.5, 0.5, 0.5],
+      args: boxSize,
       linearDamping: 0.7,
       ...props,
     }),
@@ -14,7 +15,7 @@ const Box = React.forwardRef((props, ref) => {
   )
   return (
     <mesh ref={ref}>
-      <boxBufferGeometry attach="geometry" args={[1, 1, 1]} />
+      <boxBufferGeometry attach="geometry" args={boxSize} />
       <meshNormalMaterial attach="material" />
     </mesh>
   )

@@ -10,7 +10,7 @@ const ChainLink = ({ children, ...props }) => {
   const [ref] = useBox(() => ({
     mass: 1,
     linearDamping: 0.8,
-    args: chainSize.map((s) => s / 2),
+    args: chainSize,
     position: props.position,
   }))
   useConeTwistConstraint(parentRef, ref, {
