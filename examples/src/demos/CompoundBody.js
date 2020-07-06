@@ -19,22 +19,24 @@ function Plane(props) {
 }
 
 function CompoundBody(props) {
+  const boxSize = [1, 1, 1]
+  const sphereRadius = 0.65
   const [ref] = useCompoundBody(() => ({
     mass: 12,
     ...props,
     shapes: [
-      { type: 'Box', position: [0, 0, 0], rotation: [0, 0, 0], args: [0.5, 0.5, 0.5] },
-      { type: 'Sphere', position: [1, 0, 0], rotation: [0, 0, 0], args: [0.65] },
+      { type: 'Box', position: [0, 0, 0], rotation: [0, 0, 0], args: boxSize },
+      { type: 'Sphere', position: [1, 0, 0], rotation: [0, 0, 0], args: [sphereRadius] },
     ],
   }))
   return (
     <group ref={ref}>
       <mesh castShadow>
-        <boxBufferGeometry attach="geometry" args={[1, 1, 1]} />
+        <boxBufferGeometry attach="geometry" args={boxSize} />
         <meshNormalMaterial attach="material" />
       </mesh>
       <mesh castShadow position={[1, 0, 0]}>
-        <sphereBufferGeometry attach="geometry" args={[0.65, 16, 16]} />
+        <sphereBufferGeometry attach="geometry" args={[sphereRadius, 16, 16]} />
         <meshNormalMaterial attach="material" />
       </mesh>
     </group>
