@@ -1,7 +1,7 @@
 import type { Shape } from 'cannon-es'
 import type { Buffers, Refs, Events, Subscriptions, ProviderContext } from './index'
 import React, { useState, useEffect, useRef, useMemo } from 'react'
-import { useThree } from 'react-three-fiber'
+import { useThree, useFrame } from 'react-three-fiber'
 import { context } from './index'
 // @ts-ignore
 import CannonWorker from '../src/worker'
@@ -95,7 +95,7 @@ export default function Provider({
   },
   size = 1000,
 }: ProviderProps): JSX.Element {
-  const { invalidate } = useThree()
+  const { gl, invalidate } = useThree()
   const [worker] = useState<Worker>(() => new CannonWorker() as Worker)
   const [refs] = useState<Refs>({})
   const [buffers] = useState<Buffers>(() => ({
@@ -105,6 +105,22 @@ export default function Provider({
   const [events] = useState<Events>({})
   const [subscriptions] = useState<Subscriptions>({})
   const bodies = useRef<{ [uuid: string]: number }>({})
+  const loop = useMemo(() => () => {
+    if(buffers.positions.byteLength !== 0 && buffers.quaternions.byteLength !== 0) {
+      worker.postMessage({ op: 'step', ...buffers }, [buffers.positions.buffer, buffers.quaternions.buffer])
+    }
+  }, []);
+
+  const prevPresenting = useRef(false);
+  useFrame(() => {
+    if(gl.xr.isPresenting && !prevPresenting.current) {
+      gl.xr.getSession().requestAnimationFrame(loop);
+    }
+    if(!gl.xr.isPresenting && prevPresenting.current) {
+      requestAnimationFrame(loop);
+    }
+    prevPresenting.current = gl.xr.isPresenting;
+  });
 
   useEffect(() => {
     worker.postMessage({
@@ -121,17 +137,17 @@ export default function Provider({
       },
     })
 
-    function loop() {
-      worker.postMessage({ op: 'step', ...buffers }, [buffers.positions.buffer, buffers.quaternions.buffer])
-    }
-
     worker.onmessage = (e: IncomingWorkerMessage) => {
       switch (e.data.op) {
         case 'frame':
           buffers.positions = e.data.positions
           buffers.quaternions = e.data.quaternions
           e.data.observations.forEach(([id, value]) => subscriptions[id](value))
-          requestAnimationFrame(loop)
+          if(gl.xr.isPresenting) {
+            gl.xr.getSession().requestAnimationFrame(loop);
+          } else {
+            requestAnimationFrame(loop);
+          }
           if (e.data.active) invalidate()
           break
         case 'sync':
