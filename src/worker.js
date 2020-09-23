@@ -332,7 +332,10 @@ self.onmessage = (e) => {
       break
     }
     case 'removeConstraint':
-      world.removeConstraint(uuid)
+      const constraint = world.constraints.find(({ uuid: thisId }) => thisId === uuid)
+      if (constraint) {
+        world.removeConstraint(uuid)
+      }
       break
 
     case 'enableConstraint':
