@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import React, { Suspense, useMemo } from 'react'
 import { Canvas, useLoader } from 'react-three-fiber'
-import { Physics, usePlane, useConvexPolyhedron } from 'use-cannon'
+import { Physics, usePlane, useConvexPolyhedron } from '@react-three/cannon'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import { ConvexGeometry } from 'three/examples/jsm/geometries/ConvexGeometry'
 

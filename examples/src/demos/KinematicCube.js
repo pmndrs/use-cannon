@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import React, { useMemo } from 'react'
 import { Canvas, useFrame } from 'react-three-fiber'
-import { Physics, useBox, usePlane, useSphere } from 'use-cannon'
+import { Physics, useBox, usePlane, useSphere } from '@react-three/cannon'
 import niceColors from 'nice-color-palettes'
 
 function Plane({ color, ...props }) {

@@ -1,6 +1,6 @@
 import React, { useRef } from 'react'
 import { Canvas, useFrame } from 'react-three-fiber'
-import { Physics, useSphere, useBox, useSpring } from 'use-cannon'
+import { Physics, useSphere, useBox, useSpring } from '@react-three/cannon'
 
 const Box = React.forwardRef((props, ref) => {
   const boxSize = [1, 1, 1]
