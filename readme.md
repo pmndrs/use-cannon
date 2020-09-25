@@ -1,10 +1,13 @@
-[![Build Status](https://travis-ci.org/react-spring/use-cannon.svg?branch=master)](https://travis-ci.org/react-spring/use-cannon) [![npm version](https://badge.fury.io/js/use-cannon.svg)](https://badge.fury.io/js/use-cannon) ![npm](https://img.shields.io/npm/dt/use-cannon.svg)
+[![Build Status](https://travis-ci.org/pmndrs/cannon.svg?branch=master)](https://travis-ci.org/pmndrs/cannon)
+[![Version](https://img.shields.io/npm/v/react-three/cannon?style=flat&colorA=000000&colorB=000000)](https://www.npmjs.com/package/@react-three/cannon)
+[![Downloads](https://img.shields.io/npm/dt/react-three/cannon.svg?style=flat&colorA=000000&colorB=000000)](https://www.npmjs.com/package/@react-three/cannon)
+[![Discord Shield](https://img.shields.io/discord/740090768164651008?style=flat&colorA=000000&colorB=000000&label=discord&logo=discord&logoColor=ffffff)](https://discord.gg/ZZjjNvJ)
 
 ![Imgur](https://imgur.com/FpBsJPL.jpg)
 
-    yarn add use-cannon
+    yarn add @react-three/cannon
 
-Experimental React hooks for [cannon](https://github.com/schteppe/cannon.js). Use this in combination with [react-three-fiber](https://github.com/react-spring/react-three-fiber).
+Experimental React hooks for [cannon](https://github.com/schteppe/cannon.js). Use this in combination with [react-three-fiber](https://github.com/pmndrs/react-three-fiber).
 
 - [x] Doesn't block the main thread, runs in a web worker
 - [x] Supports instancing out of the box
@@ -23,7 +26,7 @@ Heap of cubes: https://codesandbox.io/s/r3f-cannon-instanced-physics-g1s88
 1. Get all the imports that you need.
 
 ```jsx
-import { Physics, useBox, ... } from 'use-cannon'
+import { Physics, useBox, ... } from '@react-three/cannon'
 ```
 
 2. Create a physics world.
@@ -63,7 +66,7 @@ Let's make a cube falling onto a plane. You can play with a sandbox [here](https
 
 ```jsx
 import { Canvas } from 'react-three-fiber'
-import { Physics, usePlane, useBox } from 'use-cannon'
+import { Physics, usePlane, useBox } from '@react-three/cannon'
 
 function Plane(props) {
   const [ref] = usePlane(() => ({ rotation: [-Math.PI / 2, 0, 0], ...props }))
