@@ -62,7 +62,7 @@
     "lebab": "^3.1.0",
     "prettier": "^2.0.5",
     "pretty-quick": "^2.0.1",
-    "react-three-fiber": "^5.0.0",
+    "react-three-fiber": "^5.0.1",
     "rimraf": "^3.0.2",
     "rollup": "^2.19.0",
     "rollup-plugin-babel": "^4.4.0",
