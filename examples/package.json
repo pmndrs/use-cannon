@@ -5,7 +5,8 @@
   "keywords": [],
   "main": "src/index.js",
   "dependencies": {
-    "drei": "^0.0.60",
+    "@react-three/cannon": "file:../dist",
+    "@react-three/drei": "^1.5.7",
     "lerp": "^1.0.3",
     "lodash-es": "^4.17.15",
     "nice-color-palettes": "3.0.0",
@@ -14,10 +15,9 @@
     "react-dom": "16.13.1",
     "react-router-dom": "^5.2.0",
     "react-scripts": "3.4.1",
-    "react-three-fiber": "4.2.12",
+    "react-three-fiber": "^5.0.1",
     "styled-components": "^5.1.1",
     "three": "0.118.3",
-    "use-cannon": "file:../dist",
     "zustand": "^2.2.3"
   },
   "devDependencies": {

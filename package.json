@@ -1,5 +1,5 @@
 {
-  "name": "use-cannon",
+  "name": "@react-three/cannon",
   "version": "0.5.3",
   "description": "physics based hooks for react-three-fiber",
   "keywords": [
@@ -40,7 +40,7 @@
   "peerDependencies": {
     "react": ">=16.13",
     "react-dom": ">=16.13",
-    "react-three-fiber": ">=4.2",
+    "react-three-fiber": ">=5.0",
     "typescript": ">=3.9"
   },
   "devDependencies": {
@@ -62,14 +62,14 @@
     "lebab": "^3.1.0",
     "prettier": "^2.0.5",
     "pretty-quick": "^2.0.1",
-    "react-three-fiber": "^4.2.12",
+    "react-three-fiber": "^5.0.1",
     "rimraf": "^3.0.2",
     "rollup": "^2.19.0",
     "rollup-plugin-babel": "^4.4.0",
     "rollup-plugin-node-resolve": "^5.2.0",
     "rollup-plugin-terser": "^6.1.0",
     "rollup-plugin-web-worker-loader": "^1.3.1",
-    "three": "^0.118.3",
+    "three": "^0.120.1",
     "typescript": "^3.9.6",
     "react-merge-refs": "^1.0.0"
   }

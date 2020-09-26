@@ -19,7 +19,7 @@ import {
   usePlane,
   useConeTwistConstraint,
   usePointToPointConstraint,
-} from 'use-cannon'
+} from '@react-three/cannon'
 import { createRagdoll } from './createConfig'
 
 const { shapes, joints } = createRagdoll(4.8, Math.PI / 16, Math.PI / 16, 0)

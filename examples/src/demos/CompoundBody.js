@@ -1,6 +1,6 @@
 import React, { Suspense } from 'react'
 import { Canvas } from 'react-three-fiber'
-import { Physics, usePlane, useCompoundBody } from 'use-cannon'
+import { Physics, usePlane, useCompoundBody } from '@react-three/cannon'
 
 function Plane(props) {
   const [ref] = usePlane(() => ({ type: 'Static', ...props }))

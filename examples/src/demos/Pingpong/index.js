@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import React, { Suspense, useRef } from 'react'
 import { Canvas, useFrame, useLoader } from 'react-three-fiber'
-import { Physics, useSphere, useBox, usePlane } from 'use-cannon'
+import { Physics, useSphere, useBox, usePlane } from '@react-three/cannon'
 import lerp from 'lerp'
 import clamp from 'lodash-es/clamp'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'

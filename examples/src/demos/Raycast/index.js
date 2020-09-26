@@ -1,7 +1,7 @@
 import React, { Suspense, useState, useRef, useEffect } from 'react'
 import { Canvas, useFrame, useThree, extend } from 'react-three-fiber'
-import { HTML } from 'drei'
-import { Physics, useSphere, useBox, useRaycastAll } from 'use-cannon'
+import { Html } from '@react-three/drei'
+import { Physics, useSphere, useBox, useRaycastAll } from '@react-three/cannon'
 import { Vector3 } from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { prettyPrint } from './prettyPrint'
@@ -65,9 +65,9 @@ function Ray({ from, to, setHit }) {
 
 function Text({ hit }) {
   return (
-    <HTML center style={{ pointerEvents: 'none' }}>
+    <Html center style={{ pointerEvents: 'none' }}>
       <pre>{prettyPrint(hit)}</pre>
-    </HTML>
+    </Html>
   )
 }
 
