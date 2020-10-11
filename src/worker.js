@@ -152,7 +152,7 @@ self.onmessage = (e) => {
           ...extra,
           mass: bodyType === 'Static' ? 0 : mass,
           type: bodyType ? Body[bodyType.toUpperCase()] : undefined,
-          material: material ? new Material(material) : undefined,
+          material,
         })
         body.uuid = uuid[i]
 

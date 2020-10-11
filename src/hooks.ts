@@ -7,7 +7,7 @@ import { context } from './index'
 
 export type AtomicProps = {
   mass?: number
-  material?: MaterialOptions
+  material?: Material
   linearDamping?: number
   angularDamping?: number
   allowSleep?: boolean
