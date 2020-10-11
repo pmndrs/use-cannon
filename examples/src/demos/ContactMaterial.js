@@ -24,10 +24,10 @@ function Plane(props) {
 }
 
 function PhysicsContent() {
-  const groundMaterial = useMaterial(() => {})
-  const ballMaterialA = useMaterial(() => {})
-  const ballMaterialB = useMaterial(() => {})
-  const ballMaterialC = useMaterial(() => {})
+  const groundMaterial = useMaterial()
+  const ballMaterialA = useMaterial()
+  const ballMaterialB = useMaterial()
+  const ballMaterialC = useMaterial()
   useContactMaterial(ballMaterialA, groundMaterial, { friction: 0.0, restitution: 0.0 })
   useContactMaterial(ballMaterialB, groundMaterial, { friction: 0.0, restitution: 0.7 })
   useContactMaterial(ballMaterialC, groundMaterial, { friction: 0.0, restitution: 0.8 })

@@ -71,9 +71,9 @@ type CompoundBodyFn = (index: number) => CompoundBodyProps
 type ArgFn = (props: any) => any[]
 type MaterialFn = (index: number) => MaterialOptions
 
-export function useMaterial(fn: MaterialFn): Material {
+export function useMaterial(fn?: MaterialFn): Material {
   const [material] = useState(() => {
-    return new Material(fn(0))
+    return new Material(fn && fn(0))
   })
   return material
 }
