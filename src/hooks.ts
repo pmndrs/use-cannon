@@ -71,19 +71,6 @@ type CompoundBodyFn = (index: number) => CompoundBodyProps
 type ArgFn = (props: any) => any[]
 type MaterialFn = (index: number) => MaterialOptions
 
-export function useMaterial(fn?: MaterialFn): Material {
-  const [material] = useState(() => {
-    return new Material(fn && fn(0))
-  })
-  return material
-}
-export function useContactMaterial(m1: Material, m2: Material, options: ContactMaterialOptions) {
-  const { worker } = useContext(context)
-  useEffect(() => {
-    worker.postMessage({ op: 'addContactMaterial', props: { m1, m2, options } })
-  }, [])
-}
-
 type WorkerVec = {
   set: (x: number, y: number, z: number) => void
   copy: ({ x, y, z }: THREE.Vector3 | THREE.Euler) => void
@@ -516,4 +503,18 @@ export function useRaycastAny(options: RayOptns, callback: (e: Event) => void, d
 
 export function useRaycastAll(options: RayOptns, callback: (e: Event) => void, deps: any[] = []) {
   useRay('All', options, callback, deps)
+}
+
+export function useMaterial(fn?: MaterialFn): Material {
+  const [material] = useState(() => {
+    return new Material(fn && fn(0))
+  })
+  return material
+}
+
+export function useContactMaterial(m1: Material, m2: Material, options: ContactMaterialOptions) {
+  const { worker } = useContext(context)
+  useEffect(() => {
+    worker.postMessage({ op: 'addContactMaterial', props: { m1, m2, options } })
+  }, [])
 }
