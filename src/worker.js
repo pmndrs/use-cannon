@@ -23,9 +23,12 @@ import {
   Quaternion,
   Ray,
   RaycastResult,
+  RaycastVehicle,
+  // ContactMaterial,
 } from 'cannon-es'
 
 let bodies = {}
+const vehicles = {}
 const springs = {}
 const rays = {}
 const world = new World()
@@ -87,6 +90,19 @@ self.onmessage = (e) => {
       world.broadphase = new (broadphases[broadphase + 'Broadphase'] || NaiveBroadphase)(world)
       world.broadphase.axisIndex = axisIndex ?? 0
       Object.assign(world.defaultContactMaterial, defaultContactMaterial)
+      // var groundMaterial = new Material('groundMaterial')
+      // var wheelMaterial = new Material('wheelMaterial')
+      // var wheelGroundContactMaterial = (wheelGroundContactMaterial = new ContactMaterial(
+      //   wheelMaterial,
+      //   groundMaterial,
+      //   {
+      //     friction: 0.3,
+      //     restitution: 0,
+      //     contactEquationStiffness: 1000,
+      //   }
+      // ))
+      // // We must add the contact materials to the world
+      // world.addContactMaterial(wheelGroundContactMaterial)
       config.step = step
       break
     }
@@ -418,6 +434,84 @@ self.onmessage = (e) => {
     case 'removeRay': {
       world.removeEventListener('preStep', rays[uuid])
       delete rays[uuid]
+      break
+    }
+    case 'addRaycastVehicle': {
+      const [chassisBody, wheels, wheelInfos, indexForwardAxis, indexRightAxis, indexUpAxis] = props
+      // console.log(indexForwardAxis, indexRightAxis, indexUpAxis)
+      const vehicle = new RaycastVehicle({
+        chassisBody: bodies[chassisBody],
+        indexRightAxis: indexRightAxis,
+        indexForwardAxis: indexForwardAxis,
+        indexUpAxis: indexUpAxis,
+      })
+      // vehicle.addToWorld(world)
+      // vehicle.setWorld(world)
+      vehicle.world = world
+      for (let i = 0; i < wheelInfos.length; i++) {
+        const wheelInfo = wheelInfos[i]
+        // console.log(wheelInfo)
+        wheelInfo.directionLocal = new Vec3(...wheelInfo.directionLocal)
+        wheelInfo.chassisConnectionPointLocal = new Vec3(...wheelInfo.chassisConnectionPointLocal)
+        wheelInfo.axleLocal = new Vec3(...wheelInfo.axleLocal)
+        vehicle.addWheel(wheelInfo)
+        const wheelBody = bodies[wheels[i]]
+        // wheelBody.material = wheelMaterial
+        // wheelBody.collisionFilterGroup = 0 // turn off collisions
+      }
+      // console.log(vehicle)
+      vehicles[uuid] = {
+        vehicle: vehicle,
+        wheels: wheels,
+        preStep: () => {
+          vehicles[uuid].vehicle.updateVehicle(world.dt)
+        },
+        postStep: () => {
+          // console.log('postStep')
+          for (let i = 0; i < vehicles[uuid].vehicle.wheelInfos.length; i++) {
+            vehicles[uuid].vehicle.updateWheelTransform(i)
+            const t = vehicles[uuid].vehicle.wheelInfos[i].worldTransform
+            const wheelBody = bodies[vehicles[uuid].wheels[i]]
+            wheelBody.position.copy(t.position)
+            wheelBody.quaternion.copy(t.quaternion)
+          }
+        },
+      }
+      world.addEventListener('preStep', vehicles[uuid].preStep)
+      world.addEventListener('postStep', vehicles[uuid].postStep)
+      break
+    }
+    case 'removeRaycastVehicle': {
+      // console.log('removeRaycastVehicle')
+      // remove preStep and postStep handlers
+      world.removeEventListener('preStep', vehicles[uuid].preStep)
+      world.removeEventListener('postStep', vehicles[uuid].postStep)
+      vehicles[uuid].vehicle.world = null
+      vehicles[uuid].vehicle = null
+      // vehicles[uuid].setWorld(null)
+      delete vehicles[uuid]
+      break
+    }
+
+    case 'setRaycastVehicleSteeringValue': {
+      // console.log('setRaycastVehicleSteeringValue')
+      // console.log(uuid, vehicles, vehicles[uuid].vehicle, props)
+      const [value, wheelIndex] = props
+      vehicles[uuid].vehicle.setSteeringValue(value, wheelIndex)
+      break
+    }
+    case 'applyRaycastVehicleEngineForce': {
+      // console.log('applyRaycastVehicleEngineForce', props)
+      // console.log(uuid, vehicles, vehicles[uuid].vehicle, props)
+      const [value, wheelIndex] = props
+      vehicles[uuid].vehicle.applyEngineForce(value, wheelIndex)
+      break
+    }
+    case 'setRaycastVehicleBrake': {
+      // console.log('setRaycastVehicleBrake')
+      // console.log(uuid, vehicles, vehicles[uuid].vehicle, props)
+      const [brake, wheelIndex] = props
+      vehicles[uuid].vehicle.setBrake(brake, wheelIndex)
       break
     }
   }
