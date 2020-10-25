@@ -46,7 +46,7 @@ function Plane(props) {
 // The vehicle chassis
 const Chassis = React.forwardRef((props, ref) => {
   const boxSize = [1.2, 1, 4]
-  useBox(
+  const [_, _api] = useBox(
     () => ({
       // type: 'Kinematic',
       mass: 500,
@@ -58,6 +58,15 @@ const Chassis = React.forwardRef((props, ref) => {
     }),
     ref
   )
+  // NOT WORKING (!!)
+  const reset = useKeyPress('r')
+  useFrame(() => {
+    if (reset) {
+      // console.log('reset', _api)
+      _api.position.set(0, 5, 0)
+      _api.velocity.set(0, 0, 0)
+    }
+  })
   return (
     <mesh ref={ref} castShadow>
       <boxBufferGeometry attach="geometry" args={boxSize} />
@@ -101,7 +110,6 @@ const Wheel = React.forwardRef((props, ref) => {
 })
 
 function CylinderCompound(props) {
-  console.log(props.rotation)
   const args = [0.7, 0.7, 5, 16]
   const [ref] = useCompoundBody(() => ({
     mass: 10,
@@ -188,7 +196,6 @@ function Vehicle(props) {
     indexUpAxis: 1,
   }))
 
-  const reset = useKeyPress('r')
   const forward = useKeyPress('z')
   const backward = useKeyPress('s')
   const left = useKeyPress('q')
@@ -196,6 +203,7 @@ function Vehicle(props) {
   const brake = useKeyPress(' ') // space bar
 
   const [steeringValue, setSteeringValue] = useState(0)
+  const [engineForce, setEngineForce] = useState(0)
   const [brakeForce, setBrakeForce] = useState(0)
 
   var maxSteerVal = 0.5
@@ -212,21 +220,22 @@ function Vehicle(props) {
     }
     if (forward && !backward) {
       setBrakeForce(0)
-      api.applyEngineForce(-maxForce, 2)
-      api.applyEngineForce(-maxForce, 3)
+      setEngineForce(-maxForce)
     } else if (backward && !forward) {
       setBrakeForce(0)
-      api.applyEngineForce(maxForce, 2)
-      api.applyEngineForce(maxForce, 3)
+      setEngineForce(maxForce)
+    } else if (engineForce !== 0) {
+      setEngineForce(0)
     }
     if (brake) {
       setBrakeForce(maxBrakeForce)
     }
-    if (reset) {
-      chassis.current.position.set(0, 5, 0)
-    }
   })
 
+  useEffect(() => {
+    api.applyEngineForce(engineForce, 2)
+    api.applyEngineForce(engineForce, 3)
+  }, [engineForce])
   useEffect(() => {
     api.setSteeringValue(steeringValue, 0)
     api.setSteeringValue(steeringValue, 1)
