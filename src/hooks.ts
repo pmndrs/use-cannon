@@ -514,34 +514,34 @@ type RaycastVehiclePublicApi = {
 type RaycastVehicleApi = [React.MutableRefObject<THREE.Object3D | undefined>, RaycastVehiclePublicApi]
 
 type WheelInfoOptions = {
-  chassisConnectionPointLocal?: number[]
-  chassisConnectionPointWorld?: number[]
-  directionLocal?: number[]
-  directionWorld?: number[]
-  axleLocal?: number[]
-  axleWorld?: number[]
-  suspensionRestLength?: number
-  suspensionMaxLength?: number
   radius?: number
+  directionLocal?: number[]
   suspensionStiffness?: number
-  dampingCompression?: number
-  dampingRelaxation?: number
-  frictionSlip?: number
-  steering?: number
-  rotation?: number
-  deltaRotation?: number
-  rollInfluence?: number
+  suspensionRestLength?: number
   maxSuspensionForce?: number
-  isFrontWheel?: boolean
-  clippedInvContactDotSuspension?: number
-  suspensionRelativeVelocity?: number
-  suspensionForce?: number
-  slipInfo?: number
-  skidInfo?: number
-  suspensionLength?: number
   maxSuspensionTravel?: number
+  dampingRelaxation?: number
+  dampingCompression?: number
+  frictionSlip?: number
+  rollInfluence?: number
+  axleLocal?: number[]
+  chassisConnectionPointLocal?: number[]
+  isFrontWheel?: boolean
   useCustomSlidingRotationalSpeed?: boolean
   customSlidingRotationalSpeed?: number
+  // chassisConnectionPointWorld?: number[]
+  // directionWorld?: number[]
+  // axleWorld?: number[]
+  // suspensionMaxLength?: number
+  // steering?: number
+  // rotation?: number
+  // deltaRotation?: number
+  // clippedInvContactDotSuspension?: number
+  // suspensionRelativeVelocity?: number
+  // suspensionForce?: number
+  // slipInfo?: number
+  // skidInfo?: number
+  // suspensionLength?: number
 }
 
 type RaycastVehicleProps = {
@@ -603,7 +603,6 @@ export function useRaycastVehicle(
       ],
     })
     return () => {
-      // console.log('useRaycastVehicle cleanup')
       currentWorker.postMessage({ op: 'removeRaycastVehicle', uuid })
     }
   }, [])
@@ -617,11 +616,9 @@ export function useRaycastVehicle(
     function makeApi(index?: number): RaycastVehiclePublicApi {
       return {
         setSteeringValue(value: number, wheelIndex: number) {
-          // console.log(wheelIndex)
           post('setRaycastVehicleSteeringValue', index, [value, wheelIndex])
         },
         applyEngineForce(value: number, wheelIndex: number) {
-          // console.log('applyEngineForce', value, wheelIndex)
           post('applyRaycastVehicleEngineForce', index, [value, wheelIndex])
         },
         setBrake(brake: number, wheelIndex: number) {

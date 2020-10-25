@@ -3,6 +3,8 @@ import { Canvas, extend, useFrame, useThree } from 'react-three-fiber'
 import { useCylinder } from 'use-cannon'
 import { Physics, useBox, usePlane, useRaycastVehicle } from 'use-cannon'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
+import { useCompoundBody } from 'use-cannon'
+import { createRef } from 'react'
 
 // Extend will make OrbitControls available as a JSX element called orbitControls for us to use.
 extend({ OrbitControls })
@@ -22,7 +24,11 @@ const CameraControls = () => {
 }
 
 function Plane(props) {
-  const [ref] = usePlane(() => ({ type: 'Static', ...props }))
+  const [ref] = usePlane(() => ({
+    type: 'Static',
+    material: 'ground',
+    ...props,
+  }))
   return (
     <group ref={ref}>
       <mesh>
@@ -39,18 +45,19 @@ function Plane(props) {
 
 // The vehicle chassis
 const Chassis = React.forwardRef((props, ref) => {
-  const boxSize = [3, 0.5, 1]
-  const rotation = [(Math.PI * 3) / 2, 0, 0]
-  const [_] = useBox(
+  const boxSize = [1.2, 1, 4]
+  useBox(
     () => ({
-      // type: 'Kinetic',
-      mass: 5000,
-      // rotation: rotation,
+      // type: 'Kinematic',
+      mass: 500,
+      rotation: props.rotation,
+      angularVelocity: [0, 0.5, 0],
+      allowSleep: false,
+      args: boxSize,
       ...props,
     }),
     ref
   )
-  // console.log(_)
   return (
     <mesh ref={ref} castShadow>
       <boxBufferGeometry attach="geometry" args={boxSize} />
@@ -60,95 +67,128 @@ const Chassis = React.forwardRef((props, ref) => {
   )
 })
 
-const wheelInfo = {
-  radius: 0.7,
-  directionLocal: [0, 0, 1],
-  suspensionStiffness: 30,
-  suspensionRestLength: 0.3,
-  frictionSlip: 5,
-  dampingRelaxation: 2.3,
-  dampingCompression: 4.4,
-  maxSuspensionForce: 1e5, // 10000
-  rollInfluence: 0.01,
-  axleLocal: [0, 1, 0],
-  chassisConnectionPointLocal: [1, 1, 0],
-  maxSuspensionTravel: 0.3,
-  customSlidingRotationalSpeed: -30,
-  useCustomSlidingRotationalSpeed: true,
-}
-
 // A Wheel
 const Wheel = React.forwardRef((props, ref) => {
-  const wheelSize = [0.7, 0.7, 0.5, 8]
-  const [_] = useCylinder(
+  const wheelSize = [0.7, 0.7, 0.5, 16]
+  // useCylinder(() => ({
+  //   mass: 1,
+  //   type: 'Kinematic',
+  //   material: new Material('wheel'),
+  //   collisionFilterGroup: 0,// turn off collisions !!
+  //   // rotation: [0,0,Math.PI/2], // useless -> the rotation should be applied to the shape (not the body)
+  //   args: wheelSize,
+  //   ...props,
+  // }), ref)
+  useCompoundBody(
     () => ({
-      // type: 'Kinematic',
-      args: wheelSize,
+      mass: 1,
+      type: 'Kinematic',
+      material: 'wheel',
+      collisionFilterGroup: 0, // turn off collisions
       ...props,
+      shapes: [{ type: 'Cylinder', args: wheelSize, rotation: [Math.PI / 2, 0, 0] }],
     }),
     ref
   )
-  // console.log(_)
   return (
     <mesh ref={ref} castShadow>
-      <cylinderBufferGeometry attach="geometry" args={wheelSize} />
-      <meshNormalMaterial attach="material" />
+      <mesh rotation={[0, 0, Math.PI / 2]}>
+        <cylinderBufferGeometry attach="geometry" args={wheelSize} />
+        <meshNormalMaterial attach="material" />
+      </mesh>
     </mesh>
   )
 })
 
+function CylinderCompound(props) {
+  console.log(props.rotation)
+  const args = [0.7, 0.7, 5, 16]
+  const [ref] = useCompoundBody(() => ({
+    mass: 10,
+    ...props,
+    shapes: [{ type: 'Cylinder', rotation: props.rotation, args: args }],
+  }))
+  return (
+    <mesh ref={ref} castShadow>
+      <mesh rotation={props.rotation}>
+        <cylinderBufferGeometry attach="geometry" args={args} />
+        <meshNormalMaterial attach="material" />
+      </mesh>
+    </mesh>
+  )
+}
+
+const wheelInfo = {
+  radius: 0.7,
+  directionLocal: [0, -1, 0], // same as Physics gravity
+  suspensionStiffness: 30,
+  suspensionRestLength: 0.3,
+  maxSuspensionForce: 1e4,
+  maxSuspensionTravel: 0.3,
+  dampingRelaxation: 2.3,
+  dampingCompression: 4.4,
+  frictionSlip: 5,
+  rollInfluence: 0.01,
+  axleLocal: [1, 0, 0], // wheel rotates around X-axis
+  chassisConnectionPointLocal: [1, 0, 1],
+  isFrontWheel: false,
+  useCustomSlidingRotationalSpeed: true,
+  customSlidingRotationalSpeed: -30,
+}
+
 function Vehicle(props) {
   // chassisBody
-  const chassis = useRef()
+  const chassis = createRef()
+
+  // wheels
   const wheels = []
   const wheelInfos = []
-  // FL
-  const wheel_1 = useRef()
+
+  // chassis - wheel connection helpers
+  var chassisWidth = 2
+  var chassisHeight = 0
+  var chassisFront = 1
+  var chassisBack = -1
+
+  // FrontLeft [-X,Y,Z]
+  const wheel_1 = createRef()
   wheels.push(wheel_1)
   const wheelInfo_1 = { ...wheelInfo }
-  // wheelInfo_1.chassisConnectionPointLocal = [1, 0, 1]
-  wheelInfo_1.chassisConnectionPointLocal = [1, 1, 0]
+  wheelInfo_1.chassisConnectionPointLocal = [-chassisWidth / 2, chassisHeight, chassisFront]
+  wheelInfo_1.isFrontWheel = true
   wheelInfos.push(wheelInfo_1)
-  // FR
-  const wheel_2 = useRef()
+  // FrontRight [X,Y,Z]
+  const wheel_2 = createRef()
   wheels.push(wheel_2)
   const wheelInfo_2 = { ...wheelInfo }
-  // wheelInfo_2.chassisConnectionPointLocal = [1, 0, -1]
-  wheelInfo_2.chassisConnectionPointLocal = [1, -1, 0]
+  wheelInfo_2.chassisConnectionPointLocal = [chassisWidth / 2, chassisHeight, chassisFront]
+  wheelInfo_2.isFrontWheel = true
   wheelInfos.push(wheelInfo_2)
-  // BL
-  const wheel_3 = useRef()
+  // BackLeft [-X,Y,-Z]
+  const wheel_3 = createRef()
   wheels.push(wheel_3)
   const wheelInfo_3 = { ...wheelInfo }
-  // wheelInfo_3.chassisConnectionPointLocal = [-1, 0, 1]
-  wheelInfo_3.chassisConnectionPointLocal = [-1, 1, 0]
+  wheelInfo_3.chassisConnectionPointLocal = [-chassisWidth / 2, chassisHeight, chassisBack]
+  wheelInfo_3.isFrontWheel = false
   wheelInfos.push(wheelInfo_3)
-  // BR
-  const wheel_4 = useRef()
+  // BackRight [X,Y,-Z]
+  const wheel_4 = createRef()
   wheels.push(wheel_4)
   const wheelInfo_4 = { ...wheelInfo }
-  // wheelInfo_4.chassisConnectionPointLocal = [-1, 0, -1]
-  wheelInfo_4.chassisConnectionPointLocal = [-1, -1, 0]
+  wheelInfo_4.chassisConnectionPointLocal = [chassisWidth / 2, chassisHeight, chassisBack]
+  wheelInfo_4.isFrontWheel = false
   wheelInfos.push(wheelInfo_4)
 
-  const [ref, api] = useRaycastVehicle(() => ({
+  const [vehicle, api] = useRaycastVehicle(() => ({
     chassisBody: chassis,
     wheels: wheels,
     wheelInfos: wheelInfos,
-    indexForwardAxis: 0,
-    indexRightAxis: 1,
-    indexUpAxis: 2,
-    // indexForwardAxis: 1,
-    // indexRightAxis: 0,
-    // indexUpAxis: 2,
-    // indexForwardAxis: 0,
-    // indexRightAxis: 2,
-    // indexUpAxis: 1,
-    // indexForwardAxis: 2,
-    // indexRightAxis: 0,
-    // indexUpAxis: 1,
+    indexForwardAxis: 2,
+    indexRightAxis: 0,
+    indexUpAxis: 1,
   }))
 
+  const reset = useKeyPress('r')
   const forward = useKeyPress('z')
   const backward = useKeyPress('s')
   const left = useKeyPress('q')
@@ -156,40 +196,34 @@ function Vehicle(props) {
   const brake = useKeyPress(' ') // space bar
 
   const [steeringValue, setSteeringValue] = useState(0)
-  // const [engineForce, applyEngineForce] = useState(0)
-  const [brakeForce, setBrakeForce] = useState(false)
+  const [brakeForce, setBrakeForce] = useState(0)
 
   var maxSteerVal = 0.5
   var maxForce = 1e3
-  var maxBrakeForce = 1e6
+  var maxBrakeForce = 1e5
 
   useFrame(() => {
     if (left && !right) {
-      setSteeringValue(-maxSteerVal)
-    } else if (right && !left) {
       setSteeringValue(maxSteerVal)
+    } else if (right && !left) {
+      setSteeringValue(-maxSteerVal)
     } else {
       setSteeringValue(0)
     }
     if (forward && !backward) {
-      // api.setBrake(0, 0)
-      // api.setBrake(0, 1)
-      // api.setBrake(0, 2)
-      // api.setBrake(0, 3)
-      api.applyEngineForce(maxForce, 2)
-      api.applyEngineForce(maxForce, 3)
-    } else if (backward && !forward) {
-      // api.setBrake(0, 0)
-      // api.setBrake(0, 1)
-      // api.setBrake(0, 2)
-      // api.setBrake(0, 3)
+      setBrakeForce(0)
       api.applyEngineForce(-maxForce, 2)
       api.applyEngineForce(-maxForce, 3)
+    } else if (backward && !forward) {
+      setBrakeForce(0)
+      api.applyEngineForce(maxForce, 2)
+      api.applyEngineForce(maxForce, 3)
     }
     if (brake) {
       setBrakeForce(maxBrakeForce)
-    } else {
-      setBrakeForce(0)
+    }
+    if (reset) {
+      chassis.current.position.set(0, 5, 0)
     }
   })
 
@@ -197,10 +231,6 @@ function Vehicle(props) {
     api.setSteeringValue(steeringValue, 0)
     api.setSteeringValue(steeringValue, 1)
   }, [steeringValue])
-  // useEffect(() => {
-  //   api.applyEngineForce(engineForce, 2)
-  //   api.applyEngineForce(engineForce, 3)
-  // }, [engineForce])
   useEffect(() => {
     api.setBrake(brakeForce, 0)
     api.setBrake(brakeForce, 1)
@@ -209,10 +239,8 @@ function Vehicle(props) {
   }, [brakeForce])
 
   return (
-    <group ref={ref}>
-      {/* <group> */}
-      {/* rotation={[Math.PI*1/2,0,0]} */}
-      <Chassis rotation={[(Math.PI * 1) / 2, 0, 0]} position={props.position} ref={chassis}></Chassis>
+    <group ref={vehicle}>
+      <Chassis ref={chassis} rotation={props.position} position={props.position}></Chassis>
       <Wheel ref={wheel_1}></Wheel>
       <Wheel ref={wheel_2}></Wheel>
       <Wheel ref={wheel_3}></Wheel>
@@ -230,15 +258,18 @@ const VehicleScene = () => {
       <pointLight position={[-10, -10, -10]} />
       <spotLight position={[10, 10, 10]} angle={0.3} penumbra={1} intensity={1} castShadow />
       <axesHelper scale={[10, 10, 10]} />
-      <Physics gravity={[0, -10, 0]} allowSleep={true} broadphase={'SAP'}>
+      <Physics gravity={[0, -10, 0]} allowSleep={true} broadphase="SAP">
         <Plane rotation={[-Math.PI / 2, 0, 0]} />
-        <Vehicle position={[0, 5, 0]} />
+        <Vehicle position={[0, 5, 0]} rotation={[0, 0, Math.PI]} />
+        <CylinderCompound rotation={[0, 0, 0]} position={[-5, 2.5, -5]} />
+        <CylinderCompound rotation={[Math.PI / 2, 0, 0]} position={[0, 2.5, -5]} />
+        <CylinderCompound rotation={[0, 0, Math.PI / 2]} position={[5, 2.5, -5]} />
       </Physics>
     </Canvas>
   )
 }
 
-// Hook
+// useKeyPress Hook (credit: https://usehooks.com/useKeyPress/)
 function useKeyPress(targetKey) {
   // State for keeping track of whether key is pressed
   const [keyPressed, setKeyPressed] = useState(false)
