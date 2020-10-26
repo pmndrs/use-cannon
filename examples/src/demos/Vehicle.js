@@ -3,7 +3,6 @@ import { Canvas, extend, useFrame, useThree } from 'react-three-fiber'
 import { useCylinder } from 'use-cannon'
 import { Physics, useBox, usePlane, useRaycastVehicle } from 'use-cannon'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-import { useCompoundBody } from 'use-cannon'
 
 // Extend will make OrbitControls available as a JSX element called orbitControls for us to use.
 extend({ OrbitControls })
@@ -45,6 +44,7 @@ function Plane(props) {
 // The vehicle chassis
 const Chassis = forwardRef((props, ref) => {
   const boxSize = [1.2, 1, 4]
+  // eslint-disable-next-line
   const [_, api] = useBox(
     () => ({
       // type: 'Kinematic',
@@ -57,15 +57,6 @@ const Chassis = forwardRef((props, ref) => {
     }),
     ref
   )
-  // // NOT WORKING (!!)
-  // const reset = useKeyPress('r')
-  // useFrame(() => {
-  //   if (reset) {
-  //     // console.log('reset', api)
-  //     api.position.set(0, 5, 0)
-  //     api.velocity.set(0, 0, 0)
-  //   }
-  // })
   return (
     <mesh ref={ref} api={api} castShadow>
       <boxBufferGeometry attach="geometry" args={boxSize} />
@@ -78,26 +69,29 @@ const Chassis = forwardRef((props, ref) => {
 // A Wheel
 const Wheel = forwardRef((props, ref) => {
   const wheelSize = [0.7, 0.7, 0.5, 16]
-  // useCylinder(() => ({
-  //   mass: 1,
-  //   type: 'Kinematic',
-  //   material: new Material('wheel'),
-  //   collisionFilterGroup: 0,// turn off collisions !!
-  //   // rotation: [0,0,Math.PI/2], // useless -> the rotation should be applied to the shape (not the body)
-  //   args: wheelSize,
-  //   ...props,
-  // }), ref)
-  useCompoundBody(
+  useCylinder(
     () => ({
       mass: 1,
       type: 'Kinematic',
       material: 'wheel',
-      collisionFilterGroup: 0, // turn off collisions
+      collisionFilterGroup: 0, // turn off collisions !!
+      // rotation: [0,0,Math.PI/2], // useless -> the rotation should be applied to the shape (not the body)
+      args: wheelSize,
       ...props,
-      shapes: [{ type: 'Cylinder', args: wheelSize, rotation: [Math.PI / 2, 0, 0] }],
     }),
     ref
   )
+  // useCompoundBody(
+  //   () => ({
+  //     mass: 1,
+  //     type: 'Kinematic',
+  //     material: 'wheel',
+  //     collisionFilterGroup: 0, // turn off collisions
+  //     ...props,
+  //     shapes: [{ type: 'Cylinder', args: wheelSize, rotation: [Math.PI / 2, 0, 0] }],
+  //   }),
+  //   ref
+  // )
   return (
     <mesh ref={ref}>
       <mesh rotation={[0, 0, Math.PI / 2]} castShadow>
@@ -108,19 +102,17 @@ const Wheel = forwardRef((props, ref) => {
   )
 })
 
-function CylinderCompound(props) {
+function Pilar(props) {
   const args = [0.7, 0.7, 5, 16]
-  const [ref] = useCompoundBody(() => ({
+  const [ref] = useCylinder(() => ({
     mass: 10,
+    args: args,
     ...props,
-    shapes: [{ type: 'Cylinder', rotation: props.rotation, args: args }],
   }))
   return (
     <mesh ref={ref} castShadow>
-      <mesh rotation={props.rotation}>
-        <cylinderBufferGeometry attach="geometry" args={args} />
-        <meshNormalMaterial attach="material" />
-      </mesh>
+      <cylinderBufferGeometry attach="geometry" args={args} />
+      <meshNormalMaterial attach="material" />
     </mesh>
   )
 }
@@ -194,9 +186,11 @@ function Vehicle(props) {
     indexUpAxis: 1,
   }))
 
-  const forward = useKeyPress('z')
+  const forward = useKeyPress('w')
+  // const forward = useKeyPress('z')
   const backward = useKeyPress('s')
-  const left = useKeyPress('q')
+  const left = useKeyPress('a')
+  // const left = useKeyPress('q')
   const right = useKeyPress('d')
   const brake = useKeyPress(' ') // space bar
   const reset = useKeyPress('r')
@@ -267,6 +261,11 @@ function Vehicle(props) {
   )
 }
 
+const defaultContactMaterial = {
+  contactEquationRelaxation: 4,
+  friction: 1e-3,
+}
+
 const VehicleScene = () => {
   return (
     <Canvas shadowMap sRGB camera={{ position: [0, 5, 20], fov: 50 }}>
@@ -276,12 +275,18 @@ const VehicleScene = () => {
       <pointLight position={[-10, -10, -10]} />
       <spotLight position={[10, 10, 10]} angle={0.3} penumbra={1} intensity={1} castShadow />
       <axesHelper scale={[10, 10, 10]} />
-      <Physics gravity={[0, -10, 0]} allowSleep={true} broadphase="SAP">
+      <Physics
+        gravity={[0, -10, 0]}
+        allowSleep={true}
+        broadphase="SAP"
+        defaultContactMaterial={defaultContactMaterial}>
         <Plane rotation={[-Math.PI / 2, 0, 0]} />
         <Vehicle position={[0, 5, 0]} rotation={[0, -Math.PI / 4, 0]} angularVelocity={[0, 0.5, 0]} />
-        <CylinderCompound rotation={[0, 0, 0]} position={[-5, 2.5, -5]} />
-        <CylinderCompound rotation={[Math.PI / 2, 0, 0]} position={[0, 2.5, -5]} />
-        <CylinderCompound rotation={[0, 0, Math.PI / 2]} position={[5, 2.5, -5]} />
+        <Pilar rotation={[0, 0, 0]} position={[-5, 2.5, -5]} />
+        <Pilar rotation={[0, 0, 0]} position={[0, 2.5, -5]} />
+        <Pilar rotation={[0, 0, 0]} position={[5, 2.5, -5]} />
+        {/* <Pilar rotation={[0, 0, Math.PI/2]} position={[-2.5, 5.7, -5]} /> */}
+        {/* <Pilar rotation={[0, 0, Math.PI/2]} position={[2.5, 5.7, -5]} /> */}
       </Physics>
     </Canvas>
   )

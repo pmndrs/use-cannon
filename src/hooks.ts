@@ -529,28 +529,15 @@ type WheelInfoOptions = {
   isFrontWheel?: boolean
   useCustomSlidingRotationalSpeed?: boolean
   customSlidingRotationalSpeed?: number
-  // chassisConnectionPointWorld?: number[]
-  // directionWorld?: number[]
-  // axleWorld?: number[]
-  // suspensionMaxLength?: number
-  // steering?: number
-  // rotation?: number
-  // deltaRotation?: number
-  // clippedInvContactDotSuspension?: number
-  // suspensionRelativeVelocity?: number
-  // suspensionForce?: number
-  // slipInfo?: number
-  // skidInfo?: number
-  // suspensionLength?: number
 }
 
 type RaycastVehicleProps = {
   chassisBody: React.MutableRefObject<THREE.Object3D | undefined>
   wheels: React.MutableRefObject<THREE.Object3D | undefined>[]
   wheelInfos: WheelInfoOptions[]
-  indexForwardAxis?: number | 0
-  indexRightAxis?: number | 1
-  indexUpAxis?: number | 2
+  indexForwardAxis?: number
+  indexRightAxis?: number
+  indexUpAxis?: number
 }
 
 type RaycastVehicleFn = () => RaycastVehicleProps
@@ -559,9 +546,8 @@ export function useRaycastVehicle(
   fn: RaycastVehicleFn,
   fwdRef?: React.MutableRefObject<THREE.Object3D>
 ): RaycastVehicleApi {
-  // const localRef = useRef<THREE.Object3D>((null as unknown) as THREE.Object3D)
   const ref = fwdRef ? fwdRef : useRef<THREE.Object3D>((null as unknown) as THREE.Object3D)
-  const { worker, events } = useContext(context)
+  const { worker } = useContext(context)
 
   useLayoutEffect(() => {
     if (!ref.current) {
@@ -570,36 +556,21 @@ export function useRaycastVehicle(
       ref.current = new THREE.Object3D()
     }
 
-    const object = ref.current
     const currentWorker = worker
-    let uuid: string[] = [object.uuid]
+    let uuid: string[] = [ref.current.uuid]
 
     const raycastVehicleProps = fn()
-
-    // console.log(raycastVehicleProps.wheels.map(wheel => wheel.current !== undefined && wheel.current !== null).length)
-    // console.log('uuid', uuid)
-    // console.log('raycastVehicleProps', raycastVehicleProps)
-    // console.log('chassisBody', raycastVehicleProps.chassisBody)
-    // console.log('wheelInfos', raycastVehicleProps.wheelInfos)
-    // console.log('wheels', raycastVehicleProps.wheels)
-    // console.log('send to worker')
 
     currentWorker.postMessage({
       op: 'addRaycastVehicle',
       uuid,
-      // type,
       props: [
-        raycastVehicleProps.chassisBody.current === undefined ||
-        raycastVehicleProps.chassisBody.current == null
-          ? null
-          : raycastVehicleProps.chassisBody.current.uuid,
-        raycastVehicleProps.wheels.map((wheel) =>
-          wheel.current === undefined || wheel.current === null ? null : wheel.current.uuid
-        ),
+        raycastVehicleProps.chassisBody.current?.uuid,
+        raycastVehicleProps.wheels.map((wheel) => wheel.current?.uuid),
         raycastVehicleProps.wheelInfos,
-        raycastVehicleProps.indexForwardAxis,
-        raycastVehicleProps.indexRightAxis,
-        raycastVehicleProps.indexUpAxis,
+        raycastVehicleProps?.indexForwardAxis || 2,
+        raycastVehicleProps?.indexRightAxis || 0,
+        raycastVehicleProps?.indexUpAxis || 1,
       ],
     })
     return () => {
@@ -608,26 +579,18 @@ export function useRaycastVehicle(
   }, [])
 
   const api = useMemo(() => {
-    const getUUID = (index?: number) =>
-      index !== undefined ? `${ref.current.uuid}/${index}` : ref.current.uuid
-    const post = (op: string, index?: number, props?: any) =>
-      ref.current && worker.postMessage({ op, uuid: getUUID(index), props })
-
-    function makeApi(index?: number): RaycastVehiclePublicApi {
-      return {
-        setSteeringValue(value: number, wheelIndex: number) {
-          post('setRaycastVehicleSteeringValue', index, [value, wheelIndex])
-        },
-        applyEngineForce(value: number, wheelIndex: number) {
-          post('applyRaycastVehicleEngineForce', index, [value, wheelIndex])
-        },
-        setBrake(brake: number, wheelIndex: number) {
-          post('setRaycastVehicleBrake', index, [brake, wheelIndex])
-        },
-      }
-    }
+    const post = (op: string, props?: any) =>
+      ref.current && worker.postMessage({ op, uuid: ref.current.uuid, props })
     return {
-      ...makeApi(undefined),
+      setSteeringValue(value: number, wheelIndex: number) {
+        post('setRaycastVehicleSteeringValue', [value, wheelIndex])
+      },
+      applyEngineForce(value: number, wheelIndex: number) {
+        post('applyRaycastVehicleEngineForce', [value, wheelIndex])
+      },
+      setBrake(brake: number, wheelIndex: number) {
+        post('setRaycastVehicleBrake', [brake, wheelIndex])
+      },
     }
   }, [])
   return [ref, api]

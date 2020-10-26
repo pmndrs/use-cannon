@@ -24,7 +24,6 @@ import {
   Ray,
   RaycastResult,
   RaycastVehicle,
-  // ContactMaterial,
 } from 'cannon-es'
 
 let bodies = {}
@@ -89,22 +88,7 @@ self.onmessage = (e) => {
       world.solver.iterations = iterations
       world.broadphase = new (broadphases[broadphase + 'Broadphase'] || NaiveBroadphase)(world)
       world.broadphase.axisIndex = axisIndex ?? 0
-      // defaultContactMaterial.contactEquationRelaxation = 4;
-      // defaultContactMaterial.friction = 0.001;
       Object.assign(world.defaultContactMaterial, defaultContactMaterial)
-      // var groundMaterial = new Material('ground')
-      // var wheelMaterial = new Material('wheel')
-      // var wheelGroundContactMaterial = new ContactMaterial(
-      //   wheelMaterial,
-      //   groundMaterial,
-      //   {
-      //     friction: 0.3,
-      //     restitution: 0.1,
-      //     contactEquationStiffness: 1e3,
-      //   }
-      // )
-      // // We must add the contact materials to the world
-      // world.addContactMaterial(wheelGroundContactMaterial)
       config.step = step
       break
     }
