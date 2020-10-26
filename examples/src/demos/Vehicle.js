@@ -1,10 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { forwardRef, useEffect, useRef, useState } from 'react'
 import { Canvas, extend, useFrame, useThree } from 'react-three-fiber'
 import { useCylinder } from 'use-cannon'
 import { Physics, useBox, usePlane, useRaycastVehicle } from 'use-cannon'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { useCompoundBody } from 'use-cannon'
-import { createRef } from 'react'
 
 // Extend will make OrbitControls available as a JSX element called orbitControls for us to use.
 extend({ OrbitControls })
@@ -44,31 +43,31 @@ function Plane(props) {
 }
 
 // The vehicle chassis
-const Chassis = React.forwardRef((props, ref) => {
+const Chassis = forwardRef((props, ref) => {
   const boxSize = [1.2, 1, 4]
-  const [_, _api] = useBox(
+  const [_, api] = useBox(
     () => ({
       // type: 'Kinematic',
       mass: 500,
       rotation: props.rotation,
-      angularVelocity: [0, 0.5, 0],
+      angularVelocity: props.angularVelocity,
       allowSleep: false,
       args: boxSize,
       ...props,
     }),
     ref
   )
-  // NOT WORKING (!!)
-  const reset = useKeyPress('r')
-  useFrame(() => {
-    if (reset) {
-      // console.log('reset', _api)
-      _api.position.set(0, 5, 0)
-      _api.velocity.set(0, 0, 0)
-    }
-  })
+  // // NOT WORKING (!!)
+  // const reset = useKeyPress('r')
+  // useFrame(() => {
+  //   if (reset) {
+  //     // console.log('reset', api)
+  //     api.position.set(0, 5, 0)
+  //     api.velocity.set(0, 0, 0)
+  //   }
+  // })
   return (
-    <mesh ref={ref} castShadow>
+    <mesh ref={ref} api={api} castShadow>
       <boxBufferGeometry attach="geometry" args={boxSize} />
       <meshNormalMaterial attach="material" />
       <axesHelper scale={[5, 5, 5]} />
@@ -77,7 +76,7 @@ const Chassis = React.forwardRef((props, ref) => {
 })
 
 // A Wheel
-const Wheel = React.forwardRef((props, ref) => {
+const Wheel = forwardRef((props, ref) => {
   const wheelSize = [0.7, 0.7, 0.5, 16]
   // useCylinder(() => ({
   //   mass: 1,
@@ -100,8 +99,8 @@ const Wheel = React.forwardRef((props, ref) => {
     ref
   )
   return (
-    <mesh ref={ref} castShadow>
-      <mesh rotation={[0, 0, Math.PI / 2]}>
+    <mesh ref={ref}>
+      <mesh rotation={[0, 0, Math.PI / 2]} castShadow>
         <cylinderBufferGeometry attach="geometry" args={wheelSize} />
         <meshNormalMaterial attach="material" />
       </mesh>
@@ -146,8 +145,7 @@ const wheelInfo = {
 
 function Vehicle(props) {
   // chassisBody
-  const chassis = createRef()
-
+  const chassis = useRef()
   // wheels
   const wheels = []
   const wheelInfos = []
@@ -159,28 +157,28 @@ function Vehicle(props) {
   var chassisBack = -1
 
   // FrontLeft [-X,Y,Z]
-  const wheel_1 = createRef()
+  const wheel_1 = useRef()
   wheels.push(wheel_1)
   const wheelInfo_1 = { ...wheelInfo }
   wheelInfo_1.chassisConnectionPointLocal = [-chassisWidth / 2, chassisHeight, chassisFront]
   wheelInfo_1.isFrontWheel = true
   wheelInfos.push(wheelInfo_1)
   // FrontRight [X,Y,Z]
-  const wheel_2 = createRef()
+  const wheel_2 = useRef()
   wheels.push(wheel_2)
   const wheelInfo_2 = { ...wheelInfo }
   wheelInfo_2.chassisConnectionPointLocal = [chassisWidth / 2, chassisHeight, chassisFront]
   wheelInfo_2.isFrontWheel = true
   wheelInfos.push(wheelInfo_2)
   // BackLeft [-X,Y,-Z]
-  const wheel_3 = createRef()
+  const wheel_3 = useRef()
   wheels.push(wheel_3)
   const wheelInfo_3 = { ...wheelInfo }
   wheelInfo_3.chassisConnectionPointLocal = [-chassisWidth / 2, chassisHeight, chassisBack]
   wheelInfo_3.isFrontWheel = false
   wheelInfos.push(wheelInfo_3)
   // BackRight [X,Y,-Z]
-  const wheel_4 = createRef()
+  const wheel_4 = useRef()
   wheels.push(wheel_4)
   const wheelInfo_4 = { ...wheelInfo }
   wheelInfo_4.chassisConnectionPointLocal = [chassisWidth / 2, chassisHeight, chassisBack]
@@ -201,6 +199,7 @@ function Vehicle(props) {
   const left = useKeyPress('q')
   const right = useKeyPress('d')
   const brake = useKeyPress(' ') // space bar
+  const reset = useKeyPress('r')
 
   const [steeringValue, setSteeringValue] = useState(0)
   const [engineForce, setEngineForce] = useState(0)
@@ -230,6 +229,12 @@ function Vehicle(props) {
     if (brake) {
       setBrakeForce(maxBrakeForce)
     }
+    if (reset) {
+      chassis.current.api.position.set(0, 5, 0)
+      chassis.current.api.velocity.set(0, 0, 0)
+      chassis.current.api.angularVelocity.set(0, 0.5, 0)
+      chassis.current.api.rotation.set(0, -Math.PI / 4, 0)
+    }
   })
 
   useEffect(() => {
@@ -249,7 +254,11 @@ function Vehicle(props) {
 
   return (
     <group ref={vehicle}>
-      <Chassis ref={chassis} rotation={props.position} position={props.position}></Chassis>
+      <Chassis
+        ref={chassis}
+        rotation={props.rotation}
+        position={props.position}
+        angularVelocity={props.angularVelocity}></Chassis>
       <Wheel ref={wheel_1}></Wheel>
       <Wheel ref={wheel_2}></Wheel>
       <Wheel ref={wheel_3}></Wheel>
@@ -269,7 +278,7 @@ const VehicleScene = () => {
       <axesHelper scale={[10, 10, 10]} />
       <Physics gravity={[0, -10, 0]} allowSleep={true} broadphase="SAP">
         <Plane rotation={[-Math.PI / 2, 0, 0]} />
-        <Vehicle position={[0, 5, 0]} rotation={[0, 0, Math.PI]} />
+        <Vehicle position={[0, 5, 0]} rotation={[0, -Math.PI / 4, 0]} angularVelocity={[0, 0.5, 0]} />
         <CylinderCompound rotation={[0, 0, 0]} position={[-5, 2.5, -5]} />
         <CylinderCompound rotation={[Math.PI / 2, 0, 0]} position={[0, 2.5, -5]} />
         <CylinderCompound rotation={[0, 0, Math.PI / 2]} position={[5, 2.5, -5]} />
