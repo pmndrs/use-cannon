@@ -1,6 +1,6 @@
-[![Build Status](https://travis-ci.org/pmndrs/cannon.svg?branch=master)](https://travis-ci.org/pmndrs/cannon)
-[![Version](https://img.shields.io/npm/v/react-three/cannon?style=flat&colorA=000000&colorB=000000)](https://www.npmjs.com/package/@react-three/cannon)
-[![Downloads](https://img.shields.io/npm/dt/react-three/cannon.svg?style=flat&colorA=000000&colorB=000000)](https://www.npmjs.com/package/@react-three/cannon)
+[![Build Status](https://travis-ci.org/pmndrs/use-cannon.svg?branch=master)](https://travis-ci.org/pmndrs/use-cannon)
+[![Version](https://img.shields.io/npm/v/@react-three/cannon?style=flat&colorA=000000&colorB=000000)](https://www.npmjs.com/package/@react-three/cannon)
+[![Downloads](https://img.shields.io/npm/dt/@react-three/cannon.svg?style=flat&colorA=000000&colorB=000000)](https://www.npmjs.com/package/@react-three/cannon)
 [![Discord Shield](https://img.shields.io/discord/740090768164651008?style=flat&colorA=000000&colorB=000000&label=discord&logo=discord&logoColor=ffffff)](https://discord.gg/ZZjjNvJ)
 
 ![Imgur](https://imgur.com/FpBsJPL.jpg)
