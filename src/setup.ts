@@ -15,8 +15,20 @@ export type CollideEvent = Omit<WorkerCollideEvent['data'], 'body' | 'target' | 
     bj: Object3D
   }
 }
+export type CollideBeginEvent = {
+  op: 'event'
+  type: 'collideBegin'
+  target: Object3D
+  body: Object3D
+}
+export type CollideEndEvent = {
+  op: 'event'
+  type: 'collideEnd'
+  target: Object3D
+  body: Object3D
+}
 export type RayhitEvent = Omit<WorkerRayhitEvent['data'], 'body'> & { body: Object3D | null }
-export type Event = RayhitEvent | CollideEvent
+export type Event = RayhitEvent | CollideEvent | CollideBeginEvent | CollideEndEvent
 export type Events = { [uuid: string]: (e: Event) => void }
 export type Subscriptions = {
   [id: string]: (value: AtomicProps[keyof AtomicProps] | number[]) => void

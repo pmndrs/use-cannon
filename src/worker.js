@@ -46,6 +46,14 @@ function syncBodies() {
   state.bodies = state.world.bodies.reduce((acc, body) => ({ ...acc, [body.uuid]: body }), {})
 }
 
+function emitBeginContact({ bodyA, bodyB }) {
+  self.postMessage({ op: 'event', type: 'collideBegin', bodyA: bodyA.uuid, bodyB: bodyB.uuid })
+}
+
+function emitEndContact({ bodyA, bodyB }) {
+  self.postMessage({ op: 'event', type: 'collideEnd', bodyA: bodyA.uuid, bodyB: bodyB.uuid })
+}
+
 self.onmessage = (e) => {
   const { op, uuid, type, positions, quaternions, props } = e.data
 
@@ -68,6 +76,8 @@ self.onmessage = (e) => {
       state.world.solver.iterations = iterations
       state.world.broadphase = new (broadphases[broadphase + 'Broadphase'] || NaiveBroadphase)(state.world)
       state.world.broadphase.axisIndex = axisIndex === undefined || axisIndex === null ? 0 : axisIndex
+      world.addEventListener('beginContact', emitBeginContact)
+      world.addEventListener('endContact', emitEndContact)
       Object.assign(state.world.defaultContactMaterial, defaultContactMaterial)
       state.config.step = step
       break

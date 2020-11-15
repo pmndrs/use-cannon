@@ -86,7 +86,27 @@ export type WorkerRayhitEvent = {
     shouldStop: boolean
   }
 }
-type WorkerEventMessage = WorkerCollideEvent | WorkerRayhitEvent
+export type WorkerCollideBeginEvent = {
+  data: {
+    op: 'event'
+    type: 'collideBegin'
+    bodyA: string
+    bodyB: string
+  }
+}
+export type WorkerCollideEndEvent = {
+  data: {
+    op: 'event'
+    type: 'collideEnd'
+    bodyA: string
+    bodyB: string
+  }
+}
+type WorkerEventMessage =
+  | WorkerCollideEvent
+  | WorkerRayhitEvent
+  | WorkerCollideBeginEvent
+  | WorkerCollideEndEvent
 type IncomingWorkerMessage = WorkerFrameMessage | WorkerEventMessage
 
 export default function Provider({
@@ -171,6 +191,43 @@ export default function Provider({
                   bj: refs[e.data.contact.bj],
                 },
               })
+              break
+            case 'collideBegin':
+              console.log(e)
+              if (events[e.data.bodyA]) {
+                events[e.data.bodyA]({
+                  op: 'event',
+                  type: 'collideBegin',
+                  target: refs[e.data.bodyA],
+                  body: refs[e.data.bodyB],
+                })
+              }
+              if (events[e.data.bodyB]) {
+                events[e.data.bodyB]({
+                  op: 'event',
+                  type: 'collideBegin',
+                  target: refs[e.data.bodyB],
+                  body: refs[e.data.bodyA],
+                })
+              }
+              break
+            case 'collideEnd':
+              if (events[e.data.bodyA]) {
+                events[e.data.bodyA]({
+                  op: 'event',
+                  type: 'collideEnd',
+                  target: refs[e.data.bodyA],
+                  body: refs[e.data.bodyB],
+                })
+              }
+              if (events[e.data.bodyB]) {
+                events[e.data.bodyB]({
+                  op: 'event',
+                  type: 'collideEnd',
+                  target: refs[e.data.bodyB],
+                  body: refs[e.data.bodyA],
+                })
+              }
               break
             case 'rayhit':
               events[e.data.ray.uuid]({
