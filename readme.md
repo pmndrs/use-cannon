@@ -300,16 +300,33 @@ type BodyProps = AtomicProps & {
   onCollide?: (e: Event) => void
 }
 
-type Event = {
+type Event = RayhitEvent | CollideEvent
+type CollideEvent = {
   op: string
-  type: string
+  type: 'collide'
   body: THREE.Object3D
   target: THREE.Object3D
   contact: {
-    ni: number[]
-    ri: number[]
-    rj: number[]
+    // the world position of the point of contact
+    contactPoint: number[]
+    // the normal of the collision on the surface of
+    // the colliding body
+    contactNormal: number[]
+    // velocity of impact along the contact normal
     impactVelocity: number
+    // a unique ID for each contact event
+    id: string
+    // these are lower-level properties from cannon:
+    // bi: one of the bodies involved in contact
+    bi: THREE.Object3D
+    // bj: the other body involved in contact
+    bj: THREE.Object3D
+    // ni: normal of contact relative to bi
+    ni: number[]
+    // ri: the point of contact relative to bi
+    ri: number[]
+    // rj: the point of contact relative to bj
+    rj: number[]
   }
   collisionFilters: {
     bodyFilterGroup: number
@@ -317,6 +334,12 @@ type Event = {
     targetFilterGroup: number
     targetFilterMask: number
   }
+}
+type RayhitEvent = {
+  op: string
+  type: 'rayhit'
+  body: THREE.Object3D
+  target: THREE.Object3D
 }
 
 type PlaneProps = BodyProps & {}

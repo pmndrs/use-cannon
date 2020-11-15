@@ -129,7 +129,10 @@ self.onmessage = (e) => {
 
         if (props[i].onCollide)
           body.addEventListener('collide', ({ type, body, target, contact }) => {
-            const { ni, ri, rj } = contact
+            const { ni, ri, rj, bi, bj, id } = contact
+            const contactPoint = bi.position.vadd(ri)
+            const biIsBody = bi === body
+            const contactNormal = bi === body ? ni : ni.scale(-1)
             self.postMessage({
               op: 'event',
               type,
@@ -139,7 +142,14 @@ self.onmessage = (e) => {
                 ni: ni.toArray(),
                 ri: ri.toArray(),
                 rj: rj.toArray(),
+                bi: bi.uuid,
+                bj: bj.uuid,
                 impactVelocity: contact.getImpactVelocityAlongNormal(),
+                // World position of the contact
+                contactPoint: contactPoint.toArray(),
+                // Normal of the contact, relative to the colliding body
+                contactNormal: contactNormal.toArray(),
+                id,
               },
               collisionFilters: {
                 bodyFilterGroup: body.collisionFilterGroup,

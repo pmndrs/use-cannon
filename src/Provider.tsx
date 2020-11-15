@@ -42,10 +42,17 @@ export type WorkerCollideEvent = {
     target: string
     body: string
     contact: {
+      id: string
       ni: number[]
       ri: number[]
       rj: number[]
       impactVelocity: number
+      bi: string
+      bj: string
+      /** Contact point in world space */
+      contactPoint: number[]
+      /** Normal of the contact, relative to the colliding body */
+      contactNormal: number[]
     }
     collisionFilters: {
       bodyFilterGroup: number
@@ -158,6 +165,11 @@ export default function Provider({
                 ...e.data,
                 target: refs[e.data.target],
                 body: refs[e.data.body],
+                contact: {
+                  ...e.data.contact,
+                  bi: refs[e.data.contact.bi],
+                  bj: refs[e.data.contact.bj],
+                },
               })
               break
             case 'rayhit':
