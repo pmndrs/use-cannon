@@ -262,6 +262,7 @@ type AtomicProps = {
   collisionFilterGroup?: number
   collisionFilterMask?: number
   fixedRotation?: boolean
+  isTrigger?: boolean
 }
 
 type BodyProps = AtomicProps & {

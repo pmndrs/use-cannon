@@ -292,6 +292,9 @@ self.onmessage = (e) => {
     case 'setFixedRotation':
       bodies[uuid].fixedRotation = props
       break
+    case 'setIsTrigger':
+      bodies[uuid].isTrigger = props
+      break
     case 'applyForce':
       bodies[uuid].applyForce(new Vec3(...props[0]), new Vec3(...props[1]))
       break
