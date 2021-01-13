@@ -1,8 +1,8 @@
 import type { Shape } from 'cannon-es'
-import type { Buffers, Refs, Events, Subscriptions, ProviderContext } from './index'
+import type { Buffers, Refs, Events, Subscriptions, ProviderContext } from './setup'
 import React, { useState, useEffect, useRef, useMemo } from 'react'
 import { useThree, useFrame } from 'react-three-fiber'
-import { context } from './index'
+import { context } from './setup'
 // @ts-ignore
 import CannonWorker from '../src/worker'
 
