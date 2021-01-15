@@ -236,7 +236,10 @@ self.onmessage = (e) => {
       bodies[uuid].angularFactor.set(props[0], props[1], props[2])
       break
     case 'setMass':
+      // assume that an update from zero-mass implies a need for dynamics on static obj.
+      if (props !== 0 && bodies[uuid].type === 0) bodies[uuid].type = 1
       bodies[uuid].mass = props
+      bodies[uuid].updateMassProperties()
       break
     case 'setLinearDamping':
       bodies[uuid].linearDamping = props
