@@ -35,7 +35,4 @@ function Physics(props: ProviderProps) {
   )
 }
 
-console.log("HEYA");
-
-
 export { Physics, context }

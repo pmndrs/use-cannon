@@ -144,6 +144,7 @@ self.onmessage = (e) => {
           material,
           shapes,
           onCollide,
+          collisionResponse,
           ...extra
         } = props[i]
 
@@ -154,6 +155,10 @@ self.onmessage = (e) => {
           material: material ? new Material(material) : undefined,
         })
         body.uuid = uuid[i]
+
+        if (collisionResponse !== undefined) {
+          body.collisionResponse = collisionResponse
+        }
 
         if (type === 'Compound') {
           shapes.forEach(({ type, args, position, rotation, material, ...extra }) => {
@@ -264,6 +269,9 @@ self.onmessage = (e) => {
       break
     case 'setCollisionFilterMask':
       bodies[uuid].collisionFilterMask = props
+      break
+    case 'setCollisionResponse':
+      bodies[uuid].collisionResponse = props
       break
     case 'setFixedRotation':
       bodies[uuid].fixedRotation = props
