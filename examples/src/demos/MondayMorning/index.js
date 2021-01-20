@@ -175,6 +175,8 @@ function Chair() {
 //radiusTop, radiusBottom, height, numSegments
 function Mug() {
   const { nodes, materials } = useLoader(GLTFLoader, '/cup.glb')
+  console.log(nodes)
+  console.log(nodes['buffer-0-mesh-0'])
   const [cup] = useCylinder(() => ({
     mass: 1,
     rotation: [Math.PI / 2, 0, 0],
@@ -189,7 +191,7 @@ function Mug() {
           receiveShadow
           castShadow
           material={materials.default}
-          geometry={nodes['buffer-0-mesh-0_0'].geometry}
+          geometry={nodes['buffer-0-mesh-0'].geometry}
         />
         <mesh
           receiveShadow
@@ -249,7 +251,6 @@ const Lamp = () => {
 export default () => (
   <Canvas
     style={{ cursor: 'none' }}
-    sRGB
     shadowMap
     orthographic
     camera={{ position: [-25, 20, 25], zoom: 25, near: 1, far: 100 }}>
