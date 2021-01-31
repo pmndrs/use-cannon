@@ -23,6 +23,7 @@ import {
   Quaternion,
   Ray,
   RaycastResult,
+  ContactMaterial,
 } from 'cannon-es'
 
 let bodies = {}
@@ -152,7 +153,7 @@ self.onmessage = (e) => {
           ...extra,
           mass: bodyType === 'Static' ? 0 : mass,
           type: bodyType ? Body[bodyType.toUpperCase()] : undefined,
-          material: material ? new Material(material) : undefined,
+          material,
         })
         body.uuid = uuid[i]
 
@@ -429,6 +430,12 @@ self.onmessage = (e) => {
     case 'removeRay': {
       world.removeEventListener('preStep', rays[uuid])
       delete rays[uuid]
+      break
+    }
+    case 'addContactMaterial': {
+      const { m1, m2, options } = props
+      const contactMaterial = new ContactMaterial(m1, m2, options)
+      world.addContactMaterial(contactMaterial)
       break
     }
   }

@@ -1,4 +1,4 @@
-import type { MaterialOptions, RayOptions } from 'cannon-es'
+import { ContactMaterialOptions, Material, MaterialOptions, RayOptions } from 'cannon-es'
 import type { Buffers, Event, Subscriptions } from './index'
 import * as THREE from 'three'
 import React, { useLayoutEffect, useContext, useRef, useMemo, useEffect, useState } from 'react'
@@ -7,7 +7,7 @@ import { context } from './index'
 
 export type AtomicProps = {
   mass?: number
-  material?: MaterialOptions
+  material?: Material
   linearDamping?: number
   angularDamping?: number
   allowSleep?: boolean
@@ -70,6 +70,7 @@ type TrimeshFn = (index: number) => TrimeshProps
 type ConvexPolyhedronFn = (index: number) => ConvexPolyhedronProps
 type CompoundBodyFn = (index: number) => CompoundBodyProps
 type ArgFn = (props: any) => any[]
+type MaterialFn = (index: number) => MaterialOptions
 
 type WorkerVec = {
   set: (x: number, y: number, z: number) => void
@@ -504,4 +505,18 @@ export function useRaycastAny(options: RayOptns, callback: (e: Event) => void, d
 
 export function useRaycastAll(options: RayOptns, callback: (e: Event) => void, deps: any[] = []) {
   useRay('All', options, callback, deps)
+}
+
+export function useMaterial(fn?: MaterialFn): Material {
+  const [material] = useState(() => {
+    return new Material(fn && fn(0))
+  })
+  return material
+}
+
+export function useContactMaterial(m1: Material, m2: Material, options: ContactMaterialOptions) {
+  const { worker } = useContext(context)
+  useEffect(() => {
+    worker.postMessage({ op: 'addContactMaterial', props: { m1, m2, options } })
+  }, [])
 }
