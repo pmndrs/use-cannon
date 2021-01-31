@@ -1,6 +1,12 @@
 import React, { createContext, useContext } from 'react'
 import { Canvas, useFrame } from 'react-three-fiber'
-import { Physics, useSphere, useBox, useConeTwistConstraint, useDistanceConstraint } from '@react-three/cannon'
+import {
+  Physics,
+  useSphere,
+  useBox,
+  useConeTwistConstraint,
+  useDistanceConstraint,
+} from '@react-three/cannon'
 
 const parent = createContext()
 
@@ -49,7 +55,7 @@ const Handle = ({ children, ...props }) => {
 
 const ChainScene = () => {
   return (
-    <Canvas shadowMap sRGB camera={{ position: [0, 5, 20], fov: 50 }}>
+    <Canvas shadowMap camera={{ position: [0, 5, 20], fov: 50 }}>
       <color attach="background" args={['#171720']} />
       <ambientLight intensity={0.5} />
       <pointLight position={[-10, -10, -10]} />

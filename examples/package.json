@@ -6,24 +6,24 @@
   "main": "src/index.js",
   "dependencies": {
     "@react-three/cannon": "file:../dist",
-    "@react-three/drei": "^1.5.7",
+    "@react-three/drei": "^2.2.16",
     "lerp": "^1.0.3",
-    "lodash-es": "^4.17.15",
+    "lodash-es": "^4.17.20",
     "nice-color-palettes": "3.0.0",
-    "postprocessing": "^6.16.0",
+    "postprocessing": "^6.19.3",
     "react": "16.13.1",
     "react-dom": "16.13.1",
     "react-router-dom": "^5.2.0",
     "react-scripts": "3.4.1",
     "react-three-fiber": "^5.0.1",
     "styled-components": "^5.1.1",
-    "three": "0.118.3",
-    "zustand": "^2.2.3"
+    "three": "^0.124.0",
+    "zustand": "^3.3.1"
   },
   "devDependencies": {
     "customize-cra": "^1.0.0",
     "customize-cra-react-refresh": "^1.1.0",
-    "react-app-rewired": "^2.1.6"
+    "react-app-rewired": "^2.1.8"
   },
   "scripts": {
     "start": "react-app-rewired start",
