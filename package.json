@@ -70,7 +70,7 @@
     "rollup-plugin-node-resolve": "^5.2.0",
     "rollup-plugin-terser": "^6.1.0",
     "rollup-plugin-web-worker-loader": "^1.3.1",
-    "three": "^0.120.1",
+    "three": "^0.125.2",
     "typescript": "^3.9.6"
   },
   "dependencies": {}
