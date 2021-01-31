@@ -15,6 +15,7 @@ export type AtomicProps = {
   sleepTimeLimit?: number
   collisionFilterGroup?: number
   collisionFilterMask?: number
+  collisionResponse?: number
   fixedRotation?: boolean
 }
 
@@ -269,6 +270,7 @@ function useBody(
         sleepTimeLimit: makeAtomic('sleepTimeLimit', index),
         collisionFilterGroup: makeAtomic('collisionFilterGroup', index),
         collisionFilterMask: makeAtomic('collisionFilterMask', index),
+        collisionResponse: makeAtomic('collisionResponse', index),
         fixedRotation: makeAtomic('fixedRotation', index),
         // Apply functions
         applyForce(force: number[], worldPoint: number[]) {
