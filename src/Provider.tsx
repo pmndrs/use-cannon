@@ -116,10 +116,10 @@ export default function Provider({
 
   const prevPresenting = useRef(false)
   useFrame(() => {
-    if (gl.xr.isPresenting && !prevPresenting.current) {
+    if (gl.xr?.isPresenting && !prevPresenting.current) {
       gl.xr.getSession().requestAnimationFrame(loop)
     }
-    if (!gl.xr.isPresenting && prevPresenting.current) {
+    if (!gl.xr?.isPresenting && prevPresenting.current) {
       requestAnimationFrame(loop)
     }
     prevPresenting.current = gl.xr.isPresenting
