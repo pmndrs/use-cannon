@@ -7,12 +7,12 @@ function Plane(props) {
   return (
     <group ref={ref}>
       <mesh>
-        <planeBufferGeometry attach="geometry" args={[8, 8]} />
-        <meshBasicMaterial attach="material" color="#ffb385" />
+        <planeBufferGeometry args={[8, 8]} />
+        <meshBasicMaterial color="#ffb385" />
       </mesh>
       <mesh receiveShadow>
-        <planeBufferGeometry attach="geometry" args={[8, 8]} />
-        <shadowMaterial attach="material" color="lightsalmon" />
+        <planeBufferGeometry args={[8, 8]} />
+        <shadowMaterial color="lightsalmon" />
       </mesh>
     </group>
   )
@@ -32,12 +32,12 @@ function CompoundBody(props) {
   return (
     <group ref={ref}>
       <mesh castShadow>
-        <boxBufferGeometry attach="geometry" args={boxSize} />
-        <meshNormalMaterial attach="material" />
+        <boxBufferGeometry args={boxSize} />
+        <meshNormalMaterial />
       </mesh>
       <mesh castShadow position={[1, 0, 0]}>
-        <sphereBufferGeometry attach="geometry" args={[sphereRadius, 16, 16]} />
-        <meshNormalMaterial attach="material" />
+        <sphereBufferGeometry args={[sphereRadius, 16, 16]} />
+        <meshNormalMaterial />
       </mesh>
     </group>
   )

@@ -30,8 +30,8 @@ const ChainLink = ({ children, ...props }) => {
   return (
     <>
       <mesh ref={ref} {...props}>
-        <cylinderBufferGeometry attach="geometry" args={[chainSize[0], chainSize[0], chainSize[1], 8]} />
-        <meshStandardMaterial attach="material" />
+        <cylinderBufferGeometry args={[chainSize[0], chainSize[0], chainSize[1], 8]} />
+        <meshStandardMaterial />
       </mesh>
       <parent.Provider value={ref}>{children}</parent.Provider>
     </>
@@ -45,8 +45,8 @@ const Handle = ({ children, ...props }) => {
   return (
     <group>
       <mesh ref={ref} position={props.position}>
-        <sphereBufferGeometry attach="geometry" args={[0.5, 64, 64]} />
-        <meshStandardMaterial attach="material" />
+        <sphereBufferGeometry args={[0.5, 64, 64]} />
+        <meshStandardMaterial />
       </mesh>
       <parent.Provider value={ref}>{children}</parent.Provider>
     </group>

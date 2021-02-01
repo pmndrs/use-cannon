@@ -8,8 +8,8 @@ function Plane({ color, ...props }) {
   const [ref] = usePlane(() => ({ ...props }))
   return (
     <mesh ref={ref} receiveShadow>
-      <planeBufferGeometry attach="geometry" args={[1000, 1000]} />
-      <meshPhongMaterial attach="material" color={color} />
+      <planeBufferGeometry args={[1000, 1000]} />
+      <meshPhongMaterial color={color} />
     </mesh>
   )
 }
@@ -24,8 +24,8 @@ function Box() {
   })
   return (
     <mesh ref={ref} castShadow receiveShadow>
-      <boxBufferGeometry attach="geometry" args={boxSize} />
-      <meshLambertMaterial attach="material" color="white" side={THREE.DoubleSide} />
+      <boxBufferGeometry args={boxSize} />
+      <meshLambertMaterial color="white" side={THREE.DoubleSide} />
     </mesh>
   )
 }
@@ -49,10 +49,10 @@ function InstancedSpheres({ number = 100 }) {
 
   return (
     <instancedMesh ref={ref} castShadow receiveShadow args={[null, null, number]}>
-      <sphereBufferGeometry attach="geometry" args={[1, 16, 16]}>
+      <sphereBufferGeometry args={[1, 16, 16]}>
         <instancedBufferAttribute attachObject={['attributes', 'color']} args={[colors, 3]} />
       </sphereBufferGeometry>
-      <meshPhongMaterial attach="material" vertexColors={THREE.VertexColors} />
+      <meshPhongMaterial vertexColors={THREE.VertexColors} />
     </instancedMesh>
   )
 }
