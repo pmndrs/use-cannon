@@ -1,8 +1,8 @@
-import React, { Suspense, useState, useRef, useEffect } from 'react'
+import React, { Suspense, useState, useRef, useEffect, useMemo } from 'react'
 import { Canvas, useFrame, useThree, extend } from 'react-three-fiber'
 import { Html } from '@react-three/drei'
 import { Physics, useSphere, useBox, useRaycastAll } from '@react-three/cannon'
-import { Vector3 } from 'three'
+import { Vector3, BufferGeometry } from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { prettyPrint } from './prettyPrint'
 
@@ -12,12 +12,12 @@ function Plane(props) {
   return (
     <group {...props}>
       <mesh>
-        <planeBufferGeometry attach="geometry" args={[8, 8]} />
-        <meshBasicMaterial attach="material" color="#FFD3A5" />
+        <planeBufferGeometry args={[8, 8]} />
+        <meshBasicMaterial color="#FFD3A5" />
       </mesh>
       <mesh receiveShadow>
-        <planeBufferGeometry attach="geometry" args={[8, 8]} />
-        <shadowMaterial attach="material" color="#f8cd7e" />
+        <planeBufferGeometry args={[8, 8]} />
+        <shadowMaterial color="#f8cd7e" />
       </mesh>
     </group>
   )
@@ -30,8 +30,8 @@ function Sphere({ radius, position }) {
   })
   return (
     <mesh castShadow ref={ref}>
-      <sphereBufferGeometry attach="geometry" args={[radius, 32, 32]} />
-      <meshNormalMaterial attach="material" />
+      <sphereBufferGeometry args={[radius, 32, 32]} />
+      <meshNormalMaterial />
     </mesh>
   )
 }
@@ -43,22 +43,22 @@ function Cube({ size, position }) {
   })
   return (
     <mesh castShadow ref={ref} position={position}>
-      <boxBufferGeometry attach="geometry" args={size} />
-      <meshNormalMaterial attach="material" />
+      <boxBufferGeometry args={size} />
+      <meshNormalMaterial />
     </mesh>
   )
 }
 
 function Ray({ from, to, setHit }) {
   useRaycastAll({ from, to }, (result) => setHit(result))
+  const geo = useMemo(() => {
+    const points = [from, to].map((v) => new Vector3(...v))
+    return new BufferGeometry().setFromPoints(points)
+  }, [from, to])
+
   return (
-    <line>
-      <geometry
-        attach="geometry"
-        vertices={[from, to].map((v) => new Vector3(...v))}
-        onUpdate={(self) => (self.verticesNeedUpdate = true)}
-      />
-      <lineBasicMaterial attach="material" color="black" />
+    <line geometry={geo}>
+      <lineBasicMaterial color="black" />
     </line>
   )
 }
