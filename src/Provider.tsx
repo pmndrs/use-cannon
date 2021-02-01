@@ -122,7 +122,7 @@ export default function Provider({
     if (!gl.xr?.isPresenting && prevPresenting.current) {
       requestAnimationFrame(loop)
     }
-    prevPresenting.current = gl.xr.isPresenting
+    prevPresenting.current = gl.xr?.isPresenting
   })
 
   useEffect(() => {
