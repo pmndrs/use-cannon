@@ -15,8 +15,8 @@ const Box = React.forwardRef((props, ref) => {
   )
   return (
     <mesh ref={ref}>
-      <boxBufferGeometry attach="geometry" args={boxSize} />
-      <meshNormalMaterial attach="material" />
+      <boxBufferGeometry args={boxSize} />
+      <meshNormalMaterial />
     </mesh>
   )
 })
@@ -26,8 +26,8 @@ const Ball = React.forwardRef((props, ref) => {
   useFrame((e) => position.set((e.mouse.x * e.viewport.width) / 2, (e.mouse.y * e.viewport.height) / 2, 0))
   return (
     <mesh ref={ref}>
-      <sphereBufferGeometry attach="geometry" args={[0.5, 64, 64]} />
-      <meshNormalMaterial attach="material" />
+      <sphereBufferGeometry args={[0.5, 64, 64]} />
+      <meshNormalMaterial />
     </mesh>
   )
 })
