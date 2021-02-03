@@ -1,8 +1,8 @@
 import type { Shape } from 'cannon-es'
-import type { Buffers, Refs, Events, Subscriptions, ProviderContext } from './index'
+import type { Buffers, Refs, Events, Subscriptions, ProviderContext } from './setup'
 import React, { useState, useEffect, useRef, useMemo } from 'react'
 import { useThree, useFrame } from 'react-three-fiber'
-import { context } from './index'
+import { context } from './setup'
 // @ts-ignore
 import CannonWorker from '../src/worker'
 
@@ -31,9 +31,9 @@ type WorkerFrameMessage = {
     op: 'frame'
     observations: [string, any]
     active: boolean
+    bodies?: string[]
   }
 }
-type WorkerSyncMessage = { data: { op: 'sync'; bodies: string[] } }
 export type WorkerCollideEvent = {
   data: {
     op: 'event'
@@ -79,7 +79,7 @@ export type WorkerRayhitEvent = {
   }
 }
 type WorkerEventMessage = WorkerCollideEvent | WorkerRayhitEvent
-type IncomingWorkerMessage = WorkerFrameMessage | WorkerSyncMessage | WorkerEventMessage
+type IncomingWorkerMessage = WorkerFrameMessage | WorkerEventMessage
 
 export default function Provider({
   children,
@@ -105,22 +105,25 @@ export default function Provider({
   const [events] = useState<Events>({})
   const [subscriptions] = useState<Subscriptions>({})
   const bodies = useRef<{ [uuid: string]: number }>({})
-  const loop = useMemo(() => () => {
-    if(buffers.positions.byteLength !== 0 && buffers.quaternions.byteLength !== 0) {
-      worker.postMessage({ op: 'step', ...buffers }, [buffers.positions.buffer, buffers.quaternions.buffer])
-    }
-  }, []);
+  const loop = useMemo(
+    () => () => {
+      if (buffers.positions.byteLength !== 0 && buffers.quaternions.byteLength !== 0) {
+        worker.postMessage({ op: 'step', ...buffers }, [buffers.positions.buffer, buffers.quaternions.buffer])
+      }
+    },
+    []
+  )
 
-  const prevPresenting = useRef(false);
+  const prevPresenting = useRef(false)
   useFrame(() => {
-    if(gl.xr.isPresenting && !prevPresenting.current) {
-      gl.xr.getSession().requestAnimationFrame(loop);
+    if (gl.xr?.isPresenting && !prevPresenting.current) {
+      gl.xr.getSession().requestAnimationFrame(loop)
     }
-    if(!gl.xr.isPresenting && prevPresenting.current) {
-      requestAnimationFrame(loop);
+    if (!gl.xr?.isPresenting && prevPresenting.current) {
+      requestAnimationFrame(loop)
     }
-    prevPresenting.current = gl.xr.isPresenting;
-  });
+    prevPresenting.current = gl.xr?.isPresenting
+  })
 
   useEffect(() => {
     worker.postMessage({
@@ -140,21 +143,21 @@ export default function Provider({
     worker.onmessage = (e: IncomingWorkerMessage) => {
       switch (e.data.op) {
         case 'frame':
+          if (e.data.bodies) {
+            bodies.current = e.data.bodies.reduce(
+              (acc, id) => ({ ...acc, [id]: (e.data as any).bodies.indexOf(id) }),
+              {}
+            )
+          }
           buffers.positions = e.data.positions
           buffers.quaternions = e.data.quaternions
           e.data.observations.forEach(([id, value]) => subscriptions[id](value))
-          if(gl.xr.isPresenting) {
-            gl.xr.getSession().requestAnimationFrame(loop);
+          if (gl.xr && gl.xr.isPresenting) {
+            gl.xr.getSession().requestAnimationFrame(loop)
           } else {
-            requestAnimationFrame(loop);
+            requestAnimationFrame(loop)
           }
           if (e.data.active) invalidate()
-          break
-        case 'sync':
-          bodies.current = e.data.bodies.reduce(
-            (acc, id) => ({ ...acc, [id]: (e.data as any).bodies.indexOf(id) }),
-            {}
-          )
           break
         case 'event':
           switch (e.data.type) {

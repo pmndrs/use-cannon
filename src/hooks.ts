@@ -1,9 +1,9 @@
 import type { MaterialOptions, RayOptions } from 'cannon-es'
-import type { Buffers, Event, Subscriptions } from './index'
+import type { Buffers, Event } from './setup'
 import * as THREE from 'three'
 import React, { useLayoutEffect, useContext, useRef, useMemo, useEffect, useState } from 'react'
 import { useFrame } from 'react-three-fiber'
-import { context } from './index'
+import { context } from './setup'
 
 export type AtomicProps = {
   mass?: number
@@ -15,10 +15,11 @@ export type AtomicProps = {
   sleepTimeLimit?: number
   collisionFilterGroup?: number
   collisionFilterMask?: number
+  collisionResponse?: number
   fixedRotation?: boolean
 }
 
-type BodyProps = AtomicProps & {
+export type BodyProps = AtomicProps & {
   args?: any
   position?: number[]
   rotation?: number[]
@@ -30,7 +31,7 @@ type BodyProps = AtomicProps & {
   onCollide?: (e: Event) => void
 }
 
-type ShapeType =
+export type ShapeType =
   | 'Plane'
   | 'Box'
   | 'Cylinder'
@@ -39,22 +40,22 @@ type ShapeType =
   | 'Sphere'
   | 'Trimesh'
   | 'ConvexPolyhedron'
-type BodyShapeType = ShapeType | 'Compound'
-type PlaneProps = BodyProps & {}
-type BoxProps = BodyProps & { args?: number[] }
-type CylinderProps = BodyProps & { args?: [number, number, number, number] }
-type ParticleProps = BodyProps & {}
-type SphereProps = BodyProps & { args?: number }
-type TrimeshProps = BodyProps & {
+export type BodyShapeType = ShapeType | 'Compound'
+export type PlaneProps = BodyProps & {}
+export type BoxProps = BodyProps & { args?: number[] }
+export type CylinderProps = BodyProps & { args?: [number, number, number, number] }
+export type ParticleProps = BodyProps & {}
+export type SphereProps = BodyProps & { args?: number }
+export type TrimeshProps = BodyProps & {
   args?: THREE.Geometry | [(THREE.Vector3 | number[])[], (THREE.Face3 | number[])[]]
 }
-type HeightfieldProps = BodyProps & {
+export type HeightfieldProps = BodyProps & {
   args?: [number[], { minValue?: number; maxValue?: number; elementSize?: number }]
 }
-type ConvexPolyhedronProps = BodyProps & {
+export type ConvexPolyhedronProps = BodyProps & {
   args?: THREE.Geometry | [(THREE.Vector3 | number[])[], (THREE.Face3 | number[])[]]
 }
-type CompoundBodyProps = BodyProps & {
+export type CompoundBodyProps = BodyProps & {
   shapes: BodyProps & { type: ShapeType }[]
 }
 
@@ -76,13 +77,13 @@ type WorkerVec = {
   subscribe: (callback: (value: number[]) => void) => void
 }
 
-type WorkerProps<T> = {
+export type WorkerProps<T> = {
   [K in keyof T]: {
     set: (value: T[K]) => void
     subscribe: (callback: (value: T[K]) => void) => () => void
   }
 }
-type WorkerApi = WorkerProps<AtomicProps> & {
+export type WorkerApi = WorkerProps<AtomicProps> & {
   position: WorkerVec
   rotation: WorkerVec
   velocity: WorkerVec
@@ -96,18 +97,18 @@ type WorkerApi = WorkerProps<AtomicProps> & {
 }
 
 type PublicApi = WorkerApi & { at: (index: number) => WorkerApi }
-type Api = [React.MutableRefObject<THREE.Object3D | undefined>, PublicApi]
+export type Api = [React.MutableRefObject<THREE.Object3D | undefined>, PublicApi]
 
-type ConstraintTypes = 'PointToPoint' | 'ConeTwist' | 'Distance' | 'Hinge' | 'Lock'
+export type ConstraintTypes = 'PointToPoint' | 'ConeTwist' | 'Distance' | 'Hinge' | 'Lock'
 
-type ConstraintOptns = { maxForce?: number; collideConnected?: boolean; wakeUpBodies?: boolean }
+export type ConstraintOptns = { maxForce?: number; collideConnected?: boolean; wakeUpBodies?: boolean }
 
-type PointToPointConstraintOpts = ConstraintOptns & {
+export type PointToPointConstraintOpts = ConstraintOptns & {
   pivotA: number[]
   pivotB: number[]
 }
 
-type ConeTwistConstraintOpts = ConstraintOptns & {
+export type ConeTwistConstraintOpts = ConstraintOptns & {
   pivotA?: number[]
   axisA?: number[]
   pivotB?: number[]
@@ -115,18 +116,18 @@ type ConeTwistConstraintOpts = ConstraintOptns & {
   angle?: number
   twistAngle?: number
 }
-type DistanceConstraintOpts = ConstraintOptns & { distance?: number }
+export type DistanceConstraintOpts = ConstraintOptns & { distance?: number }
 
-type HingeConstraintOpts = ConstraintOptns & {
+export type HingeConstraintOpts = ConstraintOptns & {
   pivotA?: number[]
   axisA?: number[]
   pivotB?: number[]
   axisB?: number[]
 }
 
-type LockConstraintOpts = ConstraintOptns & {}
+export type LockConstraintOpts = ConstraintOptns & {}
 
-type SpringOptns = {
+export type SpringOptns = {
   restLength?: number
   stiffness?: number
   damping?: number
@@ -269,6 +270,7 @@ function useBody(
         sleepTimeLimit: makeAtomic('sleepTimeLimit', index),
         collisionFilterGroup: makeAtomic('collisionFilterGroup', index),
         collisionFilterMask: makeAtomic('collisionFilterMask', index),
+        collisionResponse: makeAtomic('collisionResponse', index),
         fixedRotation: makeAtomic('fixedRotation', index),
         // Apply functions
         applyForce(force: number[], worldPoint: number[]) {

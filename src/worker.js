@@ -61,8 +61,10 @@ function createShape(type, args) {
   }
 }
 
+let bodiesNeedSyncing = false
+
 function syncBodies() {
-  self.postMessage({ op: 'sync', bodies: world.bodies.map((body) => body.uuid) })
+  bodiesNeedSyncing = true
   bodies = world.bodies.reduce((acc, body) => ({ ...acc, [body.uuid]: body }), {})
 }
 
@@ -118,16 +120,18 @@ self.onmessage = (e) => {
         }
         observations.push([id, value])
       }
-      self.postMessage(
-        {
-          op: 'frame',
-          positions,
-          quaternions,
-          observations,
-          active: world.hasActiveBodies,
-        },
-        [positions.buffer, quaternions.buffer]
-      )
+      const message = {
+        op: 'frame',
+        positions,
+        quaternions,
+        observations,
+        active: world.hasActiveBodies,
+      }
+      if (bodiesNeedSyncing) {
+        message.bodies = world.bodies.map((body) => body.uuid)
+        bodiesNeedSyncing = false
+      }
+      self.postMessage(message, [positions.buffer, quaternions.buffer])
       break
     }
     case 'addBodies': {
@@ -146,6 +150,7 @@ self.onmessage = (e) => {
           material,
           shapes,
           onCollide,
+          collisionResponse,
           ...extra
         } = props[i]
 
@@ -156,6 +161,10 @@ self.onmessage = (e) => {
           material: material ? new Material(material) : undefined,
         })
         body.uuid = uuid[i]
+
+        if (collisionResponse !== undefined) {
+          body.collisionResponse = collisionResponse
+        }
 
         if (type === 'Compound') {
           shapes.forEach(({ type, args, position, rotation, material, ...extra }) => {
@@ -238,7 +247,10 @@ self.onmessage = (e) => {
       bodies[uuid].angularFactor.set(props[0], props[1], props[2])
       break
     case 'setMass':
+      // assume that an update from zero-mass implies a need for dynamics on static obj.
+      if (props !== 0 && bodies[uuid].type === 0) bodies[uuid].type = 1
       bodies[uuid].mass = props
+      bodies[uuid].updateMassProperties()
       break
     case 'setLinearDamping':
       bodies[uuid].linearDamping = props
@@ -263,6 +275,9 @@ self.onmessage = (e) => {
       break
     case 'setCollisionFilterMask':
       bodies[uuid].collisionFilterMask = props
+      break
+    case 'setCollisionResponse':
+      bodies[uuid].collisionResponse = props
       break
     case 'setFixedRotation':
       bodies[uuid].fixedRotation = props
@@ -334,7 +349,7 @@ self.onmessage = (e) => {
       break
     }
     case 'removeConstraint':
-      world.removeConstraint(uuid)
+      world.constraints.filter(({ uuid: thisId }) => thisId === uuid).map((c) => world.removeConstraint(c))
       break
 
     case 'enableConstraint':
