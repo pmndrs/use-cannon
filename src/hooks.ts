@@ -1,9 +1,9 @@
 import type { MaterialOptions, RayOptions } from 'cannon-es'
-import type { Buffers, Event, Subscriptions } from './index'
+import type { Buffers, Event } from './setup'
 import * as THREE from 'three'
 import React, { useLayoutEffect, useContext, useRef, useMemo, useEffect, useState } from 'react'
 import { useFrame } from 'react-three-fiber'
-import { context } from './index'
+import { context } from './setup'
 
 export type AtomicProps = {
   mass?: number

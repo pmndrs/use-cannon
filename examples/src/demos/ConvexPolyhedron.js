@@ -18,8 +18,8 @@ function Diamond(props) {
 
   const [ref] = useConvexPolyhedron(() => ({ mass: 100, ...props, args: geo }))
   return (
-    <mesh castShadow receiveShadow ref={ref} geometry={geo} {...props} dispose={null}>
-      <meshStandardMaterial attach="material" wireframe />
+    <mesh castShadow receiveShadow ref={ref} geometry={geo} {...props}>
+      <meshStandardMaterial wireframe />
     </mesh>
   )
 }
@@ -33,8 +33,8 @@ function Cone({ sides, ...props }) {
   }, [])
   const [ref] = useConvexPolyhedron(() => ({ mass: 100, ...props, args: geo }))
   return (
-    <mesh castShadow ref={ref} {...props} geometry={geo} dispose={null}>
-      <meshNormalMaterial attach="material" />
+    <mesh castShadow ref={ref} {...props} geometry={geo}>
+      <meshNormalMaterial />
     </mesh>
   )
 }
@@ -48,8 +48,8 @@ function Cube({ size, ...props }) {
   }, [])
   const [ref] = useConvexPolyhedron(() => ({ mass: 100, ...props, args: geo }))
   return (
-    <mesh castShadow ref={ref} {...props} geometry={geo} dispose={null}>
-      <meshNormalMaterial attach="material" />
+    <mesh castShadow ref={ref} {...props} geometry={geo}>
+      <meshNormalMaterial />
     </mesh>
   )
 }
@@ -58,8 +58,8 @@ function Plane(props) {
   const [ref] = usePlane(() => ({ type: 'Static', ...props }))
   return (
     <mesh ref={ref} receiveShadow>
-      <planeBufferGeometry attach="geometry" args={[5, 5]} />
-      <shadowMaterial attach="material" color="#171717" />
+      <planeBufferGeometry args={[5, 5]} />
+      <shadowMaterial color="#171717" />
     </mesh>
   )
 }

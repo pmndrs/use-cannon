@@ -12,7 +12,7 @@ import pingSound from './resources/ping.mp3'
 import earthImg from './resources/cross.jpg'
 
 const ping = new Audio(pingSound)
-const [useStore] = create((set) => ({
+const useStore = create((set) => ({
   count: 0,
   welcome: true,
   api: {
@@ -70,7 +70,7 @@ function Paddle() {
           />
         </group>
         <group rotation={[0, -0.04, 0]} scale={[141.94, 141.94, 141.94]}>
-          <mesh castShadow receiveShadow material={materials.wood} geometry={nodes.mesh_0.geometry} />
+          <mesh castShadow receiveShadow material={materials.wood} geometry={nodes.mesh.geometry} />
           <mesh castShadow receiveShadow material={materials.side} geometry={nodes.mesh_1.geometry} />
           <mesh castShadow receiveShadow material={materials.foam} geometry={nodes.mesh_2.geometry} />
           <mesh castShadow receiveShadow material={materials.lower} geometry={nodes.mesh_3.geometry} />
