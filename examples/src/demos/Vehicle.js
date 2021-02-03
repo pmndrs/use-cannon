@@ -1,7 +1,6 @@
 import React, { forwardRef, useEffect, useRef, useState } from 'react'
 import { Canvas, extend, useFrame, useThree } from 'react-three-fiber'
-import { useCylinder } from 'use-cannon'
-import { Physics, useBox, usePlane, useRaycastVehicle } from 'use-cannon'
+import { Physics, useBox, useCylinder, usePlane, useRaycastVehicle } from '@react-three/cannon'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 
 // Extend will make OrbitControls available as a JSX element called orbitControls for us to use.
@@ -268,7 +267,7 @@ const defaultContactMaterial = {
 
 const VehicleScene = () => {
   return (
-    <Canvas shadowMap sRGB camera={{ position: [0, 5, 20], fov: 50 }}>
+    <Canvas shadowMap camera={{ position: [0, 5, 20], fov: 50 }}>
       <CameraControls />
       <color attach="background" args={['#171720']} />
       <ambientLight intensity={0.5} />
