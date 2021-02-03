@@ -63,6 +63,7 @@ let bodiesNeedSyncing = false
 
 function syncBodies() {
   bodiesNeedSyncing = true
+  bodies = world.bodies.reduce((acc, body) => ({ ...acc, [body.uuid]: body }), {})
 }
 
 self.onmessage = (e) => {
@@ -126,13 +127,9 @@ self.onmessage = (e) => {
       }
       if (bodiesNeedSyncing) {
         message.bodies = world.bodies.map((body) => body.uuid)
-        bodies = world.bodies.reduce((acc, body) => ({ ...acc, [body.uuid]: body }), {})
         bodiesNeedSyncing = false
       }
-      self.postMessage(
-        message,
-        [positions.buffer, quaternions.buffer]
-      )
+      self.postMessage(message, [positions.buffer, quaternions.buffer])
       break
     }
     case 'addBodies': {
