@@ -59,9 +59,10 @@ function createShape(type, args) {
   }
 }
 
+let bodiesNeedSyncing = false
+
 function syncBodies() {
-  self.postMessage({ op: 'sync', bodies: world.bodies.map((body) => body.uuid) })
-  bodies = world.bodies.reduce((acc, body) => ({ ...acc, [body.uuid]: body }), {})
+  bodiesNeedSyncing = true
 }
 
 self.onmessage = (e) => {
@@ -116,14 +117,20 @@ self.onmessage = (e) => {
         }
         observations.push([id, value])
       }
+      const message = {
+        op: 'frame',
+        positions,
+        quaternions,
+        observations,
+        active: world.hasActiveBodies,
+      }
+      if (bodiesNeedSyncing) {
+        message.bodies = world.bodies.map((body) => body.uuid)
+        bodies = world.bodies.reduce((acc, body) => ({ ...acc, [body.uuid]: body }), {})
+        bodiesNeedSyncing = false
+      }
       self.postMessage(
-        {
-          op: 'frame',
-          positions,
-          quaternions,
-          observations,
-          active: world.hasActiveBodies,
-        },
+        message,
         [positions.buffer, quaternions.buffer]
       )
       break
