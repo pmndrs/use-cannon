@@ -151,6 +151,7 @@ self.onmessage = (e) => {
           material,
           shapes,
           onCollide,
+          collisionResponse,
           ...extra
         } = props[i]
 
@@ -161,6 +162,10 @@ self.onmessage = (e) => {
           material: material ? new Material(material) : undefined,
         })
         body.uuid = uuid[i]
+
+        if (collisionResponse !== undefined) {
+          body.collisionResponse = collisionResponse
+        }
 
         if (type === 'Compound') {
           shapes.forEach(({ type, args, position, rotation, material, ...extra }) => {
@@ -243,7 +248,10 @@ self.onmessage = (e) => {
       bodies[uuid].angularFactor.set(props[0], props[1], props[2])
       break
     case 'setMass':
+      // assume that an update from zero-mass implies a need for dynamics on static obj.
+      if (props !== 0 && bodies[uuid].type === 0) bodies[uuid].type = 1
       bodies[uuid].mass = props
+      bodies[uuid].updateMassProperties()
       break
     case 'setLinearDamping':
       bodies[uuid].linearDamping = props
@@ -268,6 +276,9 @@ self.onmessage = (e) => {
       break
     case 'setCollisionFilterMask':
       bodies[uuid].collisionFilterMask = props
+      break
+    case 'setCollisionResponse':
+      bodies[uuid].collisionResponse = props
       break
     case 'setFixedRotation':
       bodies[uuid].fixedRotation = props

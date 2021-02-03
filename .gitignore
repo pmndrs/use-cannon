@@ -17,3 +17,4 @@ coverage/
 .idea
 .rpt2_cache/
 /use-cannon.code-workspace
+.eslintcache

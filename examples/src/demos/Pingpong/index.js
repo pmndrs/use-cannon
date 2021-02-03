@@ -12,7 +12,7 @@ import pingSound from './resources/ping.mp3'
 import earthImg from './resources/cross.jpg'
 
 const ping = new Audio(pingSound)
-const [useStore] = create(set => ({
+const useStore = create((set) => ({
   count: 0,
   welcome: true,
   api: {
@@ -20,29 +20,29 @@ const [useStore] = create(set => ({
       ping.currentTime = 0
       ping.volume = clamp(velocity / 20, 0, 1)
       ping.play()
-      if (velocity > 4) set(state => ({ count: state.count + 1 }))
+      if (velocity > 4) set((state) => ({ count: state.count + 1 }))
     },
-    reset: welcome => set(state => ({ welcome, count: welcome ? state.count : 0 })),
+    reset: (welcome) => set((state) => ({ welcome, count: welcome ? state.count : 0 })),
   },
 }))
 
 function Paddle() {
-  const { nodes, materials } = useLoader(GLTFLoader, '/pingpong.glb', loader => {
+  const { nodes, materials } = useLoader(GLTFLoader, '/pingpong.glb', (loader) => {
     const dracoLoader = new DRACOLoader()
     dracoLoader.setDecoderPath('/draco-gltf/')
     loader.setDRACOLoader(dracoLoader)
   })
-  const { pong } = useStore(state => state.api)
-  const welcome = useStore(state => state.welcome)
-  const count = useStore(state => state.count)
+  const { pong } = useStore((state) => state.api)
+  const welcome = useStore((state) => state.welcome)
+  const count = useStore((state) => state.count)
   const model = useRef()
   const [ref, api] = useBox(() => ({
     type: 'Kinematic',
     args: [1.7, 0.5, 1.75],
-    onCollide: e => pong(e.contact.impactVelocity),
+    onCollide: (e) => pong(e.contact.impactVelocity),
   }))
   let values = useRef([0, 0])
-  useFrame(state => {
+  useFrame((state) => {
     values.current[0] = lerp(values.current[0], (state.mouse.x * Math.PI) / 5, 0.2)
     values.current[1] = lerp(values.current[1], (state.mouse.x * Math.PI) / 5, 0.2)
     api.position.set(state.mouse.x * 10, state.mouse.y * 5, 0)
@@ -93,7 +93,7 @@ function Ball() {
 }
 
 function ContactGround() {
-  const { reset } = useStore(state => state.api)
+  const { reset } = useStore((state) => state.api)
   const [ref] = usePlane(() => ({
     type: 'Static',
     rotation: [-Math.PI / 2, 0, 0],
@@ -103,16 +103,12 @@ function ContactGround() {
   return <mesh ref={ref} />
 }
 
-export default function() {
-  const welcome = useStore(state => state.welcome)
-  const { reset } = useStore(state => state.api)
+export default function () {
+  const welcome = useStore((state) => state.welcome)
+  const { reset } = useStore((state) => state.api)
   return (
     <>
-      <Canvas
-        shadowMap
-        sRGB
-        camera={{ position: [0, 5, 12], fov: 50 }}
-        onClick={() => welcome && reset(false)}>
+      <Canvas shadowMap camera={{ position: [0, 5, 12], fov: 50 }} onClick={() => welcome && reset(false)}>
         <color attach="background" args={['#171720']} />
         <ambientLight intensity={0.5} />
         <pointLight position={[-10, -10, -10]} />
