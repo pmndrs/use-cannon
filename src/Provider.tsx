@@ -30,10 +30,10 @@ type WorkerFrameMessage = {
   data: Buffers & {
     op: 'frame'
     observations: [string, any]
-    active: boolean
+    active: boolean,
+    bodies?: string[]
   }
 }
-type WorkerSyncMessage = { data: { op: 'sync'; bodies: string[] } }
 export type WorkerCollideEvent = {
   data: {
     op: 'event'
@@ -79,7 +79,7 @@ export type WorkerRayhitEvent = {
   }
 }
 type WorkerEventMessage = WorkerCollideEvent | WorkerRayhitEvent
-type IncomingWorkerMessage = WorkerFrameMessage | WorkerSyncMessage | WorkerEventMessage
+type IncomingWorkerMessage = WorkerFrameMessage | WorkerEventMessage
 
 export default function Provider({
   children,
@@ -143,6 +143,12 @@ export default function Provider({
     worker.onmessage = (e: IncomingWorkerMessage) => {
       switch (e.data.op) {
         case 'frame':
+          if (e.data.bodies) {
+            bodies.current = e.data.bodies.reduce(
+              (acc, id) => ({ ...acc, [id]: (e.data as any).bodies.indexOf(id) }),
+              {}
+            )
+          }
           buffers.positions = e.data.positions
           buffers.quaternions = e.data.quaternions
           e.data.observations.forEach(([id, value]) => subscriptions[id](value))
@@ -152,12 +158,6 @@ export default function Provider({
             requestAnimationFrame(loop)
           }
           if (e.data.active) invalidate()
-          break
-        case 'sync':
-          bodies.current = e.data.bodies.reduce(
-            (acc, id) => ({ ...acc, [id]: (e.data as any).bodies.indexOf(id) }),
-            {}
-          )
           break
         case 'event':
           switch (e.data.type) {
