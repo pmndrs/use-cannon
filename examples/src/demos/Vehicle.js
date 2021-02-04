@@ -1,24 +1,7 @@
 import React, { forwardRef, useEffect, useRef, useState } from 'react'
-import { Canvas, extend, useFrame, useThree } from 'react-three-fiber'
+import { Canvas, useFrame } from 'react-three-fiber'
 import { Physics, useBox, useCylinder, usePlane, useRaycastVehicle } from '@react-three/cannon'
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-
-// Extend will make OrbitControls available as a JSX element called orbitControls for us to use.
-extend({ OrbitControls })
-
-const CameraControls = () => {
-  // Get a reference to the Three.js Camera, and the canvas html element.
-  // We need these to setup the OrbitControls component.
-  // https://threejs.org/docs/#examples/en/controls/OrbitControls
-  const {
-    camera,
-    gl: { domElement },
-  } = useThree()
-  // Ref to the controls, so that we can update them on every frame using useFrame
-  const controls = useRef()
-  useFrame((state) => controls.current.update())
-  return <orbitControls ref={controls} args={[camera, domElement]} />
-}
+import { OrbitControls } from '@react-three/drei'
 
 function Plane(props) {
   const [ref] = usePlane(() => ({
@@ -29,11 +12,11 @@ function Plane(props) {
   return (
     <group ref={ref}>
       <mesh>
-        <planeBufferGeometry attach="geometry" args={[8, 8]} />
+        <planeBufferGeometry attach="geometry" args={[15, 15]} />
         <meshBasicMaterial attach="material" color="#ffb385" />
       </mesh>
       <mesh receiveShadow>
-        <planeBufferGeometry attach="geometry" args={[8, 8]} />
+        <planeBufferGeometry attach="geometry" args={[15, 15]} />
         <shadowMaterial attach="material" color="lightsalmon" />
       </mesh>
     </group>
@@ -43,8 +26,7 @@ function Plane(props) {
 // The vehicle chassis
 const Chassis = forwardRef((props, ref) => {
   const boxSize = [1.2, 1, 4]
-  // eslint-disable-next-line
-  const [_, api] = useBox(
+  const [, api] = useBox(
     () => ({
       // type: 'Kinematic',
       mass: 500,
@@ -73,35 +55,25 @@ const Wheel = forwardRef((props, ref) => {
       mass: 1,
       type: 'Kinematic',
       material: 'wheel',
-      collisionFilterGroup: 0, // turn off collisions !!
-      // rotation: [0,0,Math.PI/2], // useless -> the rotation should be applied to the shape (not the body)
+      collisionFilterGroup: 0, // turn off collisions, or turn them on if you want to fly!
+      // the rotation should be applied to the shape (not the body)
       args: wheelSize,
       ...props,
     }),
     ref
   )
-  // useCompoundBody(
-  //   () => ({
-  //     mass: 1,
-  //     type: 'Kinematic',
-  //     material: 'wheel',
-  //     collisionFilterGroup: 0, // turn off collisions
-  //     ...props,
-  //     shapes: [{ type: 'Cylinder', args: wheelSize, rotation: [Math.PI / 2, 0, 0] }],
-  //   }),
-  //   ref
-  // )
+
   return (
     <mesh ref={ref}>
       <mesh rotation={[0, 0, Math.PI / 2]} castShadow>
-        <cylinderBufferGeometry attach="geometry" args={wheelSize} />
-        <meshNormalMaterial attach="material" />
+        <cylinderBufferGeometry args={wheelSize} />
+        <meshStandardMaterial color="#0f0f0f" />
       </mesh>
     </mesh>
   )
 })
 
-function Pilar(props) {
+function Pillar(props) {
   const args = [0.7, 0.7, 5, 16]
   const [ref] = useCylinder(() => ({
     mass: 10,
@@ -110,8 +82,8 @@ function Pilar(props) {
   }))
   return (
     <mesh ref={ref} castShadow>
-      <cylinderBufferGeometry attach="geometry" args={args} />
-      <meshNormalMaterial attach="material" />
+      <cylinderBufferGeometry args={args} />
+      <meshNormalMaterial />
     </mesh>
   )
 }
@@ -142,10 +114,10 @@ function Vehicle(props) {
   const wheelInfos = []
 
   // chassis - wheel connection helpers
-  var chassisWidth = 2
-  var chassisHeight = 0
-  var chassisFront = 1
-  var chassisBack = -1
+  const chassisWidth = 2
+  const chassisHeight = 0
+  const chassisFront = 1
+  const chassisBack = -1
 
   // FrontLeft [-X,Y,Z]
   const wheel_1 = useRef()
@@ -198,9 +170,9 @@ function Vehicle(props) {
   const [engineForce, setEngineForce] = useState(0)
   const [brakeForce, setBrakeForce] = useState(0)
 
-  var maxSteerVal = 0.5
-  var maxForce = 1e3
-  var maxBrakeForce = 1e5
+  const maxSteerVal = 0.5
+  const maxForce = 1e3
+  const maxBrakeForce = 1e5
 
   useFrame(() => {
     if (left && !right) {
@@ -251,11 +223,12 @@ function Vehicle(props) {
         ref={chassis}
         rotation={props.rotation}
         position={props.position}
-        angularVelocity={props.angularVelocity}></Chassis>
-      <Wheel ref={wheel_1}></Wheel>
-      <Wheel ref={wheel_2}></Wheel>
-      <Wheel ref={wheel_3}></Wheel>
-      <Wheel ref={wheel_4}></Wheel>
+        angularVelocity={props.angularVelocity}
+      />
+      <Wheel ref={wheel_1} />
+      <Wheel ref={wheel_2} />
+      <Wheel ref={wheel_3} />
+      <Wheel ref={wheel_4} />
     </group>
   )
 }
@@ -267,27 +240,31 @@ const defaultContactMaterial = {
 
 const VehicleScene = () => {
   return (
-    <Canvas shadowMap camera={{ position: [0, 5, 20], fov: 50 }}>
-      <CameraControls />
-      <color attach="background" args={['#171720']} />
-      <ambientLight intensity={0.5} />
-      <pointLight position={[-10, -10, -10]} />
-      <spotLight position={[10, 10, 10]} angle={0.3} penumbra={1} intensity={1} castShadow />
-      <axesHelper scale={[10, 10, 10]} />
-      <Physics
-        gravity={[0, -10, 0]}
-        allowSleep={true}
-        broadphase="SAP"
-        defaultContactMaterial={defaultContactMaterial}>
-        <Plane rotation={[-Math.PI / 2, 0, 0]} />
-        <Vehicle position={[0, 5, 0]} rotation={[0, -Math.PI / 4, 0]} angularVelocity={[0, 0.5, 0]} />
-        <Pilar rotation={[0, 0, 0]} position={[-5, 2.5, -5]} />
-        <Pilar rotation={[0, 0, 0]} position={[0, 2.5, -5]} />
-        <Pilar rotation={[0, 0, 0]} position={[5, 2.5, -5]} />
-        {/* <Pilar rotation={[0, 0, Math.PI/2]} position={[-2.5, 5.7, -5]} /> */}
-        {/* <Pilar rotation={[0, 0, Math.PI/2]} position={[2.5, 5.7, -5]} /> */}
-      </Physics>
-    </Canvas>
+    <>
+      <Canvas shadowMap camera={{ position: [0, 5, 20], fov: 50 }}>
+        <OrbitControls />
+        <color attach="background" args={['#171720']} />
+        <ambientLight intensity={0.5} />
+        <spotLight position={[10, 10, 10]} angle={0.3} intensity={1} castShadow />
+        <Physics broadphase="SAP" {...defaultContactMaterial}>
+          <Plane rotation={[-Math.PI / 2, 0, 0]} />
+          <Vehicle position={[0, 5, 0]} rotation={[0, -Math.PI / 4, 0]} angularVelocity={[0, 0.5, 0]} />
+          <Pillar position={[-5, 2.5, -5]} />
+          <Pillar position={[0, 2.5, -5]} />
+          <Pillar position={[5, 2.5, -5]} />
+        </Physics>
+      </Canvas>
+      <div
+        style={{
+          position: 'absolute',
+          top: 50,
+          left: 50,
+          color: 'white',
+          fontSize: '1.2em',
+        }}>
+        * WASD to steer, space to brake
+      </div>
+    </>
   )
 }
 
