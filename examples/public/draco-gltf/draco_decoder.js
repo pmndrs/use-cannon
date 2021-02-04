@@ -295,8 +295,7 @@ var DracoDecoderModule = (function () {
       },
       Module: function (binary) {},
       Instance: function (module, info) {
-        this.exports = // EMSCRIPTEN_START_ASM
-        (function instantiate(Vn, Wn) {
+        this.exports = (function instantiate(Vn, Wn) { // EMSCRIPTEN_START_ASM
           function Mn(Xn) {
             Xn.set = function (T, Yn) {
               this[T] = Yn

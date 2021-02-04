@@ -30,7 +30,7 @@ type WorkerFrameMessage = {
   data: Buffers & {
     op: 'frame'
     observations: [string, any]
-    active: boolean,
+    active: boolean
     bodies?: string[]
   }
 }

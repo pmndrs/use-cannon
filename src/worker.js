@@ -23,9 +23,11 @@ import {
   Quaternion,
   Ray,
   RaycastResult,
+  RaycastVehicle,
 } from 'cannon-es'
 
 let bodies = {}
+const vehicles = {}
 const springs = {}
 const rays = {}
 const world = new World()
@@ -433,6 +435,66 @@ self.onmessage = (e) => {
     case 'removeRay': {
       world.removeEventListener('preStep', rays[uuid])
       delete rays[uuid]
+      break
+    }
+    case 'addRaycastVehicle': {
+      const [chassisBody, wheels, wheelInfos, indexForwardAxis, indexRightAxis, indexUpAxis] = props
+      const vehicle = new RaycastVehicle({
+        chassisBody: bodies[chassisBody],
+        indexForwardAxis: indexForwardAxis,
+        indexRightAxis: indexRightAxis,
+        indexUpAxis: indexUpAxis,
+      })
+      vehicle.world = world
+      for (let i = 0; i < wheelInfos.length; i++) {
+        const wheelInfo = wheelInfos[i]
+        wheelInfo.directionLocal = new Vec3(...wheelInfo.directionLocal)
+        wheelInfo.chassisConnectionPointLocal = new Vec3(...wheelInfo.chassisConnectionPointLocal)
+        wheelInfo.axleLocal = new Vec3(...wheelInfo.axleLocal)
+        vehicle.addWheel(wheelInfo)
+        const wheelBody = bodies[wheels[i]]
+      }
+      vehicles[uuid] = {
+        vehicle: vehicle,
+        wheels: wheels,
+        preStep: () => {
+          vehicles[uuid].vehicle.updateVehicle(world.dt)
+        },
+        postStep: () => {
+          for (let i = 0; i < vehicles[uuid].vehicle.wheelInfos.length; i++) {
+            vehicles[uuid].vehicle.updateWheelTransform(i)
+            const t = vehicles[uuid].vehicle.wheelInfos[i].worldTransform
+            const wheelBody = bodies[vehicles[uuid].wheels[i]]
+            wheelBody.position.copy(t.position)
+            wheelBody.quaternion.copy(t.quaternion)
+          }
+        },
+      }
+      world.addEventListener('preStep', vehicles[uuid].preStep)
+      world.addEventListener('postStep', vehicles[uuid].postStep)
+      break
+    }
+    case 'removeRaycastVehicle': {
+      world.removeEventListener('preStep', vehicles[uuid].preStep)
+      world.removeEventListener('postStep', vehicles[uuid].postStep)
+      vehicles[uuid].vehicle.world = null
+      vehicles[uuid].vehicle = null
+      delete vehicles[uuid]
+      break
+    }
+    case 'setRaycastVehicleSteeringValue': {
+      const [value, wheelIndex] = props
+      vehicles[uuid].vehicle.setSteeringValue(value, wheelIndex)
+      break
+    }
+    case 'applyRaycastVehicleEngineForce': {
+      const [value, wheelIndex] = props
+      vehicles[uuid].vehicle.applyEngineForce(value, wheelIndex)
+      break
+    }
+    case 'setRaycastVehicleBrake': {
+      const [brake, wheelIndex] = props
+      vehicles[uuid].vehicle.setBrake(brake, wheelIndex)
       break
     }
   }

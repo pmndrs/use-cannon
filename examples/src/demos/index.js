@@ -14,6 +14,7 @@ const Constraints = { descr: '', tags: [], Component: lazy(() => import('./Const
 const Chain = { descr: '', tags: [], Component: lazy(() => import('./Chain')), bright: false }
 const CompoundBody = { descr: '', tags: [], Component: lazy(() => import('./CompoundBody')), bright: false }
 const Raycast = { descr: '', tags: [], Component: lazy(() => import('./Raycast')), bright: false }
+const Vehicle = { descr: '', tags: [], Component: lazy(() => import('./Vehicle')), bright: false }
 
 export {
   MondayMorning,
@@ -25,4 +26,5 @@ export {
   Constraints,
   CompoundBody,
   Raycast,
+  Vehicle,
 }

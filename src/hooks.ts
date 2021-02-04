@@ -505,3 +505,95 @@ export function useRaycastAny(options: RayOptns, callback: (e: Event) => void, d
 export function useRaycastAll(options: RayOptns, callback: (e: Event) => void, deps: any[] = []) {
   useRay('All', options, callback, deps)
 }
+
+type RaycastVehiclePublicApi = {
+  // addWheel: () => number
+  setSteeringValue: (value: number, wheelIndex: number) => void
+  applyEngineForce: (value: number, wheelIndex: number) => void
+  setBrake: (brake: number, wheelIndex: number) => void
+}
+
+type RaycastVehicleApi = [React.MutableRefObject<THREE.Object3D | undefined>, RaycastVehiclePublicApi]
+
+type WheelInfoOptions = {
+  radius?: number
+  directionLocal?: number[]
+  suspensionStiffness?: number
+  suspensionRestLength?: number
+  maxSuspensionForce?: number
+  maxSuspensionTravel?: number
+  dampingRelaxation?: number
+  dampingCompression?: number
+  frictionSlip?: number
+  rollInfluence?: number
+  axleLocal?: number[]
+  chassisConnectionPointLocal?: number[]
+  isFrontWheel?: boolean
+  useCustomSlidingRotationalSpeed?: boolean
+  customSlidingRotationalSpeed?: number
+}
+
+type RaycastVehicleProps = {
+  chassisBody: React.MutableRefObject<THREE.Object3D | undefined>
+  wheels: React.MutableRefObject<THREE.Object3D | undefined>[]
+  wheelInfos: WheelInfoOptions[]
+  indexForwardAxis?: number
+  indexRightAxis?: number
+  indexUpAxis?: number
+}
+
+type RaycastVehicleFn = () => RaycastVehicleProps
+
+export function useRaycastVehicle(
+  fn: RaycastVehicleFn,
+  fwdRef?: React.MutableRefObject<THREE.Object3D>
+): RaycastVehicleApi {
+  const ref = fwdRef ? fwdRef : useRef<THREE.Object3D>((null as unknown) as THREE.Object3D)
+  const { worker } = useContext(context)
+
+  useLayoutEffect(() => {
+    if (!ref.current) {
+      // When the reference isn't used we create a stub
+      // The body doesn't have a visual representation but can still be constrained
+      ref.current = new THREE.Object3D()
+    }
+
+    const currentWorker = worker
+    let uuid: string[] = [ref.current.uuid]
+
+    const raycastVehicleProps = fn()
+
+    currentWorker.postMessage({
+      op: 'addRaycastVehicle',
+      uuid,
+      props: [
+        raycastVehicleProps.chassisBody.current?.uuid,
+        raycastVehicleProps.wheels.map((wheel) => wheel.current?.uuid),
+        raycastVehicleProps.wheelInfos,
+        raycastVehicleProps?.indexForwardAxis || 2,
+        raycastVehicleProps?.indexRightAxis || 0,
+        raycastVehicleProps?.indexUpAxis || 1,
+      ],
+    })
+    return () => {
+      currentWorker.postMessage({ op: 'removeRaycastVehicle', uuid })
+    }
+  }, [])
+
+  const api = useMemo(() => {
+    const post = (op: string, props?: any) =>
+      ref.current && worker.postMessage({ op, uuid: ref.current.uuid, props })
+    return {
+      setSteeringValue(value: number, wheelIndex: number) {
+        post('setRaycastVehicleSteeringValue', [value, wheelIndex])
+      },
+      applyEngineForce(value: number, wheelIndex: number) {
+        post('applyRaycastVehicleEngineForce', [value, wheelIndex])
+      },
+      setBrake(brake: number, wheelIndex: number) {
+        post('setRaycastVehicleBrake', [brake, wheelIndex])
+      },
+    }
+  }, [])
+  return [ref, api]
+}
