@@ -13,10 +13,10 @@ export default function Vehicle(props) {
   const wheelInfos = []
 
   // chassis - wheel connection helpers
-  const chassisWidth = 1.55
+  const chassisWidth = 1.2
   const chassisHeight = -0.04 // ground clearance
-  const chassisFront = 1.45
-  const chassisBack = -1.1
+  const chassisFront = 1.3
+  const chassisBack = -1.15
 
   const wheelInfo = {
     radius: props.wheelRadius || 0.7,
@@ -29,7 +29,7 @@ export default function Vehicle(props) {
     dampingCompression: 4.4,
     frictionSlip: 5,
     rollInfluence: 0.01,
-    axleLocal: [1, 0, 0], // wheel rotates around X-axis
+    axleLocal: [-1, 0, 0], // wheel rotates around X-axis, invert if wheels rotate the wrong way
     chassisConnectionPointLocal: [1, 0, 1],
     isFrontWheel: false,
     useCustomSlidingRotationalSpeed: true,
@@ -107,6 +107,7 @@ export default function Vehicle(props) {
     if (brake) {
       setBrakeForce(maxBrakeForce)
     }
+    if (!brake) setBrakeForce(0)
     if (reset) {
       chassis.current.api.position.set(0, 5, 0)
       chassis.current.api.velocity.set(0, 0, 0)

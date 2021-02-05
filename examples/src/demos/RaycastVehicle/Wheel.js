@@ -5,15 +5,11 @@ import { useCylinder } from '@react-three/cannon'
 function WheelModel(props) {
   const { nodes, materials } = useGLTF('/wheel.glb')
   return (
-    <mesh
-      {...props}
-      material={materials['Material.004']}
-      geometry={nodes.Tire_front_L_3.geometry}
-      dispose={null}
-      rotation={[-1.57, 0, 0]}
-      receiveShadow
-      castShadow
-    />
+    <group {...props} dispose={null}>
+      <mesh material={materials.Rubber} geometry={nodes.wheel_1.geometry} />
+      <mesh material={materials.Steel} geometry={nodes.wheel_2.geometry} />
+      <mesh material={materials.Chrom} geometry={nodes.wheel_3.geometry} />
+    </group>
   )
 }
 useGLTF.preload('/Wheel.glb')
@@ -39,7 +35,7 @@ const Wheel = forwardRef((props, ref) => {
 
   return (
     <mesh ref={ref}>
-      <mesh rotation={[0, 0, ((isLeftSide ? -1 : 1) * Math.PI) / 2]} castShadow>
+      <mesh rotation={[0, 0, ((isLeftSide ? 1 : -1) * Math.PI) / 2]} castShadow>
         <WheelModel />
       </mesh>
     </mesh>

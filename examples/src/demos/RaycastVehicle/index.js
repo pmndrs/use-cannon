@@ -51,8 +51,8 @@ const VehicleScene = () => {
       <Canvas shadowMap camera={{ position: [0, 5, 20], fov: 50 }}>
         <OrbitControls />
         <color attach="background" args={['#171720']} />
-        <ambientLight intensity={0.5} />
-        <spotLight position={[10, 10, 10]} angle={0.3} intensity={1} castShadow />
+        <ambientLight intensity={0.1} />
+        <spotLight position={[10, 10, 10]} angle={0.3} intensity={1} castShadow penumbra={0.5} />
         <Physics broadphase="SAP" {...defaultContactMaterial} allowSleep>
           <Plane rotation={[-Math.PI / 2, 0, 0]} />
           <Vehicle

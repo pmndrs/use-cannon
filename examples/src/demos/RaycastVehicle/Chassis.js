@@ -2,25 +2,37 @@ import React, { forwardRef } from 'react'
 import { useGLTF } from '@react-three/drei'
 import { useBox } from '@react-three/cannon'
 
-// Model via Renderbunny on Turbosquid, see Editorial license
-// https://www.turbosquid.com/3d-models/cartoon-chrysler-car-3d-model-1496394
-function Chrysler(props) {
-  const { nodes, materials } = useGLTF('/crysler.glb')
+// Model via KrStolorz on Sketchfab, CC-BY-4.0
+// https://sketchfab.com/3d-models/low-poly-volkswagen-beetle-f680ad7e98e445eaafed1a70f2c53911
+function Beetle(props) {
+  const { nodes, materials } = useGLTF('/Beetle.glb')
   return (
-    <mesh
-      {...props}
-      dispose={null}
-      material={materials['Material.004']}
-      geometry={nodes.Crysler.geometry}
-      position={[0, 0.1, -0.01]}
-    />
+    <group {...props} dispose={null}>
+      <mesh castShadow material={materials['Black paint']} geometry={nodes.chassis_1.geometry} />
+      <mesh castShadow material={materials.Rubber} geometry={nodes.chassis_2.geometry} />
+      <mesh castShadow material={materials.Paint} geometry={nodes.chassis_3.geometry} />
+      <mesh castShadow material={materials.Underbody} geometry={nodes.chassis_4.geometry} />
+      <mesh castShadow material={materials.Chrom} geometry={nodes.chassis_5.geometry} />
+      <mesh castShadow material={materials['Interior (dark)']} geometry={nodes.chassis_6.geometry} />
+      <mesh castShadow material={materials['Interior (light)']} geometry={nodes.chassis_7.geometry} />
+      <mesh castShadow material={materials.Reflector} geometry={nodes.chassis_8.geometry} />
+      <mesh material={materials.Glass} geometry={nodes.chassis_9.geometry} />
+      <mesh castShadow material={materials.Steel} geometry={nodes.chassis_10.geometry} />
+      <mesh castShadow material={materials['Black plastic']} geometry={nodes.chassis_11.geometry} />
+      <mesh material={materials.Headlight} geometry={nodes.chassis_12.geometry} />
+      <mesh castShadow material={materials['Reverse lights']} geometry={nodes.chassis_13.geometry} />
+      <mesh castShadow material={materials['Orange plastic']} geometry={nodes.chassis_14.geometry} />
+      <mesh castShadow material={materials['Tail lights']} geometry={nodes.chassis_15.geometry} />
+      <mesh castShadow material={materials['License Plate']} geometry={nodes.chassis_16.geometry} />
+    </group>
   )
 }
-useGLTF.preload('/Crysler.glb')
+
+useGLTF.preload('/Beetle.glb')
 
 // The vehicle chassis
 const Chassis = forwardRef((props, ref) => {
-  const boxSize = [1.8, 1, 4] // roughly the Crysler's visual dimensions
+  const boxSize = [1.7, 1, 4] // roughly the cars's visual dimensions
   const [, api] = useBox(
     () => ({
       mass: props.weight || 500,
@@ -36,7 +48,7 @@ const Chassis = forwardRef((props, ref) => {
 
   return (
     <mesh ref={ref} api={api}>
-      <Chrysler castShadow />
+      <Beetle position={[0, -0.6, 0]} />
     </mesh>
   )
 })
