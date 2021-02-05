@@ -69,8 +69,8 @@ function Ragdoll(props) {
   return (
     <BodyPart name={'upperBody'} {...props}>
       <mesh ref={ref}>
-        <sphereBufferGeometry attach="geometry" args={[0.5, 32, 32]} />
-        <meshBasicMaterial attach="material" fog={false} depthTest={false} transparent opacity={0.5} />
+        <sphereBufferGeometry args={[0.5, 32, 32]} />
+        <meshBasicMaterial fog={false} depthTest={false} transparent opacity={0.5} />
       </mesh>
       <BodyPart
         {...props}
@@ -127,8 +127,8 @@ function Plane(props) {
   const [ref] = usePlane(() => ({ ...props }))
   return (
     <mesh ref={ref} receiveShadow>
-      <planeBufferGeometry attach="geometry" args={[1000, 1000]} />
-      <meshStandardMaterial attach="material" color="#171720" />
+      <planeBufferGeometry args={[1000, 1000]} />
+      <meshStandardMaterial color="#171720" />
     </mesh>
   )
 }
@@ -137,8 +137,8 @@ const Box = React.forwardRef(
   ({ children, transparent = false, opacity = 1, color = 'white', args = [1, 1, 1], ...props }, ref) => {
     return (
       <mesh receiveShadow castShadow ref={ref} {...props}>
-        <boxBufferGeometry attach="geometry" args={args} />
-        <meshStandardMaterial attach="material" color={color} transparent={transparent} opacity={opacity} />
+        <boxBufferGeometry args={args} />
+        <meshStandardMaterial color={color} transparent={transparent} opacity={opacity} />
         {children}
       </mesh>
     )
