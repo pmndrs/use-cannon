@@ -54,16 +54,16 @@ const VehicleScene = () => {
         <ambientLight intensity={0.1} />
         <spotLight position={[10, 10, 10]} angle={0.3} intensity={1} castShadow penumbra={0.5} />
         <Physics broadphase="SAP" {...defaultContactMaterial} allowSleep>
-          <Plane rotation={[-Math.PI / 2, 0, 0]} />
+          <Plane rotation={[-Math.PI / 2, 0, 0]} userData={{ id: 'floor' }} />
           <Vehicle
             position={[0, 5, 0]}
             rotation={[0, -Math.PI / 4, 0]}
             angularVelocity={[0, 0.5, 0]} // to get you rolling
             wheelRadius={0.3}
           />
-          <Pillar position={[-5, 2.5, -5]} />
-          <Pillar position={[0, 2.5, -5]} />
-          <Pillar position={[5, 2.5, -5]} />
+          <Pillar position={[-5, 2.5, -5]} userData={{ id: 'pillar-1' }} />
+          <Pillar position={[0, 2.5, -5]} userData={{ id: 'pillar-2' }} />
+          <Pillar position={[5, 2.5, -5]} userData={{ id: 'pillar-3' }} />
         </Physics>
       </Canvas>
       <div

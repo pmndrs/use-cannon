@@ -17,6 +17,7 @@ export type AtomicProps = {
   collisionFilterMask?: number
   collisionResponse?: number
   fixedRotation?: boolean
+  userData?: object
 }
 
 export type BodyProps = AtomicProps & {
@@ -141,6 +142,7 @@ const temp = new THREE.Object3D()
 
 function prepare(object: THREE.Object3D, props: BodyProps, argFn: ArgFn) {
   props.args = argFn(props.args)
+  object.userData = props.userData || {}
   object.position.set(...((props.position || [0, 0, 0]) as [number, number, number]))
   object.rotation.set(...((props.rotation || [0, 0, 0]) as [number, number, number]))
   return props
@@ -272,6 +274,7 @@ function useBody(
         collisionFilterMask: makeAtomic('collisionFilterMask', index),
         collisionResponse: makeAtomic('collisionResponse', index),
         fixedRotation: makeAtomic('fixedRotation', index),
+        userData: makeAtomic('userData', index),
         // Apply functions
         applyForce(force: number[], worldPoint: number[]) {
           post('applyForce', index, [force, worldPoint])

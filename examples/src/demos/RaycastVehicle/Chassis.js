@@ -30,6 +30,11 @@ function Beetle(props) {
 
 useGLTF.preload('/Beetle.glb')
 
+const onCollide = (e) => {
+  // the other body:
+  console.log('bonk!', e.body.userData)
+}
+
 // The vehicle chassis
 const Chassis = forwardRef((props, ref) => {
   const boxSize = [1.7, 1, 4] // roughly the cars's visual dimensions
@@ -40,7 +45,11 @@ const Chassis = forwardRef((props, ref) => {
       angularVelocity: props.angularVelocity,
       allowSleep: false,
       args: boxSize,
-      onCollide: (e) => console.log(`bonk`),
+      onCollide: onCollide,
+      userData: {
+        // define you custom application reference here
+        id: 'vehicle-chassis',
+      },
       ...props,
     }),
     ref
