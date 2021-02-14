@@ -38,7 +38,7 @@ function Paddle() {
   const model = useRef()
   const [ref, api] = useBox(() => ({
     type: 'Kinematic',
-    args: [1.7, 0.5, 1.75],
+    args: [3.4, 1, 3],
     onCollide: (e) => pong(e.contact.impactVelocity),
   }))
   let values = useRef([0, 0])
@@ -70,7 +70,7 @@ function Paddle() {
           />
         </group>
         <group rotation={[0, -0.04, 0]} scale={[141.94, 141.94, 141.94]}>
-          <mesh castShadow receiveShadow material={materials.wood} geometry={nodes.mesh_0.geometry} />
+          <mesh castShadow receiveShadow material={materials.wood} geometry={nodes.mesh.geometry} />
           <mesh castShadow receiveShadow material={materials.side} geometry={nodes.mesh_1.geometry} />
           <mesh castShadow receiveShadow material={materials.foam} geometry={nodes.mesh_2.geometry} />
           <mesh castShadow receiveShadow material={materials.lower} geometry={nodes.mesh_3.geometry} />
@@ -86,8 +86,8 @@ function Ball() {
   const [ref] = useSphere(() => ({ mass: 1, args: 0.5, position: [0, 5, 0] }))
   return (
     <mesh castShadow ref={ref}>
-      <sphereBufferGeometry attach="geometry" args={[0.5, 64, 64]} />
-      <meshStandardMaterial attach="material" map={map} />
+      <sphereBufferGeometry args={[0.5, 64, 64]} />
+      <meshStandardMaterial map={map} />
     </mesh>
   )
 }
@@ -136,8 +136,8 @@ export default function () {
           gravity={[0, -40, 0]}
           allowSleep={false}>
           <mesh position={[0, 0, -10]} receiveShadow>
-            <planeBufferGeometry attach="geometry" args={[1000, 1000]} />
-            <meshPhongMaterial attach="material" color="#172017" />
+            <planeBufferGeometry args={[1000, 1000]} />
+            <meshPhongMaterial color="#172017" />
           </mesh>
           <ContactGround />
           {!welcome && <Ball />}
