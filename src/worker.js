@@ -68,6 +68,7 @@ function syncBodies() {
   bodies = world.bodies.reduce((acc, body) => ({ ...acc, [body.uuid]: body }), {})
 }
 
+let lastCallTime
 self.onmessage = (e) => {
   const { op, uuid, type, positions, quaternions, props } = e.data
 
@@ -95,7 +96,15 @@ self.onmessage = (e) => {
       break
     }
     case 'step': {
-      world.step(config.step)
+      const now = performance.now() / 1000
+      if (!lastCallTime) {
+        world.step(config.step)
+      } else {
+        const timeSinceLastCall = now - lastCallTime
+        world.step(config.step, timeSinceLastCall)
+      }
+      lastCallTime = now
+
       const numberOfBodies = world.bodies.length
       for (let i = 0; i < numberOfBodies; i++) {
         let b = world.bodies[i],
