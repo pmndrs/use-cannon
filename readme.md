@@ -294,7 +294,7 @@ type ConvexPolyhedronProps = BodyProps & {
 }
 type HeightfieldProps = BodyProps & {
   args?: [
-    number[], // data
+    number[][], // data
     {
       minValue?: number
       maxValue?: number
