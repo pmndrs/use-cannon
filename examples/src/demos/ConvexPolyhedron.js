@@ -3,22 +3,27 @@ import React, { Suspense, useMemo } from 'react'
 import { Canvas, useLoader } from 'react-three-fiber'
 import { Physics, usePlane, useConvexPolyhedron } from '@react-three/cannon'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
-import { ConvexGeometry } from 'three/examples/jsm/geometries/ConvexGeometry'
+import { Geometry } from 'three-stdlib/deprecated/Geometry'
+
+/**
+ * Returns legacy geometry vertices, faces for ConvP
+ * @param {THREE.BufferGeometry} bufferGeometry
+ */
+function toConvexProps(bufferGeometry) {
+  const geo = new Geometry().fromBufferGeometry(bufferGeometry)
+  // Merge duplicate vertices resulting from glTF export.
+  // Cannon assumes contiguous, closed meshes to work
+  geo.mergeVertices()
+  return [geo.vertices.map((v) => [v.x, v.y, v.z]), geo.faces.map((f) => [f.a, f.b, f.c]), []]
+}
 
 function Diamond(props) {
   const { nodes } = useLoader(GLTFLoader, '/diamond.glb')
-  const geo = useMemo(() => {
-    const g = new THREE.Geometry().fromBufferGeometry(nodes.Cylinder.geometry)
-    // Merge duplicate vertices resulting from glTF export.
-    // Cannon assumes contiguous, closed meshes to work
-    g.mergeVertices()
-    // Ensure loaded mesh is convex and create faces if necessary
-    return new ConvexGeometry(g.vertices)
-  }, [nodes])
-
+  const geo = useMemo(() => toConvexProps(nodes.Cylinder.geometry), [nodes])
   const [ref] = useConvexPolyhedron(() => ({ mass: 100, ...props, args: geo }))
+
   return (
-    <mesh castShadow receiveShadow ref={ref} geometry={geo} {...props}>
+    <mesh castShadow receiveShadow ref={ref} geometry={nodes.Cylinder.geometry} {...props}>
       <meshStandardMaterial wireframe />
     </mesh>
   )
@@ -26,14 +31,12 @@ function Diamond(props) {
 
 // A cone is a convex shape by definition...
 function Cone({ sides, ...props }) {
-  const geo = useMemo(() => {
-    const g = new THREE.ConeGeometry(0.7, 0.7, sides, 1)
-    g.mergeVertices()
-    return g
-  }, [])
+  const geo = useMemo(() => toConvexProps(new THREE.ConeGeometry(0.7, 0.7, sides, 1)), [])
   const [ref] = useConvexPolyhedron(() => ({ mass: 100, ...props, args: geo }))
+
   return (
-    <mesh castShadow ref={ref} {...props} geometry={geo}>
+    <mesh castShadow ref={ref} {...props}>
+      <coneBufferGeometry args={[0.7, 0.7, sides, 1]} />
       <meshNormalMaterial />
     </mesh>
   )
@@ -41,14 +44,12 @@ function Cone({ sides, ...props }) {
 
 // ...And so is a cube!
 function Cube({ size, ...props }) {
-  const geo = useMemo(() => {
-    const g = new THREE.BoxGeometry(size, size, size)
-    g.mergeVertices()
-    return g
-  }, [])
+  // note, this is wildly inefficient vs useBox
+  const geo = useMemo(() => toConvexProps(new THREE.BoxGeometry(size, size, size)), [])
   const [ref] = useConvexPolyhedron(() => ({ mass: 100, ...props, args: geo }))
   return (
     <mesh castShadow ref={ref} {...props} geometry={geo}>
+      <boxBufferGeometry args={[size, size, size]} />
       <meshNormalMaterial />
     </mesh>
   )
