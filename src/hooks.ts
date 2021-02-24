@@ -47,13 +47,13 @@ export type CylinderProps = BodyProps & { args?: [number, number, number, number
 export type ParticleProps = BodyProps & {}
 export type SphereProps = BodyProps & { args?: number }
 export type TrimeshProps = BodyProps & {
-  args?: THREE.Geometry | [(THREE.Vector3 | number[])[], (THREE.Face3 | number[])[]]
+  args?: [(THREE.Vector3 | number[])[], number[][]]
 }
 export type HeightfieldProps = BodyProps & {
   args?: [number[], { minValue?: number; maxValue?: number; elementSize?: number }]
 }
 export type ConvexPolyhedronProps = BodyProps & {
-  args?: THREE.Geometry | [(THREE.Vector3 | number[])[], (THREE.Face3 | number[])[]]
+  args?: [(THREE.Vector3 | number[])[], number[][]]
 }
 export type CompoundBodyProps = BodyProps & {
   shapes: BodyProps & { type: ShapeType }[]
@@ -320,12 +320,7 @@ export function useTrimesh(fn: TrimeshFn, fwdRef?: React.MutableRefObject<THREE.
     'Trimesh',
     fn,
     (args) => {
-      const vertices = args instanceof THREE.Geometry ? args.vertices : args[0]
-      const indices = args instanceof THREE.Geometry ? args.faces : args[1]
-      return [
-        vertices.map((v: any) => (v instanceof THREE.Vector3 ? [v.x, v.y, v.z] : v)),
-        indices.map((i: any) => (i instanceof THREE.Face3 ? [i.a, i.b, i.c] : i)),
-      ]
+      return [args[0].map((v: any) => (v instanceof THREE.Vector3 ? [v.x, v.y, v.z] : v)), args[1]]
     },
     fwdRef
   )
@@ -335,13 +330,10 @@ export function useConvexPolyhedron(fn: ConvexPolyhedronFn, fwdRef?: React.Mutab
     'ConvexPolyhedron',
     fn,
     (args) => {
-      const vertices = args instanceof THREE.Geometry ? args.vertices : args[0]
-      const faces = args instanceof THREE.Geometry ? args.faces : args[1]
-      const normals = args instanceof THREE.Geometry ? args.faces.map((f) => f.normal) : args[2]
       return [
-        vertices.map((v: any) => (v instanceof THREE.Vector3 ? [v.x, v.y, v.z] : v)),
-        faces.map((f: any) => (f instanceof THREE.Face3 ? [f.a, f.b, f.c] : f)),
-        normals && normals.map((n: any) => (n instanceof THREE.Vector3 ? [n.x, n.y, n.z] : n)),
+        args[0].map((v: any) => (v instanceof THREE.Vector3 ? [v.x, v.y, v.z] : v)),
+        args[1],
+        args[2] && args[2].map((n: any) => (n instanceof THREE.Vector3 ? [n.x, n.y, n.z] : n)),
       ]
     },
     fwdRef
