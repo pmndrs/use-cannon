@@ -25,7 +25,7 @@ function Box() {
   return (
     <mesh ref={ref} castShadow receiveShadow>
       <boxBufferGeometry args={boxSize} />
-      <meshLambertMaterial color="white" side={THREE.DoubleSide} />
+      <meshLambertMaterial color="white" />
     </mesh>
   )
 }

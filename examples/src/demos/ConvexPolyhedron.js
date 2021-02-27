@@ -2,7 +2,7 @@ import * as THREE from 'three'
 import React, { Suspense, useMemo } from 'react'
 import { Canvas, useLoader } from 'react-three-fiber'
 import { Physics, usePlane, useConvexPolyhedron } from '@react-three/cannon'
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
+import { GLTFLoader } from 'three-stdlib/loaders/GLTFLoader'
 import { Geometry } from 'three-stdlib/deprecated/Geometry'
 
 /**
@@ -24,7 +24,7 @@ function Diamond(props) {
 
   return (
     <mesh castShadow receiveShadow ref={ref} geometry={nodes.Cylinder.geometry} {...props}>
-      <meshStandardMaterial wireframe />
+      <meshStandardMaterial wireframe color="white" />
     </mesh>
   )
 }
@@ -48,9 +48,9 @@ function Cube({ size, ...props }) {
   const geo = useMemo(() => toConvexProps(new THREE.BoxGeometry(size, size, size)), [])
   const [ref] = useConvexPolyhedron(() => ({ mass: 100, ...props, args: geo }))
   return (
-    <mesh castShadow ref={ref} {...props} geometry={geo}>
+    <mesh castShadow receiveShadow ref={ref} {...props} geometry={geo}>
       <boxBufferGeometry args={[size, size, size]} />
-      <meshNormalMaterial />
+      <meshPhysicalMaterial color="rebeccapurple" />
     </mesh>
   )
 }
@@ -59,27 +59,26 @@ function Plane(props) {
   const [ref] = usePlane(() => ({ type: 'Static', ...props }))
   return (
     <mesh ref={ref} receiveShadow>
-      <planeBufferGeometry args={[5, 5]} />
+      <planeBufferGeometry args={[10, 10]} />
       <shadowMaterial color="#171717" />
     </mesh>
   )
 }
 
 export default () => (
-  <Canvas shadowMap gl={{ alpha: false }} camera={{ position: [-1, 1, 5], fov: 50 }}>
+  <Canvas shadowMap camera={{ position: [-1, 1, 5], fov: 50 }}>
     <color attach="background" args={['lightpink']} />
-    <hemisphereLight intensity={0.35} />
     <spotLight
-      position={[5, 5, 5]}
+      position={[15, 15, 15]}
       angle={0.3}
       penumbra={1}
       intensity={2}
       castShadow
-      shadow-mapSize-width={1028}
-      shadow-mapSize-height={1028}
+      shadow-mapSize-width={2048}
+      shadow-mapSize-height={2048}
     />
     <Suspense fallback={null}>
-      <Physics iterations={6}>
+      <Physics>
         <Plane rotation={[-Math.PI / 2, 0, 0]} />
         <Diamond position={[1, 5, 0]} rotation={[0.4, 0.1, 0.1]} />
         <Cone position={[-1, 5, 0.5]} rotation={[0.1, 0.2, 0.1]} sides={6} />

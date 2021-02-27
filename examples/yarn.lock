@@ -1114,10 +1114,17 @@
   dependencies:
     regenerator-runtime "^0.13.4"
 
-"@babel/runtime@^7.1.2", "@babel/runtime@^7.10.2", "@babel/runtime@^7.11.2", "@babel/runtime@^7.12.1", "@babel/runtime@^7.3.1", "@babel/runtime@^7.5.5", "@babel/runtime@^7.7.2", "@babel/runtime@^7.8.4":
+"@babel/runtime@^7.1.2", "@babel/runtime@^7.10.2", "@babel/runtime@^7.12.1", "@babel/runtime@^7.5.5", "@babel/runtime@^7.7.2", "@babel/runtime@^7.8.4":
   version "7.13.7"
   resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.13.7.tgz#d494e39d198ee9ca04f4dcb76d25d9d7a1dc961a"
   integrity sha512-h+ilqoX998mRVM5FtB5ijRuHUDVt5l3yfoOi2uh18Z/O3hvyaHQ39NpxVkCIG5yFs+mLq/ewFp8Bss6zmWv6ZA==
+  dependencies:
+    regenerator-runtime "^0.13.4"
+
+"@babel/runtime@^7.11.2", "@babel/runtime@^7.3.1":
+  version "7.13.8"
+  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.13.8.tgz#cc886a85c072df1de23670dc1aa59fc116c4017c"
+  integrity sha512-CwQljpw6qSayc0fRG1soxHAKs1CnQMOChm4mlQP6My0kf9upVGizj/KhlTTgyUnETmHpcUXjaluNAkteRFuafg==
   dependencies:
     regenerator-runtime "^0.13.4"
 
@@ -1519,9 +1526,9 @@
   version "0.0.0"
 
 "@react-three/drei@^3.2.2":
-  version "3.8.6"
-  resolved "https://registry.yarnpkg.com/@react-three/drei/-/drei-3.8.6.tgz#eefd56a8cc2293ef3a3c095deaf737ded7b322fe"
-  integrity sha512-Ld64NpkVIubf7r1hGGYRQTw4xmHPD0pKf7M39JeP3qP5AUjaxVrV4A/WeoNfAkBJKMwaiAY06S5fcS1MT4hlkQ==
+  version "3.9.0"
+  resolved "https://registry.yarnpkg.com/@react-three/drei/-/drei-3.9.0.tgz#d9fd426c225541bd9a32f0a32533dbebd6770137"
+  integrity sha512-SxT9+YdVRoGQQfw7Y5LdfBYqA6mesErPHYsVw18ySbYDKHgKllh9fv1FgUn6ME4836XkbF2KKL4Ts0jr/2fp7w==
   dependencies:
     "@babel/runtime" "^7.11.2"
     "@react-spring/web" "^9.0.0-rc.3"

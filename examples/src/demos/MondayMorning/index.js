@@ -9,7 +9,7 @@ import React, {
   useRef,
 } from 'react'
 import { Canvas, useFrame, useLoader } from 'react-three-fiber'
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
+import { GLTFLoader } from 'three-stdlib/loaders/GLTFLoader'
 import {
   Physics,
   useBox,

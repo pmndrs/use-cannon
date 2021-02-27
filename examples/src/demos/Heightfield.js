@@ -1,13 +1,10 @@
 import * as THREE from 'three'
 import { useMemo, useRef, useEffect } from 'react'
-
 import { Canvas, useFrame, extend, useThree } from 'react-three-fiber'
-
 import { Physics, useHeightfield, useSphere } from '@react-three/cannon'
-
 import niceColors from 'nice-color-palettes'
+import { OrbitControls } from 'three-stdlib/controls/OrbitControls'
 
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 extend({ OrbitControls })
 
 /* Generates a 2D array using Worley noise. */
@@ -82,7 +79,7 @@ function HeightmapGeometry({ heights, elementSize, ...rest }) {
 function Heightfield(props) {
   const { elementSize, heights, position, rotation, ...rest } = props
 
-  const [ref, api] = useHeightfield(() => ({
+  const [ref] = useHeightfield(() => ({
     args: [
       heights,
       {
