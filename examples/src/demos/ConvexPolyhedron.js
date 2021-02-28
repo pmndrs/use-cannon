@@ -2,38 +2,41 @@ import * as THREE from 'three'
 import React, { Suspense, useMemo } from 'react'
 import { Canvas, useLoader } from 'react-three-fiber'
 import { Physics, usePlane, useConvexPolyhedron } from '@react-three/cannon'
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
-import { ConvexGeometry } from 'three/examples/jsm/geometries/ConvexGeometry'
+import { GLTFLoader } from 'three-stdlib/loaders/GLTFLoader'
+import { Geometry } from 'three-stdlib/deprecated/Geometry'
+
+/**
+ * Returns legacy geometry vertices, faces for ConvP
+ * @param {THREE.BufferGeometry} bufferGeometry
+ */
+function toConvexProps(bufferGeometry) {
+  const geo = new Geometry().fromBufferGeometry(bufferGeometry)
+  // Merge duplicate vertices resulting from glTF export.
+  // Cannon assumes contiguous, closed meshes to work
+  geo.mergeVertices()
+  return [geo.vertices.map((v) => [v.x, v.y, v.z]), geo.faces.map((f) => [f.a, f.b, f.c]), []]
+}
 
 function Diamond(props) {
   const { nodes } = useLoader(GLTFLoader, '/diamond.glb')
-  const geo = useMemo(() => {
-    const g = new THREE.Geometry().fromBufferGeometry(nodes.Cylinder.geometry)
-    // Merge duplicate vertices resulting from glTF export.
-    // Cannon assumes contiguous, closed meshes to work
-    g.mergeVertices()
-    // Ensure loaded mesh is convex and create faces if necessary
-    return new ConvexGeometry(g.vertices)
-  }, [nodes])
-
+  const geo = useMemo(() => toConvexProps(nodes.Cylinder.geometry), [nodes])
   const [ref] = useConvexPolyhedron(() => ({ mass: 100, ...props, args: geo }))
+
   return (
-    <mesh castShadow receiveShadow ref={ref} geometry={geo} {...props}>
-      <meshStandardMaterial wireframe />
+    <mesh castShadow receiveShadow ref={ref} geometry={nodes.Cylinder.geometry} {...props}>
+      <meshStandardMaterial wireframe color="white" />
     </mesh>
   )
 }
 
 // A cone is a convex shape by definition...
 function Cone({ sides, ...props }) {
-  const geo = useMemo(() => {
-    const g = new THREE.ConeGeometry(0.7, 0.7, sides, 1)
-    g.mergeVertices()
-    return g
-  }, [])
+  const geo = useMemo(() => toConvexProps(new THREE.ConeGeometry(0.7, 0.7, sides, 1)), [])
   const [ref] = useConvexPolyhedron(() => ({ mass: 100, ...props, args: geo }))
+
   return (
-    <mesh castShadow ref={ref} {...props} geometry={geo}>
+    <mesh castShadow ref={ref} {...props}>
+      <coneBufferGeometry args={[0.7, 0.7, sides, 1]} />
       <meshNormalMaterial />
     </mesh>
   )
@@ -41,15 +44,13 @@ function Cone({ sides, ...props }) {
 
 // ...And so is a cube!
 function Cube({ size, ...props }) {
-  const geo = useMemo(() => {
-    const g = new THREE.BoxGeometry(size, size, size)
-    g.mergeVertices()
-    return g
-  }, [])
+  // note, this is wildly inefficient vs useBox
+  const geo = useMemo(() => toConvexProps(new THREE.BoxGeometry(size, size, size)), [])
   const [ref] = useConvexPolyhedron(() => ({ mass: 100, ...props, args: geo }))
   return (
-    <mesh castShadow ref={ref} {...props} geometry={geo}>
-      <meshNormalMaterial />
+    <mesh castShadow receiveShadow ref={ref} {...props} geometry={geo}>
+      <boxBufferGeometry args={[size, size, size]} />
+      <meshPhysicalMaterial color="rebeccapurple" />
     </mesh>
   )
 }
@@ -58,27 +59,26 @@ function Plane(props) {
   const [ref] = usePlane(() => ({ type: 'Static', ...props }))
   return (
     <mesh ref={ref} receiveShadow>
-      <planeBufferGeometry args={[5, 5]} />
+      <planeBufferGeometry args={[10, 10]} />
       <shadowMaterial color="#171717" />
     </mesh>
   )
 }
 
 export default () => (
-  <Canvas shadowMap gl={{ alpha: false }} camera={{ position: [-1, 1, 5], fov: 50 }}>
+  <Canvas shadowMap camera={{ position: [-1, 1, 5], fov: 50 }}>
     <color attach="background" args={['lightpink']} />
-    <hemisphereLight intensity={0.35} />
     <spotLight
-      position={[5, 5, 5]}
+      position={[15, 15, 15]}
       angle={0.3}
       penumbra={1}
       intensity={2}
       castShadow
-      shadow-mapSize-width={1028}
-      shadow-mapSize-height={1028}
+      shadow-mapSize-width={2048}
+      shadow-mapSize-height={2048}
     />
     <Suspense fallback={null}>
-      <Physics iterations={6}>
+      <Physics>
         <Plane rotation={[-Math.PI / 2, 0, 0]} />
         <Diamond position={[1, 5, 0]} rotation={[0.4, 0.1, 0.1]} />
         <Cone position={[-1, 5, 0.5]} rotation={[0.1, 0.2, 0.1]} sides={6} />

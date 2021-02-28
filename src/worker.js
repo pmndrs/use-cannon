@@ -23,9 +23,11 @@ import {
   Quaternion,
   Ray,
   RaycastResult,
+  RaycastVehicle,
 } from 'cannon-es'
 
 let bodies = {}
+const vehicles = {}
 const springs = {}
 const rays = {}
 const world = new World()
@@ -59,11 +61,14 @@ function createShape(type, args) {
   }
 }
 
+let bodiesNeedSyncing = false
+
 function syncBodies() {
-  self.postMessage({ op: 'sync', bodies: world.bodies.map((body) => body.uuid) })
+  bodiesNeedSyncing = true
   bodies = world.bodies.reduce((acc, body) => ({ ...acc, [body.uuid]: body }), {})
 }
 
+let lastCallTime
 self.onmessage = (e) => {
   const { op, uuid, type, positions, quaternions, props } = e.data
 
@@ -91,7 +96,15 @@ self.onmessage = (e) => {
       break
     }
     case 'step': {
-      world.step(config.step)
+      const now = performance.now() / 1000
+      if (!lastCallTime) {
+        world.step(config.step)
+      } else {
+        const timeSinceLastCall = now - lastCallTime
+        world.step(config.step, timeSinceLastCall)
+      }
+      lastCallTime = now
+
       const numberOfBodies = world.bodies.length
       for (let i = 0; i < numberOfBodies; i++) {
         let b = world.bodies[i],
@@ -116,16 +129,18 @@ self.onmessage = (e) => {
         }
         observations.push([id, value])
       }
-      self.postMessage(
-        {
-          op: 'frame',
-          positions,
-          quaternions,
-          observations,
-          active: world.hasActiveBodies,
-        },
-        [positions.buffer, quaternions.buffer]
-      )
+      const message = {
+        op: 'frame',
+        positions,
+        quaternions,
+        observations,
+        active: world.hasActiveBodies,
+      }
+      if (bodiesNeedSyncing) {
+        message.bodies = world.bodies.map((body) => body.uuid)
+        bodiesNeedSyncing = false
+      }
+      self.postMessage(message, [positions.buffer, quaternions.buffer])
       break
     }
     case 'addBodies': {
@@ -429,6 +444,66 @@ self.onmessage = (e) => {
     case 'removeRay': {
       world.removeEventListener('preStep', rays[uuid])
       delete rays[uuid]
+      break
+    }
+    case 'addRaycastVehicle': {
+      const [chassisBody, wheels, wheelInfos, indexForwardAxis, indexRightAxis, indexUpAxis] = props
+      const vehicle = new RaycastVehicle({
+        chassisBody: bodies[chassisBody],
+        indexForwardAxis: indexForwardAxis,
+        indexRightAxis: indexRightAxis,
+        indexUpAxis: indexUpAxis,
+      })
+      vehicle.world = world
+      for (let i = 0; i < wheelInfos.length; i++) {
+        const wheelInfo = wheelInfos[i]
+        wheelInfo.directionLocal = new Vec3(...wheelInfo.directionLocal)
+        wheelInfo.chassisConnectionPointLocal = new Vec3(...wheelInfo.chassisConnectionPointLocal)
+        wheelInfo.axleLocal = new Vec3(...wheelInfo.axleLocal)
+        vehicle.addWheel(wheelInfo)
+        const wheelBody = bodies[wheels[i]]
+      }
+      vehicles[uuid] = {
+        vehicle: vehicle,
+        wheels: wheels,
+        preStep: () => {
+          vehicles[uuid].vehicle.updateVehicle(world.dt)
+        },
+        postStep: () => {
+          for (let i = 0; i < vehicles[uuid].vehicle.wheelInfos.length; i++) {
+            vehicles[uuid].vehicle.updateWheelTransform(i)
+            const t = vehicles[uuid].vehicle.wheelInfos[i].worldTransform
+            const wheelBody = bodies[vehicles[uuid].wheels[i]]
+            wheelBody.position.copy(t.position)
+            wheelBody.quaternion.copy(t.quaternion)
+          }
+        },
+      }
+      world.addEventListener('preStep', vehicles[uuid].preStep)
+      world.addEventListener('postStep', vehicles[uuid].postStep)
+      break
+    }
+    case 'removeRaycastVehicle': {
+      world.removeEventListener('preStep', vehicles[uuid].preStep)
+      world.removeEventListener('postStep', vehicles[uuid].postStep)
+      vehicles[uuid].vehicle.world = null
+      vehicles[uuid].vehicle = null
+      delete vehicles[uuid]
+      break
+    }
+    case 'setRaycastVehicleSteeringValue': {
+      const [value, wheelIndex] = props
+      vehicles[uuid].vehicle.setSteeringValue(value, wheelIndex)
+      break
+    }
+    case 'applyRaycastVehicleEngineForce': {
+      const [value, wheelIndex] = props
+      vehicles[uuid].vehicle.applyEngineForce(value, wheelIndex)
+      break
+    }
+    case 'setRaycastVehicleBrake': {
+      const [brake, wheelIndex] = props
+      vehicles[uuid].vehicle.setBrake(brake, wheelIndex)
       break
     }
   }

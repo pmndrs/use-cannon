@@ -17,7 +17,8 @@
     "react-scripts": "^4.0.1",
     "react-three-fiber": "^5.0.1",
     "styled-components": "^5.1.1",
-    "three": "^0.124.0",
+    "three": "^0.125.0",
+    "three-stdlib": "^0.0.2",
     "zustand": "^3.3.1"
   },
   "devDependencies": {

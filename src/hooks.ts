@@ -17,6 +17,7 @@ export type AtomicProps = {
   collisionFilterMask?: number
   collisionResponse?: number
   fixedRotation?: boolean
+  userData?: object
 }
 
 export type BodyProps = AtomicProps & {
@@ -47,13 +48,13 @@ export type CylinderProps = BodyProps & { args?: [number, number, number, number
 export type ParticleProps = BodyProps & {}
 export type SphereProps = BodyProps & { args?: number }
 export type TrimeshProps = BodyProps & {
-  args?: [number[][], number[][]]
+  args?: [(THREE.Vector3 | number[])[], number[][]]
 }
 export type HeightfieldProps = BodyProps & {
   args?: [number[], { minValue?: number; maxValue?: number; elementSize?: number }]
 }
 export type ConvexPolyhedronProps = BodyProps & {
-  args?: [number[][], number[][]]
+  args?: [(THREE.Vector3 | number[])[], number[][]]
 }
 export type CompoundBodyProps = BodyProps & {
   shapes: BodyProps & { type: ShapeType }[]
@@ -141,6 +142,7 @@ const temp = new THREE.Object3D()
 
 function prepare(object: THREE.Object3D, props: BodyProps, argFn: ArgFn) {
   props.args = argFn(props.args)
+  object.userData = props.userData || {}
   object.position.set(...((props.position || [0, 0, 0]) as [number, number, number]))
   object.rotation.set(...((props.rotation || [0, 0, 0]) as [number, number, number]))
   return props
@@ -272,6 +274,7 @@ function useBody(
         collisionFilterMask: makeAtomic('collisionFilterMask', index),
         collisionResponse: makeAtomic('collisionResponse', index),
         fixedRotation: makeAtomic('fixedRotation', index),
+        userData: makeAtomic('userData', index),
         // Apply functions
         applyForce(force: number[], worldPoint: number[]) {
           post('applyForce', index, [force, worldPoint])
@@ -316,10 +319,28 @@ export function useSphere(fn: SphereFn, fwdRef?: React.MutableRefObject<THREE.Ob
   return useBody('Sphere', fn, (radius) => [radius ?? 1], fwdRef)
 }
 export function useTrimesh(fn: TrimeshFn, fwdRef?: React.MutableRefObject<THREE.Object3D>) {
-  return useBody('Trimesh', fn, (args) => args, fwdRef)
+  return useBody(
+    'Trimesh',
+    fn,
+    (args) => {
+      return [args[0].map((v: any) => (v instanceof THREE.Vector3 ? [v.x, v.y, v.z] : v)), args[1]]
+    },
+    fwdRef
+  )
 }
 export function useConvexPolyhedron(fn: ConvexPolyhedronFn, fwdRef?: React.MutableRefObject<THREE.Object3D>) {
-  return useBody('ConvexPolyhedron', fn, (args) => args, fwdRef)
+  return useBody(
+    'ConvexPolyhedron',
+    fn,
+    (args) => {
+      return [
+        args[0].map((v: any) => (v instanceof THREE.Vector3 ? [v.x, v.y, v.z] : v)),
+        args[1],
+        args[2] && args[2].map((n: any) => (n instanceof THREE.Vector3 ? [n.x, n.y, n.z] : n)),
+      ]
+    },
+    fwdRef
+  )
 }
 export function useCompoundBody(fn: CompoundBodyFn, fwdRef?: React.MutableRefObject<THREE.Object3D>) {
   return useBody('Compound', fn, (args) => args || [], fwdRef)
@@ -478,4 +499,96 @@ export function useRaycastAny(options: RayOptns, callback: (e: Event) => void, d
 
 export function useRaycastAll(options: RayOptns, callback: (e: Event) => void, deps: any[] = []) {
   useRay('All', options, callback, deps)
+}
+
+type RaycastVehiclePublicApi = {
+  // addWheel: () => number
+  setSteeringValue: (value: number, wheelIndex: number) => void
+  applyEngineForce: (value: number, wheelIndex: number) => void
+  setBrake: (brake: number, wheelIndex: number) => void
+}
+
+type RaycastVehicleApi = [React.MutableRefObject<THREE.Object3D | undefined>, RaycastVehiclePublicApi]
+
+type WheelInfoOptions = {
+  radius?: number
+  directionLocal?: number[]
+  suspensionStiffness?: number
+  suspensionRestLength?: number
+  maxSuspensionForce?: number
+  maxSuspensionTravel?: number
+  dampingRelaxation?: number
+  dampingCompression?: number
+  frictionSlip?: number
+  rollInfluence?: number
+  axleLocal?: number[]
+  chassisConnectionPointLocal?: number[]
+  isFrontWheel?: boolean
+  useCustomSlidingRotationalSpeed?: boolean
+  customSlidingRotationalSpeed?: number
+}
+
+type RaycastVehicleProps = {
+  chassisBody: React.MutableRefObject<THREE.Object3D | undefined>
+  wheels: React.MutableRefObject<THREE.Object3D | undefined>[]
+  wheelInfos: WheelInfoOptions[]
+  indexForwardAxis?: number
+  indexRightAxis?: number
+  indexUpAxis?: number
+}
+
+type RaycastVehicleFn = () => RaycastVehicleProps
+
+export function useRaycastVehicle(
+  fn: RaycastVehicleFn,
+  fwdRef?: React.MutableRefObject<THREE.Object3D>
+): RaycastVehicleApi {
+  const ref = fwdRef ? fwdRef : useRef<THREE.Object3D>((null as unknown) as THREE.Object3D)
+  const { worker } = useContext(context)
+
+  useLayoutEffect(() => {
+    if (!ref.current) {
+      // When the reference isn't used we create a stub
+      // The body doesn't have a visual representation but can still be constrained
+      ref.current = new THREE.Object3D()
+    }
+
+    const currentWorker = worker
+    let uuid: string[] = [ref.current.uuid]
+
+    const raycastVehicleProps = fn()
+
+    currentWorker.postMessage({
+      op: 'addRaycastVehicle',
+      uuid,
+      props: [
+        raycastVehicleProps.chassisBody.current?.uuid,
+        raycastVehicleProps.wheels.map((wheel) => wheel.current?.uuid),
+        raycastVehicleProps.wheelInfos,
+        raycastVehicleProps?.indexForwardAxis || 2,
+        raycastVehicleProps?.indexRightAxis || 0,
+        raycastVehicleProps?.indexUpAxis || 1,
+      ],
+    })
+    return () => {
+      currentWorker.postMessage({ op: 'removeRaycastVehicle', uuid })
+    }
+  }, [])
+
+  const api = useMemo(() => {
+    const post = (op: string, props?: any) =>
+      ref.current && worker.postMessage({ op, uuid: ref.current.uuid, props })
+    return {
+      setSteeringValue(value: number, wheelIndex: number) {
+        post('setRaycastVehicleSteeringValue', [value, wheelIndex])
+      },
+      applyEngineForce(value: number, wheelIndex: number) {
+        post('applyRaycastVehicleEngineForce', [value, wheelIndex])
+      },
+      setBrake(brake: number, wheelIndex: number) {
+        post('setRaycastVehicleBrake', [brake, wheelIndex])
+      },
+    }
+  }, [])
+  return [ref, api]
 }
