@@ -8,7 +8,7 @@ import React, {
   useMemo,
   useRef,
 } from 'react'
-import { Canvas, useFrame, useLoader } from 'react-three-fiber'
+import { Canvas, useFrame, useLoader } from '@react-three/fiber'
 import { GLTFLoader } from 'three-stdlib/loaders/GLTFLoader'
 import {
   Physics,
@@ -249,7 +249,7 @@ const Lamp = () => {
 export default () => (
   <Canvas
     style={{ cursor: 'none' }}
-    shadowMap
+    shadows
     orthographic
     camera={{ position: [-25, 20, 25], zoom: 25, near: 1, far: 100 }}>
     <color attach="background" args={['#171720']} />

@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Canvas } from 'react-three-fiber'
+import { Canvas } from '@react-three/fiber'
 import { Physics, useSphere, useTrimesh } from '@react-three/cannon'
 import { OrbitControls, TorusKnot, useGLTF } from '@react-three/drei'
 
@@ -40,7 +40,7 @@ const Bowl = (props) => {
 }
 
 export default () => (
-  <Canvas shadowMap>
+  <Canvas shadows>
     <color attach="background" args={['#171720']} />
     <ambientLight intensity={0.3} />
     <pointLight castShadow intensity={0.8} position={[100, 100, 100]} />

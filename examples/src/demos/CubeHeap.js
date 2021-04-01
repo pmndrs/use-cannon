@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import React, { useMemo } from 'react'
-import { Canvas, useFrame } from 'react-three-fiber'
+import { Canvas, useFrame } from '@react-three/fiber'
 import niceColors from 'nice-color-palettes'
 import { Physics, usePlane, useBox } from '@react-three/cannon'
 
@@ -47,7 +47,7 @@ function Cubes({ number }) {
 
 export default () => (
   <Canvas
-    shadowMap
+    shadows
     gl={{ alpha: false }}
     camera={{ position: [-1, 1, 2.5], fov: 50 }}
     onCreated={({ scene }) => (scene.background = new THREE.Color('lightblue'))}>

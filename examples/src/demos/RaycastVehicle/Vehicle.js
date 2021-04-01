@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react'
-import { useFrame } from 'react-three-fiber'
+import { useFrame } from '@react-three/fiber'
 import { useRaycastVehicle } from '@react-three/cannon'
 
 import Chassis from './Chassis'

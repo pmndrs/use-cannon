@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import React, { Suspense, useMemo } from 'react'
-import { Canvas, useLoader } from 'react-three-fiber'
+import { Canvas, useLoader } from '@react-three/fiber'
 import { Physics, usePlane, useConvexPolyhedron } from '@react-three/cannon'
 import { GLTFLoader } from 'three-stdlib/loaders/GLTFLoader'
 import { Geometry } from 'three-stdlib/deprecated/Geometry'
@@ -66,7 +66,7 @@ function Plane(props) {
 }
 
 export default () => (
-  <Canvas shadowMap camera={{ position: [-1, 1, 5], fov: 50 }}>
+  <Canvas shadows camera={{ position: [-1, 1, 5], fov: 50 }}>
     <color attach="background" args={['lightpink']} />
     <spotLight
       position={[15, 15, 15]}

@@ -1,5 +1,5 @@
 import React from 'react'
-import { Canvas } from 'react-three-fiber'
+import { Canvas } from '@react-three/fiber'
 import { Physics, useCylinder, usePlane } from '@react-three/cannon'
 import { OrbitControls } from '@react-three/drei'
 
@@ -48,7 +48,7 @@ const defaultContactMaterial = {
 const VehicleScene = () => {
   return (
     <>
-      <Canvas shadowMap camera={{ position: [0, 5, 20], fov: 50 }}>
+      <Canvas shadows camera={{ position: [0, 5, 20], fov: 50 }}>
         <OrbitControls />
         <color attach="background" args={['#171720']} />
         <ambientLight intensity={0.1} />
