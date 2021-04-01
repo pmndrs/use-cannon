@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import React, { Suspense, useRef } from 'react'
-import { Canvas, useFrame, useLoader } from 'react-three-fiber'
+import { Canvas, useFrame, useLoader } from '@react-three/fiber'
 import { Physics, useSphere, useBox, usePlane } from '@react-three/cannon'
 import lerp from 'lerp'
 import clamp from 'lodash-es/clamp'
@@ -109,7 +109,7 @@ export default function () {
   const { reset } = useStore((state) => state.api)
   return (
     <>
-      <Canvas shadowMap camera={{ position: [0, 5, 12], fov: 50 }} onClick={() => welcome && reset(false)}>
+      <Canvas shadows camera={{ position: [0, 5, 12], fov: 50 }} onClick={() => welcome && reset(false)}>
         <color attach="background" args={['#171720']} />
         <ambientLight intensity={0.5} />
         <pointLight position={[-10, -10, -10]} />

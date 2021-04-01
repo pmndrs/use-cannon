@@ -1,5 +1,5 @@
-import React, { Suspense, useState, useRef, useEffect, useMemo } from 'react'
-import { Canvas, useFrame, useThree, extend } from 'react-three-fiber'
+import React, { Suspense, useState, useRef, useLayoutEffect, useMemo } from 'react'
+import { Canvas, useFrame, useThree, extend } from '@react-three/fiber'
 import { Html } from '@react-three/drei'
 import { Physics, useSphere, useBox, useRaycastAll } from '@react-three/cannon'
 import { Vector3, BufferGeometry } from 'three'
@@ -85,8 +85,21 @@ function Raycast() {
 const Camera = (props) => {
   const cameraRef = useRef()
   const controlsRef = useRef()
-  const { gl, camera, setDefaultCamera } = useThree()
-  useEffect(() => void cameraRef.current ?? setDefaultCamera(cameraRef.current))
+  const { gl, camera } = useThree()
+  const set = useThree(state => state.set)
+  const size = useThree(state => state.size)
+
+  useLayoutEffect(() => {
+    if (cameraRef.current) {
+      cameraRef.current.aspect = size.width / size.height
+      cameraRef.current.updateProjectionMatrix()
+    }
+  }, [size, props])
+
+  useLayoutEffect(() => {
+    set(() => ({ camera: cameraRef.current }))
+  }, [])
+
   useFrame(() => {
     if (cameraRef.current && controlsRef.current) {
       cameraRef.current.updateMatrixWorld()
@@ -112,7 +125,7 @@ const Camera = (props) => {
 }
 
 export default () => (
-  <Canvas shadowMap gl={{ alpha: false }}>
+  <Canvas shadows gl={{ alpha: false }}>
     <Camera />
     <color attach="background" args={['#fcb89d']} />
     <hemisphereLight intensity={0.35} />

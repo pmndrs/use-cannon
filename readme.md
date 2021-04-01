@@ -65,7 +65,7 @@ useEffect(() => api.velocity.subscribe((v) => (velocity.current = v)), [])
 Let's make a cube falling onto a plane. You can play with a sandbox [here](https://codesandbox.io/s/r3f-cannon-instanced-physics-l40oh).
 
 ```jsx
-import { Canvas } from 'react-three-fiber'
+import { Canvas } from '@react-three/fiber'
 import { Physics, usePlane, useBox } from '@react-three/cannon'
 
 function Plane(props) {

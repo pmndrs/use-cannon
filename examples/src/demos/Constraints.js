@@ -1,5 +1,5 @@
 import React, { useRef } from 'react'
-import { Canvas, useFrame } from 'react-three-fiber'
+import { Canvas, useFrame } from '@react-three/fiber'
 import { Physics, useSphere, useBox, useSpring } from '@react-three/cannon'
 
 const Box = React.forwardRef((props, ref) => {
