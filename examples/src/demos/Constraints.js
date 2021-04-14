@@ -1,4 +1,4 @@
-import React, { useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { Physics, useSphere, useBox, useSpring } from '@react-three/cannon'
 
@@ -35,12 +35,18 @@ const Ball = React.forwardRef((props, ref) => {
 const BoxAndBall = () => {
   const box = useRef()
   const ball = useRef()
-  useSpring(box, ball, { restLength: 1, stiffness: 100, damping: 1 })
+
+  const [, , api] = useSpring(box, ball, { restLength: 2, stiffness: 100, damping: 1 })
+
+  const [isDown, setIsDown] = useState(false)
+
+  useEffect(() => api.setRestLength(isDown ? 0 : 2), [isDown])
+
   return (
-    <>
+    <group onPointerDown={() => setIsDown(true)} onPointerUp={() => setIsDown(false)}>
       <Box ref={box} position={[1, 0, 0]} />
       <Ball ref={ball} position={[-1, 0, 0]} />
-    </>
+    </group>
   )
 }
 
