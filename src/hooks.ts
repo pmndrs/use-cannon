@@ -355,6 +355,16 @@ type ConstraintApi = [
   }
 ]
 
+type SpringApi = [
+  React.MutableRefObject<THREE.Object3D | undefined>,
+  React.MutableRefObject<THREE.Object3D | undefined>,
+  {
+    setStiffness: (value: number) => void
+    setRestLength: (value: number) => void
+    setDamping: (value: number) => void
+  }
+]
+
 function useConstraint(
   type: ConstraintTypes,
   bodyA: React.MutableRefObject<THREE.Object3D | undefined>,
@@ -439,7 +449,7 @@ export function useSpring(
   bodyB: React.MutableRefObject<THREE.Object3D | undefined>,
   optns: SpringOptns,
   deps: any[] = []
-) {
+): SpringApi {
   const { worker, events } = useContext(context)
   const [uuid] = useState(() => THREE.MathUtils.generateUUID())
 
@@ -463,7 +473,16 @@ export function useSpring(
     }
   }, deps)
 
-  return [bodyA, bodyB]
+  const api = useMemo(
+    () => ({
+      setStiffness: (value: number) => worker.postMessage({ op: 'setSpringStiffness', props: value, uuid }),
+      setRestLength: (value: number) => worker.postMessage({ op: 'setSpringRestLength', props: value, uuid }),
+      setDamping: (value: number) => worker.postMessage({ op: 'setSpringDamping', props: value, uuid }),
+    }),
+    deps
+  )
+
+  return [bodyA, bodyB, api]
 }
 
 type RayOptns = Omit<RayOptions, 'mode' | 'from' | 'to' | 'result' | 'callback'> & {

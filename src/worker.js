@@ -29,6 +29,7 @@ import {
 let bodies = {}
 const vehicles = {}
 const springs = {}
+const springInstances = {}
 const rays = {}
 const world = new World()
 const config = { step: 1 / 60 }
@@ -393,9 +394,22 @@ self.onmessage = (e) => {
       let postStepSpring = (e) => spring.applyForce()
 
       springs[uuid] = postStepSpring
+      springInstances[uuid] = spring
 
       // Compute the force after each step
       world.addEventListener('postStep', springs[uuid])
+      break
+    }
+    case 'setSpringStiffness': {
+      springInstances[uuid].stiffness = props
+      break
+    }
+    case 'setSpringRestLength': {
+      springInstances[uuid].restLength = props
+      break
+    }
+    case 'setSpringDamping': {
+      springInstances[uuid].damping = props
       break
     }
     case 'removeSpring': {

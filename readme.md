@@ -203,6 +203,16 @@ type ConstraintApi = [
     disable: () => void
   }
 ]
+
+type SpringApi = [
+  React.MutableRefObject<THREE.Object3D | undefined>,
+  React.MutableRefObject<THREE.Object3D | undefined>,
+  {
+    setStiffness: (value: number) => void
+    setRestLength: (value: number) => void
+    setDamping: (value: number) => void
+  }
+]
 ```
 
 ### Props
