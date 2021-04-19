@@ -100,7 +100,7 @@ export type WorkerApi = WorkerProps<AtomicProps> & {
 type PublicApi = WorkerApi & { at: (index: number) => WorkerApi }
 export type Api = [React.MutableRefObject<THREE.Object3D | undefined>, PublicApi]
 
-export type ConstraintTypes = 'PointToPoint' | 'ConeTwist' | 'Distance' | 'Hinge' | 'Lock'
+export type ConstraintTypes = 'PointToPoint' | 'ConeTwist' | 'Distance' | 'Lock'
 
 export type ConstraintOptns = { maxForce?: number; collideConnected?: boolean; wakeUpBodies?: boolean }
 
@@ -161,7 +161,7 @@ function useBody(
   type: BodyShapeType,
   fn: BodyFn,
   argFn: ArgFn,
-  fwdRef?: React.MutableRefObject<THREE.Object3D>
+  fwdRef?: React.MutableRefObject<THREE.Object3D>,
 ): Api {
   const localRef = useRef<THREE.Object3D>((null as unknown) as THREE.Object3D)
   const ref = fwdRef ? fwdRef : localRef
@@ -325,7 +325,7 @@ export function useTrimesh(fn: TrimeshFn, fwdRef?: React.MutableRefObject<THREE.
     (args) => {
       return [args[0].map((v: any) => (v instanceof THREE.Vector3 ? [v.x, v.y, v.z] : v)), args[1]]
     },
-    fwdRef
+    fwdRef,
   )
 }
 export function useConvexPolyhedron(fn: ConvexPolyhedronFn, fwdRef?: React.MutableRefObject<THREE.Object3D>) {
@@ -339,7 +339,7 @@ export function useConvexPolyhedron(fn: ConvexPolyhedronFn, fwdRef?: React.Mutab
         args[2] && args[2].map((n: any) => (n instanceof THREE.Vector3 ? [n.x, n.y, n.z] : n)),
       ]
     },
-    fwdRef
+    fwdRef,
   )
 }
 export function useCompoundBody(fn: CompoundBodyFn, fwdRef?: React.MutableRefObject<THREE.Object3D>) {
@@ -352,7 +352,20 @@ type ConstraintApi = [
   {
     enable: () => void
     disable: () => void
-  }
+  },
+]
+
+type HingeConstraintApi = [
+  React.MutableRefObject<THREE.Object3D | undefined>,
+  React.MutableRefObject<THREE.Object3D | undefined>,
+  {
+    enable: () => void
+    disable: () => void
+    enableMotor: () => void
+    disableMotor: () => void
+    setMotorSpeed: (value: number) => void
+    setMotorMaxForce: (value: number) => void
+  },
 ]
 
 type SpringApi = [
@@ -362,16 +375,20 @@ type SpringApi = [
     setStiffness: (value: number) => void
     setRestLength: (value: number) => void
     setDamping: (value: number) => void
-  }
+  },
 ]
 
-function useConstraint(
-  type: ConstraintTypes,
+type ConstraintORHingeApi<T extends 'Hinge' | ConstraintTypes> = T extends ConstraintTypes
+  ? ConstraintApi
+  : HingeConstraintApi
+
+function useConstraint<T extends 'Hinge' | ConstraintTypes>(
+  type: T,
   bodyA: React.MutableRefObject<THREE.Object3D | undefined>,
   bodyB: React.MutableRefObject<THREE.Object3D | undefined>,
   optns: any = {},
-  deps: any[] = []
-): ConstraintApi {
+  deps: any[] = [],
+): ConstraintORHingeApi<T> {
   const { worker } = useContext(context)
   const uuid = THREE.MathUtils.generateUUID()
 
@@ -392,22 +409,35 @@ function useConstraint(
     }
   }, deps)
 
-  const api = useMemo(
-    () => ({
+  const api = useMemo(() => {
+    const enableDisable = {
       enable: () => worker.postMessage({ op: 'enableConstraint', uuid }),
       disable: () => worker.postMessage({ op: 'disableConstraint', uuid }),
-    }),
-    deps
-  )
+    }
 
-  return [bodyA, bodyB, api]
+    if (type === 'Hinge') {
+      return {
+        ...enableDisable,
+        enableMotor: () => worker.postMessage({ op: 'enableConstraintMotor', uuid }),
+        disableMotor: () => worker.postMessage({ op: 'disableConstraintMotor', uuid }),
+        setMotorSpeed: (value: number) =>
+          worker.postMessage({ op: 'setConstraintMotorSpeed', uuid, props: value }),
+        setMotorMaxForce: (value: number) =>
+          worker.postMessage({ op: 'setConstraintMotorMaxForce', uuid, props: value }),
+      }
+    }
+
+    return enableDisable
+  }, deps)
+
+  return [bodyA, bodyB, api] as ConstraintORHingeApi<T>
 }
 
 export function usePointToPointConstraint(
   bodyA: React.MutableRefObject<THREE.Object3D | undefined>,
   bodyB: React.MutableRefObject<THREE.Object3D | undefined>,
   optns: PointToPointConstraintOpts,
-  deps: any[] = []
+  deps: any[] = [],
 ) {
   return useConstraint('PointToPoint', bodyA, bodyB, optns, deps)
 }
@@ -415,7 +445,7 @@ export function useConeTwistConstraint(
   bodyA: React.MutableRefObject<THREE.Object3D | undefined>,
   bodyB: React.MutableRefObject<THREE.Object3D | undefined>,
   optns: ConeTwistConstraintOpts,
-  deps: any[] = []
+  deps: any[] = [],
 ) {
   return useConstraint('ConeTwist', bodyA, bodyB, optns, deps)
 }
@@ -423,7 +453,7 @@ export function useDistanceConstraint(
   bodyA: React.MutableRefObject<THREE.Object3D | undefined>,
   bodyB: React.MutableRefObject<THREE.Object3D | undefined>,
   optns: DistanceConstraintOpts,
-  deps: any[] = []
+  deps: any[] = [],
 ) {
   return useConstraint('Distance', bodyA, bodyB, optns, deps)
 }
@@ -431,7 +461,7 @@ export function useHingeConstraint(
   bodyA: React.MutableRefObject<THREE.Object3D | undefined>,
   bodyB: React.MutableRefObject<THREE.Object3D | undefined>,
   optns: HingeConstraintOpts,
-  deps: any[] = []
+  deps: any[] = [],
 ) {
   return useConstraint('Hinge', bodyA, bodyB, optns, deps)
 }
@@ -439,7 +469,7 @@ export function useLockConstraint(
   bodyA: React.MutableRefObject<THREE.Object3D | undefined>,
   bodyB: React.MutableRefObject<THREE.Object3D | undefined>,
   optns: LockConstraintOpts,
-  deps: any[] = []
+  deps: any[] = [],
 ) {
   return useConstraint('Lock', bodyA, bodyB, optns, deps)
 }
@@ -448,7 +478,7 @@ export function useSpring(
   bodyA: React.MutableRefObject<THREE.Object3D | undefined>,
   bodyB: React.MutableRefObject<THREE.Object3D | undefined>,
   optns: SpringOptns,
-  deps: any[] = []
+  deps: any[] = [],
 ): SpringApi {
   const { worker, events } = useContext(context)
   const [uuid] = useState(() => THREE.MathUtils.generateUUID())
@@ -479,7 +509,7 @@ export function useSpring(
       setRestLength: (value: number) => worker.postMessage({ op: 'setSpringRestLength', props: value, uuid }),
       setDamping: (value: number) => worker.postMessage({ op: 'setSpringDamping', props: value, uuid }),
     }),
-    deps
+    deps,
   )
 
   return [bodyA, bodyB, api]
@@ -494,7 +524,7 @@ function useRay(
   mode: 'Closest' | 'Any' | 'All',
   options: RayOptns,
   callback: (e: Event) => void,
-  deps: any[] = []
+  deps: any[] = [],
 ) {
   const { worker, events } = useContext(context)
   const [uuid] = useState(() => THREE.MathUtils.generateUUID())
@@ -560,7 +590,7 @@ type RaycastVehicleFn = () => RaycastVehicleProps
 
 export function useRaycastVehicle(
   fn: RaycastVehicleFn,
-  fwdRef?: React.MutableRefObject<THREE.Object3D>
+  fwdRef?: React.MutableRefObject<THREE.Object3D>,
 ): RaycastVehicleApi {
   const ref = fwdRef ? fwdRef : useRef<THREE.Object3D>((null as unknown) as THREE.Object3D)
   const { worker } = useContext(context)
