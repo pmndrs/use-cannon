@@ -62,8 +62,8 @@ function Ragdoll(props) {
   useFrame((e) => {
     eyes.current.position.y = Math.sin(e.clock.getElapsedTime() * 1) * 0.06
     mouth.current.scale.y = (1 + Math.sin(e.clock.getElapsedTime())) * 1.5
-    const x = (e.mouse.x * e.viewport.width) / e.camera.zoom
-    const y = (e.mouse.y * e.viewport.height) / e.camera.zoom / 1.9 + -x / 3.5
+    const x = e.mouse.x * e.viewport.width
+    const y = (e.mouse.y * e.viewport.height) / 1.9 + -x / 3.5
     api.position.set(x / 1.4, y, 0)
   })
   return (
@@ -142,7 +142,7 @@ const Box = React.forwardRef(
         {children}
       </mesh>
     )
-  }
+  },
 )
 
 function Chair() {
@@ -251,7 +251,8 @@ export default () => (
     style={{ cursor: 'none' }}
     shadows
     orthographic
-    camera={{ position: [-25, 20, 25], zoom: 25, near: 1, far: 100 }}>
+    camera={{ position: [-25, 20, 25], zoom: 25, near: 1, far: 100 }}
+  >
     <color attach="background" args={['#171720']} />
     <fog attach="fog" args={['#171720', 20, 70]} />
     <ambientLight intensity={0.2} />
