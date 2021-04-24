@@ -370,6 +370,22 @@ self.onmessage = (e) => {
       world.constraints.filter(({ uuid: thisId }) => thisId === uuid).map((c) => c.disable())
       break
 
+    case 'enableConstraintMotor':
+      world.constraints.filter(({ uuid: thisId }) => thisId === uuid).map((c) => c.enableMotor())
+      break
+
+    case 'disableConstraintMotor':
+      world.constraints.filter(({ uuid: thisId }) => thisId === uuid).map((c) => c.disableMotor())
+      break
+
+    case 'setConstraintMotorSpeed':
+      world.constraints.filter(({ uuid: thisId }) => thisId === uuid).map((c) => c.setMotorSpeed(props))
+      break
+
+    case 'setConstraintMotorMaxForce':
+      world.constraints.filter(({ uuid: thisId }) => thisId === uuid).map((c) => c.setMotorMaxForce(props))
+      break
+
     case 'addSpring': {
       const [bodyA, bodyB, optns] = props
       let { worldAnchorA, worldAnchorB, localAnchorA, localAnchorB, restLength, stiffness, damping } = optns

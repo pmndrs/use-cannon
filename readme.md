@@ -201,7 +201,20 @@ type ConstraintApi = [
   {
     enable: () => void
     disable: () => void
-  }
+  },
+]
+
+type HingeConstraintApi = [
+  React.MutableRefObject<THREE.Object3D | undefined>,
+  React.MutableRefObject<THREE.Object3D | undefined>,
+  {
+    enable: () => void
+    disable: () => void
+    enableMotor: () => void
+    disableMotor: () => void
+    setMotorSpeed: (value: number) => void
+    setMotorMaxForce: (value: number) => void
+  },
 ]
 
 type SpringApi = [
