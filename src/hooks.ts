@@ -162,6 +162,7 @@ function useBody(
   fn: BodyFn,
   argFn: ArgFn,
   fwdRef?: React.MutableRefObject<THREE.Object3D>,
+  deps: any[] = []
 ): Api {
   const localRef = useRef<THREE.Object3D>((null as unknown) as THREE.Object3D)
   const ref = fwdRef ? fwdRef : localRef
@@ -209,7 +210,7 @@ function useBody(
       })
       currentWorker.postMessage({ op: 'removeBodies', uuid })
     }
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, deps) // eslint-disable-line react-hooks/exhaustive-deps
 
   useFrame(() => {
     if (ref.current && buffers.positions.length && buffers.quaternions.length) {
@@ -300,25 +301,29 @@ function useBody(
   return [ref, api]
 }
 
-export function usePlane(fn: PlaneFn, fwdRef?: React.MutableRefObject<THREE.Object3D>) {
-  return useBody('Plane', fn, () => [], fwdRef)
+export function usePlane(fn: PlaneFn, fwdRef?: React.MutableRefObject<THREE.Object3D>, deps?: any[]) {
+  return useBody('Plane', fn, () => [], fwdRef, deps)
 }
-export function useBox(fn: BoxFn, fwdRef?: React.MutableRefObject<THREE.Object3D>) {
-  return useBody('Box', fn, (args) => args || [1, 1, 1], fwdRef)
+export function useBox(fn: BoxFn, fwdRef?: React.MutableRefObject<THREE.Object3D>, deps?: any[]) {
+  return useBody('Box', fn, (args) => args || [1, 1, 1], fwdRef, deps)
 }
-export function useCylinder(fn: CylinderFn, fwdRef?: React.MutableRefObject<THREE.Object3D>) {
-  return useBody('Cylinder', fn, (args) => args, fwdRef)
+export function useCylinder(fn: CylinderFn, fwdRef?: React.MutableRefObject<THREE.Object3D>, deps?: any[]) {
+  return useBody('Cylinder', fn, (args) => args, fwdRef, deps)
 }
-export function useHeightfield(fn: HeightfieldFn, fwdRef?: React.MutableRefObject<THREE.Object3D>) {
-  return useBody('Heightfield', fn, (args) => args, fwdRef)
+export function useHeightfield(
+  fn: HeightfieldFn,
+  fwdRef?: React.MutableRefObject<THREE.Object3D>,
+  deps?: any[]
+) {
+  return useBody('Heightfield', fn, (args) => args, fwdRef, deps)
 }
-export function useParticle(fn: ParticleFn, fwdRef?: React.MutableRefObject<THREE.Object3D>) {
-  return useBody('Particle', fn, () => [], fwdRef)
+export function useParticle(fn: ParticleFn, fwdRef?: React.MutableRefObject<THREE.Object3D>, deps?: any[]) {
+  return useBody('Particle', fn, () => [], fwdRef, deps)
 }
-export function useSphere(fn: SphereFn, fwdRef?: React.MutableRefObject<THREE.Object3D>) {
-  return useBody('Sphere', fn, (radius) => [radius ?? 1], fwdRef)
+export function useSphere(fn: SphereFn, fwdRef?: React.MutableRefObject<THREE.Object3D>, deps?: any[]) {
+  return useBody('Sphere', fn, (radius) => [radius ?? 1], fwdRef, deps)
 }
-export function useTrimesh(fn: TrimeshFn, fwdRef?: React.MutableRefObject<THREE.Object3D>) {
+export function useTrimesh(fn: TrimeshFn, fwdRef?: React.MutableRefObject<THREE.Object3D>, deps?: any[]) {
   return useBody(
     'Trimesh',
     fn,
@@ -326,9 +331,14 @@ export function useTrimesh(fn: TrimeshFn, fwdRef?: React.MutableRefObject<THREE.
       return [args[0].map((v: any) => (v instanceof THREE.Vector3 ? [v.x, v.y, v.z] : v)), args[1]]
     },
     fwdRef,
+    deps
   )
 }
-export function useConvexPolyhedron(fn: ConvexPolyhedronFn, fwdRef?: React.MutableRefObject<THREE.Object3D>) {
+export function useConvexPolyhedron(
+  fn: ConvexPolyhedronFn,
+  fwdRef?: React.MutableRefObject<THREE.Object3D>,
+  deps?: any[]
+) {
   return useBody(
     'ConvexPolyhedron',
     fn,
@@ -340,10 +350,15 @@ export function useConvexPolyhedron(fn: ConvexPolyhedronFn, fwdRef?: React.Mutab
       ]
     },
     fwdRef,
+    deps
   )
 }
-export function useCompoundBody(fn: CompoundBodyFn, fwdRef?: React.MutableRefObject<THREE.Object3D>) {
-  return useBody('Compound', fn, (args) => args || [], fwdRef)
+export function useCompoundBody(
+  fn: CompoundBodyFn,
+  fwdRef?: React.MutableRefObject<THREE.Object3D>,
+  deps?: any[]
+) {
+  return useBody('Compound', fn, (args) => args || [], fwdRef, deps)
 }
 
 type ConstraintApi = [
