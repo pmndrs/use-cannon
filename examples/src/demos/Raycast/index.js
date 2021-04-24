@@ -1,9 +1,9 @@
-import React, { Suspense, useState, useRef, useEffect } from 'react'
-import { Canvas, useFrame, useThree, extend } from 'react-three-fiber'
+import React, { Suspense, useState, useRef, useLayoutEffect, useMemo } from 'react'
+import { Canvas, useFrame, useThree, extend } from '@react-three/fiber'
 import { Html } from '@react-three/drei'
 import { Physics, useSphere, useBox, useRaycastAll } from '@react-three/cannon'
-import { Vector3 } from 'three'
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
+import { Vector3, BufferGeometry } from 'three'
+import { OrbitControls } from 'three-stdlib/controls/OrbitControls'
 import { prettyPrint } from './prettyPrint'
 
 extend({ OrbitControls })
@@ -12,12 +12,12 @@ function Plane(props) {
   return (
     <group {...props}>
       <mesh>
-        <planeBufferGeometry attach="geometry" args={[8, 8]} />
-        <meshBasicMaterial attach="material" color="#FFD3A5" />
+        <planeBufferGeometry args={[8, 8]} />
+        <meshBasicMaterial color="#FFD3A5" />
       </mesh>
       <mesh receiveShadow>
-        <planeBufferGeometry attach="geometry" args={[8, 8]} />
-        <shadowMaterial attach="material" color="#f8cd7e" />
+        <planeBufferGeometry args={[8, 8]} />
+        <shadowMaterial color="#f8cd7e" />
       </mesh>
     </group>
   )
@@ -30,8 +30,8 @@ function Sphere({ radius, position }) {
   })
   return (
     <mesh castShadow ref={ref}>
-      <sphereBufferGeometry attach="geometry" args={[radius, 32, 32]} />
-      <meshNormalMaterial attach="material" />
+      <sphereBufferGeometry args={[radius, 32, 32]} />
+      <meshNormalMaterial />
     </mesh>
   )
 }
@@ -43,22 +43,22 @@ function Cube({ size, position }) {
   })
   return (
     <mesh castShadow ref={ref} position={position}>
-      <boxBufferGeometry attach="geometry" args={size} />
-      <meshNormalMaterial attach="material" />
+      <boxBufferGeometry args={size} />
+      <meshNormalMaterial />
     </mesh>
   )
 }
 
 function Ray({ from, to, setHit }) {
   useRaycastAll({ from, to }, (result) => setHit(result))
+  const geo = useMemo(() => {
+    const points = [from, to].map((v) => new Vector3(...v))
+    return new BufferGeometry().setFromPoints(points)
+  }, [from, to])
+
   return (
-    <line>
-      <geometry
-        attach="geometry"
-        vertices={[from, to].map((v) => new Vector3(...v))}
-        onUpdate={(self) => (self.verticesNeedUpdate = true)}
-      />
-      <lineBasicMaterial attach="material" color="black" />
+    <line geometry={geo}>
+      <lineBasicMaterial color="black" />
     </line>
   )
 }
@@ -85,8 +85,21 @@ function Raycast() {
 const Camera = (props) => {
   const cameraRef = useRef()
   const controlsRef = useRef()
-  const { gl, camera, setDefaultCamera } = useThree()
-  useEffect(() => void cameraRef.current ?? setDefaultCamera(cameraRef.current))
+  const { gl, camera } = useThree()
+  const set = useThree(state => state.set)
+  const size = useThree(state => state.size)
+
+  useLayoutEffect(() => {
+    if (cameraRef.current) {
+      cameraRef.current.aspect = size.width / size.height
+      cameraRef.current.updateProjectionMatrix()
+    }
+  }, [size, props])
+
+  useLayoutEffect(() => {
+    set(() => ({ camera: cameraRef.current }))
+  }, [])
+
   useFrame(() => {
     if (cameraRef.current && controlsRef.current) {
       cameraRef.current.updateMatrixWorld()
@@ -112,7 +125,7 @@ const Camera = (props) => {
 }
 
 export default () => (
-  <Canvas shadowMap gl={{ alpha: false }}>
+  <Canvas shadows gl={{ alpha: false }}>
     <Camera />
     <color attach="background" args={['#fcb89d']} />
     <hemisphereLight intensity={0.35} />

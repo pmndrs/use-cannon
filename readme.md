@@ -1,6 +1,6 @@
-[![Build Status](https://travis-ci.org/pmndrs/cannon.svg?branch=master)](https://travis-ci.org/pmndrs/cannon)
-[![Version](https://img.shields.io/npm/v/react-three/cannon?style=flat&colorA=000000&colorB=000000)](https://www.npmjs.com/package/@react-three/cannon)
-[![Downloads](https://img.shields.io/npm/dt/react-three/cannon.svg?style=flat&colorA=000000&colorB=000000)](https://www.npmjs.com/package/@react-three/cannon)
+[![Build Status](https://travis-ci.org/pmndrs/use-cannon.svg?branch=master)](https://travis-ci.org/pmndrs/use-cannon)
+[![Version](https://img.shields.io/npm/v/@react-three/cannon?style=flat&colorA=000000&colorB=000000)](https://www.npmjs.com/package/@react-three/cannon)
+[![Downloads](https://img.shields.io/npm/dt/@react-three/cannon.svg?style=flat&colorA=000000&colorB=000000)](https://www.npmjs.com/package/@react-three/cannon)
 [![Discord Shield](https://img.shields.io/discord/740090768164651008?style=flat&colorA=000000&colorB=000000&label=discord&logo=discord&logoColor=ffffff)](https://discord.gg/ZZjjNvJ)
 
 ![Imgur](https://imgur.com/FpBsJPL.jpg)
@@ -65,14 +65,14 @@ useEffect(() => api.velocity.subscribe((v) => (velocity.current = v)), [])
 Let's make a cube falling onto a plane. You can play with a sandbox [here](https://codesandbox.io/s/r3f-cannon-instanced-physics-l40oh).
 
 ```jsx
-import { Canvas } from 'react-three-fiber'
+import { Canvas } from '@react-three/fiber'
 import { Physics, usePlane, useBox } from '@react-three/cannon'
 
 function Plane(props) {
   const [ref] = usePlane(() => ({ rotation: [-Math.PI / 2, 0, 0], ...props }))
   return (
     <mesh ref={ref}>
-      <planeBufferGeometry attach="geometry" args={[100, 100]} />
+      <planeBufferGeometry args={[100, 100]} />
     </mesh>
   )
 }
@@ -81,7 +81,7 @@ function Cube(props) {
   const [ref] = useBox(() => ({ mass: 1, position: [0, 5, 0], ...props }))
   return (
     <mesh ref={ref}>
-      <boxBufferGeometry attach="geometry" />
+      <boxBufferGeometry />
     </mesh>
   )
 }
@@ -201,6 +201,29 @@ type ConstraintApi = [
   {
     enable: () => void
     disable: () => void
+  },
+]
+
+type HingeConstraintApi = [
+  React.MutableRefObject<THREE.Object3D | undefined>,
+  React.MutableRefObject<THREE.Object3D | undefined>,
+  {
+    enable: () => void
+    disable: () => void
+    enableMotor: () => void
+    disableMotor: () => void
+    setMotorSpeed: (value: number) => void
+    setMotorMaxForce: (value: number) => void
+  },
+]
+
+type SpringApi = [
+  React.MutableRefObject<THREE.Object3D | undefined>,
+  React.MutableRefObject<THREE.Object3D | undefined>,
+  {
+    setStiffness: (value: number) => void
+    setRestLength: (value: number) => void
+    setDamping: (value: number) => void
   }
 ]
 ```
@@ -294,7 +317,7 @@ type ConvexPolyhedronProps = BodyProps & {
 }
 type HeightfieldProps = BodyProps & {
   args?: [
-    number[], // data
+    number[][], // data
     {
       minValue?: number
       maxValue?: number

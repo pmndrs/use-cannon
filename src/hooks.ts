@@ -1,9 +1,9 @@
 import type { MaterialOptions, RayOptions } from 'cannon-es'
-import type { Buffers, Event, Subscriptions } from './index'
+import type { Buffers, Event } from './setup'
 import * as THREE from 'three'
 import React, { useLayoutEffect, useContext, useRef, useMemo, useEffect, useState } from 'react'
-import { useFrame } from 'react-three-fiber'
-import { context } from './index'
+import { useFrame } from '@react-three/fiber'
+import { context } from './setup'
 
 export type AtomicProps = {
   mass?: number
@@ -15,7 +15,9 @@ export type AtomicProps = {
   sleepTimeLimit?: number
   collisionFilterGroup?: number
   collisionFilterMask?: number
+  collisionResponse?: number
   fixedRotation?: boolean
+  userData?: object
 }
 
 export type BodyProps = AtomicProps & {
@@ -46,13 +48,13 @@ export type CylinderProps = BodyProps & { args?: [number, number, number, number
 export type ParticleProps = BodyProps & {}
 export type SphereProps = BodyProps & { args?: number }
 export type TrimeshProps = BodyProps & {
-  args?: THREE.Geometry | [(THREE.Vector3 | number[])[], (THREE.Face3 | number[])[]]
+  args?: [(THREE.Vector3 | number[])[], number[][]]
 }
 export type HeightfieldProps = BodyProps & {
   args?: [number[], { minValue?: number; maxValue?: number; elementSize?: number }]
 }
 export type ConvexPolyhedronProps = BodyProps & {
-  args?: THREE.Geometry | [(THREE.Vector3 | number[])[], (THREE.Face3 | number[])[]]
+  args?: [(THREE.Vector3 | number[])[], number[][]]
 }
 export type CompoundBodyProps = BodyProps & {
   shapes: BodyProps & { type: ShapeType }[]
@@ -98,7 +100,7 @@ export type WorkerApi = WorkerProps<AtomicProps> & {
 type PublicApi = WorkerApi & { at: (index: number) => WorkerApi }
 export type Api = [React.MutableRefObject<THREE.Object3D | undefined>, PublicApi]
 
-export type ConstraintTypes = 'PointToPoint' | 'ConeTwist' | 'Distance' | 'Hinge' | 'Lock'
+export type ConstraintTypes = 'PointToPoint' | 'ConeTwist' | 'Distance' | 'Lock'
 
 export type ConstraintOptns = { maxForce?: number; collideConnected?: boolean; wakeUpBodies?: boolean }
 
@@ -140,6 +142,7 @@ const temp = new THREE.Object3D()
 
 function prepare(object: THREE.Object3D, props: BodyProps, argFn: ArgFn) {
   props.args = argFn(props.args)
+  object.userData = props.userData || {}
   object.position.set(...((props.position || [0, 0, 0]) as [number, number, number]))
   object.rotation.set(...((props.rotation || [0, 0, 0]) as [number, number, number]))
   return props
@@ -270,7 +273,9 @@ function useBody(
         sleepTimeLimit: makeAtomic('sleepTimeLimit', index),
         collisionFilterGroup: makeAtomic('collisionFilterGroup', index),
         collisionFilterMask: makeAtomic('collisionFilterMask', index),
+        collisionResponse: makeAtomic('collisionResponse', index),
         fixedRotation: makeAtomic('fixedRotation', index),
+        userData: makeAtomic('userData', index),
         // Apply functions
         applyForce(force: number[], worldPoint: number[]) {
           post('applyForce', index, [force, worldPoint])
@@ -323,12 +328,7 @@ export function useTrimesh(fn: TrimeshFn, fwdRef?: React.MutableRefObject<THREE.
     'Trimesh',
     fn,
     (args) => {
-      const vertices = args instanceof THREE.Geometry ? args.vertices : args[0]
-      const indices = args instanceof THREE.Geometry ? args.faces : args[1]
-      return [
-        vertices.map((v: any) => (v instanceof THREE.Vector3 ? [v.x, v.y, v.z] : v)),
-        indices.map((i: any) => (i instanceof THREE.Face3 ? [i.a, i.b, i.c] : i)),
-      ]
+      return [args[0].map((v: any) => (v instanceof THREE.Vector3 ? [v.x, v.y, v.z] : v)), args[1]]
     },
     fwdRef,
     deps
@@ -343,13 +343,10 @@ export function useConvexPolyhedron(
     'ConvexPolyhedron',
     fn,
     (args) => {
-      const vertices = args instanceof THREE.Geometry ? args.vertices : args[0]
-      const faces = args instanceof THREE.Geometry ? args.faces : args[1]
-      const normals = args instanceof THREE.Geometry ? args.faces.map((f) => f.normal) : args[2]
       return [
-        vertices.map((v: any) => (v instanceof THREE.Vector3 ? [v.x, v.y, v.z] : v)),
-        faces.map((f: any) => (f instanceof THREE.Face3 ? [f.a, f.b, f.c] : f)),
-        normals && normals.map((n: any) => (n instanceof THREE.Vector3 ? [n.x, n.y, n.z] : n)),
+        args[0].map((v: any) => (v instanceof THREE.Vector3 ? [v.x, v.y, v.z] : v)),
+        args[1],
+        args[2] && args[2].map((n: any) => (n instanceof THREE.Vector3 ? [n.x, n.y, n.z] : n)),
       ]
     },
     fwdRef,
@@ -370,16 +367,43 @@ type ConstraintApi = [
   {
     enable: () => void
     disable: () => void
-  }
+  },
 ]
 
-function useConstraint(
-  type: ConstraintTypes,
+type HingeConstraintApi = [
+  React.MutableRefObject<THREE.Object3D | undefined>,
+  React.MutableRefObject<THREE.Object3D | undefined>,
+  {
+    enable: () => void
+    disable: () => void
+    enableMotor: () => void
+    disableMotor: () => void
+    setMotorSpeed: (value: number) => void
+    setMotorMaxForce: (value: number) => void
+  },
+]
+
+type SpringApi = [
+  React.MutableRefObject<THREE.Object3D | undefined>,
+  React.MutableRefObject<THREE.Object3D | undefined>,
+  {
+    setStiffness: (value: number) => void
+    setRestLength: (value: number) => void
+    setDamping: (value: number) => void
+  },
+]
+
+type ConstraintORHingeApi<T extends 'Hinge' | ConstraintTypes> = T extends ConstraintTypes
+  ? ConstraintApi
+  : HingeConstraintApi
+
+function useConstraint<T extends 'Hinge' | ConstraintTypes>(
+  type: T,
   bodyA: React.MutableRefObject<THREE.Object3D | undefined>,
   bodyB: React.MutableRefObject<THREE.Object3D | undefined>,
   optns: any = {},
-  deps: any[] = []
-): ConstraintApi {
+  deps: any[] = [],
+): ConstraintORHingeApi<T> {
   const { worker } = useContext(context)
   const uuid = THREE.MathUtils.generateUUID()
 
@@ -400,22 +424,35 @@ function useConstraint(
     }
   }, deps)
 
-  const api = useMemo(
-    () => ({
+  const api = useMemo(() => {
+    const enableDisable = {
       enable: () => worker.postMessage({ op: 'enableConstraint', uuid }),
       disable: () => worker.postMessage({ op: 'disableConstraint', uuid }),
-    }),
-    deps
-  )
+    }
 
-  return [bodyA, bodyB, api]
+    if (type === 'Hinge') {
+      return {
+        ...enableDisable,
+        enableMotor: () => worker.postMessage({ op: 'enableConstraintMotor', uuid }),
+        disableMotor: () => worker.postMessage({ op: 'disableConstraintMotor', uuid }),
+        setMotorSpeed: (value: number) =>
+          worker.postMessage({ op: 'setConstraintMotorSpeed', uuid, props: value }),
+        setMotorMaxForce: (value: number) =>
+          worker.postMessage({ op: 'setConstraintMotorMaxForce', uuid, props: value }),
+      }
+    }
+
+    return enableDisable
+  }, deps)
+
+  return [bodyA, bodyB, api] as ConstraintORHingeApi<T>
 }
 
 export function usePointToPointConstraint(
   bodyA: React.MutableRefObject<THREE.Object3D | undefined>,
   bodyB: React.MutableRefObject<THREE.Object3D | undefined>,
   optns: PointToPointConstraintOpts,
-  deps: any[] = []
+  deps: any[] = [],
 ) {
   return useConstraint('PointToPoint', bodyA, bodyB, optns, deps)
 }
@@ -423,7 +460,7 @@ export function useConeTwistConstraint(
   bodyA: React.MutableRefObject<THREE.Object3D | undefined>,
   bodyB: React.MutableRefObject<THREE.Object3D | undefined>,
   optns: ConeTwistConstraintOpts,
-  deps: any[] = []
+  deps: any[] = [],
 ) {
   return useConstraint('ConeTwist', bodyA, bodyB, optns, deps)
 }
@@ -431,7 +468,7 @@ export function useDistanceConstraint(
   bodyA: React.MutableRefObject<THREE.Object3D | undefined>,
   bodyB: React.MutableRefObject<THREE.Object3D | undefined>,
   optns: DistanceConstraintOpts,
-  deps: any[] = []
+  deps: any[] = [],
 ) {
   return useConstraint('Distance', bodyA, bodyB, optns, deps)
 }
@@ -439,7 +476,7 @@ export function useHingeConstraint(
   bodyA: React.MutableRefObject<THREE.Object3D | undefined>,
   bodyB: React.MutableRefObject<THREE.Object3D | undefined>,
   optns: HingeConstraintOpts,
-  deps: any[] = []
+  deps: any[] = [],
 ) {
   return useConstraint('Hinge', bodyA, bodyB, optns, deps)
 }
@@ -447,7 +484,7 @@ export function useLockConstraint(
   bodyA: React.MutableRefObject<THREE.Object3D | undefined>,
   bodyB: React.MutableRefObject<THREE.Object3D | undefined>,
   optns: LockConstraintOpts,
-  deps: any[] = []
+  deps: any[] = [],
 ) {
   return useConstraint('Lock', bodyA, bodyB, optns, deps)
 }
@@ -456,8 +493,8 @@ export function useSpring(
   bodyA: React.MutableRefObject<THREE.Object3D | undefined>,
   bodyB: React.MutableRefObject<THREE.Object3D | undefined>,
   optns: SpringOptns,
-  deps: any[] = []
-) {
+  deps: any[] = [],
+): SpringApi {
   const { worker, events } = useContext(context)
   const [uuid] = useState(() => THREE.MathUtils.generateUUID())
 
@@ -481,7 +518,16 @@ export function useSpring(
     }
   }, deps)
 
-  return [bodyA, bodyB]
+  const api = useMemo(
+    () => ({
+      setStiffness: (value: number) => worker.postMessage({ op: 'setSpringStiffness', props: value, uuid }),
+      setRestLength: (value: number) => worker.postMessage({ op: 'setSpringRestLength', props: value, uuid }),
+      setDamping: (value: number) => worker.postMessage({ op: 'setSpringDamping', props: value, uuid }),
+    }),
+    deps,
+  )
+
+  return [bodyA, bodyB, api]
 }
 
 type RayOptns = Omit<RayOptions, 'mode' | 'from' | 'to' | 'result' | 'callback'> & {
@@ -493,7 +539,7 @@ function useRay(
   mode: 'Closest' | 'Any' | 'All',
   options: RayOptns,
   callback: (e: Event) => void,
-  deps: any[] = []
+  deps: any[] = [],
 ) {
   const { worker, events } = useContext(context)
   const [uuid] = useState(() => THREE.MathUtils.generateUUID())
@@ -517,4 +563,96 @@ export function useRaycastAny(options: RayOptns, callback: (e: Event) => void, d
 
 export function useRaycastAll(options: RayOptns, callback: (e: Event) => void, deps: any[] = []) {
   useRay('All', options, callback, deps)
+}
+
+type RaycastVehiclePublicApi = {
+  // addWheel: () => number
+  setSteeringValue: (value: number, wheelIndex: number) => void
+  applyEngineForce: (value: number, wheelIndex: number) => void
+  setBrake: (brake: number, wheelIndex: number) => void
+}
+
+type RaycastVehicleApi = [React.MutableRefObject<THREE.Object3D | undefined>, RaycastVehiclePublicApi]
+
+type WheelInfoOptions = {
+  radius?: number
+  directionLocal?: number[]
+  suspensionStiffness?: number
+  suspensionRestLength?: number
+  maxSuspensionForce?: number
+  maxSuspensionTravel?: number
+  dampingRelaxation?: number
+  dampingCompression?: number
+  frictionSlip?: number
+  rollInfluence?: number
+  axleLocal?: number[]
+  chassisConnectionPointLocal?: number[]
+  isFrontWheel?: boolean
+  useCustomSlidingRotationalSpeed?: boolean
+  customSlidingRotationalSpeed?: number
+}
+
+type RaycastVehicleProps = {
+  chassisBody: React.MutableRefObject<THREE.Object3D | undefined>
+  wheels: React.MutableRefObject<THREE.Object3D | undefined>[]
+  wheelInfos: WheelInfoOptions[]
+  indexForwardAxis?: number
+  indexRightAxis?: number
+  indexUpAxis?: number
+}
+
+type RaycastVehicleFn = () => RaycastVehicleProps
+
+export function useRaycastVehicle(
+  fn: RaycastVehicleFn,
+  fwdRef?: React.MutableRefObject<THREE.Object3D>,
+): RaycastVehicleApi {
+  const ref = fwdRef ? fwdRef : useRef<THREE.Object3D>((null as unknown) as THREE.Object3D)
+  const { worker } = useContext(context)
+
+  useLayoutEffect(() => {
+    if (!ref.current) {
+      // When the reference isn't used we create a stub
+      // The body doesn't have a visual representation but can still be constrained
+      ref.current = new THREE.Object3D()
+    }
+
+    const currentWorker = worker
+    let uuid: string[] = [ref.current.uuid]
+
+    const raycastVehicleProps = fn()
+
+    currentWorker.postMessage({
+      op: 'addRaycastVehicle',
+      uuid,
+      props: [
+        raycastVehicleProps.chassisBody.current?.uuid,
+        raycastVehicleProps.wheels.map((wheel) => wheel.current?.uuid),
+        raycastVehicleProps.wheelInfos,
+        raycastVehicleProps?.indexForwardAxis || 2,
+        raycastVehicleProps?.indexRightAxis || 0,
+        raycastVehicleProps?.indexUpAxis || 1,
+      ],
+    })
+    return () => {
+      currentWorker.postMessage({ op: 'removeRaycastVehicle', uuid })
+    }
+  }, [])
+
+  const api = useMemo(() => {
+    const post = (op: string, props?: any) =>
+      ref.current && worker.postMessage({ op, uuid: ref.current.uuid, props })
+    return {
+      setSteeringValue(value: number, wheelIndex: number) {
+        post('setRaycastVehicleSteeringValue', [value, wheelIndex])
+      },
+      applyEngineForce(value: number, wheelIndex: number) {
+        post('applyRaycastVehicleEngineForce', [value, wheelIndex])
+      },
+      setBrake(brake: number, wheelIndex: number) {
+        post('setRaycastVehicleBrake', [brake, wheelIndex])
+      },
+    }
+  }, [])
+  return [ref, api]
 }

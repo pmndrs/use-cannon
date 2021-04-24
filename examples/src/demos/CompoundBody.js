@@ -1,5 +1,5 @@
 import React, { Suspense } from 'react'
-import { Canvas } from 'react-three-fiber'
+import { Canvas } from '@react-three/fiber'
 import { Physics, usePlane, useCompoundBody } from '@react-three/cannon'
 
 function Plane(props) {
@@ -7,12 +7,12 @@ function Plane(props) {
   return (
     <group ref={ref}>
       <mesh>
-        <planeBufferGeometry attach="geometry" args={[8, 8]} />
-        <meshBasicMaterial attach="material" color="#ffb385" />
+        <planeBufferGeometry args={[8, 8]} />
+        <meshBasicMaterial color="#ffb385" />
       </mesh>
       <mesh receiveShadow>
-        <planeBufferGeometry attach="geometry" args={[8, 8]} />
-        <shadowMaterial attach="material" color="lightsalmon" />
+        <planeBufferGeometry args={[8, 8]} />
+        <shadowMaterial color="lightsalmon" />
       </mesh>
     </group>
   )
@@ -32,19 +32,19 @@ function CompoundBody(props) {
   return (
     <group ref={ref}>
       <mesh castShadow>
-        <boxBufferGeometry attach="geometry" args={boxSize} />
-        <meshNormalMaterial attach="material" />
+        <boxBufferGeometry args={boxSize} />
+        <meshNormalMaterial />
       </mesh>
       <mesh castShadow position={[1, 0, 0]}>
-        <sphereBufferGeometry attach="geometry" args={[sphereRadius, 16, 16]} />
-        <meshNormalMaterial attach="material" />
+        <sphereBufferGeometry args={[sphereRadius, 16, 16]} />
+        <meshNormalMaterial />
       </mesh>
     </group>
   )
 }
 
 export default () => (
-  <Canvas invalidateFrameloop shadowMap gl={{ alpha: false }} camera={{ position: [-2, 1, 7], fov: 50 }}>
+  <Canvas shadows gl={{ alpha: false }} camera={{ position: [-2, 1, 7], fov: 50 }}>
     <color attach="background" args={['#f6d186']} />
     <hemisphereLight intensity={0.35} />
     <spotLight

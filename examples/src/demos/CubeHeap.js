@@ -1,15 +1,15 @@
 import * as THREE from 'three'
 import React, { useMemo } from 'react'
-import { Canvas, useFrame } from 'react-three-fiber'
+import { Canvas, useFrame } from '@react-three/fiber'
 import niceColors from 'nice-color-palettes'
-import { Physics, usePlane, useBox } from '../../../dist'
+import { Physics, usePlane, useBox } from '@react-three/cannon'
 
 function Plane(props) {
   const [ref] = usePlane(() => ({ ...props }))
   return (
     <mesh ref={ref} receiveShadow>
-      <planeBufferGeometry attach="geometry" args={[5, 5]} />
-      <shadowMaterial attach="material" color="#171717" />
+      <planeBufferGeometry args={[5, 5]} />
+      <shadowMaterial color="#171717" />
     </mesh>
   )
 }
@@ -37,18 +37,17 @@ function Cubes({ number }) {
 
   return (
     <instancedMesh receiveShadow castShadow ref={ref} args={[null, null, number]}>
-      <boxBufferGeometry attach="geometry" args={boxSize}>
+      <boxBufferGeometry args={boxSize}>
         <instancedBufferAttribute attachObject={['attributes', 'color']} args={[colors, 3]} />
       </boxBufferGeometry>
-      <meshLambertMaterial attach="material" vertexColors={THREE.VertexColors} />
+      <meshLambertMaterial vertexColors={THREE.VertexColors} />
     </instancedMesh>
   )
 }
 
 export default () => (
   <Canvas
-    shadowMap
-    sRGB
+    shadows
     gl={{ alpha: false }}
     camera={{ position: [-1, 1, 2.5], fov: 50 }}
     onCreated={({ scene }) => (scene.background = new THREE.Color('lightblue'))}>

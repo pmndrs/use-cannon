@@ -8,8 +8,8 @@ import React, {
   useMemo,
   useRef,
 } from 'react'
-import { Canvas, useFrame, useLoader } from 'react-three-fiber'
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
+import { Canvas, useFrame, useLoader } from '@react-three/fiber'
+import { GLTFLoader } from 'three-stdlib/loaders/GLTFLoader'
 import {
   Physics,
   useBox,
@@ -62,15 +62,15 @@ function Ragdoll(props) {
   useFrame((e) => {
     eyes.current.position.y = Math.sin(e.clock.getElapsedTime() * 1) * 0.06
     mouth.current.scale.y = (1 + Math.sin(e.clock.getElapsedTime())) * 1.5
-    const x = (e.mouse.x * e.viewport.width) / e.camera.zoom
-    const y = (e.mouse.y * e.viewport.height) / e.camera.zoom / 1.9 + -x / 3.5
+    const x = e.mouse.x * e.viewport.width
+    const y = (e.mouse.y * e.viewport.height) / 1.9 + -x / 3.5
     api.position.set(x / 1.4, y, 0)
   })
   return (
     <BodyPart name={'upperBody'} {...props}>
       <mesh ref={ref}>
-        <sphereBufferGeometry attach="geometry" args={[0.5, 32, 32]} />
-        <meshBasicMaterial attach="material" fog={false} depthTest={false} transparent opacity={0.5} />
+        <sphereBufferGeometry args={[0.5, 32, 32]} />
+        <meshBasicMaterial fog={false} depthTest={false} transparent opacity={0.5} />
       </mesh>
       <BodyPart
         {...props}
@@ -127,8 +127,8 @@ function Plane(props) {
   const [ref] = usePlane(() => ({ ...props }))
   return (
     <mesh ref={ref} receiveShadow>
-      <planeBufferGeometry attach="geometry" args={[1000, 1000]} />
-      <meshStandardMaterial attach="material" color="#171720" />
+      <planeBufferGeometry args={[1000, 1000]} />
+      <meshStandardMaterial color="#171720" />
     </mesh>
   )
 }
@@ -137,12 +137,12 @@ const Box = React.forwardRef(
   ({ children, transparent = false, opacity = 1, color = 'white', args = [1, 1, 1], ...props }, ref) => {
     return (
       <mesh receiveShadow castShadow ref={ref} {...props}>
-        <boxBufferGeometry attach="geometry" args={args} />
-        <meshStandardMaterial attach="material" color={color} transparent={transparent} opacity={opacity} />
+        <boxBufferGeometry args={args} />
+        <meshStandardMaterial color={color} transparent={transparent} opacity={opacity} />
         {children}
       </mesh>
     )
-  }
+  },
 )
 
 function Chair() {
@@ -189,7 +189,7 @@ function Mug() {
           receiveShadow
           castShadow
           material={materials.default}
-          geometry={nodes['buffer-0-mesh-0_0'].geometry}
+          geometry={nodes['buffer-0-mesh-0'].geometry}
         />
         <mesh
           receiveShadow
@@ -249,10 +249,10 @@ const Lamp = () => {
 export default () => (
   <Canvas
     style={{ cursor: 'none' }}
-    sRGB
-    shadowMap
+    shadows
     orthographic
-    camera={{ position: [-25, 20, 25], zoom: 25, near: 1, far: 100 }}>
+    camera={{ position: [-25, 20, 25], zoom: 25, near: 1, far: 100 }}
+  >
     <color attach="background" args={['#171720']} />
     <fog attach="fog" args={['#171720', 20, 70]} />
     <ambientLight intensity={0.2} />

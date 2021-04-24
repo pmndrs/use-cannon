@@ -1,9 +1,9 @@
 import babel from 'rollup-plugin-babel'
 import resolve from 'rollup-plugin-node-resolve'
-import { terser } from 'rollup-plugin-terser'
 import worker from 'rollup-plugin-web-worker-loader'
+import { sizeSnapshot } from 'rollup-plugin-size-snapshot'
 
-const external = ['react', 'react-three-fiber', 'three']
+const external = ['react', '@react-three/fiber', 'three']
 const extensions = ['.js', '.jsx', '.ts', '.tsx', '.json']
 
 const getBabelOptions = ({ useESModules }, targets) => ({
@@ -16,6 +16,7 @@ const getBabelOptions = ({ useESModules }, targets) => ({
     '@babel/preset-react',
     '@babel/preset-typescript',
   ],
+  plugins: [['@babel/transform-runtime', { regenerator: false, useESModules }]],
 })
 
 export default [
@@ -24,10 +25,10 @@ export default [
     output: { dir: 'dist', format: 'esm' },
     external,
     plugins: [
-      worker({ targetPlatform: 'browser', pattern: /.*\/worker$/ }),
-      resolve({ extensions }),
+      worker({ targetPlatform: 'browser', pattern: /.*\/worker$/, sourcemap: false }),
       babel(getBabelOptions({ useESModules: true }, '>1%, not dead, not ie 11, not op_mini all')),
-      terser(),
+      sizeSnapshot(),
+      resolve({ extensions }),
     ],
   },
   {
@@ -35,9 +36,10 @@ export default [
     output: { dir: 'dist/debug', format: 'esm' },
     external,
     plugins: [
-      worker({ targetPlatform: 'browser', pattern: /.*\/worker$/ }),
-      resolve({ extensions }),
+      worker({ targetPlatform: 'browser', pattern: /.*\/worker$/, sourcemap: true }),
       babel(getBabelOptions({ useESModules: true }, '>1%, not dead, not ie 11, not op_mini all')),
+      sizeSnapshot(),
+      resolve({ extensions }),
     ],
   },
 ]

@@ -1,18 +1,19 @@
 import * as THREE from 'three'
 import React, { Suspense, useRef } from 'react'
-import { Canvas, useFrame, useLoader } from 'react-three-fiber'
+import { Canvas, useFrame, useLoader } from '@react-three/fiber'
 import { Physics, useSphere, useBox, usePlane } from '@react-three/cannon'
 import lerp from 'lerp'
 import clamp from 'lodash-es/clamp'
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
+import { GLTFLoader } from 'three-stdlib/loaders/GLTFLoader'
+import { DRACOLoader } from 'three-stdlib/loaders/DRACOLoader'
 import create from 'zustand'
-import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader'
+
 import Text from './Text'
 import pingSound from './resources/ping.mp3'
 import earthImg from './resources/cross.jpg'
 
 const ping = new Audio(pingSound)
-const [useStore] = create(set => ({
+const useStore = create((set) => ({
   count: 0,
   welcome: true,
   api: {
@@ -20,29 +21,29 @@ const [useStore] = create(set => ({
       ping.currentTime = 0
       ping.volume = clamp(velocity / 20, 0, 1)
       ping.play()
-      if (velocity > 4) set(state => ({ count: state.count + 1 }))
+      if (velocity > 4) set((state) => ({ count: state.count + 1 }))
     },
-    reset: welcome => set(state => ({ welcome, count: welcome ? state.count : 0 })),
+    reset: (welcome) => set((state) => ({ welcome, count: welcome ? state.count : 0 })),
   },
 }))
 
 function Paddle() {
-  const { nodes, materials } = useLoader(GLTFLoader, '/pingpong.glb', loader => {
+  const { nodes, materials } = useLoader(GLTFLoader, '/pingpong.glb', (loader) => {
     const dracoLoader = new DRACOLoader()
     dracoLoader.setDecoderPath('/draco-gltf/')
     loader.setDRACOLoader(dracoLoader)
   })
-  const { pong } = useStore(state => state.api)
-  const welcome = useStore(state => state.welcome)
-  const count = useStore(state => state.count)
+  const { pong } = useStore((state) => state.api)
+  const welcome = useStore((state) => state.welcome)
+  const count = useStore((state) => state.count)
   const model = useRef()
   const [ref, api] = useBox(() => ({
     type: 'Kinematic',
-    args: [1.7, 0.5, 1.75],
-    onCollide: e => pong(e.contact.impactVelocity),
+    args: [3.4, 1, 3],
+    onCollide: (e) => pong(e.contact.impactVelocity),
   }))
   let values = useRef([0, 0])
-  useFrame(state => {
+  useFrame((state) => {
     values.current[0] = lerp(values.current[0], (state.mouse.x * Math.PI) / 5, 0.2)
     values.current[1] = lerp(values.current[1], (state.mouse.x * Math.PI) / 5, 0.2)
     api.position.set(state.mouse.x * 10, state.mouse.y * 5, 0)
@@ -70,7 +71,7 @@ function Paddle() {
           />
         </group>
         <group rotation={[0, -0.04, 0]} scale={[141.94, 141.94, 141.94]}>
-          <mesh castShadow receiveShadow material={materials.wood} geometry={nodes.mesh_0.geometry} />
+          <mesh castShadow receiveShadow material={materials.wood} geometry={nodes.mesh.geometry} />
           <mesh castShadow receiveShadow material={materials.side} geometry={nodes.mesh_1.geometry} />
           <mesh castShadow receiveShadow material={materials.foam} geometry={nodes.mesh_2.geometry} />
           <mesh castShadow receiveShadow material={materials.lower} geometry={nodes.mesh_3.geometry} />
@@ -86,14 +87,14 @@ function Ball() {
   const [ref] = useSphere(() => ({ mass: 1, args: 0.5, position: [0, 5, 0] }))
   return (
     <mesh castShadow ref={ref}>
-      <sphereBufferGeometry attach="geometry" args={[0.5, 64, 64]} />
-      <meshStandardMaterial attach="material" map={map} />
+      <sphereBufferGeometry args={[0.5, 64, 64]} />
+      <meshStandardMaterial map={map} />
     </mesh>
   )
 }
 
 function ContactGround() {
-  const { reset } = useStore(state => state.api)
+  const { reset } = useStore((state) => state.api)
   const [ref] = usePlane(() => ({
     type: 'Static',
     rotation: [-Math.PI / 2, 0, 0],
@@ -103,16 +104,12 @@ function ContactGround() {
   return <mesh ref={ref} />
 }
 
-export default function() {
-  const welcome = useStore(state => state.welcome)
-  const { reset } = useStore(state => state.api)
+export default function () {
+  const welcome = useStore((state) => state.welcome)
+  const { reset } = useStore((state) => state.api)
   return (
     <>
-      <Canvas
-        shadowMap
-        sRGB
-        camera={{ position: [0, 5, 12], fov: 50 }}
-        onClick={() => welcome && reset(false)}>
+      <Canvas shadows camera={{ position: [0, 5, 12], fov: 50 }} onClick={() => welcome && reset(false)}>
         <color attach="background" args={['#171720']} />
         <ambientLight intensity={0.5} />
         <pointLight position={[-10, -10, -10]} />
@@ -140,8 +137,8 @@ export default function() {
           gravity={[0, -40, 0]}
           allowSleep={false}>
           <mesh position={[0, 0, -10]} receiveShadow>
-            <planeBufferGeometry attach="geometry" args={[1000, 1000]} />
-            <meshPhongMaterial attach="material" color="#172017" />
+            <planeBufferGeometry args={[1000, 1000]} />
+            <meshPhongMaterial color="#172017" />
           </mesh>
           <ContactGround />
           {!welcome && <Ball />}
