@@ -4,6 +4,7 @@ import * as THREE from 'three'
 import React, { useLayoutEffect, useContext, useRef, useMemo, useEffect, useState } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { context } from './setup'
+import propsToBody from './propsToBody'
 
 export type AtomicProps = {
   mass?: number
@@ -162,11 +163,11 @@ function useBody(
   fn: BodyFn,
   argFn: ArgFn,
   fwdRef?: React.MutableRefObject<THREE.Object3D>,
-  deps: any[] = []
+  deps: any[] = [],
 ): Api {
-  const localRef = useRef<THREE.Object3D>((null as unknown) as THREE.Object3D)
+  const localRef = useRef<THREE.Object3D>(null as unknown as THREE.Object3D)
   const ref = fwdRef ? fwdRef : localRef
-  const { worker, bodies, buffers, refs, events, subscriptions } = useContext(context)
+  const { worker, bodies, buffers, refs, events, subscriptions, debugInfo } = useContext(context)
 
   useLayoutEffect(() => {
     if (!ref.current) {
@@ -195,6 +196,12 @@ function useBody(
 
     props.forEach((props, index) => {
       refs[uuid[index]] = object
+      if (debugInfo) {
+        // collect debug info only if was asked
+        const body = propsToBody(uuid[index], props, type)
+        debugInfo.bodies.push(body)
+        debugInfo.refs[uuid[index]] = body
+      }
       if (props.onCollide) {
         events[uuid[index]] = props.onCollide
         ;(props as any).onCollide = true
@@ -206,6 +213,11 @@ function useBody(
     return () => {
       props.forEach((props, index) => {
         delete refs[uuid[index]]
+        if (debugInfo) {
+          const debugBodyIndex = debugInfo.bodies.indexOf(debugInfo.refs[uuid[index]])
+          if (debugBodyIndex > -1) debugInfo.bodies.splice(debugBodyIndex, 1)
+          delete debugInfo.refs[uuid[index]]
+        }
         if (props.onCollide) delete events[uuid[index]]
       })
       currentWorker.postMessage({ op: 'removeBodies', uuid })
@@ -313,7 +325,7 @@ export function useCylinder(fn: CylinderFn, fwdRef?: React.MutableRefObject<THRE
 export function useHeightfield(
   fn: HeightfieldFn,
   fwdRef?: React.MutableRefObject<THREE.Object3D>,
-  deps?: any[]
+  deps?: any[],
 ) {
   return useBody('Heightfield', fn, (args) => args, fwdRef, deps)
 }
@@ -321,7 +333,7 @@ export function useParticle(fn: ParticleFn, fwdRef?: React.MutableRefObject<THRE
   return useBody('Particle', fn, () => [], fwdRef, deps)
 }
 export function useSphere(fn: SphereFn, fwdRef?: React.MutableRefObject<THREE.Object3D>, deps?: any[]) {
-  return useBody('Sphere', fn, (radius) => [radius ?? 1], fwdRef, deps)
+  return useBody('Sphere', fn, (radius) => [radius || 1], fwdRef, deps)
 }
 export function useTrimesh(fn: TrimeshFn, fwdRef?: React.MutableRefObject<THREE.Object3D>, deps?: any[]) {
   return useBody(
@@ -331,13 +343,13 @@ export function useTrimesh(fn: TrimeshFn, fwdRef?: React.MutableRefObject<THREE.
       return [args[0].map((v: any) => (v instanceof THREE.Vector3 ? [v.x, v.y, v.z] : v)), args[1]]
     },
     fwdRef,
-    deps
+    deps,
   )
 }
 export function useConvexPolyhedron(
   fn: ConvexPolyhedronFn,
   fwdRef?: React.MutableRefObject<THREE.Object3D>,
-  deps?: any[]
+  deps?: any[],
 ) {
   return useBody(
     'ConvexPolyhedron',
@@ -350,13 +362,13 @@ export function useConvexPolyhedron(
       ]
     },
     fwdRef,
-    deps
+    deps,
   )
 }
 export function useCompoundBody(
   fn: CompoundBodyFn,
   fwdRef?: React.MutableRefObject<THREE.Object3D>,
-  deps?: any[]
+  deps?: any[],
 ) {
   return useBody('Compound', fn, (args) => args || [], fwdRef, deps)
 }
@@ -407,8 +419,8 @@ function useConstraint<T extends 'Hinge' | ConstraintTypes>(
   const { worker } = useContext(context)
   const uuid = THREE.MathUtils.generateUUID()
 
-  const nullRef1 = useRef((null as unknown) as THREE.Object3D)
-  const nullRef2 = useRef((null as unknown) as THREE.Object3D)
+  const nullRef1 = useRef(null as unknown as THREE.Object3D)
+  const nullRef2 = useRef(null as unknown as THREE.Object3D)
   bodyA = bodyA === undefined || bodyA === null ? nullRef1 : bodyA
   bodyB = bodyB === undefined || bodyB === null ? nullRef2 : bodyB
 
@@ -498,8 +510,8 @@ export function useSpring(
   const { worker, events } = useContext(context)
   const [uuid] = useState(() => THREE.MathUtils.generateUUID())
 
-  const nullRef1 = useRef((null as unknown) as THREE.Object3D)
-  const nullRef2 = useRef((null as unknown) as THREE.Object3D)
+  const nullRef1 = useRef(null as unknown as THREE.Object3D)
+  const nullRef2 = useRef(null as unknown as THREE.Object3D)
   bodyA = bodyA === undefined || bodyA === null ? nullRef1 : bodyA
   bodyB = bodyB === undefined || bodyB === null ? nullRef2 : bodyB
 
@@ -607,7 +619,7 @@ export function useRaycastVehicle(
   fn: RaycastVehicleFn,
   fwdRef?: React.MutableRefObject<THREE.Object3D>,
 ): RaycastVehicleApi {
-  const ref = fwdRef ? fwdRef : useRef<THREE.Object3D>((null as unknown) as THREE.Object3D)
+  const ref = fwdRef ? fwdRef : useRef<THREE.Object3D>(null as unknown as THREE.Object3D)
   const { worker } = useContext(context)
 
   useLayoutEffect(() => {

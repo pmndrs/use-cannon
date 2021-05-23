@@ -1,10 +1,11 @@
 import type { Shape } from 'cannon-es'
-import type { Buffers, Refs, Events, Subscriptions, ProviderContext } from './setup'
+import type { Buffers, Refs, Events, Subscriptions, ProviderContext, DebugInfo } from './setup'
 import React, { useState, useEffect, useRef, useMemo } from 'react'
 import { useThree, useFrame } from '@react-three/fiber'
 import { context } from './setup'
 // @ts-ignore
 import CannonWorker from '../src/worker'
+import CannonDebugRenderer from './CannonDebugRenderer'
 
 export type ProviderProps = {
   children: React.ReactNode
@@ -24,6 +25,7 @@ export type ProviderProps = {
     frictionEquationRelaxation?: number
   }
   size?: number
+  debug?: boolean
 }
 
 type WorkerFrameMessage = {
@@ -94,6 +96,7 @@ export default function Provider({
     contactEquationStiffness: 1e6,
   },
   size = 1000,
+  debug = false,
 }: ProviderProps): JSX.Element {
   const { gl, invalidate } = useThree()
   const [worker] = useState<Worker>(() => new CannonWorker() as Worker)
@@ -104,6 +107,7 @@ export default function Provider({
   }))
   const [events] = useState<Events>({})
   const [subscriptions] = useState<Subscriptions>({})
+  const [debugInfo] = useState<DebugInfo>(debug ? { bodies: [], refs: {} } : null)
   const bodies = useRef<{ [uuid: string]: number }>({})
   const loop = useMemo(
     () => () => {
@@ -111,7 +115,7 @@ export default function Provider({
         worker.postMessage({ op: 'step', ...buffers }, [buffers.positions.buffer, buffers.quaternions.buffer])
       }
     },
-    []
+    [],
   )
 
   const prevPresenting = useRef(false)
@@ -146,7 +150,7 @@ export default function Provider({
           if (e.data.bodies) {
             bodies.current = e.data.bodies.reduce(
               (acc, id) => ({ ...acc, [id]: (e.data as any).bodies.indexOf(id) }),
-              {}
+              {},
             )
           }
           buffers.positions = e.data.positions
@@ -182,13 +186,14 @@ export default function Provider({
     return () => worker.terminate()
   }, [])
 
-  const api = useMemo(() => ({ worker, bodies, refs, buffers, events, subscriptions }), [
-    worker,
-    bodies,
-    refs,
-    buffers,
-    events,
-    subscriptions,
-  ])
-  return <context.Provider value={api as ProviderContext}>{children}</context.Provider>
+  const api = useMemo(
+    () => ({ worker, bodies, refs, buffers, events, subscriptions, debugInfo }),
+    [worker, bodies, refs, buffers, events, subscriptions, debugInfo],
+  )
+  return (
+    <context.Provider value={api as ProviderContext}>
+      {debug && <CannonDebugRenderer />}
+      {children}
+    </context.Provider>
+  )
 }
