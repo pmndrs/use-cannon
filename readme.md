@@ -7,7 +7,7 @@
 
     yarn add @react-three/cannon
 
-Experimental React hooks for [cannon](https://github.com/schteppe/cannon.js). Use this in combination with [react-three-fiber](https://github.com/pmndrs/react-three-fiber).
+Experimental React hooks for [cannon-es](https://github.com/pmndrs/cannon-es). Use this in combination with [react-three-fiber](https://github.com/pmndrs/react-three-fiber).
 
 - [x] Doesn't block the main thread, runs in a web worker
 - [x] Supports instancing out of the box
