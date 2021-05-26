@@ -1,11 +1,12 @@
 import { Physics, useBox, usePlane, useSphere } from '@react-three/cannon'
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
+import { useState } from 'react'
 
 function BoxTrigger({ onCollide, size, position }) {
   const [ref] = useBox(() => ({ isTrigger: true, args: size, position, onCollide }))
   return (
-    <mesh castShadow ref={ref} position={position}>
+    <mesh ref={ref} position={position}>
       <boxBufferGeometry args={size} />
       <meshStandardMaterial wireframe color="green" />
     </mesh>
@@ -37,22 +38,19 @@ function Plane(props) {
 }
 
 export default () => {
+  const [bg, setbg] = useState('#171720')
   return (
     <Canvas shadows camera={{ position: [-10, 15, 5], material: { restitution: 10 }, fov: 50 }}>
-      <color attach="background" args={['#171720']} />
-      <ambientLight intensity={0.3} />
-      <pointLight
-        castShadow
-        intensity={0.8}
-        position={[100, 100, 100]}
-        shadow-mapSize-width={2048}
-        shadow-mapSize-height={2048}
-      />
       <OrbitControls />
+      <fog attach="fog" args={[bg, 10, 50]} />
+      <color attach="background" args={[bg]} />
+      <ambientLight intensity={0.1} />
+      <spotLight position={[10, 10, 10]} angle={0.5} intensity={1} castShadow penumbra={1} />
       <Physics>
         <BoxTrigger
           onCollide={(e) => {
             console.log('Collision event on BoxTrigger', e)
+            setbg('#fe4365')
           }}
           position={[0, 5, 0]}
           size={[4, 1, 4]}
