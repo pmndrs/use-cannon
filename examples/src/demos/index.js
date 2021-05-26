@@ -16,6 +16,7 @@ const HingeMotor = { descr: '', tags: [], Component: lazy(() => import('./HingeM
 const CompoundBody = { descr: '', tags: [], Component: lazy(() => import('./CompoundBody')), bright: false }
 const Raycast = { descr: '', tags: [], Component: lazy(() => import('./Raycast')), bright: false }
 const Vehicle = { descr: '', tags: [], Component: lazy(() => import('./RaycastVehicle')), bright: false }
+const Triggers = { descr: '', tags: [], Component: lazy(() => import('./Triggers')), bright: false }
 const Trimesh = { descr: '', tags: [], Component: lazy(() => import('./Trimesh')), bright: false }
 const Heightfield = { descr: '', tags: [], Component: lazy(() => import('./Heightfield')), bright: false }
 
@@ -31,6 +32,7 @@ export {
   CompoundBody,
   Raycast,
   Vehicle,
+  Triggers,
   Trimesh,
   Heightfield,
 }

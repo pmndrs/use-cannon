@@ -1821,10 +1821,10 @@ caniuse-lite@^1.0.30001181:
   resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001183.tgz#7a57ba9d6584119bb5f2bc76d3cc47ba9356b3e2"
   integrity sha512-7JkwTEE1hlRKETbCFd8HDZeLiQIUcl8rC6JgNjvHCNaxOeNmQ9V4LvQXRUsKIV2CC73qKxljwVhToaA3kLRqTw==
 
-cannon-es@^0.17.0:
-  version "0.17.0"
-  resolved "https://registry.yarnpkg.com/cannon-es/-/cannon-es-0.17.0.tgz#8ddf149000d3fbb1343410b2bc40880597c2cfd5"
-  integrity sha512-62ASeop8hqV2E/an8ChQUOmZHO0t/h1cVFqwZ3SOEhvwZEVk4uDqPIxN5ghW3dE9RERF6SKuQ865pdvy4vD+XA==
+cannon-es@^0.17.1:
+  version "0.17.1"
+  resolved "https://registry.yarnpkg.com/cannon-es/-/cannon-es-0.17.1.tgz#39d25d37e40e1a0765c96753be6c257069b214b7"
+  integrity sha512-MU2ylhpsCJJcZhKdTDpd7PXn1VK5nUQZo2QiHRu67527Q78mTE1XipeaU8RyTQQRxBiC+b9exPykg2+nVnMoRA==
 
 chalk@^2.0.0:
   version "2.4.2"
@@ -3628,9 +3628,9 @@ posix-character-classes@^0.1.0:
   integrity sha1-AerA/jta9xoqbAL+q7jB/vfgDqs=
 
 prettier@^2.2.1:
-  version "2.2.1"
-  resolved "https://registry.yarnpkg.com/prettier/-/prettier-2.2.1.tgz#795a1a78dd52f073da0cd42b21f9c91381923ff5"
-  integrity sha512-PqyhM2yCjg/oKkFPtTGUojv7gnZAoG80ttl45O6x2Ug/rMJw4wcc9k6aaf2hibP7BGVCCM33gZoGjyvt9mm16Q==
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/prettier/-/prettier-2.3.0.tgz#b6a5bf1284026ae640f17f7ff5658a7567fc0d18"
+  integrity sha512-kXtO4s0Lz/DW/IJ9QdWhAf7/NmPWQXkFr/r/WkR3vyI+0v8amTDxiaQSLzs8NBlytfLWX/7uQUMIW677yLKl4w==
 
 pretty-format@^26.6.2:
   version "26.6.2"
