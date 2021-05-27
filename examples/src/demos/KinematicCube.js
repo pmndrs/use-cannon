@@ -1,4 +1,4 @@
-import * as THREE from 'three'
+import { VertexColors, Color } from 'three'
 import React, { useMemo } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { Physics, useBox, usePlane, useSphere } from '@react-three/cannon'
@@ -38,7 +38,7 @@ function InstancedSpheres({ number = 100 }) {
   }))
   const colors = useMemo(() => {
     const array = new Float32Array(number * 3)
-    const color = new THREE.Color()
+    const color = new Color()
     for (let i = 0; i < number; i++)
       color
         .set(niceColors[17][Math.floor(Math.random() * 5)])
@@ -52,7 +52,7 @@ function InstancedSpheres({ number = 100 }) {
       <sphereBufferGeometry args={[1, 16, 16]}>
         <instancedBufferAttribute attachObject={['attributes', 'color']} args={[colors, 3]} />
       </sphereBufferGeometry>
-      <meshPhongMaterial vertexColors={THREE.VertexColors} />
+      <meshPhongMaterial vertexColors={VertexColors} />
     </instancedMesh>
   )
 }

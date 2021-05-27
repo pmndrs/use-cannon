@@ -19,6 +19,7 @@ export type AtomicProps = {
   collisionResponse?: number
   fixedRotation?: boolean
   userData?: object
+  isTrigger?: boolean
 }
 
 export type BodyProps = AtomicProps & {
@@ -288,6 +289,7 @@ function useBody(
         collisionResponse: makeAtomic('collisionResponse', index),
         fixedRotation: makeAtomic('fixedRotation', index),
         userData: makeAtomic('userData', index),
+        isTrigger: makeAtomic('isTrigger', index),
         // Apply functions
         applyForce(force: number[], worldPoint: number[]) {
           post('applyForce', index, [force, worldPoint])
