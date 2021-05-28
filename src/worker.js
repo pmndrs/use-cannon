@@ -122,6 +122,7 @@ self.onmessage = (e) => {
       const observations = []
       for (const id of Object.keys(subscriptions)) {
         const [uuid, type] = subscriptions[id]
+        if (!bodies[uuid]) continue
         let value = bodies[uuid][type]
         if (value instanceof Vec3) value = value.toArray()
         else if (value instanceof Quaternion) {
@@ -181,7 +182,7 @@ self.onmessage = (e) => {
             const shapeBody = body.addShape(
               createShape(type, args),
               position ? new Vec3(...position) : undefined,
-              rotation ? new Quaternion().setFromEuler(...rotation) : undefined
+              rotation ? new Quaternion().setFromEuler(...rotation) : undefined,
             )
             if (material) shapeBody.material = new Material(material)
             Object.assign(shapeBody, extra)
@@ -326,7 +327,7 @@ self.onmessage = (e) => {
             pivotA,
             bodies[bodyB],
             pivotB,
-            optns.maxForce
+            optns.maxForce,
           )
           break
         case 'ConeTwist':

@@ -239,9 +239,10 @@ function useBody(
         const id = subscriptionGuid++
         subscriptions[id] = callback
         post('subscribe', index, { id, type })
+        const uuid =  getUUID(index)
         return () => {
           delete subscriptions[id]
-          post('unsubscribe', index, id)
+          worker.postMessage({ op:'unsubscribe', uuid,  props:id })
         }
       }
     }

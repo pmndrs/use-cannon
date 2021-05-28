@@ -57,7 +57,10 @@ useFrame(({ clock }) => api.position.set(Math.sin(clock.getElapsedTime()) * 5, 0
 
 ```jsx
 const velocity = useRef([0, 0, 0])
-useEffect(() => api.velocity.subscribe((v) => (velocity.current = v)), [])
+useEffect(() => {
+  const unsubscribe = api.velocity.subscribe((v) => (velocity.current = v))
+  return () => unsubscribe()
+}, [])
 ```
 
 ## Simple example
@@ -93,7 +96,7 @@ ReactDOM.render(
       <Cube />
     </Physics>
   </Canvas>,
-  document.getElementById('root')
+  document.getElementById('root'),
 )
 ```
 
@@ -133,42 +136,42 @@ function usePointToPointConstraint(
   bodyA: React.MutableRefObject<THREE.Object3D>,
   bodyB: React.MutableRefObject<THREE.Object3D>,
   optns: PointToPointConstraintOpts,
-  deps: any[] = []
+  deps: any[] = [],
 ): ConstraintApi
 
 function useConeTwistConstraint(
   bodyA: React.MutableRefObject<THREE.Object3D>,
   bodyB: React.MutableRefObject<THREE.Object3D>,
   optns: ConeTwistConstraintOpts,
-  deps: any[] = []
+  deps: any[] = [],
 ): ConstraintApi
 
 function useDistanceConstraint(
   bodyA: React.MutableRefObject<THREE.Object3D>,
   bodyB: React.MutableRefObject<THREE.Object3D>,
   optns: DistanceConstraintOpts,
-  deps: any[] = []
+  deps: any[] = [],
 ): ConstraintApi
 
 function useHingeConstraint(
   bodyA: React.MutableRefObject<THREE.Object3D>,
   bodyB: React.MutableRefObject<THREE.Object3D>,
   optns: HingeConstraintOpts,
-  deps: any[] = []
+  deps: any[] = [],
 ): ConstraintApi
 
 function useLockConstraint(
   bodyA: React.MutableRefObject<THREE.Object3D>,
   bodyB: React.MutableRefObject<THREE.Object3D>,
   optns: LockConstraintOpts,
-  deps: any[] = []
+  deps: any[] = [],
 ): ConstraintApi
 
 function useSpring(
   bodyA: React.MutableRefObject<THREE.Object3D>,
   bodyB: React.MutableRefObject<THREE.Object3D>,
   optns: SpringOptns,
-  deps: any[] = []
+  deps: any[] = [],
 ): void
 ```
 
@@ -192,7 +195,7 @@ type Api = [
   React.MutableRefObject<THREE.Object3D | undefined>,
   WorkerApi & {
     at: (index: number) => WorkerApi
-  }
+  },
 ]
 
 type ConstraintApi = [
@@ -224,7 +227,7 @@ type SpringApi = [
     setStiffness: (value: number) => void
     setRestLength: (value: number) => void
     setDamping: (value: number) => void
-  }
+  },
 ]
 ```
 
@@ -323,7 +326,7 @@ type HeightfieldProps = BodyProps & {
       minValue?: number
       maxValue?: number
       elementSize?: number
-    }
+    },
   ]
 }
 type CompoundBodyProps = BodyProps & {
