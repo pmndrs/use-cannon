@@ -111,7 +111,7 @@ export default function Provider({
         worker.postMessage({ op: 'step', ...buffers }, [buffers.positions.buffer, buffers.quaternions.buffer])
       }
     },
-    [],
+    []
   )
 
   const prevPresenting = useRef(false)
@@ -146,7 +146,7 @@ export default function Provider({
           if (e.data.bodies) {
             bodies.current = e.data.bodies.reduce(
               (acc, id) => ({ ...acc, [id]: (e.data as any).bodies.indexOf(id) }),
-              {},
+              {}
             )
           }
           buffers.positions = e.data.positions

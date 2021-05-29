@@ -182,7 +182,7 @@ self.onmessage = (e) => {
             const shapeBody = body.addShape(
               createShape(type, args),
               position ? new Vec3(...position) : undefined,
-              rotation ? new Quaternion().setFromEuler(...rotation) : undefined,
+              rotation ? new Quaternion().setFromEuler(...rotation) : undefined
             )
             if (material) shapeBody.material = new Material(material)
             Object.assign(shapeBody, extra)
@@ -327,7 +327,7 @@ self.onmessage = (e) => {
             pivotA,
             bodies[bodyB],
             pivotB,
-            optns.maxForce,
+            optns.maxForce
           )
           break
         case 'ConeTwist':
