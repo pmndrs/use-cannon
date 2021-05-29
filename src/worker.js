@@ -122,6 +122,7 @@ self.onmessage = (e) => {
       const observations = []
       for (const id of Object.keys(subscriptions)) {
         const [uuid, type] = subscriptions[id]
+        if (!bodies[uuid]) continue
         let value = bodies[uuid][type]
         if (value instanceof Vec3) value = value.toArray()
         else if (value instanceof Quaternion) {

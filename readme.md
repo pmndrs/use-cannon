@@ -57,7 +57,10 @@ useFrame(({ clock }) => api.position.set(Math.sin(clock.getElapsedTime()) * 5, 0
 
 ```jsx
 const velocity = useRef([0, 0, 0])
-useEffect(() => api.velocity.subscribe((v) => (velocity.current = v)), [])
+useEffect(() => {
+  const unsubscribe = api.velocity.subscribe((v) => (velocity.current = v))
+  return () => unsubscribe()
+}, [])
 ```
 
 ## Simple example

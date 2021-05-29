@@ -241,7 +241,7 @@ function useBody(
         post('subscribe', index, { id, type })
         return () => {
           delete subscriptions[id]
-          post('unsubscribe', index, id)
+          worker.postMessage({ op:'unsubscribe', props:id })
         }
       }
     }
