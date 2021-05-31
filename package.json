@@ -13,6 +13,7 @@
   "contributors": [
     "Cody Persinger <codypersinger@gmail.com> (https://github.com/codynova)"
   ],
+  "repository": "github:pmndrs/use-cannon",
   "license": "MIT",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
