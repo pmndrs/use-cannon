@@ -6,7 +6,8 @@
     "cannon",
     "three",
     "react",
-    "react-three-fiber"
+    "react-three-fiber",
+    "physics"
   ],
   "author": "Paul Henschel",
   "contributors": [
