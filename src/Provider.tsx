@@ -117,7 +117,7 @@ export default function Provider({
   const prevPresenting = useRef(false)
   useFrame(() => {
     if (gl.xr?.isPresenting && !prevPresenting.current) {
-      gl.xr.getSession().requestAnimationFrame(loop)
+      gl.xr?.getSession?.()?.requestAnimationFrame(loop)
     }
     if (!gl.xr?.isPresenting && prevPresenting.current) {
       requestAnimationFrame(loop)
@@ -153,7 +153,7 @@ export default function Provider({
           buffers.quaternions = e.data.quaternions
           e.data.observations.forEach(([id, value]) => subscriptions[id] && subscriptions[id](value))
           if (gl.xr && gl.xr.isPresenting) {
-            gl.xr.getSession().requestAnimationFrame(loop)
+            gl.xr?.getSession?.()?.requestAnimationFrame(loop)
           } else {
             requestAnimationFrame(loop)
           }

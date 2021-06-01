@@ -26,15 +26,19 @@ import {
   RaycastVehicle,
 } from 'cannon-es'
 
-let bodies = {}
-const vehicles = {}
-const springs = {}
-const springInstances = {}
-const rays = {}
-const world = new World()
-const config = { step: 1 / 60 }
-const subscriptions = {}
-const tempVector = new Vec3()
+const state = { 
+  bodies: {},
+  vehicles: {},
+  springs: {},
+  springInstances: {},
+  rays: {},
+  world: new World(),
+  config: { step: 1 / 60 },
+  subscriptions: {},
+  tempVector: new Vec3(),
+  bodiesNeedSyncing: false,
+  lastCallTime: undefined
+}
 
 function createShape(type, args) {
   switch (type) {
@@ -62,14 +66,11 @@ function createShape(type, args) {
   }
 }
 
-let bodiesNeedSyncing = false
-
 function syncBodies() {
-  bodiesNeedSyncing = true
-  bodies = world.bodies.reduce((acc, body) => ({ ...acc, [body.uuid]: body }), {})
+  state.bodiesNeedSyncing = true
+  state.bodies = state.world.bodies.reduce((acc, body) => ({ ...acc, [body.uuid]: body }), {})
 }
 
-let lastCallTime
 self.onmessage = (e) => {
   const { op, uuid, type, positions, quaternions, props } = e.data
 
@@ -86,29 +87,29 @@ self.onmessage = (e) => {
         defaultContactMaterial,
       } = props
       const broadphases = { NaiveBroadphase, SAPBroadphase }
-      world.allowSleep = allowSleep
-      world.gravity.set(gravity[0], gravity[1], gravity[2])
-      world.solver.tolerance = tolerance
-      world.solver.iterations = iterations
-      world.broadphase = new (broadphases[broadphase + 'Broadphase'] || NaiveBroadphase)(world)
-      world.broadphase.axisIndex = axisIndex ?? 0
-      Object.assign(world.defaultContactMaterial, defaultContactMaterial)
-      config.step = step
+      state.world.allowSleep = allowSleep
+      state.world.gravity.set(gravity[0], gravity[1], gravity[2])
+      state.world.solver.tolerance = tolerance
+      state.world.solver.iterations = iterations
+      state.world.broadphase = new (broadphases[broadphase + 'Broadphase'] || NaiveBroadphase)(state.world)
+      state.world.broadphase.axisIndex = axisIndex ?? 0
+      Object.assign(state.world.defaultContactMaterial, defaultContactMaterial)
+      state.config.step = step
       break
     }
     case 'step': {
       const now = performance.now() / 1000
-      if (!lastCallTime) {
-        world.step(config.step)
+      if (!state.lastCallTime) {
+        state.world.step(state.config.step)
       } else {
-        const timeSinceLastCall = now - lastCallTime
-        world.step(config.step, timeSinceLastCall)
+        const timeSinceLastCall = now - state.lastCallTime
+        state.world.step(state.config.step, timeSinceLastCall)
       }
-      lastCallTime = now
+      state.lastCallTime = now
 
-      const numberOfBodies = world.bodies.length
+      const numberOfBodies = state.world.bodies.length
       for (let i = 0; i < numberOfBodies; i++) {
-        let b = world.bodies[i],
+        let b = state.world.bodies[i],
           p = b.position,
           q = b.quaternion
         positions[3 * i + 0] = p.x
@@ -120,14 +121,15 @@ self.onmessage = (e) => {
         quaternions[4 * i + 3] = q.w
       }
       const observations = []
-      for (const id of Object.keys(subscriptions)) {
-        const [uuid, type] = subscriptions[id]
-        if (!bodies[uuid]) continue
-        let value = bodies[uuid][type]
+      for (const id of Object.keys(state.subscriptions)) {
+        let [uuid, type, target = "bodies"] = state.subscriptions[id]
+        let object = state[target]
+        if (!object || !object[uuid]) continue
+        let value = object[uuid][type]
         if (value instanceof Vec3) value = value.toArray()
         else if (value instanceof Quaternion) {
-          value.toEuler(tempVector)
-          value = tempVector.toArray()
+          value.toEuler(state.tempVector)
+          value = state.tempVector.toArray()
         }
         observations.push([id, value])
       }
@@ -136,11 +138,11 @@ self.onmessage = (e) => {
         positions,
         quaternions,
         observations,
-        active: world.hasActiveBodies,
+        active: state.world.hasActiveBodies,
       }
-      if (bodiesNeedSyncing) {
-        message.bodies = world.bodies.map((body) => body.uuid)
-        bodiesNeedSyncing = false
+      if (state.bodiesNeedSyncing) {
+        message.bodies = state.world.bodies.map((body) => body.uuid)
+        state.bodiesNeedSyncing = false
       }
       self.postMessage(message, [positions.buffer, quaternions.buffer])
       break
@@ -182,7 +184,7 @@ self.onmessage = (e) => {
             const shapeBody = body.addShape(
               createShape(type, args),
               position ? new Vec3(...position) : undefined,
-              rotation ? new Quaternion().setFromEuler(...rotation) : undefined
+              rotation ? new Quaternion().setFromEuler(...rotation) : undefined,
             )
             if (material) shapeBody.material = new Material(material)
             Object.assign(shapeBody, extra)
@@ -197,7 +199,7 @@ self.onmessage = (e) => {
         body.angularVelocity.set(angularVelocity[0], angularVelocity[1], angularVelocity[2])
         body.linearFactor.set(linearFactor[0], linearFactor[1], linearFactor[2])
         body.angularFactor.set(angularFactor[0], angularFactor[1], angularFactor[2])
-        world.addBody(body)
+        state.world.addBody(body)
 
         if (onCollide)
           body.addEventListener('collide', ({ type, body, target, contact }) => {
@@ -226,87 +228,87 @@ self.onmessage = (e) => {
       break
     }
     case 'removeBodies': {
-      for (let i = 0; i < uuid.length; i++) world.removeBody(bodies[uuid[i]])
+      for (let i = 0; i < uuid.length; i++) state.world.removeBody(state.bodies[uuid[i]])
       syncBodies()
       break
     }
     case 'subscribe': {
-      const { id, type } = props
-      subscriptions[id] = [uuid, type]
+      const { id, type, target } = props
+      state.subscriptions[id] = [uuid, type, target]
       break
     }
     case 'unsubscribe': {
-      delete subscriptions[props]
+      delete state.subscriptions[props]
       break
     }
     case 'setPosition':
-      bodies[uuid].position.set(props[0], props[1], props[2])
+      state.bodies[uuid].position.set(props[0], props[1], props[2])
       break
     case 'setQuaternion':
-      bodies[uuid].quaternion.setFromEuler(props[0], props[1], props[2])
+      state.bodies[uuid].quaternion.setFromEuler(props[0], props[1], props[2])
       break
     case 'setVelocity':
-      bodies[uuid].velocity.set(props[0], props[1], props[2])
+      state.bodies[uuid].velocity.set(props[0], props[1], props[2])
       break
     case 'setAngularVelocity':
-      bodies[uuid].angularVelocity.set(props[0], props[1], props[2])
+      state.bodies[uuid].angularVelocity.set(props[0], props[1], props[2])
       break
     case 'setLinearFactor':
-      bodies[uuid].linearFactor.set(props[0], props[1], props[2])
+      state.bodies[uuid].linearFactor.set(props[0], props[1], props[2])
       break
     case 'setAngularFactor':
-      bodies[uuid].angularFactor.set(props[0], props[1], props[2])
+      state.bodies[uuid].angularFactor.set(props[0], props[1], props[2])
       break
     case 'setMass':
       // assume that an update from zero-mass implies a need for dynamics on static obj.
-      if (props !== 0 && bodies[uuid].type === 0) bodies[uuid].type = 1
-      bodies[uuid].mass = props
-      bodies[uuid].updateMassProperties()
+      if (props !== 0 && state.bodies[uuid].type === 0) state.bodies[uuid].type = 1
+      state.bodies[uuid].mass = props
+      state.bodies[uuid].updateMassProperties()
       break
     case 'setLinearDamping':
-      bodies[uuid].linearDamping = props
+      state.bodies[uuid].linearDamping = props
       break
     case 'setAngularDamping':
-      bodies[uuid].angularDamping = props
+      state.bodies[uuid].angularDamping = props
       break
     case 'setAllowSleep':
-      bodies[uuid].allowSleep = props
+      state.bodies[uuid].allowSleep = props
       break
     case 'setSleepSpeedLimit':
-      bodies[uuid].sleepSpeedLimit = props
+      state.bodies[uuid].sleepSpeedLimit = props
       break
     case 'setSleepTimeLimit':
-      bodies[uuid].sleepTimeLimit = props
+      state.bodies[uuid].sleepTimeLimit = props
       break
     case 'setCollisionFilterGroup':
-      bodies[uuid].collisionFilterGroup = props
+      state.bodies[uuid].collisionFilterGroup = props
       break
     case 'setCollisionFilterMask':
-      bodies[uuid].collisionFilterMask = props
+      state.bodies[uuid].collisionFilterMask = props
       break
     case 'setCollisionFilterMask':
-      bodies[uuid].collisionFilterMask = props
+      state.bodies[uuid].collisionFilterMask = props
       break
     case 'setCollisionResponse':
-      bodies[uuid].collisionResponse = props
+      state.bodies[uuid].collisionResponse = props
       break
     case 'setFixedRotation':
-      bodies[uuid].fixedRotation = props
+      state.bodies[uuid].fixedRotation = props
       break
     case 'setIsTrigger':
-      bodies[uuid].isTrigger = props
+      state.bodies[uuid].isTrigger = props
       break
     case 'applyForce':
-      bodies[uuid].applyForce(new Vec3(...props[0]), new Vec3(...props[1]))
+      state.bodies[uuid].applyForce(new Vec3(...props[0]), new Vec3(...props[1]))
       break
     case 'applyImpulse':
-      bodies[uuid].applyImpulse(new Vec3(...props[0]), new Vec3(...props[1]))
+      state.bodies[uuid].applyImpulse(new Vec3(...props[0]), new Vec3(...props[1]))
       break
     case 'applyLocalForce':
-      bodies[uuid].applyLocalForce(new Vec3(...props[0]), new Vec3(...props[1]))
+      state.bodies[uuid].applyLocalForce(new Vec3(...props[0]), new Vec3(...props[1]))
       break
     case 'applyLocalImpulse':
-      bodies[uuid].applyLocalImpulse(new Vec3(...props[0]), new Vec3(...props[1]))
+      state.bodies[uuid].applyLocalImpulse(new Vec3(...props[0]), new Vec3(...props[1]))
       break
     case 'addConstraint': {
       const [bodyA, bodyB, optns] = props
@@ -323,15 +325,15 @@ self.onmessage = (e) => {
       switch (type) {
         case 'PointToPoint':
           constraint = new PointToPointConstraint(
-            bodies[bodyA],
+            state.bodies[bodyA],
             pivotA,
-            bodies[bodyB],
+            state.bodies[bodyB],
             pivotB,
-            optns.maxForce
+            optns.maxForce,
           )
           break
         case 'ConeTwist':
-          constraint = new ConeTwistConstraint(bodies[bodyA], bodies[bodyB], {
+          constraint = new ConeTwistConstraint(state.bodies[bodyA], state.bodies[bodyB], {
             pivotA,
             pivotB,
             axisA,
@@ -340,7 +342,7 @@ self.onmessage = (e) => {
           })
           break
         case 'Hinge':
-          constraint = new HingeConstraint(bodies[bodyA], bodies[bodyB], {
+          constraint = new HingeConstraint(state.bodies[bodyA], state.bodies[bodyB], {
             pivotA,
             pivotB,
             axisA,
@@ -349,45 +351,45 @@ self.onmessage = (e) => {
           })
           break
         case 'Distance':
-          constraint = new DistanceConstraint(bodies[bodyA], bodies[bodyB], optns.distance, optns.maxForce)
+          constraint = new DistanceConstraint(state.bodies[bodyA], state.bodies[bodyB], optns.distance, optns.maxForce)
           break
         case 'Lock':
-          constraint = new LockConstraint(bodies[bodyA], bodies[bodyB], optns)
+          constraint = new LockConstraint(state.bodies[bodyA], state.bodies[bodyB], optns)
           break
         default:
-          constraint = new Constraint(bodies[bodyA], bodies[bodyB], optns)
+          constraint = new Constraint(state.bodies[bodyA], state.bodies[bodyB], optns)
           break
       }
       constraint.uuid = uuid
-      world.addConstraint(constraint)
+      state.world.addConstraint(constraint)
       break
     }
     case 'removeConstraint':
-      world.constraints.filter(({ uuid: thisId }) => thisId === uuid).map((c) => world.removeConstraint(c))
+      state.world.constraints.filter(({ uuid: thisId }) => thisId === uuid).map((c) => state.world.removeConstraint(c))
       break
 
     case 'enableConstraint':
-      world.constraints.filter(({ uuid: thisId }) => thisId === uuid).map((c) => c.enable())
+      state.world.constraints.filter(({ uuid: thisId }) => thisId === uuid).map((c) => c.enable())
       break
 
     case 'disableConstraint':
-      world.constraints.filter(({ uuid: thisId }) => thisId === uuid).map((c) => c.disable())
+      state.world.constraints.filter(({ uuid: thisId }) => thisId === uuid).map((c) => c.disable())
       break
 
     case 'enableConstraintMotor':
-      world.constraints.filter(({ uuid: thisId }) => thisId === uuid).map((c) => c.enableMotor())
+      state.world.constraints.filter(({ uuid: thisId }) => thisId === uuid).map((c) => c.enableMotor())
       break
 
     case 'disableConstraintMotor':
-      world.constraints.filter(({ uuid: thisId }) => thisId === uuid).map((c) => c.disableMotor())
+      state.world.constraints.filter(({ uuid: thisId }) => thisId === uuid).map((c) => c.disableMotor())
       break
 
     case 'setConstraintMotorSpeed':
-      world.constraints.filter(({ uuid: thisId }) => thisId === uuid).map((c) => c.setMotorSpeed(props))
+      state.world.constraints.filter(({ uuid: thisId }) => thisId === uuid).map((c) => c.setMotorSpeed(props))
       break
 
     case 'setConstraintMotorMaxForce':
-      world.constraints.filter(({ uuid: thisId }) => thisId === uuid).map((c) => c.setMotorMaxForce(props))
+      state.world.constraints.filter(({ uuid: thisId }) => thisId === uuid).map((c) => c.setMotorMaxForce(props))
       break
 
     case 'addSpring': {
@@ -399,7 +401,7 @@ self.onmessage = (e) => {
       localAnchorA = Array.isArray(localAnchorA) ? new Vec3(...localAnchorA) : undefined
       localAnchorB = Array.isArray(localAnchorB) ? new Vec3(...localAnchorB) : undefined
 
-      let spring = new Spring(bodies[bodyA], bodies[bodyB], {
+      let spring = new Spring(state.bodies[bodyA], state.bodies[bodyB], {
         worldAnchorA,
         worldAnchorB,
         localAnchorA,
@@ -413,27 +415,27 @@ self.onmessage = (e) => {
 
       let postStepSpring = (e) => spring.applyForce()
 
-      springs[uuid] = postStepSpring
-      springInstances[uuid] = spring
+      state.springs[uuid] = postStepSpring
+      state.springInstances[uuid] = spring
 
       // Compute the force after each step
-      world.addEventListener('postStep', springs[uuid])
+      state.world.addEventListener('postStep', state.springs[uuid])
       break
     }
     case 'setSpringStiffness': {
-      springInstances[uuid].stiffness = props
+      state.springInstances[uuid].stiffness = props
       break
     }
     case 'setSpringRestLength': {
-      springInstances[uuid].restLength = props
+      state.springInstances[uuid].restLength = props
       break
     }
     case 'setSpringDamping': {
-      springInstances[uuid].damping = props
+      state.springInstances[uuid].damping = props
       break
     }
     case 'removeSpring': {
-      world.removeEventListener('postStep', springs[uuid])
+      state.world.removeEventListener('postStep', state.springs[uuid])
       break
     }
     case 'addRay': {
@@ -441,17 +443,10 @@ self.onmessage = (e) => {
       const ray = new Ray(from ? new Vec3(...from) : undefined, to ? new Vec3(...to) : undefined)
       options.mode = Ray[options.mode.toUpperCase()]
       options.result = new RaycastResult()
-      rays[uuid] = () => {
-        ray.intersectWorld(world, options)
-        const {
-          body,
-          shape,
-          rayFromWorld,
-          rayToWorld,
-          hitNormalWorld,
-          hitPointWorld,
-          ...rest
-        } = options.result
+      state.rays[uuid] = () => {
+        ray.intersectWorld(state.world, options)
+        const { body, shape, rayFromWorld, rayToWorld, hitNormalWorld, hitPointWorld, ...rest } =
+          options.result
         self.postMessage({
           op: 'event',
           type: 'rayhit',
@@ -472,72 +467,70 @@ self.onmessage = (e) => {
           ...rest,
         })
       }
-      world.addEventListener('preStep', rays[uuid])
+      state.world.addEventListener('preStep', state.rays[uuid])
       break
     }
     case 'removeRay': {
-      world.removeEventListener('preStep', rays[uuid])
-      delete rays[uuid]
+      state.world.removeEventListener('preStep', state.rays[uuid])
+      delete state.rays[uuid]
       break
     }
     case 'addRaycastVehicle': {
       const [chassisBody, wheels, wheelInfos, indexForwardAxis, indexRightAxis, indexUpAxis] = props
       const vehicle = new RaycastVehicle({
-        chassisBody: bodies[chassisBody],
+        chassisBody: state.bodies[chassisBody],
         indexForwardAxis: indexForwardAxis,
         indexRightAxis: indexRightAxis,
         indexUpAxis: indexUpAxis,
       })
-      vehicle.world = world
+      vehicle.world = state.world
       for (let i = 0; i < wheelInfos.length; i++) {
         const wheelInfo = wheelInfos[i]
         wheelInfo.directionLocal = new Vec3(...wheelInfo.directionLocal)
         wheelInfo.chassisConnectionPointLocal = new Vec3(...wheelInfo.chassisConnectionPointLocal)
         wheelInfo.axleLocal = new Vec3(...wheelInfo.axleLocal)
         vehicle.addWheel(wheelInfo)
-        const wheelBody = bodies[wheels[i]]
       }
-      vehicles[uuid] = {
-        vehicle: vehicle,
-        wheels: wheels,
-        preStep: () => {
-          vehicles[uuid].vehicle.updateVehicle(world.dt)
-        },
-        postStep: () => {
-          for (let i = 0; i < vehicles[uuid].vehicle.wheelInfos.length; i++) {
-            vehicles[uuid].vehicle.updateWheelTransform(i)
-            const t = vehicles[uuid].vehicle.wheelInfos[i].worldTransform
-            const wheelBody = bodies[vehicles[uuid].wheels[i]]
-            wheelBody.position.copy(t.position)
-            wheelBody.quaternion.copy(t.quaternion)
-          }
-        },
+
+      vehicle.preStep = () => {
+        state.vehicles[uuid].updateVehicle(state.world.dt)
       }
-      world.addEventListener('preStep', vehicles[uuid].preStep)
-      world.addEventListener('postStep', vehicles[uuid].postStep)
+      
+      vehicle.postStep = () => {
+        for (let i = 0; i < state.vehicles[uuid].wheelInfos.length; i++) {
+          state.vehicles[uuid].updateWheelTransform(i)
+          const t = state.vehicles[uuid].wheelInfos[i].worldTransform
+          const wheelBody = state.bodies[wheels[i]]
+          wheelBody.position.copy(t.position)
+          wheelBody.quaternion.copy(t.quaternion)
+        }
+      },
+
+      state.vehicles[uuid] = vehicle
+      state.world.addEventListener('preStep', state.vehicles[uuid].preStep)
+      state.world.addEventListener('postStep', state.vehicles[uuid].postStep)
       break
     }
     case 'removeRaycastVehicle': {
-      world.removeEventListener('preStep', vehicles[uuid].preStep)
-      world.removeEventListener('postStep', vehicles[uuid].postStep)
-      vehicles[uuid].vehicle.world = null
-      vehicles[uuid].vehicle = null
-      delete vehicles[uuid]
+      state.world.removeEventListener('preStep', state.vehicles[uuid].preStep)
+      state.world.removeEventListener('postStep', state.vehicles[uuid].postStep)
+      state.vehicles[uuid].world = null
+      delete state.vehicles[uuid]
       break
     }
     case 'setRaycastVehicleSteeringValue': {
       const [value, wheelIndex] = props
-      vehicles[uuid].vehicle.setSteeringValue(value, wheelIndex)
+      state.vehicles[uuid].setSteeringValue(value, wheelIndex)
       break
     }
     case 'applyRaycastVehicleEngineForce': {
       const [value, wheelIndex] = props
-      vehicles[uuid].vehicle.applyEngineForce(value, wheelIndex)
+      state.vehicles[uuid].applyEngineForce(value, wheelIndex)
       break
     }
     case 'setRaycastVehicleBrake': {
       const [brake, wheelIndex] = props
-      vehicles[uuid].vehicle.setBrake(brake, wheelIndex)
+      state.vehicles[uuid].setBrake(brake, wheelIndex)
       break
     }
   }
