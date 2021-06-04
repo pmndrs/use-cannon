@@ -638,6 +638,7 @@ type RaycastVehicleFn = () => RaycastVehicleProps
 export function useRaycastVehicle(
   fn: RaycastVehicleFn,
   fwdRef?: React.MutableRefObject<THREE.Object3D>,
+  deps: any[] = [],
 ): RaycastVehicleApi {
   const ref = fwdRef ? fwdRef : useRef<THREE.Object3D>(null as unknown as THREE.Object3D)
   const { worker, subscriptions } = useContext(context)
@@ -668,11 +669,11 @@ export function useRaycastVehicle(
     return () => {
       currentWorker.postMessage({ op: 'removeRaycastVehicle', uuid })
     }
-  }, [])
+  }, deps)
 
   const api = useMemo(() => {
-    const post = (op: string, props?: any) =>
-      ref.current && worker.postMessage({ op, uuid: ref.current.uuid, props })
+    const target = ref.current
+    const post = (op: string, props?: any) => target && worker.postMessage({ op, uuid: target.uuid, props })
     return {
       sliding: {
         subscribe: subscribe(ref, worker, subscriptions, 'sliding', undefined, 'vehicles'),
@@ -687,6 +688,6 @@ export function useRaycastVehicle(
         post('setRaycastVehicleBrake', [brake, wheelIndex])
       },
     }
-  }, [])
+  }, deps)
   return [ref, api]
 }
