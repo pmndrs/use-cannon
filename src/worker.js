@@ -92,7 +92,7 @@ self.onmessage = (e) => {
       state.world.solver.tolerance = tolerance
       state.world.solver.iterations = iterations
       state.world.broadphase = new (broadphases[broadphase + 'Broadphase'] || NaiveBroadphase)(state.world)
-      state.world.broadphase.axisIndex = axisIndex ?? 0
+      state.world.broadphase.axisIndex = (axisIndex === undefined || axisIndex === null ) ? 0 : axisIndex
       Object.assign(state.world.defaultContactMaterial, defaultContactMaterial)
       state.config.step = step
       break

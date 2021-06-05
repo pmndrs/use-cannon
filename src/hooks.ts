@@ -178,7 +178,7 @@ function subscribe(
   return (callback: (value: any) => void) => {
     const id = subscriptionGuid++
     subscriptions[id] = callback
-    post(ref, worker, 'subscribe', index, { id, type, target: target ?? 'bodies' })
+    post(ref, worker, 'subscribe', index, { id, type, target: (target === undefined || target === null) ? 'bodies' : target})
     return () => {
       delete subscriptions[id]
       worker.postMessage({ op: 'unsubscribe', props: id })
@@ -353,7 +353,7 @@ export function useParticle(fn: ParticleFn, fwdRef?: React.MutableRefObject<THRE
   return useBody('Particle', fn, () => [], fwdRef, deps)
 }
 export function useSphere(fn: SphereFn, fwdRef?: React.MutableRefObject<THREE.Object3D>, deps?: any[]) {
-  return useBody('Sphere', fn, (radius) => [radius ?? 1], fwdRef, deps)
+  return useBody('Sphere', fn, (radius) => [(radius === undefined || radius === null) ? 1 : radius], fwdRef, deps)
 }
 export function useTrimesh(fn: TrimeshFn, fwdRef?: React.MutableRefObject<THREE.Object3D>, deps?: any[]) {
   return useBody(
