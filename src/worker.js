@@ -26,7 +26,7 @@ import {
   RaycastVehicle,
 } from 'cannon-es'
 
-const state = { 
+const state = {
   bodies: {},
   vehicles: {},
   springs: {},
@@ -297,6 +297,25 @@ self.onmessage = (e) => {
       break
     case 'setIsTrigger':
       state.bodies[uuid].isTrigger = props
+      break
+    case 'setGravity':
+      state.world.gravity.set(props[0], props[1], props[2])
+      break
+    case 'setTolerance':
+      state.world.solver.tolerance = props
+      break
+    case 'setStep':
+      state.config.step = props
+      break
+    case 'setIterations':
+      state.world.solver.iterations = props
+      break
+    case 'setBroadphase':
+      const broadphases = { NaiveBroadphase, SAPBroadphase }
+      state.world.broadphase = new (broadphases[props + 'Broadphase'] || NaiveBroadphase)(state.world)
+      break
+    case 'setAxisIndex':
+      state.world.broadphase.axisIndex = props === undefined || props === null ? 0 : props
       break
     case 'applyForce':
       state.bodies[uuid].applyForce(new Vec3(...props[0]), new Vec3(...props[1]))
