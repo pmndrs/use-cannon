@@ -5,6 +5,7 @@ import { useThree, useFrame } from '@react-three/fiber'
 import { context } from './setup'
 // @ts-ignore
 import CannonWorker from '../src/worker'
+import { useUpdateWorldPropsEffect } from './useUpdateWorldPropsEffect'
 
 export type ProviderProps = {
   children: React.ReactNode
@@ -111,7 +112,7 @@ export default function Provider({
         worker.postMessage({ op: 'step', ...buffers }, [buffers.positions.buffer, buffers.quaternions.buffer])
       }
     },
-    []
+    [],
   )
 
   const prevPresenting = useRef(false)
@@ -146,7 +147,7 @@ export default function Provider({
           if (e.data.bodies) {
             bodies.current = e.data.bodies.reduce(
               (acc, id) => ({ ...acc, [id]: (e.data as any).bodies.indexOf(id) }),
-              {}
+              {},
             )
           }
           buffers.positions = e.data.positions
@@ -182,13 +183,11 @@ export default function Provider({
     return () => worker.terminate()
   }, [])
 
-  const api = useMemo(() => ({ worker, bodies, refs, buffers, events, subscriptions }), [
-    worker,
-    bodies,
-    refs,
-    buffers,
-    events,
-    subscriptions,
-  ])
+  useUpdateWorldPropsEffect({ worker, axisIndex, broadphase, gravity, iterations, step, tolerance })
+
+  const api = useMemo(
+    () => ({ worker, bodies, refs, buffers, events, subscriptions }),
+    [worker, bodies, refs, buffers, events, subscriptions],
+  )
   return <context.Provider value={api as ProviderContext}>{children}</context.Provider>
 }

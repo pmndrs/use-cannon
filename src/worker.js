@@ -26,7 +26,7 @@ import {
   RaycastVehicle,
 } from 'cannon-es'
 
-const state = { 
+const state = {
   bodies: {},
   vehicles: {},
   springs: {},
@@ -37,7 +37,7 @@ const state = {
   subscriptions: {},
   tempVector: new Vec3(),
   bodiesNeedSyncing: false,
-  lastCallTime: undefined
+  lastCallTime: undefined,
 }
 
 function createShape(type, args) {
@@ -92,7 +92,7 @@ self.onmessage = (e) => {
       state.world.solver.tolerance = tolerance
       state.world.solver.iterations = iterations
       state.world.broadphase = new (broadphases[broadphase + 'Broadphase'] || NaiveBroadphase)(state.world)
-      state.world.broadphase.axisIndex = (axisIndex === undefined || axisIndex === null ) ? 0 : axisIndex
+      state.world.broadphase.axisIndex = axisIndex === undefined || axisIndex === null ? 0 : axisIndex
       Object.assign(state.world.defaultContactMaterial, defaultContactMaterial)
       state.config.step = step
       break
@@ -122,9 +122,9 @@ self.onmessage = (e) => {
       }
       const observations = []
       for (const id of Object.keys(state.subscriptions)) {
-        let [uuid, type, target = "bodies"] = state.subscriptions[id]
+        let [uuid, type, target = 'bodies'] = state.subscriptions[id]
         let object = state[target]
-        if (!object || !object[uuid]) continue
+        if (!object || !object[uuid]) continue
         let value = object[uuid][type]
         if (value instanceof Vec3) value = value.toArray()
         else if (value instanceof Quaternion) {
@@ -298,6 +298,25 @@ self.onmessage = (e) => {
     case 'setIsTrigger':
       state.bodies[uuid].isTrigger = props
       break
+    case 'setGravity':
+      state.world.gravity.set(props[0], props[1], props[2])
+      break
+    case 'setTolerance':
+      state.world.solver.tolerance = props
+      break
+    case 'setStep':
+      state.config.step = props
+      break
+    case 'setIterations':
+      state.world.solver.iterations = props
+      break
+    case 'setBroadphase':
+      const broadphases = { NaiveBroadphase, SAPBroadphase }
+      state.world.broadphase = new (broadphases[props + 'Broadphase'] || NaiveBroadphase)(state.world)
+      break
+    case 'setAxisIndex':
+      state.world.broadphase.axisIndex = props === undefined || props === null ? 0 : props
+      break
     case 'applyForce':
       state.bodies[uuid].applyForce(new Vec3(...props[0]), new Vec3(...props[1]))
       break
@@ -351,7 +370,12 @@ self.onmessage = (e) => {
           })
           break
         case 'Distance':
-          constraint = new DistanceConstraint(state.bodies[bodyA], state.bodies[bodyB], optns.distance, optns.maxForce)
+          constraint = new DistanceConstraint(
+            state.bodies[bodyA],
+            state.bodies[bodyB],
+            optns.distance,
+            optns.maxForce,
+          )
           break
         case 'Lock':
           constraint = new LockConstraint(state.bodies[bodyA], state.bodies[bodyB], optns)
@@ -365,7 +389,9 @@ self.onmessage = (e) => {
       break
     }
     case 'removeConstraint':
-      state.world.constraints.filter(({ uuid: thisId }) => thisId === uuid).map((c) => state.world.removeConstraint(c))
+      state.world.constraints
+        .filter(({ uuid: thisId }) => thisId === uuid)
+        .map((c) => state.world.removeConstraint(c))
       break
 
     case 'enableConstraint':
@@ -389,7 +415,9 @@ self.onmessage = (e) => {
       break
 
     case 'setConstraintMotorMaxForce':
-      state.world.constraints.filter(({ uuid: thisId }) => thisId === uuid).map((c) => c.setMotorMaxForce(props))
+      state.world.constraints
+        .filter(({ uuid: thisId }) => thisId === uuid)
+        .map((c) => c.setMotorMaxForce(props))
       break
 
     case 'addSpring': {
@@ -495,8 +523,8 @@ self.onmessage = (e) => {
       vehicle.preStep = () => {
         state.vehicles[uuid].updateVehicle(state.world.dt)
       }
-      
-      vehicle.postStep = () => {
+
+      ;(vehicle.postStep = () => {
         for (let i = 0; i < state.vehicles[uuid].wheelInfos.length; i++) {
           state.vehicles[uuid].updateWheelTransform(i)
           const t = state.vehicles[uuid].wheelInfos[i].worldTransform
@@ -504,9 +532,8 @@ self.onmessage = (e) => {
           wheelBody.position.copy(t.position)
           wheelBody.quaternion.copy(t.quaternion)
         }
-      },
-
-      state.vehicles[uuid] = vehicle
+      }),
+        (state.vehicles[uuid] = vehicle)
       state.world.addEventListener('preStep', state.vehicles[uuid].preStep)
       state.world.addEventListener('postStep', state.vehicles[uuid].postStep)
       break
