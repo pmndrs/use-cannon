@@ -1,4 +1,4 @@
-import {useEffect} from 'react'
+import { useEffect } from 'react'
 import type { ProviderProps } from './Provider'
 
 type useUpdateWorldPropsEffect = Pick<
@@ -60,4 +60,4 @@ function useUpdateWorldPropsEffect({
   }, [axisIndex])
 }
 
-export {useUpdateWorldPropsEffect}
+export { useUpdateWorldPropsEffect }
