@@ -117,13 +117,15 @@ export default function Provider({
 
   const prevPresenting = useRef(false)
   useFrame(() => {
-    if (gl.xr?.isPresenting && !prevPresenting.current) {
-      gl.xr?.getSession?.()?.requestAnimationFrame(loop)
+    loop()
+    if (gl.xr?.enabled) {
+      // https://github.com/pmndrs/use-cannon/issues/99#issuecomment-660495528
+      // https://github.com/pmndrs/use-cannon/commit/576d7967935dbbfcd44b81347caab43487382702
+      // https://github.com/pmndrs/use-cannon/commit/91e655c19733608216d340903353467c1f4e2d64
+      if (gl.xr?.isPresenting && !prevPresenting.current) gl.xr?.getSession?.()?.requestAnimationFrame(loop)
+      if (!gl.xr?.isPresenting && prevPresenting.current) requestAnimationFrame(loop)
+      prevPresenting.current = gl.xr?.isPresenting
     }
-    if (!gl.xr?.isPresenting && prevPresenting.current) {
-      requestAnimationFrame(loop)
-    }
-    prevPresenting.current = gl.xr?.isPresenting
   })
 
   useEffect(() => {
@@ -141,22 +143,23 @@ export default function Provider({
       },
     })
 
+    let i = 0
+    let body: string
+    let observation: [key: string, value: any]
     worker.onmessage = (e: IncomingWorkerMessage) => {
       switch (e.data.op) {
         case 'frame':
           if (e.data.bodies) {
-            bodies.current = e.data.bodies.reduce(
-              (acc, id) => ({ ...acc, [id]: (e.data as any).bodies.indexOf(id) }),
-              {},
-            )
+            for (i = 0; i < e.data.bodies.length; i++) {
+              body = e.data.bodies[i]
+              bodies.current[body] = (e.data as any).bodies.indexOf(body)
+            }
           }
           buffers.positions = e.data.positions
           buffers.quaternions = e.data.quaternions
-          e.data.observations.forEach(([id, value]) => subscriptions[id] && subscriptions[id](value))
-          if (gl.xr && gl.xr.isPresenting) {
-            gl.xr?.getSession?.()?.requestAnimationFrame(loop)
-          } else {
-            requestAnimationFrame(loop)
+          for (i = 0; i < e.data.observations.length; i++) {
+            observation = e.data.observations[i]
+            if (subscriptions[observation[0]]) subscriptions[observation[0]](observation[1])
           }
           if (e.data.active) invalidate()
           break
@@ -179,7 +182,6 @@ export default function Provider({
           break
       }
     }
-    loop()
     return () => worker.terminate()
   }, [])
 
