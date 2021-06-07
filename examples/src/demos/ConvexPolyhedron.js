@@ -4,6 +4,7 @@ import { Canvas, useLoader } from '@react-three/fiber'
 import { Physics, usePlane, useConvexPolyhedron } from '@react-three/cannon'
 import { GLTFLoader } from 'three-stdlib/loaders/GLTFLoader'
 import { Geometry } from 'three-stdlib/deprecated/Geometry'
+import { useState } from 'react'
 
 /**
  * Returns legacy geometry vertices, faces for ConvP
@@ -65,27 +66,52 @@ function Plane(props) {
   )
 }
 
-export default () => (
-  <Canvas shadows camera={{ position: [-1, 1, 5], fov: 50 }}>
-    <color attach="background" args={['lightpink']} />
-    <spotLight
-      position={[15, 15, 15]}
-      angle={0.3}
-      penumbra={1}
-      intensity={2}
-      castShadow
-      shadow-mapSize-width={2048}
-      shadow-mapSize-height={2048}
-    />
-    <Suspense fallback={null}>
-      <Physics>
-        <Plane rotation={[-Math.PI / 2, 0, 0]} />
-        <Diamond position={[1, 5, 0]} rotation={[0.4, 0.1, 0.1]} />
-        <Cone position={[-1, 5, 0.5]} rotation={[0.1, 0.2, 0.1]} sides={6} />
-        <Cone position={[-1, 6, 0]} rotation={[0.5, 0.1, 0.1]} sides={8} />
-        <Cube position={[2, 3, -0.3]} rotation={[0.5, 0.4, -1]} size={0.4} />
-        <Cone position={[-0.3, 7, 1]} rotation={[1, 0.4, 0.1]} sides={7} />
-      </Physics>
-    </Suspense>
-  </Canvas>
-)
+function ConvexPolyhedron() {
+  const [invertGravity, setInvertGravity] = useState(false)
+
+  return (
+    <>
+      <Canvas shadows camera={{ position: [-1, 1, 5], fov: 50 }}>
+        <color attach="background" args={['lightpink']} />
+        <spotLight
+          position={[15, 15, 15]}
+          angle={0.3}
+          penumbra={1}
+          intensity={2}
+          castShadow
+          shadow-mapSize-width={2048}
+          shadow-mapSize-height={2048}
+        />
+        <Suspense fallback={null}>
+          <Physics gravity={[0, invertGravity ? 5 : -10, 0]}>
+            <group
+              onPointerDown={() => {
+                setInvertGravity(!invertGravity)
+              }}
+            >
+              <Plane rotation={[-Math.PI / 2, 0, 0]} />
+              <Diamond position={[1, 5, 0]} rotation={[0.4, 0.1, 0.1]} />
+              <Cone position={[-1, 5, 0.5]} rotation={[0.1, 0.2, 0.1]} sides={6} />
+              <Cone position={[-1, 6, 0]} rotation={[0.5, 0.1, 0.1]} sides={8} />
+              <Cube position={[2, 3, -0.3]} rotation={[0.5, 0.4, -1]} size={0.4} />
+              <Cone position={[-0.3, 7, 1]} rotation={[1, 0.4, 0.1]} sides={7} />
+            </group>
+          </Physics>
+        </Suspense>
+      </Canvas>
+      <div
+        style={{
+          position: 'absolute',
+          top: 20,
+          left: 50,
+          color: 'white',
+          fontSize: '1.2em',
+        }}
+      >
+        <pre>* click to invert gravity</pre>
+      </div>
+    </>
+  )
+}
+
+export default ConvexPolyhedron

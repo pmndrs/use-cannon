@@ -1,7 +1,15 @@
 import type { MaterialOptions, RayOptions } from 'cannon-es'
-import type { Buffers, Event } from './setup'
+import type { Buffers, Event, Subscriptions } from './setup'
 import * as THREE from 'three'
-import React, { useLayoutEffect, useContext, useRef, useMemo, useEffect, useState } from 'react'
+import React, {
+  useLayoutEffect,
+  useContext,
+  useRef,
+  useMemo,
+  useEffect,
+  useState,
+  MutableRefObject,
+} from 'react'
 import { useFrame } from '@react-three/fiber'
 import { context } from './setup'
 import propsToBody from './propsToBody'
@@ -142,6 +150,43 @@ export type SpringOptns = {
 
 const temp = new THREE.Object3D()
 
+function opString(action: string, type: string) {
+  return action + type.charAt(0).toUpperCase() + type.slice(1)
+}
+
+function getUUID(ref: MutableRefObject<THREE.Object3D>, index?: number) {
+  return index !== undefined ? `${ref.current.uuid}/${index}` : ref.current.uuid
+}
+
+function post(
+  ref: MutableRefObject<THREE.Object3D>,
+  worker: Worker,
+  op: string,
+  index?: number,
+  props?: any,
+) {
+  return ref.current && worker.postMessage({ op, uuid: getUUID(ref, index), props })
+}
+
+function subscribe(
+  ref: MutableRefObject<THREE.Object3D>,
+  worker: Worker,
+  subscriptions: Subscriptions,
+  type: string,
+  index?: number,
+  target?: string,
+) {
+  return (callback: (value: any) => void) => {
+    const id = subscriptionGuid++
+    subscriptions[id] = callback
+    post(ref, worker, 'subscribe', index, { id, type, target: (target === undefined || target === null) ? 'bodies' : target})
+    return () => {
+      delete subscriptions[id]
+      worker.postMessage({ op: 'unsubscribe', props: id })
+    }
+  }
+}
+
 function prepare(object: THREE.Object3D, props: BodyProps, argFn: ArgFn) {
   props.args = argFn(props.args)
   object.userData = props.userData || {}
@@ -242,30 +287,15 @@ function useBody(
   })
 
   const api = useMemo(() => {
-    const getUUID = (index?: number) =>
-      index !== undefined ? `${ref.current.uuid}/${index}` : ref.current.uuid
-    const post = (op: string, index?: number, props?: any) =>
-      ref.current && worker.postMessage({ op, uuid: getUUID(index), props })
-    const subscribe = (type: string, index?: number) => {
-      return (callback: (value: any) => void) => {
-        const id = subscriptionGuid++
-        subscriptions[id] = callback
-        post('subscribe', index, { id, type })
-        return () => {
-          delete subscriptions[id]
-          post('unsubscribe', index, id)
-        }
-      }
-    }
-    const opString = (action: string, type: string) => action + type.charAt(0).toUpperCase() + type.slice(1)
     const makeVec = (type: string, index?: number) => ({
-      set: (x: number, y: number, z: number) => post(opString('set', type), index, [x, y, z]),
-      copy: ({ x, y, z }: THREE.Vector3 | THREE.Euler) => post(opString('set', type), index, [x, y, z]),
-      subscribe: subscribe(type, index),
+      set: (x: number, y: number, z: number) => post(ref, worker, opString('set', type), index, [x, y, z]),
+      copy: ({ x, y, z }: THREE.Vector3 | THREE.Euler) =>
+        post(ref, worker, opString('set', type), index, [x, y, z]),
+      subscribe: subscribe(ref, worker, subscriptions, type, index),
     })
     const makeAtomic = (type: string, index?: number) => ({
-      set: (value: any) => post(opString('set', type), index, value),
-      subscribe: subscribe(type, index),
+      set: (value: any) => post(ref, worker, opString('set', type), index, value),
+      subscribe: subscribe(ref, worker, subscriptions, type, index),
     })
 
     function makeApi(index?: number): WorkerApi {
@@ -292,16 +322,16 @@ function useBody(
         isTrigger: makeAtomic('isTrigger', index),
         // Apply functions
         applyForce(force: number[], worldPoint: number[]) {
-          post('applyForce', index, [force, worldPoint])
+          post(ref, worker, 'applyForce', index, [force, worldPoint])
         },
         applyImpulse(impulse: number[], worldPoint: number[]) {
-          post('applyImpulse', index, [impulse, worldPoint])
+          post(ref, worker, 'applyImpulse', index, [impulse, worldPoint])
         },
         applyLocalForce(force: number[], localPoint: number[]) {
-          post('applyLocalForce', index, [force, localPoint])
+          post(ref, worker, 'applyLocalForce', index, [force, localPoint])
         },
         applyLocalImpulse(impulse: number[], localPoint: number[]) {
-          post('applyLocalImpulse', index, [impulse, localPoint])
+          post(ref, worker, 'applyLocalImpulse', index, [impulse, localPoint])
         },
       }
     }
@@ -335,7 +365,7 @@ export function useParticle(fn: ParticleFn, fwdRef?: React.MutableRefObject<THRE
   return useBody('Particle', fn, () => [], fwdRef, deps)
 }
 export function useSphere(fn: SphereFn, fwdRef?: React.MutableRefObject<THREE.Object3D>, deps?: any[]) {
-  return useBody('Sphere', fn, (radius) => [radius || 1], fwdRef, deps)
+  return useBody('Sphere', fn, (radius) => [(radius === undefined || radius === null) ? 1 : radius], fwdRef, deps)
 }
 export function useTrimesh(fn: TrimeshFn, fwdRef?: React.MutableRefObject<THREE.Object3D>, deps?: any[]) {
   return useBody(
@@ -620,9 +650,10 @@ type RaycastVehicleFn = () => RaycastVehicleProps
 export function useRaycastVehicle(
   fn: RaycastVehicleFn,
   fwdRef?: React.MutableRefObject<THREE.Object3D>,
+  deps: any[] = [],
 ): RaycastVehicleApi {
   const ref = fwdRef ? fwdRef : useRef<THREE.Object3D>(null as unknown as THREE.Object3D)
-  const { worker } = useContext(context)
+  const { worker, subscriptions } = useContext(context)
 
   useLayoutEffect(() => {
     if (!ref.current) {
@@ -632,8 +663,7 @@ export function useRaycastVehicle(
     }
 
     const currentWorker = worker
-    let uuid: string[] = [ref.current.uuid]
-
+    const uuid: string[] = [ref.current.uuid]
     const raycastVehicleProps = fn()
 
     currentWorker.postMessage({
@@ -651,12 +681,15 @@ export function useRaycastVehicle(
     return () => {
       currentWorker.postMessage({ op: 'removeRaycastVehicle', uuid })
     }
-  }, [])
+  }, deps)
 
   const api = useMemo(() => {
     const post = (op: string, props?: any) =>
       ref.current && worker.postMessage({ op, uuid: ref.current.uuid, props })
     return {
+      sliding: {
+        subscribe: subscribe(ref, worker, subscriptions, 'sliding', undefined, 'vehicles'),
+      },
       setSteeringValue(value: number, wheelIndex: number) {
         post('setRaycastVehicleSteeringValue', [value, wheelIndex])
       },
@@ -667,6 +700,6 @@ export function useRaycastVehicle(
         post('setRaycastVehicleBrake', [brake, wheelIndex])
       },
     }
-  }, [])
+  }, deps)
   return [ref, api]
 }

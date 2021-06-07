@@ -1,7 +1,6 @@
 import babel from 'rollup-plugin-babel'
 import resolve from 'rollup-plugin-node-resolve'
 import worker from 'rollup-plugin-web-worker-loader'
-import { sizeSnapshot } from 'rollup-plugin-size-snapshot'
 
 const external = ['react', '@react-three/fiber', 'three']
 const extensions = ['.js', '.jsx', '.ts', '.tsx', '.json']
@@ -27,7 +26,6 @@ export default [
     plugins: [
       worker({ targetPlatform: 'browser', pattern: /.*\/worker$/, sourcemap: false }),
       babel(getBabelOptions({ useESModules: true }, '>1%, not dead, not ie 11, not op_mini all')),
-      sizeSnapshot(),
       resolve({ extensions }),
     ],
   },
@@ -38,7 +36,6 @@ export default [
     plugins: [
       worker({ targetPlatform: 'browser', pattern: /.*\/worker$/, sourcemap: true }),
       babel(getBabelOptions({ useESModules: true }, '>1%, not dead, not ie 11, not op_mini all')),
-      sizeSnapshot(),
       resolve({ extensions }),
     ],
   },

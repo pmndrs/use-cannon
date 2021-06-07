@@ -1,17 +1,19 @@
 {
   "name": "@react-three/cannon",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "physics based hooks for react-three-fiber",
   "keywords": [
     "cannon",
     "three",
     "react",
-    "react-three-fiber"
+    "react-three-fiber",
+    "physics"
   ],
   "author": "Paul Henschel",
   "contributors": [
     "Cody Persinger <codypersinger@gmail.com> (https://github.com/codynova)"
   ],
+  "repository": "github:pmndrs/use-cannon",
   "license": "MIT",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -67,7 +69,6 @@
     "rollup": "^2.44.0",
     "rollup-plugin-babel": "^4.4.0",
     "rollup-plugin-node-resolve": "^5.2.0",
-    "rollup-plugin-size-snapshot": "^0.12.0",
     "rollup-plugin-terser": "^7.0.2",
     "rollup-plugin-web-worker-loader": "^1.6.1",
     "three": "^0.125.0",

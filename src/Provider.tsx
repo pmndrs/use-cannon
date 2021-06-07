@@ -6,6 +6,7 @@ import { context } from './setup'
 // @ts-ignore
 import CannonWorker from '../src/worker'
 import CannonDebugRenderer from './CannonDebugRenderer'
+import { useUpdateWorldPropsEffect } from './useUpdateWorldPropsEffect'
 
 export type ProviderProps = {
   children: React.ReactNode
@@ -121,7 +122,7 @@ export default function Provider({
   const prevPresenting = useRef(false)
   useFrame(() => {
     if (gl.xr?.isPresenting && !prevPresenting.current) {
-      gl.xr.getSession().requestAnimationFrame(loop)
+      gl.xr?.getSession?.()?.requestAnimationFrame(loop)
     }
     if (!gl.xr?.isPresenting && prevPresenting.current) {
       requestAnimationFrame(loop)
@@ -155,9 +156,9 @@ export default function Provider({
           }
           buffers.positions = e.data.positions
           buffers.quaternions = e.data.quaternions
-          e.data.observations.forEach(([id, value]) => subscriptions[id](value))
+          e.data.observations.forEach(([id, value]) => subscriptions[id] && subscriptions[id](value))
           if (gl.xr && gl.xr.isPresenting) {
-            gl.xr.getSession().requestAnimationFrame(loop)
+            gl.xr?.getSession?.()?.requestAnimationFrame(loop)
           } else {
             requestAnimationFrame(loop)
           }
@@ -185,6 +186,8 @@ export default function Provider({
     loop()
     return () => worker.terminate()
   }, [])
+
+  useUpdateWorldPropsEffect({ worker, axisIndex, broadphase, gravity, iterations, step, tolerance })
 
   const api = useMemo(
     () => ({ worker, bodies, refs, buffers, events, subscriptions, debugInfo }),
