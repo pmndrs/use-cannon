@@ -193,7 +193,6 @@ export default function Provider({
               })
               break
             case 'collideBegin':
-              console.log(e)
               if (events[e.data.bodyA]) {
                 events[e.data.bodyA]({
                   op: 'event',
