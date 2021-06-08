@@ -100,6 +100,20 @@ ReactDOM.render(
 )
 ```
 
+## Debug
+
+You can debug your scene using the [cannon-es-debugger](https://github.com/pmndrs/cannon-es-debugger). This will show you how cannon "sees" your scene. Do not use this in production as it will pull in cannon-es a second time!
+
+```jsx
+import { Physics, Debug } from '@react-three/cannon'
+
+<Physics>
+  <Debug color="black" scale={1.1}>
+    {/* children */}
+  </Debug>
+</Physics>
+
+
 ## Api
 
 ### Exports
@@ -119,11 +133,14 @@ function Physics({
   },
   // Maximum amount of physics objects inside your scene
   // Lower this value to save memory, increase if 1000 isn't enough
-  size = 1000,
-  // Whether to show debug wireframe around physics bodies
-  // It takes a boolean or cannon-es-debugger props, {{ color, scale }}
-  debug = false
+  size = 1000
 }: ProviderProps): JSX.Element
+
+function Debug({ 
+  children,
+  color = 'black', 
+  scale = 1
+}: DebugProps): JSX.Element
 
 function usePlane(fn: PlaneFn, ref?: React.MutableRefObject<THREE.Object3D>): Api
 function useBox(fn: BoxFn, ref?: React.MutableRefObject<THREE.Object3D>): Api

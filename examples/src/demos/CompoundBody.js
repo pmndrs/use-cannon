@@ -1,6 +1,6 @@
 import React, { Suspense, useState, useEffect } from 'react'
 import { Canvas } from '@react-three/fiber'
-import { Physics, usePlane, useCompoundBody } from '@react-three/cannon'
+import { Physics, Debug, usePlane, useCompoundBody } from '@react-three/cannon'
 
 function Plane(props) {
   const [ref] = usePlane(() => ({ type: 'Static', ...props }))
@@ -63,14 +63,14 @@ export default function () {
         shadow-mapSize-width={1028}
         shadow-mapSize-height={1028}
       />
-      <Suspense fallback={null}>
-        <Physics debug={{ scale: 1.1, color: "black" }} iterations={6}>
+      <Physics iterations={6}>
+        <Debug scale={1.1} color='black'>
           <Plane rotation={[-Math.PI / 2, 0, 0]} />
           <CompoundBody position={[1.5, 5, 0.5]} rotation={[1.25, 0, 0]} />
           <CompoundBody position={[2.5, 3, 0.25]} rotation={[1.25, -1.25, 0]} />
           {ready && <CompoundBody position={[2.5, 4, 0.25]} rotation={[1.25, -1.25, 0]} />}
-        </Physics>
-      </Suspense>
+        </Debug>
+      </Physics>
     </Canvas>
   )
 }

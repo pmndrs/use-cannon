@@ -1,11 +1,10 @@
 import type { Shape } from 'cannon-es'
-import type { Buffers, Refs, Events, Subscriptions, ProviderContext, DebugInfo } from './setup'
-import React, { useState, useEffect, useLayoutEffect, useRef, useMemo, useCallback } from 'react'
+import type { Buffers, Refs, Events, Subscriptions, ProviderContext } from './setup'
+import React, { useState, useLayoutEffect, useRef, useMemo, useCallback } from 'react'
 import { useThree, useFrame } from '@react-three/fiber'
 import { context } from './setup'
 // @ts-ignore
 import CannonWorker from '../src/worker'
-import CannonDebugRenderer, { DebugProps } from './CannonDebugRenderer'
 import { useUpdateWorldPropsEffect } from './useUpdateWorldPropsEffect'
 
 export type ProviderProps = {
@@ -26,7 +25,6 @@ export type ProviderProps = {
     frictionEquationRelaxation?: number
   }
   size?: number
-  debug?: boolean | DebugProps
 }
 
 type WorkerFrameMessage = {
@@ -95,18 +93,17 @@ export default function Provider({
   axisIndex = 0,
   defaultContactMaterial = { contactEquationStiffness: 1e6 },
   size = 1000,
-  debug = false,
 }: ProviderProps): JSX.Element {
   const { gl, invalidate } = useThree()
   const [worker] = useState<Worker>(() => new CannonWorker() as Worker)
-  const [refs] = useState<Refs>({})  
+  const [refs] = useState<Refs>({})
   const [buffers] = useState<Buffers>(() => ({
     positions: new Float32Array(size * 3),
     quaternions: new Float32Array(size * 4),
   }))
   const [events] = useState<Events>({})
   const [subscriptions] = useState<Subscriptions>({})
-  const [debugInfo] = useState<DebugInfo>(debug ? { bodies: [], refs: {} } : null)
+
   const bodies = useRef<{ [uuid: string]: number }>({})
   const loop = useCallback(() => {
     if (buffers.positions.byteLength !== 0 && buffers.quaternions.byteLength !== 0) {
@@ -146,7 +143,7 @@ export default function Provider({
               body = e.data.bodies[i]
               bodies.current[body] = (e.data as any).bodies.indexOf(body)
             }
-          }          
+          }
           for (i = 0; i < e.data.observations.length; i++) {
             observation = e.data.observations[i]
             if (subscriptions[observation[0]]) subscriptions[observation[0]](observation[1])
@@ -179,13 +176,8 @@ export default function Provider({
   useUpdateWorldPropsEffect({ worker, axisIndex, broadphase, gravity, iterations, step, tolerance })
 
   const api = useMemo(
-    () => ({ worker, bodies, refs, buffers, events, subscriptions, debugInfo }),
-    [worker, bodies, refs, buffers, events, subscriptions, debugInfo],
+    () => ({ worker, bodies, refs, buffers, events, subscriptions }),
+    [worker, bodies, refs, buffers, events, subscriptions],
   )
-  return (
-    <context.Provider value={api as ProviderContext}>
-      {debug && <CannonDebugRenderer {...(typeof debug === 'object' ? debug : {})} />}
-      {children}
-    </context.Provider>
-  )
+  return <context.Provider value={api as ProviderContext}>{children}</context.Provider>
 }

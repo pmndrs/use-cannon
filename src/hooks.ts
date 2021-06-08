@@ -11,7 +11,7 @@ import React, {
   MutableRefObject,
 } from 'react'
 import { useFrame } from '@react-three/fiber'
-import { context } from './setup'
+import { context, debugContext } from './setup'
 import propsToBody from './propsToBody'
 
 export type AtomicProps = {
@@ -213,7 +213,8 @@ function useBody(
 ): Api {
   const localRef = useRef<THREE.Object3D>(null as unknown as THREE.Object3D)
   const ref = fwdRef ? fwdRef : localRef
-  const { worker, bodies, buffers, refs, events, subscriptions, debugInfo } = useContext(context)
+  const { worker, bodies, buffers, refs, events, subscriptions } = useContext(context)
+  const debugApi = useContext(debugContext)
 
   useLayoutEffect(() => {
     if (!ref.current) {
@@ -242,11 +243,8 @@ function useBody(
 
     props.forEach((props, index) => {
       refs[uuid[index]] = object
-      if (debugInfo) {
-        // collect debug info only if was asked
-        const body = propsToBody(uuid[index], props, type)
-        debugInfo.bodies.push(body)
-        debugInfo.refs[uuid[index]] = body
+      if (debugApi) {        
+        debugApi.add(uuid[index], props, type)
       }
       if (props.onCollide) {
         events[uuid[index]] = props.onCollide
@@ -259,10 +257,8 @@ function useBody(
     return () => {
       props.forEach((props, index) => {
         delete refs[uuid[index]]
-        if (debugInfo) {
-          const debugBodyIndex = debugInfo.bodies.indexOf(debugInfo.refs[uuid[index]])
-          if (debugBodyIndex > -1) debugInfo.bodies.splice(debugBodyIndex, 1)
-          delete debugInfo.refs[uuid[index]]
+        if (debugApi) {          
+          debugApi.remove(uuid[index])
         }
         if (props.onCollide) delete events[uuid[index]]
       })
