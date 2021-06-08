@@ -59,6 +59,7 @@
     "babel-loader": "^8.2.2",
     "babel-plugin-transform-react-remove-prop-types": "^0.4.24",
     "cannon-es": "^0.17.1",
+    "cannon-es-debugger": "^0.1.2",
     "husky": "^6.0.0",
     "lebab": "^3.1.1",
     "prettier": "^2.2.1",

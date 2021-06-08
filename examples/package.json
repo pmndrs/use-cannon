@@ -5,7 +5,7 @@
   "keywords": [],
   "main": "src/index.js",
   "dependencies": {
-    "@react-three/cannon": "file:../dist",
+    "@react-three/cannon": "file:..",
     "@react-three/drei": "^4.0.1",
     "@react-three/fiber": "^6.0.1",
     "lerp": "^1.0.3",

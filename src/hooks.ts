@@ -12,6 +12,7 @@ import React, {
 } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { context } from './setup'
+import propsToBody from './propsToBody'
 
 export type AtomicProps = {
   mass?: number
@@ -212,7 +213,7 @@ function useBody(
 ): Api {
   const localRef = useRef<THREE.Object3D>(null as unknown as THREE.Object3D)
   const ref = fwdRef ? fwdRef : localRef
-  const { worker, bodies, buffers, refs, events, subscriptions } = useContext(context)
+  const { worker, bodies, buffers, refs, events, subscriptions, debugInfo } = useContext(context)
 
   useLayoutEffect(() => {
     if (!ref.current) {
@@ -241,6 +242,12 @@ function useBody(
 
     props.forEach((props, index) => {
       refs[uuid[index]] = object
+      if (debugInfo) {
+        // collect debug info only if was asked
+        const body = propsToBody(uuid[index], props, type)
+        debugInfo.bodies.push(body)
+        debugInfo.refs[uuid[index]] = body
+      }
       if (props.onCollide) {
         events[uuid[index]] = props.onCollide
         ;(props as any).onCollide = true
@@ -252,6 +259,11 @@ function useBody(
     return () => {
       props.forEach((props, index) => {
         delete refs[uuid[index]]
+        if (debugInfo) {
+          const debugBodyIndex = debugInfo.bodies.indexOf(debugInfo.refs[uuid[index]])
+          if (debugBodyIndex > -1) debugInfo.bodies.splice(debugBodyIndex, 1)
+          delete debugInfo.refs[uuid[index]]
+        }
         if (props.onCollide) delete events[uuid[index]]
       })
       currentWorker.postMessage({ op: 'removeBodies', uuid })

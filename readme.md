@@ -120,6 +120,8 @@ function Physics({
   // Maximum amount of physics objects inside your scene
   // Lower this value to save memory, increase if 1000 isn't enough
   size = 1000,
+  // Whether to show debug wireframe around physics bodies
+  debug = false
 }: ProviderProps): JSX.Element
 
 function usePlane(fn: PlaneFn, ref?: React.MutableRefObject<THREE.Object3D>): Api
