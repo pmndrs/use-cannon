@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react'
+import React, { Suspense, useState, useEffect } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { Physics, usePlane, useCompoundBody } from '@react-three/cannon'
 
@@ -43,25 +43,34 @@ function CompoundBody(props) {
   )
 }
 
-export default () => (
-  <Canvas shadows gl={{ alpha: false }} camera={{ position: [-2, 1, 7], fov: 50 }}>
-    <color attach="background" args={['#f6d186']} />
-    <hemisphereLight intensity={0.35} />
-    <spotLight
-      position={[5, 5, 5]}
-      angle={0.3}
-      penumbra={1}
-      intensity={2}
-      castShadow
-      shadow-mapSize-width={1028}
-      shadow-mapSize-height={1028}
-    />
-    <Suspense fallback={null}>
-      <Physics iterations={6}>
-        <Plane rotation={[-Math.PI / 2, 0, 0]} />
-        <CompoundBody position={[1.5, 5, 0.5]} rotation={[1.25, 0, 0]} />
-        <CompoundBody position={[2.5, 3, 0.25]} rotation={[1.25, -1.25, 0]} />
-      </Physics>
-    </Suspense>
-  </Canvas>
-)
+export default function () {
+  const [ready, set] = useState(false)
+  useEffect(() => {
+    const timeout = setTimeout(() => set(true), 2000)
+    return () => clearTimeout(timeout)
+  }, [])
+
+  return (
+    <Canvas shadows gl={{ alpha: false }} camera={{ position: [-2, 1, 7], fov: 50 }}>
+      <color attach="background" args={['#f6d186']} />
+      <hemisphereLight intensity={0.35} />
+      <spotLight
+        position={[5, 5, 5]}
+        angle={0.3}
+        penumbra={1}
+        intensity={2}
+        castShadow
+        shadow-mapSize-width={1028}
+        shadow-mapSize-height={1028}
+      />
+      <Suspense fallback={null}>
+        <Physics debug={{ scale: 1.1, color: "black" }} iterations={6}>
+          <Plane rotation={[-Math.PI / 2, 0, 0]} />
+          <CompoundBody position={[1.5, 5, 0.5]} rotation={[1.25, 0, 0]} />
+          <CompoundBody position={[2.5, 3, 0.25]} rotation={[1.25, -1.25, 0]} />
+          {ready && <CompoundBody position={[2.5, 4, 0.25]} rotation={[1.25, -1.25, 0]} />}
+        </Physics>
+      </Suspense>
+    </Canvas>
+  )
+}

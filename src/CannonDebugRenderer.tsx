@@ -1,44 +1,41 @@
-import React, { useContext, useEffect, useMemo, useState } from 'react'
-import { context } from './setup'
+import React, { useContext, useEffect, useMemo, useState, useRef } from 'react'
 import cannonDebugger from 'cannon-es-debugger'
-import { Scene } from 'three'
+import { useFrame } from '@react-three/fiber'
+import { Scene, Color } from 'three'
 import { Quaternion, Vec3 } from 'cannon-es'
+import { context } from './setup'
 
-export default function CannonDebugRenderer(): JSX.Element {
+export type DebugProps = {
+  color?: string | number | Color
+  scale?: number
+}
+
+export default function CannonDebugRenderer({ color = 'black', scale = 1 }: DebugProps): JSX.Element {
   const { debugInfo, refs } = useContext(context)
-  const debugScene = useMemo<Scene>(() => new Scene(), [])
-  const [, setUpdateCounter] = useState(0)
+  const [scene] = useState(() => new Scene())
+  const instance = useRef<any>()
 
-  const cannonDebuggerInstance = useMemo(() => {
-    return debugInfo ? cannonDebugger(debugScene, debugInfo.bodies, { autoUpdate: false }) : null
-  }, [debugScene, debugInfo])
+  let lastBodies = 0
+  useFrame(() => {
+    if (debugInfo) {
+      if (!instance.current || lastBodies !== debugInfo.bodies.length) {
+        lastBodies = debugInfo.bodies.length
+        scene.children = []
+        instance.current = cannonDebugger(scene, debugInfo.bodies, {
+          color,
+          scale,
+          autoUpdate: false,
+        })
+      }
 
-  useEffect(() => {
-    if (debugInfo === null || cannonDebuggerInstance === null) {
-      console.warn("Please don't use <CannonDebugRenderer /> directly. Add 'debug' prop to <Physics />")
-      return
-    }
-    let id: number = -1
-    const tick = () => {
       for (const uuid in debugInfo.refs) {
         debugInfo.refs[uuid].position.copy(refs[uuid].position as unknown as Vec3)
         debugInfo.refs[uuid].quaternion.copy(refs[uuid].quaternion as unknown as Quaternion)
       }
-      cannonDebuggerInstance.update()
-      setUpdateCounter((i) => i + 1)
-      id = requestAnimationFrame(tick)
-    }
-    tick()
-    return () => {
-      cancelAnimationFrame(id)
-    }
-  }, [])
 
-  return (
-    <>
-      {debugScene.children.map((mesh) => (
-        <primitive key={mesh.uuid} object={mesh} />
-      ))}
-    </>
-  )
+      instance.current.update()
+    }
+  })
+
+  return <primitive object={scene} />
 }

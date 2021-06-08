@@ -270,6 +270,7 @@ function useBody(
     }
   }, deps) // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Run loop *before* the main loop in the provider!
   useFrame(() => {
     if (ref.current && buffers.positions.length && buffers.quaternions.length) {
       if (ref.current instanceof THREE.InstancedMesh) {
@@ -284,7 +285,7 @@ function useBody(
         }
       } else apply(ref.current, bodies.current[ref.current.uuid], buffers)
     }
-  })
+  }, -2)
 
   const api = useMemo(() => {
     const makeVec = (type: string, index?: number) => ({

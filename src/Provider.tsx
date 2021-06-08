@@ -1,11 +1,11 @@
 import type { Shape } from 'cannon-es'
 import type { Buffers, Refs, Events, Subscriptions, ProviderContext, DebugInfo } from './setup'
-import React, { useState, useEffect, useRef, useMemo } from 'react'
+import React, { useState, useEffect, useLayoutEffect, useRef, useMemo, useCallback } from 'react'
 import { useThree, useFrame } from '@react-three/fiber'
 import { context } from './setup'
 // @ts-ignore
 import CannonWorker from '../src/worker'
-import CannonDebugRenderer from './CannonDebugRenderer'
+import CannonDebugRenderer, { DebugProps } from './CannonDebugRenderer'
 import { useUpdateWorldPropsEffect } from './useUpdateWorldPropsEffect'
 
 export type ProviderProps = {
@@ -26,7 +26,7 @@ export type ProviderProps = {
     frictionEquationRelaxation?: number
   }
   size?: number
-  debug?: boolean
+  debug?: boolean | DebugProps
 }
 
 type WorkerFrameMessage = {
@@ -93,15 +93,13 @@ export default function Provider({
   allowSleep = false,
   broadphase = 'Naive',
   axisIndex = 0,
-  defaultContactMaterial = {
-    contactEquationStiffness: 1e6,
-  },
+  defaultContactMaterial = { contactEquationStiffness: 1e6 },
   size = 1000,
   debug = false,
 }: ProviderProps): JSX.Element {
   const { gl, invalidate } = useThree()
   const [worker] = useState<Worker>(() => new CannonWorker() as Worker)
-  const [refs] = useState<Refs>({})
+  const [refs] = useState<Refs>({})  
   const [buffers] = useState<Buffers>(() => ({
     positions: new Float32Array(size * 3),
     quaternions: new Float32Array(size * 4),
@@ -110,29 +108,17 @@ export default function Provider({
   const [subscriptions] = useState<Subscriptions>({})
   const [debugInfo] = useState<DebugInfo>(debug ? { bodies: [], refs: {} } : null)
   const bodies = useRef<{ [uuid: string]: number }>({})
-  const loop = useMemo(
-    () => () => {
-      if (buffers.positions.byteLength !== 0 && buffers.quaternions.byteLength !== 0) {
-        worker.postMessage({ op: 'step', ...buffers }, [buffers.positions.buffer, buffers.quaternions.buffer])
-      }
-    },
-    [],
-  )
-
-  const prevPresenting = useRef(false)
-  useFrame(() => {
-    loop()
-    if (gl.xr?.enabled) {
-      // https://github.com/pmndrs/use-cannon/issues/99#issuecomment-660495528
-      // https://github.com/pmndrs/use-cannon/commit/576d7967935dbbfcd44b81347caab43487382702
-      // https://github.com/pmndrs/use-cannon/commit/91e655c19733608216d340903353467c1f4e2d64
-      if (gl.xr?.isPresenting && !prevPresenting.current) gl.xr?.getSession?.()?.requestAnimationFrame(loop)
-      if (!gl.xr?.isPresenting && prevPresenting.current) requestAnimationFrame(loop)
-      prevPresenting.current = gl.xr?.isPresenting
+  const loop = useCallback(() => {
+    if (buffers.positions.byteLength !== 0 && buffers.quaternions.byteLength !== 0) {
+      worker.postMessage({ op: 'step', ...buffers }, [buffers.positions.buffer, buffers.quaternions.buffer])
     }
-  })
+  }, [])
 
-  useEffect(() => {
+  // Run loop *after* all the physics objects have ran theirs!
+  // Otherwise the buffers will be invalidated by the browser
+  useFrame(() => loop(), -1)
+
+  useLayoutEffect(() => {
     worker.postMessage({
       op: 'init',
       props: {
@@ -153,18 +139,19 @@ export default function Provider({
     worker.onmessage = (e: IncomingWorkerMessage) => {
       switch (e.data.op) {
         case 'frame':
+          buffers.positions = e.data.positions
+          buffers.quaternions = e.data.quaternions
           if (e.data.bodies) {
             for (i = 0; i < e.data.bodies.length; i++) {
               body = e.data.bodies[i]
               bodies.current[body] = (e.data as any).bodies.indexOf(body)
             }
-          }
-          buffers.positions = e.data.positions
-          buffers.quaternions = e.data.quaternions
+          }          
           for (i = 0; i < e.data.observations.length; i++) {
             observation = e.data.observations[i]
             if (subscriptions[observation[0]]) subscriptions[observation[0]](observation[1])
           }
+          //requestAnimationFrame(loop)
           if (e.data.active) invalidate()
           break
         case 'event':
@@ -197,7 +184,7 @@ export default function Provider({
   )
   return (
     <context.Provider value={api as ProviderContext}>
-      {debug && <CannonDebugRenderer />}
+      {debug && <CannonDebugRenderer {...(typeof debug === 'object' ? debug : {})} />}
       {children}
     </context.Provider>
   )
