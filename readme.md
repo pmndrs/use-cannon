@@ -121,6 +121,7 @@ function Physics({
   // Lower this value to save memory, increase if 1000 isn't enough
   size = 1000,
   // Whether to show debug wireframe around physics bodies
+  // It takes a boolean or cannon-es-debugger props, {{ color, scale }}
   debug = false
 }: ProviderProps): JSX.Element
 
