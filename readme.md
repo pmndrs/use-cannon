@@ -112,7 +112,7 @@ import { Physics, Debug } from '@react-three/cannon'
     {/* children */}
   </Debug>
 </Physics>
-
+```
 
 ## Api
 
