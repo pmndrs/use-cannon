@@ -1,22 +1,36 @@
 import React, { useContext, useState, useRef, useMemo } from 'react'
-import cannonDebugger from 'cannon-es-debugger'
+import cannonDebugger, { DebugOptions } from 'cannon-es-debugger'
 import { useFrame } from '@react-three/fiber'
 import { Scene, Color } from 'three'
 import { Quaternion, Vec3 } from 'cannon-es'
-import type { Body as CannonBody } from 'cannon-es'
+import type { Body } from 'cannon-es'
 import { context, debugContext } from './setup'
 import propsToBody from './propsToBody'
 import { BodyProps, BodyShapeType } from 'hooks'
 
-export type DebugInfo = { bodies: CannonBody[]; refs: { [uuid: string]: CannonBody } }
+export type DebuggerInterface = (
+  scene: Scene,
+  bodies: Body[],
+  props?: DebugOptions,
+) => {
+  update: () => void
+}
+
+export type DebugInfo = { bodies: Body[]; refs: { [uuid: string]: Body } }
 
 export type DebugProps = {
   children: React.ReactNode
   color?: string | number | Color
   scale?: number
+  impl?: DebuggerInterface
 }
 
-export function Debug({ color = 'black', scale = 1, children }: DebugProps): JSX.Element {
+export function Debug({
+  color = 'black',
+  scale = 1,
+  children,
+  impl = cannonDebugger,
+}: DebugProps): JSX.Element {
   const [debugInfo] = useState<DebugInfo>({ bodies: [], refs: {} })
   const { refs } = useContext(context)
   const [scene] = useState(() => new Scene())
@@ -27,7 +41,7 @@ export function Debug({ color = 'black', scale = 1, children }: DebugProps): JSX
     if (!instance.current || lastBodies !== debugInfo.bodies.length) {
       lastBodies = debugInfo.bodies.length
       scene.children = []
-      instance.current = cannonDebugger(scene, debugInfo.bodies, {
+      instance.current = impl(scene, debugInfo.bodies, {
         color,
         scale,
         autoUpdate: false,

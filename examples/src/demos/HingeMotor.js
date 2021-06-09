@@ -104,12 +104,9 @@ const BoxShape = React.forwardRef(
 
 const Robot = React.forwardRef(({ ...props }, ref) => {
   const [motorSpeed, setMotorSpeed] = useState(7)
-
   const legsLeftRef = ref
   const legsRightRef = useRef()
-
   useLockConstraint(legsRightRef, legsLeftRef)
-
   return (
     <group {...props} onPointerDown={() => setMotorSpeed(2)} onPointerUp={() => setMotorSpeed(7)}>
       <Legs ref={legsLeftRef} delay={1000} bodyDepth={3} motorSpeed={motorSpeed} />
@@ -123,12 +120,10 @@ const Legs = React.forwardRef(({ bodyDepth = 0, delay = 0, motorSpeed = 7, ...pr
   const frontLegRef = useRef()
   const frontUpperLegRef = useRef()
   const backLegRef = useRef()
-
   const partDepth = 0.3
   const bodyWidth = 10
   const bodyHeight = 2
   const legLength = 6
-
   const size3 = normalizeSize([1, 3, partDepth])
   const size5 = normalizeSize([1, 5, partDepth])
   const size10 = normalizeSize([1, 10, partDepth])
