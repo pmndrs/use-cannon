@@ -6,9 +6,29 @@ import { isJSDocNullableType } from 'typescript'
 
 export type Buffers = { positions: Float32Array; quaternions: Float32Array }
 export type Refs = { [uuid: string]: Object3D }
-export type Event =
-  | (Omit<WorkerRayhitEvent['data'], 'body'> & { body: Object3D | null })
-  | (Omit<WorkerCollideEvent['data'], 'body' | 'target'> & { body: Object3D; target: Object3D })
+type WorkerContact = WorkerCollideEvent['data']['contact']
+export type CollideEvent = Omit<WorkerCollideEvent['data'], 'body' | 'target' | 'contact'> & {
+  body: Object3D
+  target: Object3D
+  contact: Omit<WorkerContact, 'bi' | 'bj'> & {
+    bi: Object3D
+    bj: Object3D
+  }
+}
+export type CollideBeginEvent = {
+  op: 'event'
+  type: 'collideBegin'
+  target: Object3D
+  body: Object3D
+}
+export type CollideEndEvent = {
+  op: 'event'
+  type: 'collideEnd'
+  target: Object3D
+  body: Object3D
+}
+export type RayhitEvent = Omit<WorkerRayhitEvent['data'], 'body'> & { body: Object3D | null }
+export type Event = RayhitEvent | CollideEvent | CollideBeginEvent | CollideEndEvent
 export type Events = { [uuid: string]: (e: Event) => void }
 export type Subscriptions = {
   [id: string]: (value: AtomicProps[keyof AtomicProps] | number[]) => void

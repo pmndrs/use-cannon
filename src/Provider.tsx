@@ -42,10 +42,17 @@ export type WorkerCollideEvent = {
     target: string
     body: string
     contact: {
+      id: string
       ni: number[]
       ri: number[]
       rj: number[]
       impactVelocity: number
+      bi: string
+      bj: string
+      /** Contact point in world space */
+      contactPoint: number[]
+      /** Normal of the contact, relative to the colliding body */
+      contactNormal: number[]
     }
     collisionFilters: {
       bodyFilterGroup: number
@@ -79,7 +86,27 @@ export type WorkerRayhitEvent = {
     shouldStop: boolean
   }
 }
-type WorkerEventMessage = WorkerCollideEvent | WorkerRayhitEvent
+export type WorkerCollideBeginEvent = {
+  data: {
+    op: 'event'
+    type: 'collideBegin'
+    bodyA: string
+    bodyB: string
+  }
+}
+export type WorkerCollideEndEvent = {
+  data: {
+    op: 'event'
+    type: 'collideEnd'
+    bodyA: string
+    bodyB: string
+  }
+}
+type WorkerEventMessage =
+  | WorkerCollideEvent
+  | WorkerRayhitEvent
+  | WorkerCollideBeginEvent
+  | WorkerCollideEndEvent
 type IncomingWorkerMessage = WorkerFrameMessage | WorkerEventMessage
 
 export default function Provider({
@@ -158,7 +185,48 @@ export default function Provider({
                 ...e.data,
                 target: refs[e.data.target],
                 body: refs[e.data.body],
+                contact: {
+                  ...e.data.contact,
+                  bi: refs[e.data.contact.bi],
+                  bj: refs[e.data.contact.bj],
+                },
               })
+              break
+            case 'collideBegin':
+              if (events[e.data.bodyA]) {
+                events[e.data.bodyA]({
+                  op: 'event',
+                  type: 'collideBegin',
+                  target: refs[e.data.bodyA],
+                  body: refs[e.data.bodyB],
+                })
+              }
+              if (events[e.data.bodyB]) {
+                events[e.data.bodyB]({
+                  op: 'event',
+                  type: 'collideBegin',
+                  target: refs[e.data.bodyB],
+                  body: refs[e.data.bodyA],
+                })
+              }
+              break
+            case 'collideEnd':
+              if (events[e.data.bodyA]) {
+                events[e.data.bodyA]({
+                  op: 'event',
+                  type: 'collideEnd',
+                  target: refs[e.data.bodyA],
+                  body: refs[e.data.bodyB],
+                })
+              }
+              if (events[e.data.bodyB]) {
+                events[e.data.bodyB]({
+                  op: 'event',
+                  type: 'collideEnd',
+                  target: refs[e.data.bodyB],
+                  body: refs[e.data.bodyA],
+                })
+              }
               break
             case 'rayhit':
               events[e.data.ray.uuid]({

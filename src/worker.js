@@ -46,6 +46,14 @@ function syncBodies() {
   state.bodies = state.world.bodies.reduce((acc, body) => ({ ...acc, [body.uuid]: body }), {})
 }
 
+function emitBeginContact({ bodyA, bodyB }) {
+  self.postMessage({ op: 'event', type: 'collideBegin', bodyA: bodyA.uuid, bodyB: bodyB.uuid })
+}
+
+function emitEndContact({ bodyA, bodyB }) {
+  self.postMessage({ op: 'event', type: 'collideEnd', bodyA: bodyA.uuid, bodyB: bodyB.uuid })
+}
+
 self.onmessage = (e) => {
   const { op, uuid, type, positions, quaternions, props } = e.data
 
@@ -68,6 +76,8 @@ self.onmessage = (e) => {
       state.world.solver.iterations = iterations
       state.world.broadphase = new (broadphases[broadphase + 'Broadphase'] || NaiveBroadphase)(state.world)
       state.world.broadphase.axisIndex = axisIndex === undefined || axisIndex === null ? 0 : axisIndex
+      world.addEventListener('beginContact', emitBeginContact)
+      world.addEventListener('endContact', emitEndContact)
       Object.assign(state.world.defaultContactMaterial, defaultContactMaterial)
       state.config.step = step
       break
@@ -129,7 +139,10 @@ self.onmessage = (e) => {
 
         if (props[i].onCollide)
           body.addEventListener('collide', ({ type, body, target, contact }) => {
-            const { ni, ri, rj } = contact
+            const { ni, ri, rj, bi, bj, id } = contact
+            const contactPoint = bi.position.vadd(ri)
+            const biIsBody = bi === body
+            const contactNormal = bi === body ? ni : ni.scale(-1)
             self.postMessage({
               op: 'event',
               type,
@@ -139,7 +152,14 @@ self.onmessage = (e) => {
                 ni: ni.toArray(),
                 ri: ri.toArray(),
                 rj: rj.toArray(),
+                bi: bi.uuid,
+                bj: bj.uuid,
                 impactVelocity: contact.getImpactVelocityAlongNormal(),
+                // World position of the contact
+                contactPoint: contactPoint.toArray(),
+                // Normal of the contact, relative to the colliding body
+                contactNormal: contactNormal.toArray(),
+                id,
               },
               collisionFilters: {
                 bodyFilterGroup: body.collisionFilterGroup,

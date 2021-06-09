@@ -1,5 +1,5 @@
 import type { MaterialOptions, RayOptions } from 'cannon-es'
-import type { Buffers, Event, Subscriptions } from './setup'
+import type { Buffers, CollideBeginEvent, CollideEndEvent, CollideEvent, Event, Subscriptions } from './setup'
 import * as THREE from 'three'
 import React, {
   useLayoutEffect,
@@ -39,7 +39,9 @@ export type BodyProps = AtomicProps & {
   linearFactor?: number[]
   angularFactor?: number[]
   type?: 'Dynamic' | 'Static' | 'Kinematic'
-  onCollide?: (e: Event) => void
+  onCollide?: (e: CollideEvent) => void
+  onCollideBegin?: (e: CollideBeginEvent) => void
+  onCollideEnd?: (e: CollideEndEvent) => void
 }
 
 export type ShapeType =
@@ -243,12 +245,26 @@ function useBody(
 
     props.forEach((props, index) => {
       refs[uuid[index]] = object
-      if (debugApi) {        
+      if (debugApi) {
         debugApi.add(uuid[index], props, type)
       }
-      if (props.onCollide) {
-        events[uuid[index]] = props.onCollide
-        ;(props as any).onCollide = true
+      if (props.onCollide || props.onCollideBegin || props.onCollideEnd) {
+        const { onCollide, onCollideBegin, onCollideEnd } = props
+        const onEvent = (ev: Event) => {
+          switch (ev.type) {
+            case 'collide':
+              if (onCollide) onCollide(ev)
+              break
+            case 'collideBegin':
+              if (onCollideBegin) onCollideBegin(ev)
+              break
+            case 'collideEnd':
+              if (onCollideEnd) onCollideEnd(ev)
+              break
+          }
+        }
+        events[uuid[index]] = onEvent
+        ;(props as any).onCollide = (props as any).onCollideBegin = (props as any).onCollideEnd = true
       }
     })
 
@@ -257,10 +273,10 @@ function useBody(
     return () => {
       props.forEach((props, index) => {
         delete refs[uuid[index]]
-        if (debugApi) {          
+        if (debugApi) {
           debugApi.remove(uuid[index])
         }
-        if (props.onCollide) delete events[uuid[index]]
+        if (props.onCollide || props.onCollideBegin || props.onCollideEnd) delete events[uuid[index]]
       })
       currentWorker.postMessage({ op: 'removeBodies', uuid })
     }
