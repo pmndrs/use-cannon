@@ -2,16 +2,7 @@ import {
   World,
   NaiveBroadphase,
   SAPBroadphase,
-  Body,
-  Plane,
-  Box,
   Vec3,
-  ConvexPolyhedron,
-  Cylinder,
-  Heightfield,
-  Particle,
-  Sphere,
-  Trimesh,
   PointToPointConstraint,
   ConeTwistConstraint,
   HingeConstraint,
@@ -19,7 +10,6 @@ import {
   LockConstraint,
   Constraint,
   Spring,
-  Material,
   Quaternion,
   Ray,
   RaycastResult,
@@ -76,8 +66,8 @@ self.onmessage = (e) => {
       state.world.solver.iterations = iterations
       state.world.broadphase = new (broadphases[broadphase + 'Broadphase'] || NaiveBroadphase)(state.world)
       state.world.broadphase.axisIndex = axisIndex === undefined || axisIndex === null ? 0 : axisIndex
-      world.addEventListener('beginContact', emitBeginContact)
-      world.addEventListener('endContact', emitEndContact)
+      state.world.addEventListener('beginContact', emitBeginContact)
+      state.world.addEventListener('endContact', emitEndContact)
       Object.assign(state.world.defaultContactMaterial, defaultContactMaterial)
       state.config.step = step
       break
