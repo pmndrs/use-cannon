@@ -1,5 +1,13 @@
 import type { MaterialOptions, RayOptions } from 'cannon-es'
-import type { Buffers, CollideBeginEvent, CollideEndEvent, CollideEvent, Event, Subscriptions } from './setup'
+import type {
+  Buffers,
+  CollideBeginEvent,
+  CollideEndEvent,
+  CollideEvent,
+  Event,
+  Events,
+  Subscriptions,
+} from './setup'
 import * as THREE from 'three'
 import React, {
   useLayoutEffect,
@@ -12,9 +20,8 @@ import React, {
 } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { context, debugContext } from './setup'
-import propsToBody from './propsToBody'
 
-export type AtomicProps = {
+export interface AtomicProps {
   mass?: number
   material?: MaterialOptions
   linearDamping?: number
@@ -30,18 +37,24 @@ export type AtomicProps = {
   isTrigger?: boolean
 }
 
-export type BodyProps = AtomicProps & {
-  args?: any
-  position?: number[]
-  rotation?: number[]
-  velocity?: number[]
-  angularVelocity?: number[]
-  linearFactor?: number[]
-  angularFactor?: number[]
+export type Triplet = [x: number, y: number, z: number]
+
+export interface BodyProps<T = unknown> extends AtomicProps {
+  args?: T
+  position?: Triplet
+  rotation?: Triplet
+  velocity?: Triplet
+  angularVelocity?: Triplet
+  linearFactor?: Triplet
+  angularFactor?: Triplet
   type?: 'Dynamic' | 'Static' | 'Kinematic'
   onCollide?: (e: CollideEvent) => void
   onCollideBegin?: (e: CollideBeginEvent) => void
   onCollideEnd?: (e: CollideEndEvent) => void
+}
+
+export interface BodyPropsArgsRequired<T = unknown> extends BodyProps<T> {
+  args: T
 }
 
 export type ShapeType =
@@ -54,40 +67,35 @@ export type ShapeType =
   | 'Trimesh'
   | 'ConvexPolyhedron'
 export type BodyShapeType = ShapeType | 'Compound'
-export type PlaneProps = BodyProps & {}
-export type BoxProps = BodyProps & { args?: number[] }
-export type CylinderProps = BodyProps & { args?: [number, number, number, number] }
-export type ParticleProps = BodyProps & {}
-export type SphereProps = BodyProps & { args?: number }
-export type TrimeshProps = BodyProps & {
-  args?: [(THREE.Vector3 | number[])[], number[][]]
-}
-export type HeightfieldProps = BodyProps & {
-  args?: [number[], { minValue?: number; maxValue?: number; elementSize?: number }]
-}
-export type ConvexPolyhedronProps = BodyProps & {
-  args?: [(THREE.Vector3 | number[])[], number[][]]
-}
-export type CompoundBodyProps = BodyProps & {
+
+export type CylinderArgs = [radiusTop: number, radiusBottom: number, height: number, numSegments: number]
+export type TrimeshArgs = [vertices: (THREE.Vector3 | Triplet)[], indices: Triplet[]]
+export type HeightfieldArgs = [
+  data: number[],
+  options: { minValue?: number; maxValue?: number; elementSize?: number },
+]
+export type ConvexPolyhedronArgs = [
+  vertices: (THREE.Vector3 | Triplet)[],
+  faces: number[],
+  normals: (THREE.Vector3 | Triplet)[],
+]
+
+export interface PlaneProps extends BodyProps {}
+export interface BoxProps extends BodyProps<Triplet> {}
+export interface CylinderProps extends BodyProps<CylinderArgs> {}
+export interface ParticleProps extends BodyProps {}
+export interface SphereProps extends BodyProps<number> {}
+export interface TrimeshProps extends BodyPropsArgsRequired<TrimeshArgs> {}
+export interface HeightfieldProps extends BodyProps<HeightfieldArgs> {}
+export interface ConvexPolyhedronProps extends BodyPropsArgsRequired<ConvexPolyhedronArgs> {}
+export interface CompoundBodyProps extends BodyProps {
   shapes: BodyProps & { type: ShapeType }[]
 }
 
-type BodyFn = (index: number) => BodyProps
-type PlaneFn = (index: number) => PlaneProps
-type BoxFn = (index: number) => BoxProps
-type CylinderFn = (index: number) => CylinderProps
-type HeightfieldFn = (index: number) => HeightfieldProps
-type ParticleFn = (index: number) => ParticleProps
-type SphereFn = (index: number) => SphereProps
-type TrimeshFn = (index: number) => TrimeshProps
-type ConvexPolyhedronFn = (index: number) => ConvexPolyhedronProps
-type CompoundBodyFn = (index: number) => CompoundBodyProps
-type ArgFn = (props: any) => any[]
-
-type WorkerVec = {
+interface WorkerVec {
   set: (x: number, y: number, z: number) => void
   copy: ({ x, y, z }: THREE.Vector3 | THREE.Euler) => void
-  subscribe: (callback: (value: number[]) => void) => void
+  subscribe: (callback: (value: Triplet) => void) => void
 }
 
 export type WorkerProps<T> = {
@@ -96,58 +104,66 @@ export type WorkerProps<T> = {
     subscribe: (callback: (value: T[K]) => void) => () => void
   }
 }
-export type WorkerApi = WorkerProps<AtomicProps> & {
+export interface WorkerApi extends WorkerProps<AtomicProps> {
   position: WorkerVec
   rotation: WorkerVec
   velocity: WorkerVec
   angularVelocity: WorkerVec
   linearFactor: WorkerVec
   angularFactor: WorkerVec
-  applyForce: (force: number[], worldPoint: number[]) => void
-  applyImpulse: (impulse: number[], worldPoint: number[]) => void
-  applyLocalForce: (force: number[], localPoint: number[]) => void
-  applyLocalImpulse: (impulse: number[], localPoint: number[]) => void
+  applyForce: (force: Triplet, worldPoint: Triplet) => void
+  applyImpulse: (impulse: Triplet, worldPoint: Triplet) => void
+  applyLocalForce: (force: Triplet, localPoint: Triplet) => void
+  applyLocalImpulse: (impulse: Triplet, localPoint: Triplet) => void
 }
 
-type PublicApi = WorkerApi & { at: (index: number) => WorkerApi }
+interface PublicApi extends WorkerApi {
+  at: (index: number) => WorkerApi
+}
 export type Api = [React.MutableRefObject<THREE.Object3D | undefined>, PublicApi]
 
 export type ConstraintTypes = 'PointToPoint' | 'ConeTwist' | 'Distance' | 'Lock'
 
-export type ConstraintOptns = { maxForce?: number; collideConnected?: boolean; wakeUpBodies?: boolean }
-
-export type PointToPointConstraintOpts = ConstraintOptns & {
-  pivotA: number[]
-  pivotB: number[]
+export interface ConstraintOptns {
+  maxForce?: number
+  collideConnected?: boolean
+  wakeUpBodies?: boolean
 }
 
-export type ConeTwistConstraintOpts = ConstraintOptns & {
-  pivotA?: number[]
-  axisA?: number[]
-  pivotB?: number[]
-  axisB?: number[]
+export interface PointToPointConstraintOpts extends ConstraintOptns {
+  pivotA: Triplet
+  pivotB: Triplet
+}
+
+export interface ConeTwistConstraintOpts extends ConstraintOptns {
+  pivotA?: Triplet
+  axisA?: Triplet
+  pivotB?: Triplet
+  axisB?: Triplet
   angle?: number
   twistAngle?: number
 }
-export type DistanceConstraintOpts = ConstraintOptns & { distance?: number }
-
-export type HingeConstraintOpts = ConstraintOptns & {
-  pivotA?: number[]
-  axisA?: number[]
-  pivotB?: number[]
-  axisB?: number[]
+export interface DistanceConstraintOpts extends ConstraintOptns {
+  distance?: number
 }
 
-export type LockConstraintOpts = ConstraintOptns & {}
+export interface HingeConstraintOpts extends ConstraintOptns {
+  pivotA?: Triplet
+  axisA?: Triplet
+  pivotB?: Triplet
+  axisB?: Triplet
+}
 
-export type SpringOptns = {
+export interface LockConstraintOpts extends ConstraintOptns {}
+
+export interface SpringOptns {
   restLength?: number
   stiffness?: number
   damping?: number
-  worldAnchorA?: number[]
-  worldAnchorB?: number[]
-  localAnchorA?: number[]
-  localAnchorB?: number[]
+  worldAnchorA?: Triplet
+  worldAnchorB?: Triplet
+  localAnchorA?: Triplet
+  localAnchorB?: Triplet
 }
 
 const temp = new THREE.Object3D()
@@ -181,7 +197,11 @@ function subscribe(
   return (callback: (value: any) => void) => {
     const id = subscriptionGuid++
     subscriptions[id] = callback
-    post(ref, worker, 'subscribe', index, { id, type, target: (target === undefined || target === null) ? 'bodies' : target})
+    post(ref, worker, 'subscribe', index, {
+      id,
+      type,
+      target: target === undefined || target === null ? 'bodies' : target,
+    })
     return () => {
       delete subscriptions[id]
       worker.postMessage({ op: 'unsubscribe', props: id })
@@ -189,12 +209,10 @@ function subscribe(
   }
 }
 
-function prepare(object: THREE.Object3D, props: BodyProps, argFn: ArgFn) {
-  props.args = argFn(props.args)
+function prepare(object: THREE.Object3D, props: BodyProps) {
   object.userData = props.userData || {}
-  object.position.set(...((props.position || [0, 0, 0]) as [number, number, number]))
-  object.rotation.set(...((props.rotation || [0, 0, 0]) as [number, number, number]))
-  return props
+  object.position.set(...(props.position || [0, 0, 0]))
+  object.rotation.set(...(props.rotation || [0, 0, 0]))
 }
 
 function apply(object: THREE.Object3D, index: number, buffers: Buffers) {
@@ -204,16 +222,41 @@ function apply(object: THREE.Object3D, index: number, buffers: Buffers) {
   }
 }
 
+function setupCollision(
+  events: Events,
+  { onCollide, onCollideBegin, onCollideEnd }: Partial<BodyProps>,
+  id: string,
+) {
+  if (onCollide || onCollideBegin || onCollideEnd) {
+    events[id] = (ev: Event) => {
+      switch (ev.type) {
+        case 'collide':
+          if (onCollide) onCollide(ev)
+          break
+        case 'collideBegin':
+          if (onCollideBegin) onCollideBegin(ev)
+          break
+        case 'collideEnd':
+          if (onCollideEnd) onCollideEnd(ev)
+          break
+      }
+    }
+  }
+}
+
 let subscriptionGuid = 0
 
-function useBody(
+type GetByIndex<T extends BodyProps> = (index: number) => T
+type ArgFn<T> = (args: T) => unknown
+
+function useBody<B extends BodyProps<unknown>>(
   type: BodyShapeType,
-  fn: BodyFn,
-  argFn: ArgFn,
+  fn: GetByIndex<B>,
+  argsFn: ArgFn<B['args']>,
   fwdRef?: React.MutableRefObject<THREE.Object3D>,
   deps: any[] = [],
 ): Api {
-  const localRef = useRef<THREE.Object3D>(null as unknown as THREE.Object3D)
+  const localRef = useRef<THREE.Object3D>(null!)
   const ref = fwdRef ? fwdRef : localRef
   const { worker, bodies, buffers, refs, events, subscriptions } = useContext(context)
   const debugApi = useContext(debugContext)
@@ -227,49 +270,49 @@ function useBody(
 
     const object = ref.current
     const currentWorker = worker
-    let uuid: string[] = [object.uuid],
-      props: BodyProps[]
 
-    if (object instanceof THREE.InstancedMesh) {
-      // Why? Because @mrdoob did it in his example ...
-      object.instanceMatrix.setUsage(THREE.DynamicDrawUsage)
-      uuid = new Array(object.count).fill(0).map((_, i) => `${object.uuid}/${i}`)
-      props = uuid.map((id, i) => {
-        const props = prepare(temp, fn(i), argFn)
-        temp.updateMatrix()
-        object.setMatrixAt(i, temp.matrix)
-        object.instanceMatrix.needsUpdate = true
-        return props
-      })
-    } else props = [prepare(object, fn(0), argFn)]
+    const objectCount =
+      object instanceof THREE.InstancedMesh
+        ? (object.instanceMatrix.setUsage(THREE.DynamicDrawUsage), object.count)
+        : 1
 
-    props.forEach((props, index) => {
-      refs[uuid[index]] = object
-      if (debugApi) {
-        debugApi.add(uuid[index], props, type)
-      }
-      if (props.onCollide || props.onCollideBegin || props.onCollideEnd) {
-        const { onCollide, onCollideBegin, onCollideEnd } = props
-        const onEvent = (ev: Event) => {
-          switch (ev.type) {
-            case 'collide':
-              if (onCollide) onCollide(ev)
-              break
-            case 'collideBegin':
-              if (onCollideBegin) onCollideBegin(ev)
-              break
-            case 'collideEnd':
-              if (onCollideEnd) onCollideEnd(ev)
-              break
-          }
-        }
-        events[uuid[index]] = onEvent
-        ;(props as any).onCollide = (props as any).onCollideBegin = (props as any).onCollideEnd = true
-      }
-    })
+    const uuid =
+      object instanceof THREE.InstancedMesh
+        ? new Array(objectCount).fill(0).map((_, i) => `${object.uuid}/${i}`)
+        : [object.uuid]
+
+    const props: (B & { args: unknown })[] =
+      object instanceof THREE.InstancedMesh
+        ? uuid.map((id, i) => {
+            // Why? Because @mrdoob did it in his example ...
+            const props = fn(i)
+            prepare(temp, props)
+            temp.updateMatrix()
+            object.setMatrixAt(i, temp.matrix)
+            object.instanceMatrix.needsUpdate = true
+            refs[id] = object
+            if (debugApi) debugApi.add(id, props, type)
+            setupCollision(events, props, id)
+            return { ...props, args: argsFn(props.args) }
+          })
+        : uuid.map((id, i) => {
+            const props = fn(i)
+            prepare(object, props)
+            refs[id] = object
+            if (debugApi) debugApi.add(id, props, type)
+            setupCollision(events, props, id)
+            return { ...props, args: argsFn(props.args) }
+          })
 
     // Register on mount, unregister on unmount
-    currentWorker.postMessage({ op: 'addBodies', type, uuid, props })
+    currentWorker.postMessage({
+      op: 'addBodies',
+      type,
+      uuid,
+      props: props.map(
+        ({ onCollide, onCollideBegin, onCollideEnd, ...serializableProps }) => serializableProps,
+      ),
+    })
     return () => {
       props.forEach((props, index) => {
         delete refs[uuid[index]]
@@ -334,16 +377,16 @@ function useBody(
         userData: makeAtomic('userData', index),
         isTrigger: makeAtomic('isTrigger', index),
         // Apply functions
-        applyForce(force: number[], worldPoint: number[]) {
+        applyForce(force: Triplet, worldPoint: Triplet) {
           post(ref, worker, 'applyForce', index, [force, worldPoint])
         },
-        applyImpulse(impulse: number[], worldPoint: number[]) {
+        applyImpulse(impulse: Triplet, worldPoint: Triplet) {
           post(ref, worker, 'applyImpulse', index, [impulse, worldPoint])
         },
-        applyLocalForce(force: number[], localPoint: number[]) {
+        applyLocalForce(force: Triplet, localPoint: Triplet) {
           post(ref, worker, 'applyLocalForce', index, [force, localPoint])
         },
-        applyLocalImpulse(impulse: number[], localPoint: number[]) {
+        applyLocalImpulse(impulse: Triplet, localPoint: Triplet) {
           post(ref, worker, 'applyLocalImpulse', index, [impulse, localPoint])
         },
       }
@@ -358,60 +401,92 @@ function useBody(
   return [ref, api]
 }
 
-export function usePlane(fn: PlaneFn, fwdRef?: React.MutableRefObject<THREE.Object3D>, deps?: any[]) {
+function makeTriplet(v: THREE.Vector3 | Triplet): Triplet {
+  return v instanceof THREE.Vector3 ? [v.x, v.y, v.z] : v
+}
+
+export function usePlane(
+  fn: GetByIndex<PlaneProps>,
+  fwdRef?: React.MutableRefObject<THREE.Object3D>,
+  deps?: any[],
+) {
   return useBody('Plane', fn, () => [], fwdRef, deps)
 }
-export function useBox(fn: BoxFn, fwdRef?: React.MutableRefObject<THREE.Object3D>, deps?: any[]) {
-  return useBody('Box', fn, (args) => args || [1, 1, 1], fwdRef, deps)
+const defaultBoxArgs: Triplet = [1, 1, 1]
+export function useBox(
+  fn: GetByIndex<BoxProps>,
+  fwdRef?: React.MutableRefObject<THREE.Object3D>,
+  deps?: any[],
+) {
+  return useBody('Box', fn, (args = defaultBoxArgs) => args, fwdRef, deps)
 }
-export function useCylinder(fn: CylinderFn, fwdRef?: React.MutableRefObject<THREE.Object3D>, deps?: any[]) {
+export function useCylinder(
+  fn: GetByIndex<CylinderProps>,
+  fwdRef?: React.MutableRefObject<THREE.Object3D>,
+  deps?: any[],
+) {
   return useBody('Cylinder', fn, (args) => args, fwdRef, deps)
 }
 export function useHeightfield(
-  fn: HeightfieldFn,
+  fn: GetByIndex<HeightfieldProps>,
   fwdRef?: React.MutableRefObject<THREE.Object3D>,
   deps?: any[],
 ) {
   return useBody('Heightfield', fn, (args) => args, fwdRef, deps)
 }
-export function useParticle(fn: ParticleFn, fwdRef?: React.MutableRefObject<THREE.Object3D>, deps?: any[]) {
+export function useParticle(
+  fn: GetByIndex<ParticleProps>,
+  fwdRef?: React.MutableRefObject<THREE.Object3D>,
+  deps?: any[],
+) {
   return useBody('Particle', fn, () => [], fwdRef, deps)
 }
-export function useSphere(fn: SphereFn, fwdRef?: React.MutableRefObject<THREE.Object3D>, deps?: any[]) {
-  return useBody('Sphere', fn, (radius) => [(radius === undefined || radius === null) ? 1 : radius], fwdRef, deps)
-}
-export function useTrimesh(fn: TrimeshFn, fwdRef?: React.MutableRefObject<THREE.Object3D>, deps?: any[]) {
-  return useBody(
-    'Trimesh',
-    fn,
-    (args) => {
-      return [args[0].map((v: any) => (v instanceof THREE.Vector3 ? [v.x, v.y, v.z] : v)), args[1]]
-    },
-    fwdRef,
-    deps,
-  )
-}
-export function useConvexPolyhedron(
-  fn: ConvexPolyhedronFn,
+export function useSphere(
+  fn: GetByIndex<SphereProps>,
   fwdRef?: React.MutableRefObject<THREE.Object3D>,
   deps?: any[],
 ) {
   return useBody(
+    'Sphere',
+    fn,
+    (radius) => [radius === undefined || radius === null ? 1 : radius],
+    fwdRef,
+    deps,
+  )
+}
+export function useTrimesh(
+  fn: GetByIndex<TrimeshProps>,
+  fwdRef?: React.MutableRefObject<THREE.Object3D>,
+  deps?: any[],
+) {
+  return useBody<TrimeshProps>(
+    'Trimesh',
+    fn,
+    (args): [Triplet[], Triplet[]] => [args[0].map(makeTriplet), args[1]],
+    fwdRef,
+    deps,
+  )
+}
+
+export function useConvexPolyhedron(
+  fn: GetByIndex<ConvexPolyhedronProps>,
+  fwdRef?: React.MutableRefObject<THREE.Object3D>,
+  deps?: any[],
+) {
+  return useBody<ConvexPolyhedronProps>(
     'ConvexPolyhedron',
     fn,
-    (args) => {
-      return [
-        args[0].map((v: any) => (v instanceof THREE.Vector3 ? [v.x, v.y, v.z] : v)),
-        args[1],
-        args[2] && args[2].map((n: any) => (n instanceof THREE.Vector3 ? [n.x, n.y, n.z] : n)),
-      ]
-    },
+    (args): [Triplet[], number[], Triplet[]] => [
+      args[0].map(makeTriplet),
+      args[1],
+      args[2] && args[2].map(makeTriplet),
+    ],
     fwdRef,
     deps,
   )
 }
 export function useCompoundBody(
-  fn: CompoundBodyFn,
+  fn: GetByIndex<CompoundBodyProps>,
   fwdRef?: React.MutableRefObject<THREE.Object3D>,
   deps?: any[],
 ) {
@@ -464,8 +539,8 @@ function useConstraint<T extends 'Hinge' | ConstraintTypes>(
   const { worker } = useContext(context)
   const uuid = THREE.MathUtils.generateUUID()
 
-  const nullRef1 = useRef(null as unknown as THREE.Object3D)
-  const nullRef2 = useRef(null as unknown as THREE.Object3D)
+  const nullRef1 = useRef<THREE.Object3D>(null!)
+  const nullRef2 = useRef<THREE.Object3D>(null!)
   bodyA = bodyA === undefined || bodyA === null ? nullRef1 : bodyA
   bodyB = bodyB === undefined || bodyB === null ? nullRef2 : bodyB
 
@@ -555,8 +630,8 @@ export function useSpring(
   const { worker, events } = useContext(context)
   const [uuid] = useState(() => THREE.MathUtils.generateUUID())
 
-  const nullRef1 = useRef(null as unknown as THREE.Object3D)
-  const nullRef2 = useRef(null as unknown as THREE.Object3D)
+  const nullRef1 = useRef<THREE.Object3D>(null!)
+  const nullRef2 = useRef<THREE.Object3D>(null!)
   bodyA = bodyA === undefined || bodyA === null ? nullRef1 : bodyA
   bodyB = bodyB === undefined || bodyB === null ? nullRef2 : bodyB
 
@@ -588,8 +663,8 @@ export function useSpring(
 }
 
 type RayOptns = Omit<RayOptions, 'mode' | 'from' | 'to' | 'result' | 'callback'> & {
-  from?: number[]
-  to?: number[]
+  from?: Triplet
+  to?: Triplet
 }
 
 function useRay(
@@ -633,7 +708,7 @@ type RaycastVehicleApi = [React.MutableRefObject<THREE.Object3D | undefined>, Ra
 
 type WheelInfoOptions = {
   radius?: number
-  directionLocal?: number[]
+  directionLocal?: Triplet
   suspensionStiffness?: number
   suspensionRestLength?: number
   maxSuspensionForce?: number
@@ -642,8 +717,8 @@ type WheelInfoOptions = {
   dampingCompression?: number
   frictionSlip?: number
   rollInfluence?: number
-  axleLocal?: number[]
-  chassisConnectionPointLocal?: number[]
+  axleLocal?: Triplet
+  chassisConnectionPointLocal?: Triplet
   isFrontWheel?: boolean
   useCustomSlidingRotationalSpeed?: boolean
   customSlidingRotationalSpeed?: number
@@ -665,7 +740,7 @@ export function useRaycastVehicle(
   fwdRef?: React.MutableRefObject<THREE.Object3D>,
   deps: any[] = [],
 ): RaycastVehicleApi {
-  const ref = fwdRef ? fwdRef : useRef<THREE.Object3D>(null as unknown as THREE.Object3D)
+  const ref = fwdRef ? fwdRef : useRef<THREE.Object3D>(null!)
   const { worker, subscriptions } = useContext(context)
 
   useLayoutEffect(() => {
