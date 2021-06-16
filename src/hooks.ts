@@ -68,13 +68,21 @@ export type ShapeType =
   | 'ConvexPolyhedron'
 export type BodyShapeType = ShapeType | 'Compound'
 
-type TrimeshArgs = [(THREE.Vector3 | Triplet)[], Triplet[]]
-type HeightfieldArgs = [number[], { minValue?: number; maxValue?: number; elementSize?: number }]
-type ConvexPolyhedronArgs = [(THREE.Vector3 | Triplet)[], number[], (THREE.Vector3 | Triplet)[]]
+type CylinderArgs = [radiusTop: number, radiusBottom: number, height: number, numSegments: number]
+type TrimeshArgs = [vertices: (THREE.Vector3 | Triplet)[], indices: Triplet[]]
+type HeightfieldArgs = [
+  data: number[],
+  options: { minValue?: number; maxValue?: number; elementSize?: number },
+]
+type ConvexPolyhedronArgs = [
+  vertices: (THREE.Vector3 | Triplet)[],
+  faces: number[],
+  normals: (THREE.Vector3 | Triplet)[],
+]
 
 export interface PlaneProps extends BodyProps {}
 export interface BoxProps extends BodyProps<Triplet> {}
-export interface CylinderProps extends BodyProps<[number, number, number, number]> {}
+export interface CylinderProps extends BodyProps<CylinderArgs> {}
 export interface ParticleProps extends BodyProps {}
 export interface SphereProps extends BodyProps<number> {}
 export interface TrimeshProps extends BodyPropsArgsRequired<TrimeshArgs> {}
