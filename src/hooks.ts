@@ -37,7 +37,7 @@ export interface AtomicProps {
   isTrigger?: boolean
 }
 
-type Triplet = [number, number, number]
+type Triplet = [x: number, y: number, z: number]
 
 export interface BodyProps<T = unknown> extends AtomicProps {
   args?: T
