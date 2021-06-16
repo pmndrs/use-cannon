@@ -136,21 +136,21 @@ function Physics({
   size = 1000
 }: ProviderProps): JSX.Element
 
-function Debug({ 
+function Debug({
   children,
-  color = 'black', 
+  color = 'black',
   scale = 1
 }: DebugProps): JSX.Element
 
-function usePlane(fn: PlaneFn, ref?: React.MutableRefObject<THREE.Object3D>): Api
-function useBox(fn: BoxFn, ref?: React.MutableRefObject<THREE.Object3D>): Api
-function useCylinder(fn: CylinderFn, ref?: React.MutableRefObject<THREE.Object3D>): Api
-function useHeightfield(fn: HeightfieldFn, ref?: React.MutableRefObject<THREE.Object3D>): Api
-function useParticle(fn: ParticleFn, ref?: React.MutableRefObject<THREE.Object3D>): Api
-function useSphere(fn: SphereFn, ref?: React.MutableRefObject<THREE.Object3D>): Api
-function useTrimesh(fn: TrimeshFn, ref?: React.MutableRefObject<THREE.Object3D>): Api
-function useConvexPolyhedron(fn: ConvexPolyhedronFn, ref?: React.MutableRefObject<THREE.Object3D>): Api
-function useCompoundBody(fn: CompoundBodyFn, ref?: React.MutableRefObject<THREE.Object3D>): Api
+function usePlane(fn: GetByIndex<PlaneProps>, ref?: React.MutableRefObject<THREE.Object3D>): Api
+function useBox(fn: GetByIndex<BoxProps>,, ref?: React.MutableRefObject<THREE.Object3D>): Api
+function useCylinder(fn: GetByIndex<CylinderProps>, ref?: React.MutableRefObject<THREE.Object3D>): Api
+function useHeightfield(fn: GetByIndex<HeightfieldProps>, ref?: React.MutableRefObject<THREE.Object3D>): Api
+function useParticle(fn: GetByIndex<ParticleProps>, ref?: React.MutableRefObject<THREE.Object3D>): Api
+function useSphere(fn: GetByIndex<SphereProps>, ref?: React.MutableRefObject<THREE.Object3D>): Api
+function useTrimesh(fn: GetByIndex<TrimeshProps>, ref?: React.MutableRefObject<THREE.Object3D>): Api
+function useConvexPolyhedron(fn: GetByIndex<ConvexPolyhedronProps>, ref?: React.MutableRefObject<THREE.Object3D>): Api
+function useCompoundBody(fn: GetByIndex<CompoundBodyProps>, ref?: React.MutableRefObject<THREE.Object3D>): Api
 
 function usePointToPointConstraint(
   bodyA: React.MutableRefObject<THREE.Object3D>,
@@ -198,25 +198,24 @@ function useSpring(
 ### Returned api
 
 ```typescript
-type WorkerApi = WorkerProps<AtomicProps> & {
+interface WorkerApi extends WorkerProps<AtomicProps> {
   position: WorkerVec
   rotation: WorkerVec
   velocity: WorkerVec
   angularVelocity: WorkerVec
   linearFactor: WorkerVec
   angularFactor: WorkerVec
-  applyForce: (force: number[], worldPoint: number[]) => void
-  applyImpulse: (impulse: number[], worldPoint: number[]) => void
-  applyLocalForce: (force: number[], localPoint: number[]) => void
-  applyLocalImpulse: (impulse: number[], localPoint: number[]) => void
+  applyForce: (force: Triplet, worldPoint: Triplet) => void
+  applyImpulse: (impulse: Triplet, worldPoint: Triplet) => void
+  applyLocalForce: (force: Triplet, localPoint: Triplet) => void
+  applyLocalImpulse: (impulse: Triplet, localPoint: Triplet) => void
 }
 
-type Api = [
-  React.MutableRefObject<THREE.Object3D | undefined>,
-  WorkerApi & {
-    at: (index: number) => WorkerApi
-  }
-]
+interface PublicApi extends WorkerApi {
+  at: (index: number) => WorkerApi
+}
+
+type Api = [React.MutableRefObject<THREE.Object3D | undefined>, PublicApi]
 
 type ConstraintApi = [
   React.MutableRefObject<THREE.Object3D>,
@@ -274,9 +273,9 @@ type ProviderProps = {
   size?: number
 }
 
-type AtomicProps = {
+interface AtomicProps {
   mass?: number
-  material?: { friction?: number; restitution?: number }
+  material?: MaterialOptions
   linearDamping?: number
   angularDamping?: number
   allowSleep?: boolean
@@ -284,23 +283,29 @@ type AtomicProps = {
   sleepTimeLimit?: number
   collisionFilterGroup?: number
   collisionFilterMask?: number
+  collisionResponse?: number
   fixedRotation?: boolean
+  userData?: object
   isTrigger?: boolean
 }
 
-type BodyProps = AtomicProps & {
-  args?: any
-  position?: number[]
-  rotation?: number[]
-  velocity?: number[]
-  angularVelocity?: number[]
-  linearFactor?: number[]
-  angularFactor?: number[]
+type Triplet = [x: number, y: number, z: number]
+
+interface BodyProps<T = unknown> extends AtomicProps {
+  args?: T
+  position?: Triplet
+  rotation?: Triplet
+  velocity?: Triplet
+  angularVelocity?: Triplet
+  linearFactor?: Triplet
+  angularFactor?: Triplet
   type?: 'Dynamic' | 'Static' | 'Kinematic'
-  onCollide?: (e: Event) => void
+  onCollide?: (e: CollideEvent) => void
+  onCollideBegin?: (e: CollideBeginEvent) => void
+  onCollideEnd?: (e: CollideEndEvent) => void
 }
 
-type Event = RayhitEvent | CollideEvent
+type Event = RayhitEvent | CollideEvent | CollideBeginEvent | CollideEndEvent
 type CollideEvent = {
   op: string
   type: 'collide'
@@ -335,6 +340,18 @@ type CollideEvent = {
     targetFilterMask: number
   }
 }
+type CollideBeginEvent = {
+  op: 'event'
+  type: 'collideBegin'
+  target: Object3D
+  body: Object3D
+}
+type CollideEndEvent = {
+  op: 'event'
+  type: 'collideEnd'
+  target: Object3D
+  body: Object3D
+}
 type RayhitEvent = {
   op: string
   type: 'rayhit'
@@ -342,89 +359,70 @@ type RayhitEvent = {
   target: THREE.Object3D
 }
 
-type PlaneProps = BodyProps & {}
-type ParticleProps = BodyProps & {}
-type BoxProps = BodyProps & {
-  args?: number[] // extents: [x, y, z]
-}
-type CylinderProps = BodyProps & {
-  args?: [number, number, number, number] // radiusTop, radiusBottom, height, numSegments
-}
-type SphereProps = BodyProps & {
-  args?: number // radius
-}
-type TrimeshProps = BodyProps & {
-  args?: [number[][], number[][]] // vertices: [[x, y, z], ...], indices: [[a, b, c], ...]
-}
-type ConvexPolyhedronProps = BodyProps & {
-  args?:
-    | THREE.Geometry
-    // vertices: [[x, y, z], ...], faces: [[a, b, c], ...]
-    | [(THREE.Vector3 | number[])[], (THREE.Face3 | number[])[]]
-}
-type HeightfieldProps = BodyProps & {
-  args?: [
-    number[][], // data
-    {
-      minValue?: number
-      maxValue?: number
-      elementSize?: number
-    }
-  ]
-}
-type CompoundBodyProps = BodyProps & {
-  shapes: {
-    type: ShapeType
-    args?: any
-    position?: number[]
-    rotation?: number[]
-  }[]
+type CylinderArgs = [radiusTop: number, radiusBottom: number, height: number, numSegments: number]
+type TrimeshArgs = [vertices: (THREE.Vector3 | Triplet)[], indices: Triplet[]]
+type HeightfieldArgs = [
+  data: number[],
+  options: { minValue?: number; maxValue?: number; elementSize?: number },
+]
+type ConvexPolyhedronArgs = [
+  vertices: (THREE.Vector3 | Triplet)[],
+  faces: number[],
+  normals: (THREE.Vector3 | Triplet)[],
+]
+
+interface PlaneProps extends BodyProps {}
+interface BoxProps extends BodyProps<Triplet> {} // extents: [x, y, z]
+interface CylinderProps extends BodyProps<CylinderArgs> {}
+interface ParticleProps extends BodyProps {}
+interface SphereProps extends BodyProps<number> {} // radius
+interface TrimeshProps extends BodyPropsArgsRequired<TrimeshArgs> {}
+interface HeightfieldProps extends BodyProps<HeightfieldArgs> {}
+interface ConvexPolyhedronProps extends BodyPropsArgsRequired<ConvexPolyhedronArgs> {}
+interface CompoundBodyProps extends BodyProps {
+  shapes: BodyProps & { type: ShapeType }[]
 }
 
-type PlaneFn = (index: number) => PlaneProps
-type BoxFn = (index: number) => BoxProps
-type CylinderFn = (index: number) => CylinderProps
-type HeightfieldFn = (index: number) => HeightfieldProps
-type ParticleFn = (index: number) => ParticleProps
-type SphereFn = (index: number) => SphereProps
-type TrimeshFn = (index: number) => TrimeshProps
-type ConvexPolyhedronFn = (index: number) => ConvexPolyhedronProps
-type CompoundBodyFn = (index: number) => CompoundBodyProps
-
-type ConstraintOptns = { maxForce?: number; collideConnected?: boolean; wakeUpBodies?: boolean }
-
-type PointToPointConstraintOpts = ConstraintOptns & {
-  pivotA: number[]
-  pivotB: number[]
+interface ConstraintOptns {
+  maxForce?: number
+  collideConnected?: boolean
+  wakeUpBodies?: boolean
 }
 
-type ConeTwistConstraintOpts = ConstraintOptns & {
-  pivotA?: number[]
-  axisA?: number[]
-  pivotB?: number[]
-  axisB?: number[]
+interface PointToPointConstraintOpts extends ConstraintOptns {
+  pivotA: Triplet
+  pivotB: Triplet
+}
+
+interface ConeTwistConstraintOpts extends ConstraintOptns {
+  pivotA?: Triplet
+  axisA?: Triplet
+  pivotB?: Triplet
+  axisB?: Triplet
   angle?: number
   twistAngle?: number
 }
-type DistanceConstraintOpts = ConstraintOptns & { distance?: number }
-
-type HingeConstraintOpts = ConstraintOptns & {
-  pivotA?: number[]
-  axisA?: number[]
-  pivotB?: number[]
-  axisB?: number[]
+interface DistanceConstraintOpts extends ConstraintOptns {
+  distance?: number
 }
 
-type LockConstraintOpts = ConstraintOptns & {}
+interface HingeConstraintOpts extends ConstraintOptns {
+  pivotA?: Triplet
+  axisA?: Triplet
+  pivotB?: Triplet
+  axisB?: Triplet
+}
 
-type SpringOptns = {
+interface LockConstraintOpts extends ConstraintOptns {}
+
+interface SpringOptns {
   restLength?: number
   stiffness?: number
   damping?: number
-  worldAnchorA?: number[]
-  worldAnchorB?: number[]
-  localAnchorA?: number[]
-  localAnchorB?: number[]
+  worldAnchorA?: Triplet
+  worldAnchorB?: Triplet
+  localAnchorA?: Triplet
+  localAnchorB?: Triplet
 }
 ```
 

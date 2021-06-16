@@ -37,7 +37,7 @@ export interface AtomicProps {
   isTrigger?: boolean
 }
 
-type Triplet = [x: number, y: number, z: number]
+export type Triplet = [x: number, y: number, z: number]
 
 export interface BodyProps<T = unknown> extends AtomicProps {
   args?: T
@@ -68,13 +68,13 @@ export type ShapeType =
   | 'ConvexPolyhedron'
 export type BodyShapeType = ShapeType | 'Compound'
 
-type CylinderArgs = [radiusTop: number, radiusBottom: number, height: number, numSegments: number]
-type TrimeshArgs = [vertices: (THREE.Vector3 | Triplet)[], indices: Triplet[]]
-type HeightfieldArgs = [
+export type CylinderArgs = [radiusTop: number, radiusBottom: number, height: number, numSegments: number]
+export type TrimeshArgs = [vertices: (THREE.Vector3 | Triplet)[], indices: Triplet[]]
+export type HeightfieldArgs = [
   data: number[],
   options: { minValue?: number; maxValue?: number; elementSize?: number },
 ]
-type ConvexPolyhedronArgs = [
+export type ConvexPolyhedronArgs = [
   vertices: (THREE.Vector3 | Triplet)[],
   faces: number[],
   normals: (THREE.Vector3 | Triplet)[],
@@ -92,7 +92,7 @@ export interface CompoundBodyProps extends BodyProps {
   shapes: BodyProps & { type: ShapeType }[]
 }
 
-type WorkerVec = {
+interface WorkerVec {
   set: (x: number, y: number, z: number) => void
   copy: ({ x, y, z }: THREE.Vector3 | THREE.Euler) => void
   subscribe: (callback: (value: Triplet) => void) => void
@@ -104,7 +104,7 @@ export type WorkerProps<T> = {
     subscribe: (callback: (value: T[K]) => void) => () => void
   }
 }
-export type WorkerApi = WorkerProps<AtomicProps> & {
+export interface WorkerApi extends WorkerProps<AtomicProps> {
   position: WorkerVec
   rotation: WorkerVec
   velocity: WorkerVec
@@ -117,19 +117,25 @@ export type WorkerApi = WorkerProps<AtomicProps> & {
   applyLocalImpulse: (impulse: Triplet, localPoint: Triplet) => void
 }
 
-type PublicApi = WorkerApi & { at: (index: number) => WorkerApi }
+interface PublicApi extends WorkerApi {
+  at: (index: number) => WorkerApi
+}
 export type Api = [React.MutableRefObject<THREE.Object3D | undefined>, PublicApi]
 
 export type ConstraintTypes = 'PointToPoint' | 'ConeTwist' | 'Distance' | 'Lock'
 
-export type ConstraintOptns = { maxForce?: number; collideConnected?: boolean; wakeUpBodies?: boolean }
+export interface ConstraintOptns {
+  maxForce?: number
+  collideConnected?: boolean
+  wakeUpBodies?: boolean
+}
 
-export type PointToPointConstraintOpts = ConstraintOptns & {
+export interface PointToPointConstraintOpts extends ConstraintOptns {
   pivotA: Triplet
   pivotB: Triplet
 }
 
-export type ConeTwistConstraintOpts = ConstraintOptns & {
+export interface ConeTwistConstraintOpts extends ConstraintOptns {
   pivotA?: Triplet
   axisA?: Triplet
   pivotB?: Triplet
@@ -137,18 +143,20 @@ export type ConeTwistConstraintOpts = ConstraintOptns & {
   angle?: number
   twistAngle?: number
 }
-export type DistanceConstraintOpts = ConstraintOptns & { distance?: number }
+export interface DistanceConstraintOpts extends ConstraintOptns {
+  distance?: number
+}
 
-export type HingeConstraintOpts = ConstraintOptns & {
+export interface HingeConstraintOpts extends ConstraintOptns {
   pivotA?: Triplet
   axisA?: Triplet
   pivotB?: Triplet
   axisB?: Triplet
 }
 
-export type LockConstraintOpts = ConstraintOptns & {}
+export interface LockConstraintOpts extends ConstraintOptns {}
 
-export type SpringOptns = {
+export interface SpringOptns {
   restLength?: number
   stiffness?: number
   damping?: number
