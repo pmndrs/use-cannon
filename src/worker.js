@@ -37,10 +37,12 @@ function syncBodies() {
 }
 
 function emitBeginContact({ bodyA, bodyB }) {
+  if (!bodyA || !bodyB) return
   self.postMessage({ op: 'event', type: 'collideBegin', bodyA: bodyA.uuid, bodyB: bodyB.uuid })
 }
 
 function emitEndContact({ bodyA, bodyB }) {
+  if (!bodyA || !bodyB) return
   self.postMessage({ op: 'event', type: 'collideEnd', bodyA: bodyA.uuid, bodyB: bodyB.uuid })
 }
 

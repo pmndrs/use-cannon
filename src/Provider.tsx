@@ -229,6 +229,7 @@ export default function Provider({
               }
               break
             case 'rayhit':
+              if (!events[e.data.ray.uuid]) break
               events[e.data.ray.uuid]({
                 ...e.data,
                 body: e.data.body ? refs[e.data.body] : null,
