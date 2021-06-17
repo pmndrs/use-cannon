@@ -138,11 +138,8 @@ export default function Provider({
     }
   }, [])
 
-  // Run loop *after* all the physics objects have ran theirs!
-  // Otherwise the buffers will be invalidated by the browser
-  useFrame(() => loop(), -1)
-
   useLayoutEffect(() => {
+    requestAnimationFrame(loop)
     worker.postMessage({
       op: 'init',
       props: {
@@ -175,7 +172,7 @@ export default function Provider({
             observation = e.data.observations[i]
             if (subscriptions[observation[0]]) subscriptions[observation[0]](observation[1])
           }
-          //requestAnimationFrame(loop)
+          requestAnimationFrame(loop)
           if (e.data.active) invalidate()
           break
         case 'event':
