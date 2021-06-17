@@ -38,6 +38,7 @@ export interface AtomicProps {
 }
 
 export type Triplet = [x: number, y: number, z: number]
+type VectorTypes = THREE.Vector3 | Triplet
 
 export interface BodyProps<T = unknown> extends AtomicProps {
   args?: T
@@ -68,16 +69,18 @@ export type ShapeType =
   | 'ConvexPolyhedron'
 export type BodyShapeType = ShapeType | 'Compound'
 
-export type CylinderArgs = [radiusTop: number, radiusBottom: number, height: number, numSegments: number]
-export type TrimeshArgs = [vertices: (THREE.Vector3 | Triplet)[], indices: Triplet[]]
+export type CylinderArgs = [radiusTop?: number, radiusBottom?: number, height?: number, numSegments?: number]
+export type TrimeshArgs = [vertices: number[], indices: number[]]
 export type HeightfieldArgs = [
-  data: number[],
-  options: { minValue?: number; maxValue?: number; elementSize?: number },
+  data: number[][],
+  options: { elementSize?: number; maxValue?: number; minValue?: number; },
 ]
-export type ConvexPolyhedronArgs = [
-  vertices: (THREE.Vector3 | Triplet)[],
-  faces: number[],
-  normals: (THREE.Vector3 | Triplet)[],
+export type ConvexPolyhedronArgs<V extends VectorTypes = VectorTypes> = [
+  vertices?: V[],
+  faces?: number[][],
+  normals?: V[],
+  axes?: V[],
+  boundingSphereRadius?: number
 ]
 
 export interface PlaneProps extends BodyProps {}
@@ -86,8 +89,8 @@ export interface CylinderProps extends BodyProps<CylinderArgs> {}
 export interface ParticleProps extends BodyProps {}
 export interface SphereProps extends BodyProps<number> {}
 export interface TrimeshProps extends BodyPropsArgsRequired<TrimeshArgs> {}
-export interface HeightfieldProps extends BodyProps<HeightfieldArgs> {}
-export interface ConvexPolyhedronProps extends BodyPropsArgsRequired<ConvexPolyhedronArgs> {}
+export interface HeightfieldProps extends BodyPropsArgsRequired<HeightfieldArgs> {}
+export interface ConvexPolyhedronProps extends BodyProps<ConvexPolyhedronArgs> {}
 export interface CompoundBodyProps extends BodyProps {
   shapes: BodyProps & { type: ShapeType }[]
 }
@@ -247,7 +250,7 @@ function setupCollision(
 let subscriptionGuid = 0
 
 type GetByIndex<T extends BodyProps> = (index: number) => T
-type ArgFn<T> = (args: T) => unknown
+type ArgFn<T> = (args: T) => unknown[]
 
 function useBody<B extends BodyProps<unknown>>(
   type: BodyShapeType,
@@ -412,20 +415,20 @@ export function usePlane(
 ) {
   return useBody('Plane', fn, () => [], fwdRef, deps)
 }
-const defaultBoxArgs: Triplet = [1, 1, 1]
 export function useBox(
   fn: GetByIndex<BoxProps>,
   fwdRef?: React.MutableRefObject<THREE.Object3D>,
   deps?: any[],
 ) {
-  return useBody('Box', fn, (args = defaultBoxArgs) => args, fwdRef, deps)
+  const defaultBoxArgs: Triplet = [1, 1, 1]
+  return useBody('Box', fn, (args = defaultBoxArgs): Triplet => args, fwdRef, deps)
 }
 export function useCylinder(
   fn: GetByIndex<CylinderProps>,
   fwdRef?: React.MutableRefObject<THREE.Object3D>,
   deps?: any[],
 ) {
-  return useBody('Cylinder', fn, (args) => args, fwdRef, deps)
+  return useBody('Cylinder', fn, (args = [] as []) => args, fwdRef, deps)
 }
 export function useHeightfield(
   fn: GetByIndex<HeightfieldProps>,
@@ -449,7 +452,7 @@ export function useSphere(
   return useBody(
     'Sphere',
     fn,
-    (radius) => [radius === undefined || radius === null ? 1 : radius],
+    (radius = 1): [number] => [radius],
     fwdRef,
     deps,
   )
@@ -462,7 +465,7 @@ export function useTrimesh(
   return useBody<TrimeshProps>(
     'Trimesh',
     fn,
-    (args): [Triplet[], Triplet[]] => [args[0].map(makeTriplet), args[1]],
+    (args) => args,
     fwdRef,
     deps,
   )
@@ -476,10 +479,12 @@ export function useConvexPolyhedron(
   return useBody<ConvexPolyhedronProps>(
     'ConvexPolyhedron',
     fn,
-    (args): [Triplet[], number[], Triplet[]] => [
-      args[0].map(makeTriplet),
-      args[1],
-      args[2] && args[2].map(makeTriplet),
+    ([vertices, faces, normals, axes, boundingSphereRadius] = []): ConvexPolyhedronArgs<Triplet> => [
+      vertices && vertices.map(makeTriplet),
+      faces,
+      normals && normals.map(makeTriplet),
+      axes && axes.map(makeTriplet),
+      boundingSphereRadius
     ],
     fwdRef,
     deps,
@@ -490,7 +495,7 @@ export function useCompoundBody(
   fwdRef?: React.MutableRefObject<THREE.Object3D>,
   deps?: any[],
 ) {
-  return useBody('Compound', fn, (args) => args || [], fwdRef, deps)
+  return useBody('Compound', fn, (args) => args as unknown[], fwdRef, deps)
 }
 
 type ConstraintApi = [
@@ -697,16 +702,16 @@ export function useRaycastAll(options: RayOptns, callback: (e: Event) => void, d
   useRay('All', options, callback, deps)
 }
 
-type RaycastVehiclePublicApi = {
-  // addWheel: () => number
-  setSteeringValue: (value: number, wheelIndex: number) => void
+export interface RaycastVehiclePublicApi {
   applyEngineForce: (value: number, wheelIndex: number) => void
   setBrake: (brake: number, wheelIndex: number) => void
+  setSteeringValue: (value: number, wheelIndex: number) => void
+  sliding: {
+    subscribe: (callback: (sliding: boolean) => void) => void
+  }
 }
 
-type RaycastVehicleApi = [React.MutableRefObject<THREE.Object3D | undefined>, RaycastVehiclePublicApi]
-
-type WheelInfoOptions = {
+export interface WheelInfoOptions {
   radius?: number
   directionLocal?: Triplet
   suspensionStiffness?: number
@@ -724,7 +729,7 @@ type WheelInfoOptions = {
   customSlidingRotationalSpeed?: number
 }
 
-type RaycastVehicleProps = {
+export interface RaycastVehicleProps {
   chassisBody: React.MutableRefObject<THREE.Object3D | undefined>
   wheels: React.MutableRefObject<THREE.Object3D | undefined>[]
   wheelInfos: WheelInfoOptions[]
@@ -733,13 +738,11 @@ type RaycastVehicleProps = {
   indexUpAxis?: number
 }
 
-type RaycastVehicleFn = () => RaycastVehicleProps
-
 export function useRaycastVehicle(
-  fn: RaycastVehicleFn,
+  fn: () => RaycastVehicleProps,
   fwdRef?: React.MutableRefObject<THREE.Object3D>,
   deps: any[] = [],
-): RaycastVehicleApi {
+): [React.MutableRefObject<THREE.Object3D | undefined>, RaycastVehiclePublicApi] {
   const ref = fwdRef ? fwdRef : useRef<THREE.Object3D>(null!)
   const { worker, subscriptions } = useContext(context)
 
@@ -771,7 +774,7 @@ export function useRaycastVehicle(
     }
   }, deps)
 
-  const api = useMemo(() => {
+  const api = useMemo<RaycastVehiclePublicApi>(() => {
     const post = (op: string, props?: any) =>
       ref.current && worker.postMessage({ op, uuid: ref.current.uuid, props })
     return {

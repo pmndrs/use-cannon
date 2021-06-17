@@ -13,16 +13,20 @@ import {
   Vec3,
 } from 'cannon-es'
 
+const makeVec3 = ([x, y, z]) => new Vec3(x, y, z)
+
 function createShape(type, args) {
   switch (type) {
     case 'Box':
       return new Box(new Vec3(...args.map((v) => v / 2))) // extents => halfExtents
     case 'ConvexPolyhedron':
-      const [v, f, n] = args
+      const [v, faces, n, a, boundingSphereRadius] = args
       return new ConvexPolyhedron({
-        vertices: v.map(([x, y, z]) => new Vec3(x, y, z)),
-        normals: n ? n.map(([x, y, z]) => new Vec3(x, y, z)) : null,
-        faces: f,
+        vertices: v ? v.map(makeVec3) : undefined,
+        faces,
+        normals: n ? n.map(makeVec3) : undefined,
+        axes: a ? a.map(makeVec3) : undefined,
+        boundingSphereRadius
       })
     case 'Cylinder':
       return new Cylinder(...args) // [ radiusTop, radiusBottom, height, numSegments ] = args
