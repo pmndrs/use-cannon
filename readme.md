@@ -142,15 +142,65 @@ function Debug({
   scale = 1
 }: DebugProps): JSX.Element
 
-function usePlane(fn: GetByIndex<PlaneProps>, ref?: React.MutableRefObject<THREE.Object3D>): Api
-function useBox(fn: GetByIndex<BoxProps>,, ref?: React.MutableRefObject<THREE.Object3D>): Api
-function useCylinder(fn: GetByIndex<CylinderProps>, ref?: React.MutableRefObject<THREE.Object3D>): Api
-function useHeightfield(fn: GetByIndex<HeightfieldProps>, ref?: React.MutableRefObject<THREE.Object3D>): Api
-function useParticle(fn: GetByIndex<ParticleProps>, ref?: React.MutableRefObject<THREE.Object3D>): Api
-function useSphere(fn: GetByIndex<SphereProps>, ref?: React.MutableRefObject<THREE.Object3D>): Api
-function useTrimesh(fn: GetByIndex<TrimeshProps>, ref?: React.MutableRefObject<THREE.Object3D>): Api
-function useConvexPolyhedron(fn: GetByIndex<ConvexPolyhedronProps>, ref?: React.MutableRefObject<THREE.Object3D>): Api
-function useCompoundBody(fn: GetByIndex<CompoundBodyProps>, ref?: React.MutableRefObject<THREE.Object3D>): Api
+function usePlane(
+  fn: GetByIndex<PlaneProps>,
+  fwdRef?: React.MutableRefObject<THREE.Object3D>,
+  deps?: any[],
+): Api
+
+function useBox(
+  fn: GetByIndex<BoxProps>,
+  fwdRef?: React.MutableRefObject<THREE.Object3D>,
+  deps?: any[],
+): Api
+
+function useCylinder(
+  fn: GetByIndex<CylinderProps>,
+  fwdRef?: React.MutableRefObject<THREE.Object3D>,
+  deps?: any[],
+): Api
+
+function useHeightfield(
+  fn: GetByIndex<HeightfieldProps>,
+  fwdRef?: React.MutableRefObject<THREE.Object3D>,
+  deps?: any[],
+): Api
+
+function useParticle(
+  fn: GetByIndex<ParticleProps>,
+  fwdRef?: React.MutableRefObject<THREE.Object3D>,
+  deps?: any[],
+): Api
+
+function useSphere(
+  fn: GetByIndex<SphereProps>,
+  fwdRef?: React.MutableRefObject<THREE.Object3D>,
+  deps?: any[],
+): Api
+
+function useTrimesh(
+  fn: GetByIndex<TrimeshProps>,
+  fwdRef?: React.MutableRefObject<THREE.Object3D>,
+  deps?: any[],
+): Api
+
+function useConvexPolyhedron(
+  fn: GetByIndex<ConvexPolyhedronProps>,
+  fwdRef?: React.MutableRefObject<THREE.Object3D>,
+  deps?: any[],
+): Api
+
+function useCompoundBody(
+  fn: GetByIndex<CompoundBodyProps>,
+  fwdRef?: React.MutableRefObject<THREE.Object3D>,
+  deps?: any[],
+): Api
+
+function useRaycastVehicle(
+  fn: () => RaycastVehicleProps,
+  fwdRef?: React.MutableRefObject<THREE.Object3D>,
+  deps: any[] = [],
+): [React.MutableRefObject<THREE.Object3D | undefined>, RaycastVehiclePublicApi]
 
 function usePointToPointConstraint(
   bodyA: React.MutableRefObject<THREE.Object3D>,
@@ -193,6 +243,10 @@ function useSpring(
   optns: SpringOptns,
   deps: any[] = []
 ): void
+
+function useRaycastClosest(options: RayOptns, callback: (e: Event) => void, deps: any[] = []): void
+function useRaycastAny(options: RayOptns, callback: (e: Event) => void, deps: any[] = []): void
+function useRaycastAll(options: RayOptns, callback: (e: Event) => void, deps: any[] = []): void
 ```
 
 ### Returned api
@@ -248,6 +302,15 @@ type SpringApi = [
     setDamping: (value: number) => void
   }
 ]
+
+interface RaycastVehiclePublicApi {
+  applyEngineForce: (value: number, wheelIndex: number) => void
+  setBrake: (brake: number, wheelIndex: number) => void
+  setSteeringValue: (value: number, wheelIndex: number) => void
+  sliding: {
+    subscribe: (callback: (sliding: boolean) => void) => void
+  }
+}
 ```
 
 ### Props
@@ -359,16 +422,18 @@ type RayhitEvent = {
   target: THREE.Object3D
 }
 
-type CylinderArgs = [radiusTop: number, radiusBottom: number, height: number, numSegments: number]
-type TrimeshArgs = [vertices: (THREE.Vector3 | Triplet)[], indices: Triplet[]]
+type CylinderArgs = [radiusTop?: number, radiusBottom?: number, height?: number, numSegments?: number]
+type TrimeshArgs = [vertices: number[], indices: number[]]
 type HeightfieldArgs = [
-  data: number[],
-  options: { minValue?: number; maxValue?: number; elementSize?: number },
+  data: number[][],
+  options: { elementSize?: number; maxValue?: number; minValue?: number; },
 ]
-type ConvexPolyhedronArgs = [
-  vertices: (THREE.Vector3 | Triplet)[],
-  faces: number[],
-  normals: (THREE.Vector3 | Triplet)[],
+type ConvexPolyhedronArgs<V extends VectorTypes = VectorTypes> = [
+  vertices?: V[],
+  faces?: number[][],
+  normals?: V[],
+  axes?: V[],
+  boundingSphereRadius?: number
 ]
 
 interface PlaneProps extends BodyProps {}
@@ -377,8 +442,8 @@ interface CylinderProps extends BodyProps<CylinderArgs> {}
 interface ParticleProps extends BodyProps {}
 interface SphereProps extends BodyProps<number> {} // radius
 interface TrimeshProps extends BodyPropsArgsRequired<TrimeshArgs> {}
-interface HeightfieldProps extends BodyProps<HeightfieldArgs> {}
-interface ConvexPolyhedronProps extends BodyPropsArgsRequired<ConvexPolyhedronArgs> {}
+interface HeightfieldProps extends BodyPropsArgsRequired<HeightfieldArgs> {}
+interface ConvexPolyhedronProps extends BodyProps<ConvexPolyhedronArgs> {}
 interface CompoundBodyProps extends BodyProps {
   shapes: BodyProps & { type: ShapeType }[]
 }
@@ -423,6 +488,33 @@ interface SpringOptns {
   worldAnchorB?: Triplet
   localAnchorA?: Triplet
   localAnchorB?: Triplet
+}
+
+interface WheelInfoOptions {
+  radius?: number
+  directionLocal?: Triplet
+  suspensionStiffness?: number
+  suspensionRestLength?: number
+  maxSuspensionForce?: number
+  maxSuspensionTravel?: number
+  dampingRelaxation?: number
+  dampingCompression?: number
+  frictionSlip?: number
+  rollInfluence?: number
+  axleLocal?: Triplet
+  chassisConnectionPointLocal?: Triplet
+  isFrontWheel?: boolean
+  useCustomSlidingRotationalSpeed?: boolean
+  customSlidingRotationalSpeed?: number
+}
+
+interface RaycastVehicleProps {
+  chassisBody: React.MutableRefObject<THREE.Object3D | undefined>
+  wheels: React.MutableRefObject<THREE.Object3D | undefined>[]
+  wheelInfos: WheelInfoOptions[]
+  indexForwardAxis?: number
+  indexRightAxis?: number
+  indexUpAxis?: number
 }
 ```
 
