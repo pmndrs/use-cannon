@@ -312,9 +312,9 @@ function useBody<B extends BodyProps<unknown>>(
       op: 'addBodies',
       type,
       uuid,
-      props: props.map(
-        ({ onCollide, onCollideBegin, onCollideEnd, ...serializableProps }) => serializableProps,
-      ),
+      props: props.map(({ onCollide, onCollideBegin, onCollideEnd, ...serializableProps }) => {
+        return { onCollide: Boolean(onCollide), ...serializableProps }
+      }),
     })
     return () => {
       props.forEach((props, index) => {
