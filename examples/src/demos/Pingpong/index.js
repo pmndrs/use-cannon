@@ -107,9 +107,10 @@ function ContactGround() {
 export default function () {
   const welcome = useStore((state) => state.welcome)
   const { reset } = useStore((state) => state.api)
+
   return (
     <>
-      <Canvas shadows camera={{ position: [0, 5, 12], fov: 50 }} onClick={() => welcome && reset(false)}>
+      <Canvas shadows camera={{ position: [0, 5, 12], fov: 50 }} onPointerMissed={() => welcome && reset(false)}>
         <color attach="background" args={['#171720']} />
         <ambientLight intensity={0.5} />
         <pointLight position={[-10, -10, -10]} />
@@ -156,7 +157,7 @@ export default function () {
           color: 'white',
           fontSize: '1.2em',
         }}>
-        * click to start ...
+        * click anywhere to start
       </div>
     </>
   )

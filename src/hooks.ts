@@ -317,12 +317,10 @@ function useBody<B extends BodyProps<unknown>>(
       }),
     })
     return () => {
-      props.forEach((props, index) => {
-        delete refs[uuid[index]]
-        if (debugApi) {
-          debugApi.remove(uuid[index])
-        }
-        if (props.onCollide || props.onCollideBegin || props.onCollideEnd) delete events[uuid[index]]
+      uuid.forEach((id) => {
+        delete refs[id]
+        if (debugApi) debugApi.remove(id)
+        delete events[id]
       })
       currentWorker.postMessage({ op: 'removeBodies', uuid })
     }
