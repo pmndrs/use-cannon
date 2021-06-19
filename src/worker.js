@@ -133,7 +133,6 @@ self.onmessage = (e) => {
           body.addEventListener('collide', ({ type, body, target, contact }) => {
             const { ni, ri, rj, bi, bj, id } = contact
             const contactPoint = bi.position.vadd(ri)
-            const biIsBody = bi === body
             const contactNormal = bi === body ? ni : ni.scale(-1)
             self.postMessage({
               op: 'event',
@@ -220,9 +219,6 @@ self.onmessage = (e) => {
       break
     case 'setCollisionFilterGroup':
       state.bodies[uuid].collisionFilterGroup = props
-      break
-    case 'setCollisionFilterMask':
-      state.bodies[uuid].collisionFilterMask = props
       break
     case 'setCollisionFilterMask':
       state.bodies[uuid].collisionFilterMask = props

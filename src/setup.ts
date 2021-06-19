@@ -2,7 +2,6 @@ import type { Object3D } from 'three'
 import type { WorkerCollideEvent, WorkerRayhitEvent } from './Provider'
 import type { AtomicProps, BodyProps, BodyShapeType } from './hooks'
 import React, { createContext } from 'react'
-import { isJSDocNullableType } from 'typescript'
 
 export type Buffers = { positions: Float32Array; quaternions: Float32Array }
 export type Refs = { [uuid: string]: Object3D }

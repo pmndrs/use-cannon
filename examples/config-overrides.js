@@ -1,8 +1,6 @@
 const {
   removeModuleScopePlugin,
-  addWebpackPlugin,
   addWebpackAlias,
-  addWebpackModuleRule,
   override,
 } = require('customize-cra')
 const path = require('path')
