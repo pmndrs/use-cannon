@@ -667,6 +667,7 @@ export interface WheelInfoOptions {
   maxSuspensionTravel?: number
   dampingRelaxation?: number
   dampingCompression?: number
+  sideAcceleration?: number
   frictionSlip?: number
   rollInfluence?: number
   axleLocal?: Triplet
