@@ -248,7 +248,7 @@ function useBody<B extends BodyProps<unknown>>(
 ): Api {
   const localRef = useRef<Object3D>(null!)
   const ref = fwdRef ? fwdRef : localRef
-  const { worker, bodies, buffers, refs, events, subscriptions } = useContext(context)
+  const { worker, refs, events, subscriptions } = useContext(context)
   const debugApi = useContext(debugContext)
 
   useLayoutEffect(() => {

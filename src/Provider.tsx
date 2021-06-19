@@ -110,7 +110,6 @@ type WorkerEventMessage =
   | WorkerCollideEndEvent
 type IncomingWorkerMessage = WorkerFrameMessage | WorkerEventMessage
 
-const temp = new Object3D()
 const v = new Vector3()
 const s = new Vector3(1, 1, 1)
 const q = new Quaternion()
@@ -143,7 +142,7 @@ export default function Provider({
   defaultContactMaterial = { contactEquationStiffness: 1e6 },
   size = 1000,
 }: ProviderProps): JSX.Element {
-  const { gl, invalidate } = useThree()
+  const { invalidate } = useThree()
   const [worker] = useState<Worker>(() => new CannonWorker() as Worker)
   const [refs] = useState<Refs>({})
   const [buffers] = useState<Buffers>(() => ({
@@ -182,7 +181,6 @@ export default function Provider({
     let i = 0
     let body: string
     let observation: [key: string, value: any]
-    let ref: Object3D
     worker.onmessage = (e: IncomingWorkerMessage) => {
       switch (e.data.op) {
         case 'frame':

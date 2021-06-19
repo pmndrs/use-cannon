@@ -4,7 +4,7 @@ import { useFrame } from '@react-three/fiber'
 import { Vector3, Quaternion, Scene, Color } from 'three'
 import { Vec3, Quaternion as CQuaternion } from 'cannon-es'
 import type { Body } from 'cannon-es'
-import { context, debugContext, Refs } from './setup'
+import { context, debugContext } from './setup'
 import propsToBody from './propsToBody'
 import { BodyProps, BodyShapeType } from 'hooks'
 

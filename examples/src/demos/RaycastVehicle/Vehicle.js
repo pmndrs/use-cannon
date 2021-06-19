@@ -32,7 +32,6 @@ function Vehicle({
     dampingRelaxation: 10,
     dampingCompression: 4.4,
     axleLocal: [-1, 0, 0], // This is inverted for asymmetrical wheel models (left v. right sided)
-    directionLocal: [0, -1, 0],
     chassisConnectionPointLocal: [1, 0, 1],
     useCustomSlidingRotationalSpeed: true,
     customSlidingRotationalSpeed: -30,
