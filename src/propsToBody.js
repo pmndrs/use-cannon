@@ -37,7 +37,7 @@ function createShape(type, args) {
     case 'Plane':
       return new Plane() // no args, infinite x and y
     case 'Sphere':
-      return new Sphere(...args) // [radius] = args
+      return new Sphere(args) // radius = args
     case 'Trimesh':
       return new Trimesh(...args) // [vertices, indices] = args
   }
