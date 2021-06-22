@@ -1,10 +1,10 @@
 import React, { useContext, useState, useRef, useMemo } from 'react'
 import cannonDebugger, { DebugOptions } from 'cannon-es-debugger'
 import { useFrame } from '@react-three/fiber'
-import { Scene, Color } from 'three'
-import { Quaternion, Vec3 } from 'cannon-es'
+import { Vector3, Quaternion, Scene, Color } from 'three'
+import { Vec3, Quaternion as CQuaternion } from 'cannon-es'
 import type { Body } from 'cannon-es'
-import { context, debugContext } from './setup'
+import { context, debugContext, Refs } from './setup'
 import propsToBody from './propsToBody'
 import { BodyProps, BodyShapeType } from 'hooks'
 
@@ -24,6 +24,10 @@ export type DebugProps = {
   scale?: number
   impl?: DebuggerInterface
 }
+
+const v = new Vector3()
+const s = new Vector3(1, 1, 1)
+const q = new Quaternion()
 
 export function Debug({
   color = 'black',
@@ -49,8 +53,9 @@ export function Debug({
     }
 
     for (const uuid in debugInfo.refs) {
-      debugInfo.refs[uuid].position.copy(refs[uuid].position as unknown as Vec3)
-      debugInfo.refs[uuid].quaternion.copy(refs[uuid].quaternion as unknown as Quaternion)
+      refs[uuid].matrix.decompose(v, q, s)
+      debugInfo.refs[uuid].position.copy(v as unknown as Vec3)
+      debugInfo.refs[uuid].quaternion.copy(q as unknown as CQuaternion)
     }
 
     instance.current.update()

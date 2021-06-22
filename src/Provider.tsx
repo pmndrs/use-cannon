@@ -2,6 +2,7 @@ import type { Shape } from 'cannon-es'
 import type { Buffers, Refs, Events, Subscriptions, ProviderContext } from './setup'
 import React, { useState, useLayoutEffect, useRef, useMemo, useCallback } from 'react'
 import { useThree, useFrame } from '@react-three/fiber'
+import { Object3D, InstancedMesh, Vector3, Quaternion, Matrix4 } from 'three'
 import { context } from './setup'
 // @ts-ignore
 import CannonWorker from '../src/worker'
@@ -109,6 +110,27 @@ type WorkerEventMessage =
   | WorkerCollideEndEvent
 type IncomingWorkerMessage = WorkerFrameMessage | WorkerEventMessage
 
+const temp = new Object3D()
+const v = new Vector3()
+const s = new Vector3(1, 1, 1)
+const q = new Quaternion()
+const m = new Matrix4()
+function apply(index: number, buffers: Buffers, object?: Object3D) {
+  if (index !== undefined) {
+    m.compose(
+      v.fromArray(buffers.positions, index * 3),
+      q.fromArray(buffers.quaternions, index * 4),
+      object ? object.scale : s,
+    )
+    if (object) {
+      object.matrixAutoUpdate = false
+      object.matrix.copy(m)
+    }
+    return m
+  }
+  return m.identity()
+}
+
 export default function Provider({
   children,
   step = 1 / 60,
@@ -140,7 +162,7 @@ export default function Provider({
 
   // Run loop *after* all the physics objects have ran theirs!
   // Otherwise the buffers will be invalidated by the browser
-  useFrame(() => loop(), -1)
+  useFrame(loop)
 
   useLayoutEffect(() => {
     worker.postMessage({
@@ -160,6 +182,7 @@ export default function Provider({
     let i = 0
     let body: string
     let observation: [key: string, value: any]
+    let ref: Object3D
     worker.onmessage = (e: IncomingWorkerMessage) => {
       switch (e.data.op) {
         case 'frame':
@@ -175,8 +198,24 @@ export default function Provider({
             observation = e.data.observations[i]
             if (subscriptions[observation[0]]) subscriptions[observation[0]](observation[1])
           }
-          //requestAnimationFrame(loop)
-          if (e.data.active) invalidate()
+
+          if (e.data.active) {
+            for (let ref of Object.values(refs)) {
+              if (ref instanceof InstancedMesh) {
+                for (let i = 0; i < ref.count; i++) {
+                  const index = bodies.current[`${ref.uuid}/${i}`]
+                  if (index !== undefined) {
+                    ref.setMatrixAt(i, apply(index, buffers))
+                  }
+                  ref.instanceMatrix.needsUpdate = true
+                }
+              } else {
+                apply(bodies.current[ref.uuid], buffers, ref)
+              }
+            }
+            invalidate()
+          }
+
           break
         case 'event':
           switch (e.data.type) {
