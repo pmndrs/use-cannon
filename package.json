@@ -74,7 +74,7 @@
     "typescript": "^4.1.3"
   },
   "dependencies": {
-    "cannon-es": "^0.17.1",
+    "cannon-es": "^0.18.0",
     "cannon-es-debugger": "^0.1.4"
   }
 }
