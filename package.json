@@ -1,6 +1,6 @@
 {
   "name": "@react-three/cannon",
-  "version": "2.3.4",
+  "version": "2.3.5",
   "description": "physics based hooks for react-three-fiber",
   "keywords": [
     "cannon",
