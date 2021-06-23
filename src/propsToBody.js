@@ -14,6 +14,7 @@ import {
 } from 'cannon-es'
 
 const makeVec3 = ([x, y, z]) => new Vec3(x, y, z)
+const prepareSphere = (args) => Array.isArray(args) ? args : [args]
 
 function createShape(type, args) {
   switch (type) {
@@ -26,7 +27,7 @@ function createShape(type, args) {
         faces,
         normals: n ? n.map(makeVec3) : undefined,
         axes: a ? a.map(makeVec3) : undefined,
-        boundingSphereRadius
+        boundingSphereRadius,
       })
     case 'Cylinder':
       return new Cylinder(...args) // [ radiusTop, radiusBottom, height, numSegments ] = args
@@ -37,7 +38,7 @@ function createShape(type, args) {
     case 'Plane':
       return new Plane() // no args, infinite x and y
     case 'Sphere':
-      return new Sphere(args) // radius = args
+      return new Sphere(...prepareSphere(args)) // radius = args
     case 'Trimesh':
       return new Trimesh(...args) // [vertices, indices] = args
   }
