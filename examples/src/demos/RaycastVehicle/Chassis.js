@@ -9,7 +9,16 @@ useGLTF.preload('/Beetle.glb')
 // https://sketchfab.com/3d-models/low-poly-volkswagen-beetle-f680ad7e98e445eaafed1a70f2c53911
 const Beetle = forwardRef(({ args = [1.7, 1, 4], mass = 500, ...props }, ref) => {
   const { nodes, materials } = useGLTF('/Beetle.glb')
-  const [, api] = useBox(() => ({ mass, args, allowSleep: false, onCollide: (e) => console.log('bonk', e.body.userData), ...props }), ref)
+  const [, api] = useBox(
+    () => ({
+      mass,
+      args,
+      allowSleep: false,
+      onCollide: (e) => console.log('bonk', e.body.userData),
+      ...props,
+    }),
+    ref,
+  )
   return (
     <mesh ref={ref} api={api}>
       <group position={[0, -0.6, 0]}>

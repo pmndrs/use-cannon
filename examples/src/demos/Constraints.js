@@ -64,8 +64,7 @@ export default () => {
           left: 50,
           color: 'white',
           fontSize: '1.2em',
-        }}
-      >
+        }}>
         <pre>* click to tighten constraint</pre>
       </div>
     </>

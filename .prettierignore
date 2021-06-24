@@ -1,0 +1,7 @@
+.github/*
+dist/*
+examples/build/*
+examples/public/*
+examples/node_modules/*
+node_modules/*
+package.json

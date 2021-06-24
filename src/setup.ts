@@ -1,7 +1,8 @@
 import type { Object3D } from 'three'
 import type { WorkerCollideEvent, WorkerRayhitEvent } from './Provider'
 import type { AtomicProps, BodyProps, BodyShapeType } from './hooks'
-import React, { createContext } from 'react'
+import type React from 'react'
+import { createContext } from 'react'
 
 export type Buffers = { positions: Float32Array; quaternions: Float32Array }
 export type Refs = { [uuid: string]: Object3D }
@@ -43,8 +44,8 @@ export type ProviderContext = {
 }
 
 export type DebugApi = {
-  add(id: string, props: BodyProps, type: BodyShapeType): void;
-  remove(id: string): void;
+  add(id: string, props: BodyProps, type: BodyShapeType): void
+  remove(id: string): void
 }
 
 export const context = createContext<ProviderContext>({} as ProviderContext)

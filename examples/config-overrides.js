@@ -1,8 +1,6 @@
-const {
-  removeModuleScopePlugin,
-  addWebpackAlias,
-  override,
-} = require('customize-cra')
+/*eslint-env node*/
+
+const { removeModuleScopePlugin, addWebpackAlias, override } = require('customize-cra')
 const path = require('path')
 
 module.exports = override(

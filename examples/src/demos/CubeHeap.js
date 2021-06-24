@@ -52,15 +52,7 @@ export default () => (
     camera={{ position: [-1, 1, 2.5], fov: 50 }}
     onCreated={({ scene }) => (scene.background = new THREE.Color('lightblue'))}>
     <hemisphereLight intensity={0.35} />
-    <spotLight
-      position={[5, 5, 5]}
-      angle={0.3}
-      penumbra={1}
-      intensity={2}
-      castShadow
-      shadow-mapSize-width={256}
-      shadow-mapSize-height={256}
-    />
+    <spotLight position={[5, 5, 5]} angle={0.3} penumbra={1} intensity={2} castShadow shadow-mapSize-width={256} shadow-mapSize-height={256} />
     <Physics broadphase="SAP">
       <Plane rotation={[-Math.PI / 2, 0, 0]} />
       <Cubes number={200} />

@@ -73,22 +73,13 @@ function ConvexPolyhedron() {
     <>
       <Canvas shadows camera={{ position: [-1, 1, 5], fov: 50 }}>
         <color attach="background" args={['lightpink']} />
-        <spotLight
-          position={[15, 15, 15]}
-          angle={0.3}
-          penumbra={1}
-          intensity={2}
-          castShadow
-          shadow-mapSize-width={2048}
-          shadow-mapSize-height={2048}
-        />
+        <spotLight position={[15, 15, 15]} angle={0.3} penumbra={1} intensity={2} castShadow shadow-mapSize-width={2048} shadow-mapSize-height={2048} />
         <Suspense fallback={null}>
           <Physics gravity={[0, invertGravity ? 5 : -10, 0]}>
             <group
               onPointerDown={() => {
                 setInvertGravity(!invertGravity)
-              }}
-            >
+              }}>
               <Plane rotation={[-Math.PI / 2, 0, 0]} />
               <Diamond position={[1, 5, 0]} rotation={[0.4, 0.1, 0.1]} />
               <Cone position={[-1, 5, 0.5]} rotation={[0.1, 0.2, 0.1]} sides={6} />
@@ -106,8 +97,7 @@ function ConvexPolyhedron() {
           left: 50,
           color: 'white',
           fontSize: '1.2em',
-        }}
-      >
+        }}>
         <pre>* click to invert gravity</pre>
       </div>
     </>

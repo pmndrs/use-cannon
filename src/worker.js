@@ -48,20 +48,10 @@ function emitEndContact({ bodyA, bodyB }) {
 
 self.onmessage = (e) => {
   const { op, uuid, type, positions, quaternions, props } = e.data
-
+  const broadphases = { NaiveBroadphase, SAPBroadphase }
   switch (op) {
     case 'init': {
-      const {
-        gravity,
-        tolerance,
-        step,
-        iterations,
-        allowSleep,
-        broadphase,
-        axisIndex,
-        defaultContactMaterial,
-      } = props
-      const broadphases = { NaiveBroadphase, SAPBroadphase }
+      const { gravity, tolerance, step, iterations, allowSleep, broadphase, axisIndex, defaultContactMaterial } = props
       state.world.allowSleep = allowSleep
       state.world.gravity.set(gravity[0], gravity[1], gravity[2])
       state.world.solver.tolerance = tolerance
@@ -245,7 +235,6 @@ self.onmessage = (e) => {
       state.world.solver.iterations = props
       break
     case 'setBroadphase':
-      const broadphases = { NaiveBroadphase, SAPBroadphase }
       state.world.broadphase = new (broadphases[props + 'Broadphase'] || NaiveBroadphase)(state.world)
       break
     case 'setAxisIndex':
@@ -277,13 +266,7 @@ self.onmessage = (e) => {
 
       switch (type) {
         case 'PointToPoint':
-          constraint = new PointToPointConstraint(
-            state.bodies[bodyA],
-            pivotA,
-            state.bodies[bodyB],
-            pivotB,
-            optns.maxForce,
-          )
+          constraint = new PointToPointConstraint(state.bodies[bodyA], pivotA, state.bodies[bodyB], pivotB, optns.maxForce)
           break
         case 'ConeTwist':
           constraint = new ConeTwistConstraint(state.bodies[bodyA], state.bodies[bodyB], {
@@ -304,12 +287,7 @@ self.onmessage = (e) => {
           })
           break
         case 'Distance':
-          constraint = new DistanceConstraint(
-            state.bodies[bodyA],
-            state.bodies[bodyB],
-            optns.distance,
-            optns.maxForce,
-          )
+          constraint = new DistanceConstraint(state.bodies[bodyA], state.bodies[bodyB], optns.distance, optns.maxForce)
           break
         case 'Lock':
           constraint = new LockConstraint(state.bodies[bodyA], state.bodies[bodyB], optns)
@@ -323,9 +301,7 @@ self.onmessage = (e) => {
       break
     }
     case 'removeConstraint':
-      state.world.constraints
-        .filter(({ uuid: thisId }) => thisId === uuid)
-        .map((c) => state.world.removeConstraint(c))
+      state.world.constraints.filter(({ uuid: thisId }) => thisId === uuid).map((c) => state.world.removeConstraint(c))
       break
 
     case 'enableConstraint':
@@ -349,9 +325,7 @@ self.onmessage = (e) => {
       break
 
     case 'setConstraintMotorMaxForce':
-      state.world.constraints
-        .filter(({ uuid: thisId }) => thisId === uuid)
-        .map((c) => c.setMotorMaxForce(props))
+      state.world.constraints.filter(({ uuid: thisId }) => thisId === uuid).map((c) => c.setMotorMaxForce(props))
       break
 
     case 'addSpring': {
@@ -375,7 +349,7 @@ self.onmessage = (e) => {
 
       spring.uuid = uuid
 
-      let postStepSpring = (e) => spring.applyForce()
+      let postStepSpring = () => spring.applyForce()
 
       state.springs[uuid] = postStepSpring
       state.springInstances[uuid] = spring
@@ -407,8 +381,7 @@ self.onmessage = (e) => {
       options.result = new RaycastResult()
       state.rays[uuid] = () => {
         ray.intersectWorld(state.world, options)
-        const { body, shape, rayFromWorld, rayToWorld, hitNormalWorld, hitPointWorld, ...rest } =
-          options.result
+        const { body, shape, rayFromWorld, rayToWorld, hitNormalWorld, hitPointWorld, ...rest } = options.result
         self.postMessage({
           op: 'event',
           type: 'rayhit',
@@ -457,7 +430,6 @@ self.onmessage = (e) => {
       vehicle.preStep = () => {
         state.vehicles[uuid].updateVehicle(state.world.dt)
       }
-
       ;(vehicle.postStep = () => {
         for (let i = 0; i < state.vehicles[uuid].wheelInfos.length; i++) {
           state.vehicles[uuid].updateWheelTransform(i)
