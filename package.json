@@ -25,7 +25,8 @@
     "prebuild": "tsc",
     "prettier": "prettier --list-different .",
     "prettier-fix": "prettier --write .",
-    "test": "echo tests are missing"
+    "test": "echo tests are missing",
+    "prepare": "husky install"
   },
   "peerDependencies": {
     "react": ">=17.0",
@@ -60,5 +61,9 @@
   "dependencies": {
     "cannon-es": "^0.18.0",
     "cannon-es-debugger": "^0.1.4"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": "eslint --cache --fix",
+    "*.{js,jsx,ts,tsx,md}": "prettier --write"
   }
 }
