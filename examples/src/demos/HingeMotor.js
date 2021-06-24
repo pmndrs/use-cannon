@@ -29,20 +29,7 @@ function Plane({ args, ...props }) {
 const context = createContext()
 
 const ConstraintPart = React.forwardRef(
-  (
-    {
-      config = {},
-      enableMotor,
-      motorSpeed,
-      color,
-      children,
-      name,
-      pivot = [0, 0, 0],
-      parentPivot = [0, 0, 0],
-      ...props
-    },
-    ref,
-  ) => {
+  ({ config = {}, enableMotor, motorSpeed, color, children, name, pivot = [0, 0, 0], parentPivot = [0, 0, 0], ...props }, ref) => {
     const parent = useContext(context)
 
     const normParentPivot = parent ? normalizeSize(parent[1].args) : () => undefined
@@ -89,18 +76,16 @@ const ConstraintPart = React.forwardRef(
   },
 )
 
-const BoxShape = React.forwardRef(
-  ({ children, transparent = false, opacity = 1, color = 'white', args = [1, 1, 1], ...props }, ref) => {
-    return (
-      <mesh receiveShadow castShadow ref={ref} {...props}>
-        <boxBufferGeometry args={args} />
-        <meshStandardMaterial color={color} transparent={transparent} opacity={opacity} />
+const BoxShape = React.forwardRef(({ children, transparent = false, opacity = 1, color = 'white', args = [1, 1, 1], ...props }, ref) => {
+  return (
+    <mesh receiveShadow castShadow ref={ref} {...props}>
+      <boxBufferGeometry args={args} />
+      <meshStandardMaterial color={color} transparent={transparent} opacity={opacity} />
 
-        {children}
-      </mesh>
-    )
-  },
-)
+      {children}
+    </mesh>
+  )
+})
 
 const Robot = React.forwardRef(({ ...props }, ref) => {
   const [motorSpeed, setMotorSpeed] = useState(7)
@@ -163,8 +148,7 @@ const Legs = React.forwardRef(({ bodyDepth = 0, delay = 0, motorSpeed = 7, ...pr
         rotation={[0, 0, Math.PI / 2]}
         position={[0, 0, bodyDepth]}
         transparent={!bodyDepth}
-        opacity={Number(!!bodyDepth)}
-      >
+        opacity={Number(!!bodyDepth)}>
         {/* Upper front leg */}
         <ConstraintPart
           ref={frontUpperLegRef}
@@ -183,8 +167,7 @@ const Legs = React.forwardRef(({ bodyDepth = 0, delay = 0, motorSpeed = 7, ...pr
           position={[bodyWidth * -0.5, -1.5 / 2, bodyDepth]}
           parentPivot={[0, 0.5, 0.5]}
           pivot={[0, 0.5, -0.5]}
-          color="black"
-        >
+          color="black">
           {/* Front leg */}
           <ConstraintPart
             ref={frontLegRef}
@@ -193,8 +176,7 @@ const Legs = React.forwardRef(({ bodyDepth = 0, delay = 0, motorSpeed = 7, ...pr
             rotation={[0, 0, Math.PI / -6]}
             parentPivot={[0, -0.5, 0.5]}
             pivot={[0, 0, -0.5]}
-            color="#85b3ff"
-          >
+            color="#85b3ff">
             {/* Horizontal bar */}
             <ConstraintPart
               ref={horizontalRef}
@@ -216,8 +198,7 @@ const Legs = React.forwardRef(({ bodyDepth = 0, delay = 0, motorSpeed = 7, ...pr
           parentPivot={[-0.0, -0.5, 0.5]}
           position={[bodyWidth * 0.5, 0, bodyDepth]}
           rotation={[0, 0, Math.PI / 4]}
-          color="#85b3ff"
-        ></ConstraintPart>
+          color="#85b3ff"></ConstraintPart>
       </ConstraintPart>
     </group>
   )
@@ -307,8 +288,7 @@ export default () => {
           left: 50,
           color: 'white',
           fontSize: '1.2em',
-        }}
-      >
+        }}>
         <pre>* click to reduce speed</pre>
       </div>
     </>

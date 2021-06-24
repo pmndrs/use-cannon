@@ -96,7 +96,7 @@ ReactDOM.render(
       <Cube />
     </Physics>
   </Canvas>,
-  document.getElementById('root')
+  document.getElementById('root'),
 )
 ```
 
@@ -106,8 +106,7 @@ You can debug your scene using the [cannon-es-debugger](https://github.com/pmndr
 
 ```jsx
 import { Physics, Debug } from '@react-three/cannon'
-
-<Physics>
+;<Physics>
   <Debug color="black" scale={1.1}>
     {/* children */}
   </Debug>
@@ -133,68 +132,28 @@ function Physics({
   },
   // Maximum amount of physics objects inside your scene
   // Lower this value to save memory, increase if 1000 isn't enough
-  size = 1000
+  size = 1000,
 }: ProviderProps): JSX.Element
 
-function Debug({
-  children,
-  color = 'black',
-  scale = 1
-}: DebugProps): JSX.Element
+function Debug({ children, color = 'black', scale = 1 }: DebugProps): JSX.Element
 
-function usePlane(
-  fn: GetByIndex<PlaneProps>,
-  fwdRef?: React.MutableRefObject<THREE.Object3D>,
-  deps?: any[],
-): Api
+function usePlane(fn: GetByIndex<PlaneProps>, fwdRef?: React.MutableRefObject<THREE.Object3D>, deps?: any[]): Api
 
-function useBox(
-  fn: GetByIndex<BoxProps>,
-  fwdRef?: React.MutableRefObject<THREE.Object3D>,
-  deps?: any[],
-): Api
+function useBox(fn: GetByIndex<BoxProps>, fwdRef?: React.MutableRefObject<THREE.Object3D>, deps?: any[]): Api
 
-function useCylinder(
-  fn: GetByIndex<CylinderProps>,
-  fwdRef?: React.MutableRefObject<THREE.Object3D>,
-  deps?: any[],
-): Api
+function useCylinder(fn: GetByIndex<CylinderProps>, fwdRef?: React.MutableRefObject<THREE.Object3D>, deps?: any[]): Api
 
-function useHeightfield(
-  fn: GetByIndex<HeightfieldProps>,
-  fwdRef?: React.MutableRefObject<THREE.Object3D>,
-  deps?: any[],
-): Api
+function useHeightfield(fn: GetByIndex<HeightfieldProps>, fwdRef?: React.MutableRefObject<THREE.Object3D>, deps?: any[]): Api
 
-function useParticle(
-  fn: GetByIndex<ParticleProps>,
-  fwdRef?: React.MutableRefObject<THREE.Object3D>,
-  deps?: any[],
-): Api
+function useParticle(fn: GetByIndex<ParticleProps>, fwdRef?: React.MutableRefObject<THREE.Object3D>, deps?: any[]): Api
 
-function useSphere(
-  fn: GetByIndex<SphereProps>,
-  fwdRef?: React.MutableRefObject<THREE.Object3D>,
-  deps?: any[],
-): Api
+function useSphere(fn: GetByIndex<SphereProps>, fwdRef?: React.MutableRefObject<THREE.Object3D>, deps?: any[]): Api
 
-function useTrimesh(
-  fn: GetByIndex<TrimeshProps>,
-  fwdRef?: React.MutableRefObject<THREE.Object3D>,
-  deps?: any[],
-): Api
+function useTrimesh(fn: GetByIndex<TrimeshProps>, fwdRef?: React.MutableRefObject<THREE.Object3D>, deps?: any[]): Api
 
-function useConvexPolyhedron(
-  fn: GetByIndex<ConvexPolyhedronProps>,
-  fwdRef?: React.MutableRefObject<THREE.Object3D>,
-  deps?: any[],
-): Api
+function useConvexPolyhedron(fn: GetByIndex<ConvexPolyhedronProps>, fwdRef?: React.MutableRefObject<THREE.Object3D>, deps?: any[]): Api
 
-function useCompoundBody(
-  fn: GetByIndex<CompoundBodyProps>,
-  fwdRef?: React.MutableRefObject<THREE.Object3D>,
-  deps?: any[],
-): Api
+function useCompoundBody(fn: GetByIndex<CompoundBodyProps>, fwdRef?: React.MutableRefObject<THREE.Object3D>, deps?: any[]): Api
 
 function useRaycastVehicle(
   fn: () => RaycastVehicleProps,
@@ -206,43 +165,38 @@ function usePointToPointConstraint(
   bodyA: React.MutableRefObject<THREE.Object3D>,
   bodyB: React.MutableRefObject<THREE.Object3D>,
   optns: PointToPointConstraintOpts,
-  deps: any[] = []
+  deps: any[] = [],
 ): ConstraintApi
 
 function useConeTwistConstraint(
   bodyA: React.MutableRefObject<THREE.Object3D>,
   bodyB: React.MutableRefObject<THREE.Object3D>,
   optns: ConeTwistConstraintOpts,
-  deps: any[] = []
+  deps: any[] = [],
 ): ConstraintApi
 
 function useDistanceConstraint(
   bodyA: React.MutableRefObject<THREE.Object3D>,
   bodyB: React.MutableRefObject<THREE.Object3D>,
   optns: DistanceConstraintOpts,
-  deps: any[] = []
+  deps: any[] = [],
 ): ConstraintApi
 
 function useHingeConstraint(
   bodyA: React.MutableRefObject<THREE.Object3D>,
   bodyB: React.MutableRefObject<THREE.Object3D>,
   optns: HingeConstraintOpts,
-  deps: any[] = []
+  deps: any[] = [],
 ): ConstraintApi
 
 function useLockConstraint(
   bodyA: React.MutableRefObject<THREE.Object3D>,
   bodyB: React.MutableRefObject<THREE.Object3D>,
   optns: LockConstraintOpts,
-  deps: any[] = []
+  deps: any[] = [],
 ): ConstraintApi
 
-function useSpring(
-  bodyA: React.MutableRefObject<THREE.Object3D>,
-  bodyB: React.MutableRefObject<THREE.Object3D>,
-  optns: SpringOptns,
-  deps: any[] = []
-): void
+function useSpring(bodyA: React.MutableRefObject<THREE.Object3D>, bodyB: React.MutableRefObject<THREE.Object3D>, optns: SpringOptns, deps: any[] = []): void
 
 function useRaycastClosest(options: RayOptns, callback: (e: Event) => void, deps: any[] = []): void
 function useRaycastAny(options: RayOptns, callback: (e: Event) => void, deps: any[] = []): void
@@ -300,7 +254,7 @@ type SpringApi = [
     setStiffness: (value: number) => void
     setRestLength: (value: number) => void
     setDamping: (value: number) => void
-  }
+  },
 ]
 
 interface RaycastVehiclePublicApi {
@@ -424,17 +378,8 @@ type RayhitEvent = {
 
 type CylinderArgs = [radiusTop?: number, radiusBottom?: number, height?: number, numSegments?: number]
 type TrimeshArgs = [vertices: number[], indices: number[]]
-type HeightfieldArgs = [
-  data: number[][],
-  options: { elementSize?: number; maxValue?: number; minValue?: number; },
-]
-type ConvexPolyhedronArgs<V extends VectorTypes = VectorTypes> = [
-  vertices?: V[],
-  faces?: number[][],
-  normals?: V[],
-  axes?: V[],
-  boundingSphereRadius?: number
-]
+type HeightfieldArgs = [data: number[][], options: { elementSize?: number; maxValue?: number; minValue?: number }]
+type ConvexPolyhedronArgs<V extends VectorTypes = VectorTypes> = [vertices?: V[], faces?: number[][], normals?: V[], axes?: V[], boundingSphereRadius?: number]
 
 interface PlaneProps extends BodyProps {}
 interface BoxProps extends BodyProps<Triplet> {} // extents: [x, y, z]

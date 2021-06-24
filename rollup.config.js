@@ -1,5 +1,5 @@
-import babel from 'rollup-plugin-babel'
-import resolve from 'rollup-plugin-node-resolve'
+import babel from '@rollup/plugin-babel'
+import resolve from '@rollup/plugin-node-resolve'
 import worker from 'rollup-plugin-web-worker-loader'
 
 const external = ['react', '@react-three/fiber', 'three']
@@ -9,12 +9,8 @@ const getBabelOptions = ({ useESModules }, targets) => ({
   babelrc: false,
   extensions,
   include: ['src/**/*', '**/node_modules/**'],
-  runtimeHelpers: true,
-  presets: [
-    ['@babel/preset-env', { loose: true, modules: false, targets }],
-    '@babel/preset-react',
-    '@babel/preset-typescript',
-  ],
+  babelHelpers: 'runtime',
+  presets: [['@babel/preset-env', { loose: true, modules: false, targets }], '@babel/preset-react', '@babel/preset-typescript'],
   plugins: [['@babel/transform-runtime', { regenerator: false, useESModules }]],
 })
 

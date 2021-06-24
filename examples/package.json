@@ -26,7 +26,7 @@
     "react-app-rewired": "^2.1.8"
   },
   "scripts": {
-    "start": "react-app-rewired start",
+    "start": "ESLINT_NO_DEV_ERRORS='true' react-app-rewired start",
     "build": "react-app-rewired build",
     "test": "react-app-rewired test --env=jsdom",
     "eject": "react-scripts eject"

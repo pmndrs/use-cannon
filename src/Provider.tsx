@@ -1,12 +1,18 @@
-import type { Shape } from 'cannon-es'
-import type { Buffers, Refs, Events, Subscriptions, ProviderContext } from './setup'
 import React, { useState, useLayoutEffect, useRef, useMemo, useCallback } from 'react'
 import { useThree, useFrame } from '@react-three/fiber'
-import { Object3D, InstancedMesh, Vector3, Quaternion, Matrix4 } from 'three'
+import { InstancedMesh, Vector3, Quaternion, Matrix4 } from 'three'
+
+import type { Shape } from 'cannon-es'
+import type { Object3D } from 'three'
+
 import { context } from './setup'
-// @ts-ignore
+
+// @ts-expect-error Types are not setup for this yet
 import CannonWorker from '../src/worker'
 import { useUpdateWorldPropsEffect } from './useUpdateWorldPropsEffect'
+
+import type { Buffers, Refs, Events, Subscriptions, ProviderContext } from './setup'
+import type { AtomicProps } from './hooks'
 
 export type ProviderProps = {
   children: React.ReactNode
@@ -31,11 +37,12 @@ export type ProviderProps = {
 type WorkerFrameMessage = {
   data: Buffers & {
     op: 'frame'
-    observations: [string, any]
+    observations: [key: string, value: AtomicProps[keyof AtomicProps] | number[]][]
     active: boolean
     bodies?: string[]
   }
 }
+
 export type WorkerCollideEvent = {
   data: {
     op: 'event'
@@ -63,6 +70,7 @@ export type WorkerCollideEvent = {
     }
   }
 }
+
 export type WorkerRayhitEvent = {
   data: {
     op: 'event'
@@ -103,24 +111,17 @@ export type WorkerCollideEndEvent = {
     bodyB: string
   }
 }
-type WorkerEventMessage =
-  | WorkerCollideEvent
-  | WorkerRayhitEvent
-  | WorkerCollideBeginEvent
-  | WorkerCollideEndEvent
+type WorkerEventMessage = WorkerCollideEvent | WorkerRayhitEvent | WorkerCollideBeginEvent | WorkerCollideEndEvent
 type IncomingWorkerMessage = WorkerFrameMessage | WorkerEventMessage
 
 const v = new Vector3()
 const s = new Vector3(1, 1, 1)
 const q = new Quaternion()
 const m = new Matrix4()
+
 function apply(index: number, buffers: Buffers, object?: Object3D) {
   if (index !== undefined) {
-    m.compose(
-      v.fromArray(buffers.positions, index * 3),
-      q.fromArray(buffers.quaternions, index * 4),
-      object ? object.scale : s,
-    )
+    m.compose(v.fromArray(buffers.positions, index * 3), q.fromArray(buffers.quaternions, index * 4), object ? object.scale : s)
     if (object) {
       object.matrixAutoUpdate = false
       object.matrix.copy(m)
@@ -180,7 +181,6 @@ export default function Provider({
 
     let i = 0
     let body: string
-    let observation: [key: string, value: any]
     worker.onmessage = (e: IncomingWorkerMessage) => {
       switch (e.data.op) {
         case 'frame':
@@ -189,16 +189,16 @@ export default function Provider({
           if (e.data.bodies) {
             for (i = 0; i < e.data.bodies.length; i++) {
               body = e.data.bodies[i]
-              bodies.current[body] = (e.data as any).bodies.indexOf(body)
+              bodies.current[body] = e.data.bodies.indexOf(body)
             }
           }
-          for (i = 0; i < e.data.observations.length; i++) {
-            observation = e.data.observations[i]
-            if (subscriptions[observation[0]]) subscriptions[observation[0]](observation[1])
-          }
+
+          e.data.observations.forEach(([key, value]) => {
+            if (subscriptions[key]) subscriptions[key](value)
+          })
 
           if (e.data.active) {
-            for (let ref of Object.values(refs)) {
+            for (const ref of Object.values(refs)) {
               if (ref instanceof InstancedMesh) {
                 for (let i = 0; i < ref.count; i++) {
                   const index = bodies.current[`${ref.uuid}/${i}`]
@@ -281,9 +281,6 @@ export default function Provider({
 
   useUpdateWorldPropsEffect({ worker, axisIndex, broadphase, gravity, iterations, step, tolerance })
 
-  const api = useMemo(
-    () => ({ worker, bodies, refs, buffers, events, subscriptions }),
-    [worker, bodies, refs, buffers, events, subscriptions],
-  )
+  const api = useMemo(() => ({ worker, bodies, refs, buffers, events, subscriptions }), [worker, bodies, refs, buffers, events, subscriptions])
   return <context.Provider value={api as ProviderContext}>{children}</context.Provider>
 }

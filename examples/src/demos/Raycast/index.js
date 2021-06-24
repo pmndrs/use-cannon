@@ -86,8 +86,8 @@ const Camera = (props) => {
   const cameraRef = useRef()
   const controlsRef = useRef()
   const { gl, camera } = useThree()
-  const set = useThree(state => state.set)
-  const size = useThree(state => state.size)
+  const set = useThree((state) => state.set)
+  const size = useThree((state) => state.size)
 
   useLayoutEffect(() => {
     if (cameraRef.current) {
@@ -129,15 +129,7 @@ export default () => (
     <Camera />
     <color attach="background" args={['#fcb89d']} />
     <hemisphereLight intensity={0.35} />
-    <spotLight
-      position={[0, 10, 0]}
-      angle={1}
-      penumbra={0.5}
-      intensity={2}
-      castShadow
-      shadow-mapSize-width={1028}
-      shadow-mapSize-height={1028}
-    />
+    <spotLight position={[0, 10, 0]} angle={1} penumbra={0.5} intensity={2} castShadow shadow-mapSize-width={1028} shadow-mapSize-height={1028} />
     <Suspense fallback={null}>
       <Physics iterations={6}>
         <Plane rotation={[-Math.PI / 2, 0, 0]} />

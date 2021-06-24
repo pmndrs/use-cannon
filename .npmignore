@@ -1,7 +1,5 @@
 node_modules/
-build/
 examples/
-coverage/
 Thumbs.db
 ehthumbs.db
 Desktop.ini
@@ -9,7 +7,15 @@ Desktop.ini
 .DS_Store
 .vscode
 .docz/
-package-lock.json
-coverage/
 .idea
 .rpt2_cache/
+.eslintignore
+.eslintrc.json
+.github/
+.husky/
+.prettierignore
+.prettierrc.json
+.travis.yml
+rollup.config.js
+tsconfig.json
+tsconfig.tsbuildinfo

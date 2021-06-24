@@ -1,23 +1,10 @@
 import type { MaterialOptions, RayOptions } from 'cannon-es'
-import type {
-  Buffers,
-  CollideBeginEvent,
-  CollideEndEvent,
-  CollideEvent,
-  Event,
-  Events,
-  Subscriptions,
-} from './setup'
-import { Object3D, InstancedMesh, DynamicDrawUsage, Vector3, Euler, MathUtils } from 'three'
-import React, {
-  useLayoutEffect,
-  useContext,
-  useRef,
-  useMemo,
-  useEffect,
-  useState,
-  MutableRefObject,
-} from 'react'
+import type { CollideBeginEvent, CollideEndEvent, CollideEvent, Event, Events, Subscriptions } from './setup'
+import type { Euler } from 'three'
+import { Object3D, InstancedMesh, DynamicDrawUsage, Vector3, MathUtils } from 'three'
+import type { MutableRefObject } from 'react'
+import type React from 'react'
+import { useLayoutEffect, useContext, useRef, useMemo, useEffect, useState } from 'react'
 import { context, debugContext } from './setup'
 
 export interface AtomicProps {
@@ -32,7 +19,7 @@ export interface AtomicProps {
   collisionFilterMask?: number
   collisionResponse?: number
   fixedRotation?: boolean
-  userData?: object
+  userData?: {}
   isTrigger?: boolean
 }
 
@@ -57,23 +44,12 @@ export interface BodyPropsArgsRequired<T = unknown> extends BodyProps<T> {
   args: T
 }
 
-export type ShapeType =
-  | 'Plane'
-  | 'Box'
-  | 'Cylinder'
-  | 'Heightfield'
-  | 'Particle'
-  | 'Sphere'
-  | 'Trimesh'
-  | 'ConvexPolyhedron'
+export type ShapeType = 'Plane' | 'Box' | 'Cylinder' | 'Heightfield' | 'Particle' | 'Sphere' | 'Trimesh' | 'ConvexPolyhedron'
 export type BodyShapeType = ShapeType | 'Compound'
 
 export type CylinderArgs = [radiusTop?: number, radiusBottom?: number, height?: number, numSegments?: number]
 export type TrimeshArgs = [vertices: number[], indices: number[]]
-export type HeightfieldArgs = [
-  data: number[][],
-  options: { elementSize?: number; maxValue?: number; minValue?: number },
-]
+export type HeightfieldArgs = [data: number[][], options: { elementSize?: number; maxValue?: number; minValue?: number }]
 export type ConvexPolyhedronArgs<V extends VectorTypes = VectorTypes> = [
   vertices?: V[],
   faces?: number[][],
@@ -82,14 +58,14 @@ export type ConvexPolyhedronArgs<V extends VectorTypes = VectorTypes> = [
   boundingSphereRadius?: number,
 ]
 
-export interface PlaneProps extends BodyProps {}
-export interface BoxProps extends BodyProps<Triplet> {}
-export interface CylinderProps extends BodyProps<CylinderArgs> {}
-export interface ParticleProps extends BodyProps {}
-export interface SphereProps extends BodyProps<number> {}
-export interface TrimeshProps extends BodyPropsArgsRequired<TrimeshArgs> {}
-export interface HeightfieldProps extends BodyPropsArgsRequired<HeightfieldArgs> {}
-export interface ConvexPolyhedronProps extends BodyProps<ConvexPolyhedronArgs> {}
+export type PlaneProps = BodyProps
+export type BoxProps = BodyProps<Triplet>
+export type CylinderProps = BodyProps<CylinderArgs>
+export type ParticleProps = BodyProps
+export type SphereProps = BodyProps<number>
+export type TrimeshProps = BodyPropsArgsRequired<TrimeshArgs>
+export type HeightfieldProps = BodyPropsArgsRequired<HeightfieldArgs>
+export type ConvexPolyhedronProps = BodyProps<ConvexPolyhedronArgs>
 export interface CompoundBodyProps extends BodyProps {
   shapes: BodyProps & { type: ShapeType }[]
 }
@@ -156,7 +132,7 @@ export interface HingeConstraintOpts extends ConstraintOptns {
   axisB?: Triplet
 }
 
-export interface LockConstraintOpts extends ConstraintOptns {}
+export type LockConstraintOpts = ConstraintOptns
 
 export interface SpringOptns {
   restLength?: number
@@ -182,14 +158,7 @@ function post(ref: MutableRefObject<Object3D>, worker: Worker, op: string, index
   return ref.current && worker.postMessage({ op, uuid: getUUID(ref, index), props })
 }
 
-function subscribe(
-  ref: MutableRefObject<Object3D>,
-  worker: Worker,
-  subscriptions: Subscriptions,
-  type: string,
-  index?: number,
-  target?: string,
-) {
+function subscribe(ref: MutableRefObject<Object3D>, worker: Worker, subscriptions: Subscriptions, type: string, index?: number, target?: string) {
   return (callback: (value: any) => void) => {
     const id = subscriptionGuid++
     subscriptions[id] = callback
@@ -212,11 +181,7 @@ function prepare(object: Object3D, props: BodyProps) {
   object.updateMatrix()
 }
 
-function setupCollision(
-  events: Events,
-  { onCollide, onCollideBegin, onCollideEnd }: Partial<BodyProps>,
-  id: string,
-) {
+function setupCollision(events: Events, { onCollide, onCollideBegin, onCollideEnd }: Partial<BodyProps>, id: string) {
   if (onCollide || onCollideBegin || onCollideEnd) {
     events[id] = (ev: Event) => {
       switch (ev.type) {
@@ -261,19 +226,15 @@ function useBody<B extends BodyProps<unknown>>(
     const object = ref.current
     const currentWorker = worker
 
-    const objectCount =
-      object instanceof InstancedMesh ? (object.instanceMatrix.setUsage(DynamicDrawUsage), object.count) : 1
+    const objectCount = object instanceof InstancedMesh ? (object.instanceMatrix.setUsage(DynamicDrawUsage), object.count) : 1
 
-    const uuid =
-      object instanceof InstancedMesh
-        ? new Array(objectCount).fill(0).map((_, i) => `${object.uuid}/${i}`)
-        : [object.uuid]
+    const uuid = object instanceof InstancedMesh ? new Array(objectCount).fill(0).map((_, i) => `${object.uuid}/${i}`) : [object.uuid]
 
     const props: (B & { args: unknown })[] =
       object instanceof InstancedMesh
         ? uuid.map((id, i) => {
             const props = fn(i)
-            prepare(temp, props)           
+            prepare(temp, props)
             object.setMatrixAt(i, temp.matrix)
             object.instanceMatrix.needsUpdate = true
             refs[id] = object
@@ -307,7 +268,7 @@ function useBody<B extends BodyProps<unknown>>(
       })
       currentWorker.postMessage({ op: 'removeBodies', uuid })
     }
-  }, deps) // eslint-disable-line react-hooks/exhaustive-deps
+  }, deps)
 
   const api = useMemo(() => {
     const makeVec = (type: string, index?: number) => ({
@@ -371,58 +332,30 @@ function makeTriplet(v: Vector3 | Triplet): Triplet {
   return v instanceof Vector3 ? [v.x, v.y, v.z] : v
 }
 
-export function usePlane(
-  fn: GetByIndex<PlaneProps>,
-  fwdRef?: React.MutableRefObject<Object3D>,
-  deps?: any[],
-) {
+export function usePlane(fn: GetByIndex<PlaneProps>, fwdRef?: React.MutableRefObject<Object3D>, deps?: any[]) {
   return useBody('Plane', fn, () => [], fwdRef, deps)
 }
 export function useBox(fn: GetByIndex<BoxProps>, fwdRef?: React.MutableRefObject<Object3D>, deps?: any[]) {
   const defaultBoxArgs: Triplet = [1, 1, 1]
   return useBody('Box', fn, (args = defaultBoxArgs): Triplet => args, fwdRef, deps)
 }
-export function useCylinder(
-  fn: GetByIndex<CylinderProps>,
-  fwdRef?: React.MutableRefObject<Object3D>,
-  deps?: any[],
-) {
+export function useCylinder(fn: GetByIndex<CylinderProps>, fwdRef?: React.MutableRefObject<Object3D>, deps?: any[]) {
   return useBody('Cylinder', fn, (args = [] as []) => args, fwdRef, deps)
 }
-export function useHeightfield(
-  fn: GetByIndex<HeightfieldProps>,
-  fwdRef?: React.MutableRefObject<Object3D>,
-  deps?: any[],
-) {
+export function useHeightfield(fn: GetByIndex<HeightfieldProps>, fwdRef?: React.MutableRefObject<Object3D>, deps?: any[]) {
   return useBody('Heightfield', fn, (args) => args, fwdRef, deps)
 }
-export function useParticle(
-  fn: GetByIndex<ParticleProps>,
-  fwdRef?: React.MutableRefObject<Object3D>,
-  deps?: any[],
-) {
+export function useParticle(fn: GetByIndex<ParticleProps>, fwdRef?: React.MutableRefObject<Object3D>, deps?: any[]) {
   return useBody('Particle', fn, () => [], fwdRef, deps)
 }
-export function useSphere(
-  fn: GetByIndex<SphereProps>,
-  fwdRef?: React.MutableRefObject<Object3D>,
-  deps?: any[],
-) {
+export function useSphere(fn: GetByIndex<SphereProps>, fwdRef?: React.MutableRefObject<Object3D>, deps?: any[]) {
   return useBody('Sphere', fn, (radius = 1): [number] => [radius], fwdRef, deps)
 }
-export function useTrimesh(
-  fn: GetByIndex<TrimeshProps>,
-  fwdRef?: React.MutableRefObject<Object3D>,
-  deps?: any[],
-) {
+export function useTrimesh(fn: GetByIndex<TrimeshProps>, fwdRef?: React.MutableRefObject<Object3D>, deps?: any[]) {
   return useBody<TrimeshProps>('Trimesh', fn, (args) => args, fwdRef, deps)
 }
 
-export function useConvexPolyhedron(
-  fn: GetByIndex<ConvexPolyhedronProps>,
-  fwdRef?: React.MutableRefObject<Object3D>,
-  deps?: any[],
-) {
+export function useConvexPolyhedron(fn: GetByIndex<ConvexPolyhedronProps>, fwdRef?: React.MutableRefObject<Object3D>, deps?: any[]) {
   return useBody<ConvexPolyhedronProps>(
     'ConvexPolyhedron',
     fn,
@@ -437,11 +370,7 @@ export function useConvexPolyhedron(
     deps,
   )
 }
-export function useCompoundBody(
-  fn: GetByIndex<CompoundBodyProps>,
-  fwdRef?: React.MutableRefObject<Object3D>,
-  deps?: any[],
-) {
+export function useCompoundBody(fn: GetByIndex<CompoundBodyProps>, fwdRef?: React.MutableRefObject<Object3D>, deps?: any[]) {
   return useBody('Compound', fn, (args) => args as unknown[], fwdRef, deps)
 }
 
@@ -477,9 +406,7 @@ type SpringApi = [
   },
 ]
 
-type ConstraintORHingeApi<T extends 'Hinge' | ConstraintTypes> = T extends ConstraintTypes
-  ? ConstraintApi
-  : HingeConstraintApi
+type ConstraintORHingeApi<T extends 'Hinge' | ConstraintTypes> = T extends ConstraintTypes ? ConstraintApi : HingeConstraintApi
 
 function useConstraint<T extends 'Hinge' | ConstraintTypes>(
   type: T,
@@ -519,10 +446,8 @@ function useConstraint<T extends 'Hinge' | ConstraintTypes>(
         ...enableDisable,
         enableMotor: () => worker.postMessage({ op: 'enableConstraintMotor', uuid }),
         disableMotor: () => worker.postMessage({ op: 'disableConstraintMotor', uuid }),
-        setMotorSpeed: (value: number) =>
-          worker.postMessage({ op: 'setConstraintMotorSpeed', uuid, props: value }),
-        setMotorMaxForce: (value: number) =>
-          worker.postMessage({ op: 'setConstraintMotorMaxForce', uuid, props: value }),
+        setMotorSpeed: (value: number) => worker.postMessage({ op: 'setConstraintMotorSpeed', uuid, props: value }),
+        setMotorMaxForce: (value: number) => worker.postMessage({ op: 'setConstraintMotorMaxForce', uuid, props: value }),
       }
     }
 
@@ -579,7 +504,7 @@ export function useSpring(
   optns: SpringOptns,
   deps: any[] = [],
 ): SpringApi {
-  const { worker, events } = useContext(context)
+  const { worker } = useContext(context)
   const [uuid] = useState(() => MathUtils.generateUUID())
 
   const nullRef1 = useRef<Object3D>(null!)
@@ -594,10 +519,8 @@ export function useSpring(
         uuid,
         props: [bodyA.current.uuid, bodyB.current.uuid, optns],
       })
-      events[uuid] = () => {}
       return () => {
         worker.postMessage({ op: 'removeSpring', uuid })
-        delete events[uuid]
       }
     }
   }, deps)
@@ -619,12 +542,7 @@ type RayOptns = Omit<RayOptions, 'mode' | 'from' | 'to' | 'result' | 'callback'>
   to?: Triplet
 }
 
-function useRay(
-  mode: 'Closest' | 'Any' | 'All',
-  options: RayOptns,
-  callback: (e: Event) => void,
-  deps: any[] = [],
-) {
+function useRay(mode: 'Closest' | 'Any' | 'All', options: RayOptns, callback: (e: Event) => void, deps: any[] = []) {
   const { worker, events } = useContext(context)
   const [uuid] = useState(() => MathUtils.generateUUID())
   useEffect(() => {
@@ -723,8 +641,7 @@ export function useRaycastVehicle(
   }, deps)
 
   const api = useMemo<RaycastVehiclePublicApi>(() => {
-    const post = (op: string, props?: any) =>
-      ref.current && worker.postMessage({ op, uuid: ref.current.uuid, props })
+    const post = (op: string, props?: any) => ref.current && worker.postMessage({ op, uuid: ref.current.uuid, props })
     return {
       sliding: {
         subscribe: subscribe(ref, worker, subscriptions, 'sliding', undefined, 'vehicles'),
