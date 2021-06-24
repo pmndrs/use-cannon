@@ -95,7 +95,7 @@ const propsToBody = (uuid, props, type) => {
   } else {
     body.addShape(createShape(type, args))
   }
-
+  body.boundingRadius = +body.boundingRadius
   body.position.set(position[0], position[1], position[2])
   body.quaternion.setFromEuler(rotation[0], rotation[1], rotation[2])
   body.velocity.set(velocity[0], velocity[1], velocity[2])
