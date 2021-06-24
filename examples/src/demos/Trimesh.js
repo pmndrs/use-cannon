@@ -28,12 +28,7 @@ const Bowl = (props) => {
   }))
 
   return (
-    <mesh
-      ref={ref}
-      geometry={nodes.bowl.geometry}
-      onPointerOver={() => setHover(true)}
-      onPointerOut={() => setHover(false)}
-      {...props}>
+    <mesh ref={ref} geometry={nodes.bowl.geometry} onPointerOver={() => setHover(true)} onPointerOut={() => setHover(false)} {...props}>
       <meshStandardMaterial color={'white'} wireframe={hovered} />
     </mesh>
   )

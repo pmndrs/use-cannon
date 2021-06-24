@@ -1,0 +1,60 @@
+{
+  "env": {
+    "browser": true,
+    "es2021": true
+  },
+  "extends": ["prettier", "plugin:react/recommended", "eslint:recommended"],
+  "overrides": [
+    {
+      "extends": "plugin:@typescript-eslint/recommended",
+      "files": ["*.tsx", "*.ts"],
+      "parser": "@typescript-eslint/parser",
+      "parserOptions": {
+        "project": "tsconfig.json"
+      },
+      "plugins": ["@typescript-eslint"],
+      "rules": {
+        "@typescript-eslint/ban-types": ["error", { "extendDefaults": true, "types": { "{}": false } }],
+        "@typescript-eslint/consistent-type-imports": "error",
+        "@typescript-eslint/explicit-module-boundary-types": "off",
+        "@typescript-eslint/no-non-null-assertion": "off",
+        "@typescript-eslint/no-unused-vars": ["error", { "ignoreRestSiblings": true }],
+        "@typescript-eslint/quotes": [
+          "error",
+          "single",
+          {
+            "allowTemplateLiterals": true,
+            "avoidEscape": true
+          }
+        ],
+        "@typescript-eslint/semi": ["error", "never"]
+      }
+    },
+    {
+      "files": ["*.jsx", "*.js"]
+    }
+  ],
+  "parserOptions": {
+    "ecmaFeatures": {
+      "jsx": true
+    },
+    "ecmaVersion": 12,
+    "sourceType": "module"
+  },
+  "plugins": ["react"],
+  "rules": {
+    "eol-last": ["error", "always"],
+    "no-debugger": "error",
+    "no-unused-vars": ["error", { "ignoreRestSiblings": true }],
+    "react/no-children-prop": 0,
+    "react/display-name": 0,
+    "react/prop-types": 0,
+    "react/react-in-jsx-scope": 0,
+    "semi": ["error", "never"]
+  },
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  }
+}

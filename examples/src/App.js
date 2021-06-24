@@ -59,16 +59,11 @@ function Demos() {
   let { bright } = visibleComponents[match ? match.params.name : defaultComponent]
   return (
     <DemoPanel>
-      {Object.entries(visibleComponents).map(([name, item]) => (
+      {Object.entries(visibleComponents).map(([name]) => (
         <Link key={name} to={`/demo/${name}`}>
           <Spot
             style={{
-              background:
-                (!match && name === defaultComponent) || (match && match.params.name === name)
-                  ? 'salmon'
-                  : bright
-                  ? '#2c2d31'
-                  : 'white',
+              background: (!match && name === defaultComponent) || (match && match.params.name === name) ? 'salmon' : bright ? '#2c2d31' : 'white',
             }}
           />
         </Link>
