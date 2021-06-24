@@ -6,9 +6,9 @@ name: Node.js CI
 
 on:
   push:
-    branches: [ main, typescript ]
+    branches: [ master ]
   pull_request:
-    branches: [ main, typescript ]
+    branches: [ master ]
 
 jobs:
   build:
@@ -28,4 +28,7 @@ jobs:
     - run: yarn install
     - run: npm run prettier
     - run: npm run eslint
+    - run: npm run build
+    - run: cd examples
+    - run: yarn install
     - run: npm run build
