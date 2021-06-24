@@ -3,7 +3,7 @@ import { Canvas } from '@react-three/fiber'
 import { Debug, Physics, useSphere, usePlane } from '@react-three/cannon'
 
 function ScalableBall() {
-  const [ref, api] = useSphere(() => ({
+  const [ref] = useSphere(() => ({
     mass: 1,
     args: 1,
     position: [0, 5, 0],

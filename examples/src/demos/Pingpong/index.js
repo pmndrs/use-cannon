@@ -61,14 +61,7 @@ function Paddle() {
           <primitive object={nodes.Bone003} />
           <primitive object={nodes.Bone006} />
           <primitive object={nodes.Bone010} />
-          <skinnedMesh
-            castShadow
-            receiveShadow
-            material={materials.glove}
-            material-roughness={1}
-            geometry={nodes.arm.geometry}
-            skeleton={nodes.arm.skeleton}
-          />
+          <skinnedMesh castShadow receiveShadow material={materials.glove} material-roughness={1} geometry={nodes.arm.geometry} skeleton={nodes.arm.skeleton} />
         </group>
         <group rotation={[0, -0.04, 0]} scale={[141.94, 141.94, 141.94]}>
           <mesh castShadow receiveShadow material={materials.wood} geometry={nodes.mesh.geometry} />

@@ -1,12 +1,6 @@
 import React, { createContext, useContext } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
-import {
-  Physics,
-  useSphere,
-  useBox,
-  useConeTwistConstraint,
-  useDistanceConstraint,
-} from '@react-three/cannon'
+import { Physics, useSphere, useBox, useConeTwistConstraint, useDistanceConstraint } from '@react-three/cannon'
 
 const parent = createContext()
 

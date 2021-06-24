@@ -102,11 +102,7 @@ function Spheres({ rows, columns, spread }) {
   const number = rows * columns
   const [ref] = useSphere((index) => ({
     mass: 1,
-    position: [
-      ((index % columns) - (columns - 1) / 2) * spread,
-      2.0,
-      (Math.floor(index / columns) - (rows - 1) / 2) * spread,
-    ],
+    position: [((index % columns) - (columns - 1) / 2) * spread, 2.0, (Math.floor(index / columns) - (rows - 1) / 2) * spread],
     args: 0.2,
   }))
   const colors = useMemo(() => {

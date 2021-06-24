@@ -1,34 +1,23 @@
-import {
-  Body,
-  Box,
-  ConvexPolyhedron,
-  Cylinder,
-  Heightfield,
-  Material,
-  Particle,
-  Plane,
-  Quaternion,
-  Sphere,
-  Trimesh,
-  Vec3,
-} from 'cannon-es'
+import { Body, Box, ConvexPolyhedron, Cylinder, Heightfield, Material, Particle, Plane, Quaternion, Sphere, Trimesh, Vec3 } from 'cannon-es'
 
 const makeVec3 = ([x, y, z]) => new Vec3(x, y, z)
-const prepareSphere = (args) => Array.isArray(args) ? args : [args]
+const prepareSphere = (args) => (Array.isArray(args) ? args : [args])
+const prepareConvexPolyhedron = ([v, faces, n, a, boundingSphereRadius]) => [
+  {
+    vertices: v ? v.map(makeVec3) : undefined,
+    faces,
+    normals: n ? n.map(makeVec3) : undefined,
+    axes: a ? a.map(makeVec3) : undefined,
+    boundingSphereRadius,
+  },
+]
 
 function createShape(type, args) {
   switch (type) {
     case 'Box':
       return new Box(new Vec3(...args.map((v) => v / 2))) // extents => halfExtents
     case 'ConvexPolyhedron':
-      const [v, faces, n, a, boundingSphereRadius] = args
-      return new ConvexPolyhedron({
-        vertices: v ? v.map(makeVec3) : undefined,
-        faces,
-        normals: n ? n.map(makeVec3) : undefined,
-        axes: a ? a.map(makeVec3) : undefined,
-        boundingSphereRadius,
-      })
+      return new ConvexPolyhedron(...prepareConvexPolyhedron(args))
     case 'Cylinder':
       return new Cylinder(...args) // [ radiusTop, radiusBottom, height, numSegments ] = args
     case 'Heightfield':
@@ -56,7 +45,6 @@ const propsToBody = (uuid, props, type) => {
     args = [],
     position = [0, 0, 0],
     rotation = [0, 0, 0],
-    scale = [1, 1, 1],
     velocity = [0, 0, 0],
     angularVelocity = [0, 0, 0],
     linearFactor = [1, 1, 1],

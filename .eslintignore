@@ -1,0 +1,4 @@
+dist
+examples/build
+examples/public
+node_modules

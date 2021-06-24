@@ -85,21 +85,13 @@ export function createRagdoll(scale, angleA = 0, angleB = 0, twistAngle = 0) {
     color: 'lightpink',
     args: [lowerArmLength * 0.5, lowerArmSize * 0.5, lowerArmSize * 0.5],
     mass: scale,
-    position: [
-      upperLeftArm.position[0] - lowerArmLength / 2 - upperArmLength / 2,
-      upperLeftArm.position[1],
-      0,
-    ],
+    position: [upperLeftArm.position[0] - lowerArmLength / 2 - upperArmLength / 2, upperLeftArm.position[1], 0],
   }
   const lowerRightArm = {
     color: 'lightpink',
     args: [lowerArmLength * 0.5, lowerArmSize * 0.5, lowerArmSize * 0.5],
     mass: scale,
-    position: [
-      upperRightArm.position[0] + lowerArmLength / 2 + upperArmLength / 2,
-      upperRightArm.position[1],
-      0,
-    ],
+    position: [upperRightArm.position[0] + lowerArmLength / 2 + upperArmLength / 2, upperRightArm.position[1], 0],
   }
 
   // joints
