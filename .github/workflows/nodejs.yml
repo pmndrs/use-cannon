@@ -29,6 +29,3 @@ jobs:
     - run: npm run prettier
     - run: npm run eslint
     - run: npm run build
-    - run: cd examples
-    - run: yarn install
-    - run: npm run build
