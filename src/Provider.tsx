@@ -16,6 +16,7 @@ import type { AtomicProps } from './hooks'
 
 export type ProviderProps = {
   children: React.ReactNode
+  shouldInvalidate?: boolean
   gravity?: number[]
   tolerance?: number
   step?: number
@@ -133,6 +134,7 @@ function apply(index: number, buffers: Buffers, object?: Object3D) {
 
 export default function Provider({
   children,
+  shouldInvalidate = true,
   step = 1 / 60,
   gravity = [0, -10, 0],
   tolerance = 0.001,
@@ -211,7 +213,9 @@ export default function Provider({
                 apply(bodies.current[ref.uuid], buffers, ref)
               }
             }
-            invalidate()
+            if (shouldInvalidate) {
+              invalidate()
+            }
           }
 
           break
