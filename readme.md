@@ -120,6 +120,7 @@ import { Physics, Debug } from '@react-three/cannon'
 ```typescript
 function Physics({
   children,
+  shouldInvalidate = true,
   step = 1 / 60,
   gravity = [0, -10, 0],
   tolerance = 0.001,
@@ -309,6 +310,7 @@ interface RaycastVehiclePublicApi {
 ```typescript
 type ProviderProps = {
   children: React.ReactNode
+  shouldInvalidate?: boolean
   gravity?: number[]
   tolerance?: number
   step?: number
