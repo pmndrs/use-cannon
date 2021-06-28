@@ -30,7 +30,12 @@ const Beetle = forwardRef(({ args = [1.7, 1, 4], mass = 500, ...props }, ref) =>
         <mesh castShadow material={materials['Interior (dark)']} geometry={nodes.chassis_6.geometry} />
         <mesh castShadow material={materials['Interior (light)']} geometry={nodes.chassis_7.geometry} />
         <mesh castShadow material={materials.Reflector} geometry={nodes.chassis_8.geometry} />
-        <mesh material={materials.Glass} geometry={nodes.chassis_9.geometry} material-transparent={false} material-color="black" />
+        <mesh
+          material={materials.Glass}
+          geometry={nodes.chassis_9.geometry}
+          material-transparent={false}
+          material-color="black"
+        />
         <mesh castShadow material={materials.Steel} geometry={nodes.chassis_10.geometry} />
         <mesh castShadow material={materials['Black plastic']} geometry={nodes.chassis_11.geometry} />
         <mesh material={materials.Headlight} geometry={nodes.chassis_12.geometry} />
