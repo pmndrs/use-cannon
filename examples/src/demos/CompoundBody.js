@@ -25,8 +25,8 @@ function CompoundBody(props) {
     mass: 12,
     ...props,
     shapes: [
-      { type: 'Box', position: [0, 0, 0], rotation: [0, 0, 0], args: boxSize },
-      { type: 'Sphere', position: [1, 0, 0], rotation: [0, 0, 0], args: [sphereRadius] },
+      { shapeType: 'Box', position: [0, 0, 0], rotation: [0, 0, 0], args: boxSize },
+      { shapeType: 'Sphere', position: [1, 0, 0], rotation: [0, 0, 0], args: [sphereRadius] },
     ],
   }))
   return (

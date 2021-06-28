@@ -1,9 +1,10 @@
 import React, { Suspense } from 'react'
 import type { ProviderProps } from './Provider'
 import { default as Provider } from './Provider'
-import { context } from './setup'
+
 export * from './Debug'
 export * from './hooks'
+export * from './shared'
 
 function Physics(props: ProviderProps) {
   return (
@@ -13,4 +14,4 @@ function Physics(props: ProviderProps) {
   )
 }
 
-export { Physics, context }
+export { Physics }

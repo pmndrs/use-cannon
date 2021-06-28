@@ -151,12 +151,12 @@ function Chair() {
     type: 'Dynamic',
     position: [-6, 0, 0],
     shapes: [
-      { type: 'Box', mass: 1, position: [0, 0, 0], args: [1.5, 1.5, 0.25] },
-      { type: 'Box', mass: 1, position: [0, -1.75, 1.25], args: [1.5, 0.25, 1.5] },
-      { type: 'Box', mass: 10, position: [5 + -6.25, -3.5, 0], args: [0.25, 1.5, 0.25] },
-      { type: 'Box', mass: 10, position: [5 + -3.75, -3.5, 0], args: [0.25, 1.5, 0.25] },
-      { type: 'Box', mass: 10, position: [5 + -6.25, -3.5, 2.5], args: [0.25, 1.5, 0.25] },
-      { type: 'Box', mass: 10, position: [5 + -3.75, -3.5, 2.5], args: [0.25, 1.5, 0.25] },
+      { shapeType: 'Box', mass: 1, position: [0, 0, 0], args: [1.5, 1.5, 0.25] },
+      { shapeType: 'Box', mass: 1, position: [0, -1.75, 1.25], args: [1.5, 0.25, 1.5] },
+      { shapeType: 'Box', mass: 10, position: [5 + -6.25, -3.5, 0], args: [0.25, 1.5, 0.25] },
+      { shapeType: 'Box', mass: 10, position: [5 + -3.75, -3.5, 0], args: [0.25, 1.5, 0.25] },
+      { shapeType: 'Box', mass: 10, position: [5 + -6.25, -3.5, 2.5], args: [0.25, 1.5, 0.25] },
+      { shapeType: 'Box', mass: 10, position: [5 + -3.75, -3.5, 2.5], args: [0.25, 1.5, 0.25] },
     ],
   }))
   const bind = useDragConstraint(ref)

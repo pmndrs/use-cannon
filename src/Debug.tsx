@@ -3,12 +3,15 @@ import type { DebugOptions } from 'cannon-es-debugger'
 import cannonDebugger from 'cannon-es-debugger'
 import { useFrame } from '@react-three/fiber'
 import type { Color } from 'three'
-import { Vector3, Quaternion, Scene } from 'three'
-import type { Vec3, Quaternion as CQuaternion } from 'cannon-es'
+import { Quaternion, Scene, Vector3 } from 'three'
+import type { Quaternion as CQuaternion, Vec3 } from 'cannon-es'
+
 import type { Body } from 'cannon-es'
-import { context, debugContext } from './setup'
+
+import { context, debugContext } from './hooks'
 import propsToBody from './propsToBody'
-import type { BodyProps, BodyShapeType } from 'hooks'
+
+import type { BodyProps, BodyShapeType } from './shared'
 
 type DebugApi = {
   update: () => void
@@ -63,8 +66,8 @@ export function Debug({
 
   const api = useMemo(
     () => ({
-      add(id: string, props: BodyProps, type: BodyShapeType) {
-        const body = propsToBody(id, props, type)
+      add<T extends BodyShapeType>(id: string, props: BodyProps<T>, shapeType: T) {
+        const body = propsToBody(id, props, shapeType)
         debugInfo.bodies.push(body)
         debugInfo.refs[id] = body
       },
