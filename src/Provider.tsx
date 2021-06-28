@@ -16,6 +16,7 @@ import type { AtomicProps } from './hooks'
 
 export type ProviderProps = {
   children: React.ReactNode
+  shouldInvalidate?: boolean
   gravity?: number[]
   tolerance?: number
   step?: number
@@ -111,7 +112,11 @@ export type WorkerCollideEndEvent = {
     bodyB: string
   }
 }
-type WorkerEventMessage = WorkerCollideEvent | WorkerRayhitEvent | WorkerCollideBeginEvent | WorkerCollideEndEvent
+type WorkerEventMessage =
+  | WorkerCollideEvent
+  | WorkerRayhitEvent
+  | WorkerCollideBeginEvent
+  | WorkerCollideEndEvent
 type IncomingWorkerMessage = WorkerFrameMessage | WorkerEventMessage
 
 const v = new Vector3()
@@ -121,7 +126,11 @@ const m = new Matrix4()
 
 function apply(index: number, buffers: Buffers, object?: Object3D) {
   if (index !== undefined) {
-    m.compose(v.fromArray(buffers.positions, index * 3), q.fromArray(buffers.quaternions, index * 4), object ? object.scale : s)
+    m.compose(
+      v.fromArray(buffers.positions, index * 3),
+      q.fromArray(buffers.quaternions, index * 4),
+      object ? object.scale : s,
+    )
     if (object) {
       object.matrixAutoUpdate = false
       object.matrix.copy(m)
@@ -133,6 +142,7 @@ function apply(index: number, buffers: Buffers, object?: Object3D) {
 
 export default function Provider({
   children,
+  shouldInvalidate = true,
   step = 1 / 60,
   gravity = [0, -10, 0],
   tolerance = 0.001,
@@ -211,7 +221,9 @@ export default function Provider({
                 apply(bodies.current[ref.uuid], buffers, ref)
               }
             }
-            invalidate()
+            if (shouldInvalidate) {
+              invalidate()
+            }
           }
 
           break
@@ -281,6 +293,9 @@ export default function Provider({
 
   useUpdateWorldPropsEffect({ worker, axisIndex, broadphase, gravity, iterations, step, tolerance })
 
-  const api = useMemo(() => ({ worker, bodies, refs, buffers, events, subscriptions }), [worker, bodies, refs, buffers, events, subscriptions])
+  const api = useMemo(
+    () => ({ worker, bodies, refs, buffers, events, subscriptions }),
+    [worker, bodies, refs, buffers, events, subscriptions],
+  )
   return <context.Provider value={api as ProviderContext}>{children}</context.Provider>
 }

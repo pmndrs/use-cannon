@@ -29,7 +29,12 @@ const v = new Vector3()
 const s = new Vector3(1, 1, 1)
 const q = new Quaternion()
 
-export function Debug({ color = 'black', scale = 1, children, impl = cannonDebugger }: DebugProps): JSX.Element {
+export function Debug({
+  color = 'black',
+  scale = 1,
+  children,
+  impl = cannonDebugger,
+}: DebugProps): JSX.Element {
   const [debugInfo] = useState<DebugInfo>({ bodies: [], refs: {} })
   const { refs } = useContext(context)
   const [scene] = useState(() => new Scene())
