@@ -60,7 +60,15 @@ function InstancedSpheres({ number = 100 }) {
 export default () => (
   <Canvas concurrent shadows gl={{ alpha: false }} camera={{ position: [0, -12, 16] }}>
     <hemisphereLight intensity={0.35} />
-    <spotLight position={[30, 0, 30]} angle={0.3} penumbra={1} intensity={2} castShadow shadow-mapSize-width={256} shadow-mapSize-height={256} />
+    <spotLight
+      position={[30, 0, 30]}
+      angle={0.3}
+      penumbra={1}
+      intensity={2}
+      castShadow
+      shadow-mapSize-width={256}
+      shadow-mapSize-height={256}
+    />
     <pointLight position={[-30, 0, -30]} intensity={0.5} />
     <Physics gravity={[0, 0, -30]}>
       <Plane color={niceColors[17][4]} />

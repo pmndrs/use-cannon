@@ -29,7 +29,20 @@ function Plane({ args, ...props }) {
 const context = createContext()
 
 const ConstraintPart = React.forwardRef(
-  ({ config = {}, enableMotor, motorSpeed, color, children, name, pivot = [0, 0, 0], parentPivot = [0, 0, 0], ...props }, ref) => {
+  (
+    {
+      config = {},
+      enableMotor,
+      motorSpeed,
+      color,
+      children,
+      name,
+      pivot = [0, 0, 0],
+      parentPivot = [0, 0, 0],
+      ...props
+    },
+    ref,
+  ) => {
     const parent = useContext(context)
 
     const normParentPivot = parent ? normalizeSize(parent[1].args) : () => undefined
@@ -76,16 +89,18 @@ const ConstraintPart = React.forwardRef(
   },
 )
 
-const BoxShape = React.forwardRef(({ children, transparent = false, opacity = 1, color = 'white', args = [1, 1, 1], ...props }, ref) => {
-  return (
-    <mesh receiveShadow castShadow ref={ref} {...props}>
-      <boxBufferGeometry args={args} />
-      <meshStandardMaterial color={color} transparent={transparent} opacity={opacity} />
+const BoxShape = React.forwardRef(
+  ({ children, transparent = false, opacity = 1, color = 'white', args = [1, 1, 1], ...props }, ref) => {
+    return (
+      <mesh receiveShadow castShadow ref={ref} {...props}>
+        <boxBufferGeometry args={args} />
+        <meshStandardMaterial color={color} transparent={transparent} opacity={opacity} />
 
-      {children}
-    </mesh>
-  )
-})
+        {children}
+      </mesh>
+    )
+  },
+)
 
 const Robot = React.forwardRef(({ ...props }, ref) => {
   const [motorSpeed, setMotorSpeed] = useState(7)

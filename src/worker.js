@@ -51,7 +51,16 @@ self.onmessage = (e) => {
   const broadphases = { NaiveBroadphase, SAPBroadphase }
   switch (op) {
     case 'init': {
-      const { gravity, tolerance, step, iterations, allowSleep, broadphase, axisIndex, defaultContactMaterial } = props
+      const {
+        gravity,
+        tolerance,
+        step,
+        iterations,
+        allowSleep,
+        broadphase,
+        axisIndex,
+        defaultContactMaterial,
+      } = props
       state.world.allowSleep = allowSleep
       state.world.gravity.set(gravity[0], gravity[1], gravity[2])
       state.world.solver.tolerance = tolerance
@@ -266,7 +275,13 @@ self.onmessage = (e) => {
 
       switch (type) {
         case 'PointToPoint':
-          constraint = new PointToPointConstraint(state.bodies[bodyA], pivotA, state.bodies[bodyB], pivotB, optns.maxForce)
+          constraint = new PointToPointConstraint(
+            state.bodies[bodyA],
+            pivotA,
+            state.bodies[bodyB],
+            pivotB,
+            optns.maxForce,
+          )
           break
         case 'ConeTwist':
           constraint = new ConeTwistConstraint(state.bodies[bodyA], state.bodies[bodyB], {
@@ -287,7 +302,12 @@ self.onmessage = (e) => {
           })
           break
         case 'Distance':
-          constraint = new DistanceConstraint(state.bodies[bodyA], state.bodies[bodyB], optns.distance, optns.maxForce)
+          constraint = new DistanceConstraint(
+            state.bodies[bodyA],
+            state.bodies[bodyB],
+            optns.distance,
+            optns.maxForce,
+          )
           break
         case 'Lock':
           constraint = new LockConstraint(state.bodies[bodyA], state.bodies[bodyB], optns)
@@ -301,7 +321,9 @@ self.onmessage = (e) => {
       break
     }
     case 'removeConstraint':
-      state.world.constraints.filter(({ uuid: thisId }) => thisId === uuid).map((c) => state.world.removeConstraint(c))
+      state.world.constraints
+        .filter(({ uuid: thisId }) => thisId === uuid)
+        .map((c) => state.world.removeConstraint(c))
       break
 
     case 'enableConstraint':
@@ -325,7 +347,9 @@ self.onmessage = (e) => {
       break
 
     case 'setConstraintMotorMaxForce':
-      state.world.constraints.filter(({ uuid: thisId }) => thisId === uuid).map((c) => c.setMotorMaxForce(props))
+      state.world.constraints
+        .filter(({ uuid: thisId }) => thisId === uuid)
+        .map((c) => c.setMotorMaxForce(props))
       break
 
     case 'addSpring': {
@@ -381,7 +405,8 @@ self.onmessage = (e) => {
       options.result = new RaycastResult()
       state.rays[uuid] = () => {
         ray.intersectWorld(state.world, options)
-        const { body, shape, rayFromWorld, rayToWorld, hitNormalWorld, hitPointWorld, ...rest } = options.result
+        const { body, shape, rayFromWorld, rayToWorld, hitNormalWorld, hitPointWorld, ...rest } =
+          options.result
         self.postMessage({
           op: 'event',
           type: 'rayhit',
