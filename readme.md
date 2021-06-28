@@ -309,8 +309,8 @@ interface RaycastVehiclePublicApi {
 
 ```typescript
 type ProviderProps = {
-  children: React.ReactNode,
-  shouldInvalidate?: boolean,
+  children: React.ReactNode
+  shouldInvalidate?: boolean
   gravity?: number[]
   tolerance?: number
   step?: number
