@@ -4,7 +4,7 @@ import { Physics, useSphere, useTrimesh } from '@react-three/cannon'
 import { OrbitControls, TorusKnot, useGLTF } from '@react-three/drei'
 import create from 'zustand'
 
-const [useStore] = create((set) => ({
+const useStore = create((set) => ({
   isPaused: false,
   pause: () => set({ isPaused: true }),
   play: () => set({ isPaused: false }),
