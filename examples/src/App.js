@@ -63,7 +63,12 @@ function Demos() {
         <Link key={name} to={`/demo/${name}`}>
           <Spot
             style={{
-              background: (!match && name === defaultComponent) || (match && match.params.name === name) ? 'salmon' : bright ? '#2c2d31' : 'white',
+              background:
+                (!match && name === defaultComponent) || (match && match.params.name === name)
+                  ? 'salmon'
+                  : bright
+                  ? '#2c2d31'
+                  : 'white',
             }}
           />
         </Link>

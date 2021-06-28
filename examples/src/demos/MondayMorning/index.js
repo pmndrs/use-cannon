@@ -1,7 +1,25 @@
-import React, { Suspense, createRef, createContext, useContext, useCallback, useEffect, useMemo, useRef } from 'react'
+import React, {
+  Suspense,
+  createRef,
+  createContext,
+  useContext,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+} from 'react'
 import { Canvas, useFrame, useLoader } from '@react-three/fiber'
 import { GLTFLoader } from 'three-stdlib/loaders/GLTFLoader'
-import { Physics, useBox, useCompoundBody, useCylinder, useSphere, usePlane, useConeTwistConstraint, usePointToPointConstraint } from '@react-three/cannon'
+import {
+  Physics,
+  useBox,
+  useCompoundBody,
+  useCylinder,
+  useSphere,
+  usePlane,
+  useConeTwistConstraint,
+  usePointToPointConstraint,
+} from '@react-three/cannon'
 import { createRagdoll } from './createConfig'
 
 const { shapes, joints } = createRagdoll(4.8, Math.PI / 16, Math.PI / 16, 0)
@@ -61,10 +79,29 @@ function Ragdoll(props) {
         render={
           <>
             <group ref={eyes}>
-              <Box position={[-0.3, 0.1, 0.5]} args={[0.3, 0.01, 0.1]} color="black" transparent opacity={0.8} />
-              <Box position={[0.3, 0.1, 0.5]} args={[0.3, 0.01, 0.1]} color="black" transparent opacity={0.8} />
+              <Box
+                position={[-0.3, 0.1, 0.5]}
+                args={[0.3, 0.01, 0.1]}
+                color="black"
+                transparent
+                opacity={0.8}
+              />
+              <Box
+                position={[0.3, 0.1, 0.5]}
+                args={[0.3, 0.01, 0.1]}
+                color="black"
+                transparent
+                opacity={0.8}
+              />
             </group>
-            <Box ref={mouth} position={[0, -0.2, 0.5]} args={[0.3, 0.05, 0.1]} color="#270000" transparent opacity={0.8} />
+            <Box
+              ref={mouth}
+              position={[0, -0.2, 0.5]}
+              args={[0.3, 0.05, 0.1]}
+              color="#270000"
+              transparent
+              opacity={0.8}
+            />
           </>
         }
       />
@@ -96,15 +133,17 @@ function Plane(props) {
   )
 }
 
-const Box = React.forwardRef(({ children, transparent = false, opacity = 1, color = 'white', args = [1, 1, 1], ...props }, ref) => {
-  return (
-    <mesh receiveShadow castShadow ref={ref} {...props}>
-      <boxBufferGeometry args={args} />
-      <meshStandardMaterial color={color} transparent={transparent} opacity={opacity} />
-      {children}
-    </mesh>
-  )
-})
+const Box = React.forwardRef(
+  ({ children, transparent = false, opacity = 1, color = 'white', args = [1, 1, 1], ...props }, ref) => {
+    return (
+      <mesh receiveShadow castShadow ref={ref} {...props}>
+        <boxBufferGeometry args={args} />
+        <meshStandardMaterial color={color} transparent={transparent} opacity={opacity} />
+        {children}
+      </mesh>
+    )
+  },
+)
 
 function Chair() {
   const [ref] = useCompoundBody(() => ({
@@ -146,8 +185,18 @@ function Mug() {
   return (
     <group ref={cup} {...bind} dispose={null}>
       <group scale={[0.01, 0.01, 0.01]}>
-        <mesh receiveShadow castShadow material={materials.default} geometry={nodes['buffer-0-mesh-0'].geometry} />
-        <mesh receiveShadow castShadow material={materials.Liquid} geometry={nodes['buffer-0-mesh-0_1'].geometry} />
+        <mesh
+          receiveShadow
+          castShadow
+          material={materials.default}
+          geometry={nodes['buffer-0-mesh-0'].geometry}
+        />
+        <mesh
+          receiveShadow
+          castShadow
+          material={materials.Liquid}
+          geometry={nodes['buffer-0-mesh-0_1'].geometry}
+        />
       </group>
     </group>
   )
@@ -198,7 +247,11 @@ const Lamp = () => {
 }
 
 export default () => (
-  <Canvas style={{ cursor: 'none' }} shadows orthographic camera={{ position: [-25, 20, 25], zoom: 25, near: 1, far: 100 }}>
+  <Canvas
+    style={{ cursor: 'none' }}
+    shadows
+    orthographic
+    camera={{ position: [-25, 20, 25], zoom: 25, near: 1, far: 100 }}>
     <color attach="background" args={['#171720']} />
     <fog attach="fog" args={['#171720', 20, 70]} />
     <ambientLight intensity={0.2} />

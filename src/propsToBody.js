@@ -1,4 +1,17 @@
-import { Body, Box, ConvexPolyhedron, Cylinder, Heightfield, Material, Particle, Plane, Quaternion, Sphere, Trimesh, Vec3 } from 'cannon-es'
+import {
+  Body,
+  Box,
+  ConvexPolyhedron,
+  Cylinder,
+  Heightfield,
+  Material,
+  Particle,
+  Plane,
+  Quaternion,
+  Sphere,
+  Trimesh,
+  Vec3,
+} from 'cannon-es'
 
 const makeVec3 = ([x, y, z]) => new Vec3(x, y, z)
 const prepareSphere = (args) => (Array.isArray(args) ? args : [args])

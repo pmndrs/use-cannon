@@ -1,6 +1,8 @@
 const vec3ArrayRegex = (indentCount) =>
   new RegExp(
-    `\\: \\[\\n {${indentCount}}([+-]?\\d+\\.?\\d*),\\n {${indentCount}}([+-]?\\d+\\.?\\d*),\\n {${indentCount}}([+-]?\\d+\\.?\\d*)\\n {${indentCount - 2}}\\]`,
+    `\\: \\[\\n {${indentCount}}([+-]?\\d+\\.?\\d*),\\n {${indentCount}}([+-]?\\d+\\.?\\d*),\\n {${indentCount}}([+-]?\\d+\\.?\\d*)\\n {${
+      indentCount - 2
+    }}\\]`,
     'gm',
   )
 const vec3ArrayReplacement = (_, v1, v2, v3) => `: [ ${v1}, ${v2}, ${v3} ]`

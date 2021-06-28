@@ -137,23 +137,55 @@ function Physics({
 
 function Debug({ children, color = 'black', scale = 1 }: DebugProps): JSX.Element
 
-function usePlane(fn: GetByIndex<PlaneProps>, fwdRef?: React.MutableRefObject<THREE.Object3D>, deps?: any[]): Api
+function usePlane(
+  fn: GetByIndex<PlaneProps>,
+  fwdRef?: React.MutableRefObject<THREE.Object3D>,
+  deps?: any[],
+): Api
 
 function useBox(fn: GetByIndex<BoxProps>, fwdRef?: React.MutableRefObject<THREE.Object3D>, deps?: any[]): Api
 
-function useCylinder(fn: GetByIndex<CylinderProps>, fwdRef?: React.MutableRefObject<THREE.Object3D>, deps?: any[]): Api
+function useCylinder(
+  fn: GetByIndex<CylinderProps>,
+  fwdRef?: React.MutableRefObject<THREE.Object3D>,
+  deps?: any[],
+): Api
 
-function useHeightfield(fn: GetByIndex<HeightfieldProps>, fwdRef?: React.MutableRefObject<THREE.Object3D>, deps?: any[]): Api
+function useHeightfield(
+  fn: GetByIndex<HeightfieldProps>,
+  fwdRef?: React.MutableRefObject<THREE.Object3D>,
+  deps?: any[],
+): Api
 
-function useParticle(fn: GetByIndex<ParticleProps>, fwdRef?: React.MutableRefObject<THREE.Object3D>, deps?: any[]): Api
+function useParticle(
+  fn: GetByIndex<ParticleProps>,
+  fwdRef?: React.MutableRefObject<THREE.Object3D>,
+  deps?: any[],
+): Api
 
-function useSphere(fn: GetByIndex<SphereProps>, fwdRef?: React.MutableRefObject<THREE.Object3D>, deps?: any[]): Api
+function useSphere(
+  fn: GetByIndex<SphereProps>,
+  fwdRef?: React.MutableRefObject<THREE.Object3D>,
+  deps?: any[],
+): Api
 
-function useTrimesh(fn: GetByIndex<TrimeshProps>, fwdRef?: React.MutableRefObject<THREE.Object3D>, deps?: any[]): Api
+function useTrimesh(
+  fn: GetByIndex<TrimeshProps>,
+  fwdRef?: React.MutableRefObject<THREE.Object3D>,
+  deps?: any[],
+): Api
 
-function useConvexPolyhedron(fn: GetByIndex<ConvexPolyhedronProps>, fwdRef?: React.MutableRefObject<THREE.Object3D>, deps?: any[]): Api
+function useConvexPolyhedron(
+  fn: GetByIndex<ConvexPolyhedronProps>,
+  fwdRef?: React.MutableRefObject<THREE.Object3D>,
+  deps?: any[],
+): Api
 
-function useCompoundBody(fn: GetByIndex<CompoundBodyProps>, fwdRef?: React.MutableRefObject<THREE.Object3D>, deps?: any[]): Api
+function useCompoundBody(
+  fn: GetByIndex<CompoundBodyProps>,
+  fwdRef?: React.MutableRefObject<THREE.Object3D>,
+  deps?: any[],
+): Api
 
 function useRaycastVehicle(
   fn: () => RaycastVehicleProps,
@@ -196,7 +228,12 @@ function useLockConstraint(
   deps: any[] = [],
 ): ConstraintApi
 
-function useSpring(bodyA: React.MutableRefObject<THREE.Object3D>, bodyB: React.MutableRefObject<THREE.Object3D>, optns: SpringOptns, deps: any[] = []): void
+function useSpring(
+  bodyA: React.MutableRefObject<THREE.Object3D>,
+  bodyB: React.MutableRefObject<THREE.Object3D>,
+  optns: SpringOptns,
+  deps: any[] = [],
+): void
 
 function useRaycastClosest(options: RayOptns, callback: (e: Event) => void, deps: any[] = []): void
 function useRaycastAny(options: RayOptns, callback: (e: Event) => void, deps: any[] = []): void
@@ -378,8 +415,17 @@ type RayhitEvent = {
 
 type CylinderArgs = [radiusTop?: number, radiusBottom?: number, height?: number, numSegments?: number]
 type TrimeshArgs = [vertices: number[], indices: number[]]
-type HeightfieldArgs = [data: number[][], options: { elementSize?: number; maxValue?: number; minValue?: number }]
-type ConvexPolyhedronArgs<V extends VectorTypes = VectorTypes> = [vertices?: V[], faces?: number[][], normals?: V[], axes?: V[], boundingSphereRadius?: number]
+type HeightfieldArgs = [
+  data: number[][],
+  options: { elementSize?: number; maxValue?: number; minValue?: number },
+]
+type ConvexPolyhedronArgs<V extends VectorTypes = VectorTypes> = [
+  vertices?: V[],
+  faces?: number[][],
+  normals?: V[],
+  axes?: V[],
+  boundingSphereRadius?: number,
+]
 
 interface PlaneProps extends BodyProps {}
 interface BoxProps extends BodyProps<Triplet> {} // extents: [x, y, z]
