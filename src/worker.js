@@ -491,5 +491,14 @@ self.onmessage = (e) => {
       state.vehicles[uuid].setBrake(brake, wheelIndex)
       break
     }
+
+    case 'wakeUp': {
+      state.bodies[uuid].wakeUp()
+      break
+    }
+    case 'sleep': {
+      state.bodies[uuid].sleep()
+      break
+    }
   }
 }
