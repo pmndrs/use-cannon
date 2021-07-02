@@ -108,11 +108,13 @@ You can debug your scene using the [cannon-es-debugger](https://github.com/pmndr
 import { Physics, Debug } from '@react-three/cannon'
 
 ReactDOM.render(
-  <Physics>
-    <Debug color="black" scale={1.1}>
-      {/* children */}
-    </Debug>
-  </Physics>,
+  <Canvas>
+    <Physics>
+      <Debug color="black" scale={1.1}>
+        {/* children */}
+      </Debug>
+    </Physics>
+  </Canvas>,
   document.getElementById('root'),
 )
 ```
