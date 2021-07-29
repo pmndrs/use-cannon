@@ -17,12 +17,18 @@ import type { AtomicProps } from './hooks'
 export type ProviderProps = {
   children: React.ReactNode
   shouldInvalidate?: boolean
-  gravity?: number[]
+
   tolerance?: number
   step?: number
   iterations?: number
+
   allowSleep?: boolean
   broadphase?: 'Naive' | 'SAP'
+  gravity?: number[]
+  quatNormalizeFast?: boolean
+  quatNormalizeSkip?: number
+  solver?: 'GS' | 'Split'
+
   axisIndex?: number
   defaultContactMaterial?: {
     friction?: number
@@ -150,6 +156,9 @@ export default function Provider({
   allowSleep = false,
   broadphase = 'Naive',
   axisIndex = 0,
+  quatNormalizeFast = false,
+  quatNormalizeSkip = 0,
+  solver = 'GS',
   defaultContactMaterial = { contactEquationStiffness: 1e6 },
   size = 1000,
 }: ProviderProps): JSX.Element {
@@ -186,6 +195,9 @@ export default function Provider({
         allowSleep,
         axisIndex,
         defaultContactMaterial,
+        quatNormalizeFast,
+        quatNormalizeSkip,
+        solver,
       },
     })
 

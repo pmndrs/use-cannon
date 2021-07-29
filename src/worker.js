@@ -14,6 +14,8 @@ import {
   Ray,
   RaycastResult,
   RaycastVehicle,
+  GSSolver,
+  SplitSolver,
 } from 'cannon-es'
 import propsToBody from './propsToBody'
 
@@ -60,9 +62,19 @@ self.onmessage = (e) => {
         broadphase,
         axisIndex,
         defaultContactMaterial,
+        quatNormalizeFast,
+        quatNormalizeSkip,
+        solver,
       } = props
       state.world.allowSleep = allowSleep
       state.world.gravity.set(gravity[0], gravity[1], gravity[2])
+      state.world.quatNormalizeFast = quatNormalizeFast
+      state.world.quatNormalizeSkip = quatNormalizeSkip
+
+      if (solver === 'Split') {
+        state.world.solver = new SplitSolver(new GSSolver())
+      }
+
       state.world.solver.tolerance = tolerance
       state.world.solver.iterations = iterations
       state.world.broadphase = new (broadphases[broadphase + 'Broadphase'] || NaiveBroadphase)(state.world)
