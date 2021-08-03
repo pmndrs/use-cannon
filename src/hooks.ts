@@ -1,9 +1,8 @@
 import type { MaterialOptions, RayOptions } from 'cannon-es'
 import type { CollideBeginEvent, CollideEndEvent, CollideEvent, Event, Events, Subscriptions } from './setup'
 import type { Euler } from 'three'
-import { Object3D, InstancedMesh, DynamicDrawUsage, Vector3, MathUtils } from 'three'
 import type { MutableRefObject } from 'react'
-import type React from 'react'
+import { Object3D, InstancedMesh, DynamicDrawUsage, Vector3, MathUtils } from 'three'
 import { useLayoutEffect, useContext, useRef, useMemo, useEffect, useState } from 'react'
 import { context, debugContext } from './setup'
 
@@ -109,10 +108,10 @@ export interface WorkerApi extends WorkerProps<AtomicProps> {
   sleep: () => void
 }
 
-interface PublicApi extends WorkerApi {
+export interface PublicApi extends WorkerApi {
   at: (index: number) => WorkerApi
 }
-export type Api = [React.MutableRefObject<Object3D | undefined>, PublicApi]
+export type Api = [MutableRefObject<Object3D | null>, PublicApi]
 
 export type ConstraintTypes = 'PointToPoint' | 'ConeTwist' | 'Distance' | 'Lock'
 
@@ -164,16 +163,23 @@ function opString(action: string, type: string) {
   return action + type.charAt(0).toUpperCase() + type.slice(1)
 }
 
-function getUUID(ref: MutableRefObject<Object3D>, index?: number) {
-  return index !== undefined ? `${ref.current.uuid}/${index}` : ref.current.uuid
+function getUUID(ref: MutableRefObject<Object3D | null>, index?: number) {
+  return ref.current && [ref.current.uuid, index].join('/')
 }
 
-function post(ref: MutableRefObject<Object3D>, worker: Worker, op: string, index?: number, props?: any) {
-  return ref.current && worker.postMessage({ op, uuid: getUUID(ref, index), props })
+function post(
+  ref: MutableRefObject<Object3D | null>,
+  worker: Worker,
+  op: string,
+  index?: number,
+  props?: any,
+) {
+  const uuid = getUUID(ref, index)
+  return uuid && worker.postMessage({ op, uuid, props })
 }
 
 function subscribe(
-  ref: MutableRefObject<Object3D>,
+  ref: MutableRefObject<Object3D | null>,
   worker: Worker,
   subscriptions: Subscriptions,
   type: string,
@@ -233,10 +239,10 @@ function useBody<B extends BodyProps<unknown>>(
   type: BodyShapeType,
   fn: GetByIndex<B>,
   argsFn: ArgFn<B['args']>,
-  fwdRef?: React.MutableRefObject<Object3D>,
+  fwdRef?: MutableRefObject<Object3D | null>,
   deps: any[] = [],
 ): Api {
-  const localRef = useRef<Object3D>(null!)
+  const localRef = useRef<Object3D | null>(null)
   const ref = fwdRef ? fwdRef : localRef
   const { worker, refs, events, subscriptions } = useContext(context)
   const debugApi = useContext(debugContext)
@@ -373,46 +379,46 @@ function makeTriplet(v: Vector3 | Triplet): Triplet {
 
 export function usePlane(
   fn: GetByIndex<PlaneProps>,
-  fwdRef?: React.MutableRefObject<Object3D>,
+  fwdRef?: MutableRefObject<Object3D | null>,
   deps?: any[],
 ) {
   return useBody('Plane', fn, () => [], fwdRef, deps)
 }
-export function useBox(fn: GetByIndex<BoxProps>, fwdRef?: React.MutableRefObject<Object3D>, deps?: any[]) {
+export function useBox(fn: GetByIndex<BoxProps>, fwdRef?: MutableRefObject<Object3D | null>, deps?: any[]) {
   const defaultBoxArgs: Triplet = [1, 1, 1]
   return useBody('Box', fn, (args = defaultBoxArgs): Triplet => args, fwdRef, deps)
 }
 export function useCylinder(
   fn: GetByIndex<CylinderProps>,
-  fwdRef?: React.MutableRefObject<Object3D>,
+  fwdRef?: MutableRefObject<Object3D | null>,
   deps?: any[],
 ) {
   return useBody('Cylinder', fn, (args = [] as []) => args, fwdRef, deps)
 }
 export function useHeightfield(
   fn: GetByIndex<HeightfieldProps>,
-  fwdRef?: React.MutableRefObject<Object3D>,
+  fwdRef?: MutableRefObject<Object3D | null>,
   deps?: any[],
 ) {
   return useBody('Heightfield', fn, (args) => args, fwdRef, deps)
 }
 export function useParticle(
   fn: GetByIndex<ParticleProps>,
-  fwdRef?: React.MutableRefObject<Object3D>,
+  fwdRef?: MutableRefObject<Object3D | null>,
   deps?: any[],
 ) {
   return useBody('Particle', fn, () => [], fwdRef, deps)
 }
 export function useSphere(
   fn: GetByIndex<SphereProps>,
-  fwdRef?: React.MutableRefObject<Object3D>,
+  fwdRef?: MutableRefObject<Object3D | null>,
   deps?: any[],
 ) {
   return useBody('Sphere', fn, (radius = 1): [number] => [radius], fwdRef, deps)
 }
 export function useTrimesh(
   fn: GetByIndex<TrimeshProps>,
-  fwdRef?: React.MutableRefObject<Object3D>,
+  fwdRef?: MutableRefObject<Object3D | null>,
   deps?: any[],
 ) {
   return useBody<TrimeshProps>('Trimesh', fn, (args) => args, fwdRef, deps)
@@ -420,7 +426,7 @@ export function useTrimesh(
 
 export function useConvexPolyhedron(
   fn: GetByIndex<ConvexPolyhedronProps>,
-  fwdRef?: React.MutableRefObject<Object3D>,
+  fwdRef?: MutableRefObject<Object3D | null>,
   deps?: any[],
 ) {
   return useBody<ConvexPolyhedronProps>(
@@ -439,15 +445,15 @@ export function useConvexPolyhedron(
 }
 export function useCompoundBody(
   fn: GetByIndex<CompoundBodyProps>,
-  fwdRef?: React.MutableRefObject<Object3D>,
+  fwdRef?: MutableRefObject<Object3D | null>,
   deps?: any[],
 ) {
   return useBody('Compound', fn, (args) => args as unknown[], fwdRef, deps)
 }
 
 type ConstraintApi = [
-  React.MutableRefObject<Object3D | undefined>,
-  React.MutableRefObject<Object3D | undefined>,
+  MutableRefObject<Object3D | null>,
+  MutableRefObject<Object3D | null>,
   {
     enable: () => void
     disable: () => void
@@ -455,8 +461,8 @@ type ConstraintApi = [
 ]
 
 type HingeConstraintApi = [
-  React.MutableRefObject<Object3D | undefined>,
-  React.MutableRefObject<Object3D | undefined>,
+  MutableRefObject<Object3D | null>,
+  MutableRefObject<Object3D | null>,
   {
     enable: () => void
     disable: () => void
@@ -468,8 +474,8 @@ type HingeConstraintApi = [
 ]
 
 type SpringApi = [
-  React.MutableRefObject<Object3D | undefined>,
-  React.MutableRefObject<Object3D | undefined>,
+  MutableRefObject<Object3D | null>,
+  MutableRefObject<Object3D | null>,
   {
     setStiffness: (value: number) => void
     setRestLength: (value: number) => void
@@ -483,16 +489,16 @@ type ConstraintORHingeApi<T extends 'Hinge' | ConstraintTypes> = T extends Const
 
 function useConstraint<T extends 'Hinge' | ConstraintTypes>(
   type: T,
-  bodyA: React.MutableRefObject<Object3D | undefined>,
-  bodyB: React.MutableRefObject<Object3D | undefined>,
+  bodyA: MutableRefObject<Object3D | null>,
+  bodyB: MutableRefObject<Object3D | null>,
   optns: any = {},
   deps: any[] = [],
 ): ConstraintORHingeApi<T> {
   const { worker } = useContext(context)
   const uuid = MathUtils.generateUUID()
 
-  const nullRef1 = useRef<Object3D>(null!)
-  const nullRef2 = useRef<Object3D>(null!)
+  const nullRef1 = useRef<Object3D | null>(null)
+  const nullRef2 = useRef<Object3D | null>(null)
   bodyA = bodyA === undefined || bodyA === null ? nullRef1 : bodyA
   bodyB = bodyB === undefined || bodyB === null ? nullRef2 : bodyB
 
@@ -533,40 +539,40 @@ function useConstraint<T extends 'Hinge' | ConstraintTypes>(
 }
 
 export function usePointToPointConstraint(
-  bodyA: React.MutableRefObject<Object3D | undefined>,
-  bodyB: React.MutableRefObject<Object3D | undefined>,
+  bodyA: MutableRefObject<Object3D | null>,
+  bodyB: MutableRefObject<Object3D | null>,
   optns: PointToPointConstraintOpts,
   deps: any[] = [],
 ) {
   return useConstraint('PointToPoint', bodyA, bodyB, optns, deps)
 }
 export function useConeTwistConstraint(
-  bodyA: React.MutableRefObject<Object3D | undefined>,
-  bodyB: React.MutableRefObject<Object3D | undefined>,
+  bodyA: MutableRefObject<Object3D | null>,
+  bodyB: MutableRefObject<Object3D | null>,
   optns: ConeTwistConstraintOpts,
   deps: any[] = [],
 ) {
   return useConstraint('ConeTwist', bodyA, bodyB, optns, deps)
 }
 export function useDistanceConstraint(
-  bodyA: React.MutableRefObject<Object3D | undefined>,
-  bodyB: React.MutableRefObject<Object3D | undefined>,
+  bodyA: MutableRefObject<Object3D | null>,
+  bodyB: MutableRefObject<Object3D | null>,
   optns: DistanceConstraintOpts,
   deps: any[] = [],
 ) {
   return useConstraint('Distance', bodyA, bodyB, optns, deps)
 }
 export function useHingeConstraint(
-  bodyA: React.MutableRefObject<Object3D | undefined>,
-  bodyB: React.MutableRefObject<Object3D | undefined>,
+  bodyA: MutableRefObject<Object3D | null>,
+  bodyB: MutableRefObject<Object3D | null>,
   optns: HingeConstraintOpts,
   deps: any[] = [],
 ) {
   return useConstraint('Hinge', bodyA, bodyB, optns, deps)
 }
 export function useLockConstraint(
-  bodyA: React.MutableRefObject<Object3D | undefined>,
-  bodyB: React.MutableRefObject<Object3D | undefined>,
+  bodyA: MutableRefObject<Object3D | null>,
+  bodyB: MutableRefObject<Object3D | null>,
   optns: LockConstraintOpts,
   deps: any[] = [],
 ) {
@@ -574,8 +580,8 @@ export function useLockConstraint(
 }
 
 export function useSpring(
-  bodyA: React.MutableRefObject<Object3D | undefined>,
-  bodyB: React.MutableRefObject<Object3D | undefined>,
+  bodyA: MutableRefObject<Object3D | null>,
+  bodyB: MutableRefObject<Object3D | null>,
   optns: SpringOptns,
   deps: any[] = [],
 ): SpringApi {
@@ -676,8 +682,8 @@ export interface WheelInfoOptions {
 }
 
 export interface RaycastVehicleProps {
-  chassisBody: React.MutableRefObject<Object3D | undefined>
-  wheels: React.MutableRefObject<Object3D | undefined>[]
+  chassisBody: MutableRefObject<Object3D | null>
+  wheels: MutableRefObject<Object3D | null>[]
   wheelInfos: WheelInfoOptions[]
   indexForwardAxis?: number
   indexRightAxis?: number
@@ -686,10 +692,10 @@ export interface RaycastVehicleProps {
 
 export function useRaycastVehicle(
   fn: () => RaycastVehicleProps,
-  fwdRef?: React.MutableRefObject<Object3D>,
+  fwdRef?: MutableRefObject<Object3D | null>,
   deps: any[] = [],
-): [React.MutableRefObject<Object3D | undefined>, RaycastVehiclePublicApi] {
-  const ref = fwdRef ? fwdRef : useRef<Object3D>(null!)
+): [MutableRefObject<Object3D | null>, RaycastVehiclePublicApi] {
+  const ref = fwdRef ? fwdRef : useRef<Object3D | null>(null)
   const { worker, subscriptions } = useContext(context)
 
   useLayoutEffect(() => {
