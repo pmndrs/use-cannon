@@ -146,98 +146,102 @@ function Debug({ children, color = 'black', scale = 1 }: DebugProps): JSX.Elemen
 
 function usePlane(
   fn: GetByIndex<PlaneProps>,
-  fwdRef?: React.MutableRefObject<THREE.Object3D>,
+  fwdRef?: React.MutableRefObject<THREE.Object3D | null>,
   deps?: any[],
 ): Api
 
-function useBox(fn: GetByIndex<BoxProps>, fwdRef?: React.MutableRefObject<THREE.Object3D>, deps?: any[]): Api
+function useBox(
+  fn: GetByIndex<BoxProps>,
+  fwdRef?: React.MutableRefObject<THREE.Object3D | null>,
+  deps?: any[],
+): Api
 
 function useCylinder(
   fn: GetByIndex<CylinderProps>,
-  fwdRef?: React.MutableRefObject<THREE.Object3D>,
+  fwdRef?: React.MutableRefObject<THREE.Object3D | null>,
   deps?: any[],
 ): Api
 
 function useHeightfield(
   fn: GetByIndex<HeightfieldProps>,
-  fwdRef?: React.MutableRefObject<THREE.Object3D>,
+  fwdRef?: React.MutableRefObject<THREE.Object3D | null>,
   deps?: any[],
 ): Api
 
 function useParticle(
   fn: GetByIndex<ParticleProps>,
-  fwdRef?: React.MutableRefObject<THREE.Object3D>,
+  fwdRef?: React.MutableRefObject<THREE.Object3D | null>,
   deps?: any[],
 ): Api
 
 function useSphere(
   fn: GetByIndex<SphereProps>,
-  fwdRef?: React.MutableRefObject<THREE.Object3D>,
+  fwdRef?: React.MutableRefObject<THREE.Object3D | null>,
   deps?: any[],
 ): Api
 
 function useTrimesh(
   fn: GetByIndex<TrimeshProps>,
-  fwdRef?: React.MutableRefObject<THREE.Object3D>,
+  fwdRef?: React.MutableRefObject<THREE.Object3D | null>,
   deps?: any[],
 ): Api
 
 function useConvexPolyhedron(
   fn: GetByIndex<ConvexPolyhedronProps>,
-  fwdRef?: React.MutableRefObject<THREE.Object3D>,
+  fwdRef?: React.MutableRefObject<THREE.Object3D | null>,
   deps?: any[],
 ): Api
 
 function useCompoundBody(
   fn: GetByIndex<CompoundBodyProps>,
-  fwdRef?: React.MutableRefObject<THREE.Object3D>,
+  fwdRef?: React.MutableRefObject<THREE.Object3D | null>,
   deps?: any[],
 ): Api
 
 function useRaycastVehicle(
   fn: () => RaycastVehicleProps,
-  fwdRef?: React.MutableRefObject<THREE.Object3D>,
+  fwdRef?: React.MutableRefObject<THREE.Object3D | null>,
   deps: any[] = [],
-): [React.MutableRefObject<THREE.Object3D | undefined>, RaycastVehiclePublicApi]
+): [React.MutableRefObject<THREE.Object3D | null>, RaycastVehiclePublicApi]
 
 function usePointToPointConstraint(
-  bodyA: React.MutableRefObject<THREE.Object3D>,
-  bodyB: React.MutableRefObject<THREE.Object3D>,
+  bodyA: React.MutableRefObject<THREE.Object3D | null>,
+  bodyB: React.MutableRefObject<THREE.Object3D | null>,
   optns: PointToPointConstraintOpts,
   deps: any[] = [],
 ): ConstraintApi
 
 function useConeTwistConstraint(
-  bodyA: React.MutableRefObject<THREE.Object3D>,
-  bodyB: React.MutableRefObject<THREE.Object3D>,
+  bodyA: React.MutableRefObject<THREE.Object3D | null>,
+  bodyB: React.MutableRefObject<THREE.Object3D | null>,
   optns: ConeTwistConstraintOpts,
   deps: any[] = [],
 ): ConstraintApi
 
 function useDistanceConstraint(
-  bodyA: React.MutableRefObject<THREE.Object3D>,
-  bodyB: React.MutableRefObject<THREE.Object3D>,
+  bodyA: React.MutableRefObject<THREE.Object3D | null>,
+  bodyB: React.MutableRefObject<THREE.Object3D | null>,
   optns: DistanceConstraintOpts,
   deps: any[] = [],
 ): ConstraintApi
 
 function useHingeConstraint(
-  bodyA: React.MutableRefObject<THREE.Object3D>,
-  bodyB: React.MutableRefObject<THREE.Object3D>,
+  bodyA: React.MutableRefObject<THREE.Object3D | null>,
+  bodyB: React.MutableRefObject<THREE.Object3D | null>,
   optns: HingeConstraintOpts,
   deps: any[] = [],
 ): ConstraintApi
 
 function useLockConstraint(
-  bodyA: React.MutableRefObject<THREE.Object3D>,
-  bodyB: React.MutableRefObject<THREE.Object3D>,
+  bodyA: React.MutableRefObject<THREE.Object3D | null>,
+  bodyB: React.MutableRefObject<THREE.Object3D | null>,
   optns: LockConstraintOpts,
   deps: any[] = [],
 ): ConstraintApi
 
 function useSpring(
-  bodyA: React.MutableRefObject<THREE.Object3D>,
-  bodyB: React.MutableRefObject<THREE.Object3D>,
+  bodyA: React.MutableRefObject<THREE.Object3D | null>,
+  bodyB: React.MutableRefObject<THREE.Object3D | null>,
   optns: SpringOptns,
   deps: any[] = [],
 ): void
@@ -268,11 +272,11 @@ interface PublicApi extends WorkerApi {
   at: (index: number) => WorkerApi
 }
 
-type Api = [React.MutableRefObject<THREE.Object3D | undefined>, PublicApi]
+type Api = [React.MutableRefObject<THREE.Object3D | null>, PublicApi]
 
 type ConstraintApi = [
-  React.MutableRefObject<THREE.Object3D>,
-  React.MutableRefObject<THREE.Object3D>,
+  React.MutableRefObject<THREE.Object3D | null>,
+  React.MutableRefObject<THREE.Object3D | null>,
   {
     enable: () => void
     disable: () => void
@@ -280,8 +284,8 @@ type ConstraintApi = [
 ]
 
 type HingeConstraintApi = [
-  React.MutableRefObject<THREE.Object3D | undefined>,
-  React.MutableRefObject<THREE.Object3D | undefined>,
+  React.MutableRefObject<THREE.Object3D | null>,
+  React.MutableRefObject<THREE.Object3D | null>,
   {
     enable: () => void
     disable: () => void
@@ -293,8 +297,8 @@ type HingeConstraintApi = [
 ]
 
 type SpringApi = [
-  React.MutableRefObject<THREE.Object3D | undefined>,
-  React.MutableRefObject<THREE.Object3D | undefined>,
+  React.MutableRefObject<THREE.Object3D | null>,
+  React.MutableRefObject<THREE.Object3D | null>,
   {
     setStiffness: (value: number) => void
     setRestLength: (value: number) => void
@@ -509,8 +513,8 @@ interface WheelInfoOptions {
 }
 
 interface RaycastVehicleProps {
-  chassisBody: React.MutableRefObject<THREE.Object3D | undefined>
-  wheels: React.MutableRefObject<THREE.Object3D | undefined>[]
+  chassisBody: React.MutableRefObject<THREE.Object3D | null>
+  wheels: React.MutableRefObject<THREE.Object3D | null>[]
   wheelInfos: WheelInfoOptions[]
   indexForwardAxis?: number
   indexRightAxis?: number
