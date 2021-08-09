@@ -261,6 +261,7 @@ interface WorkerApi extends WorkerProps<AtomicProps> {
   applyImpulse: (impulse: Triplet, worldPoint: Triplet) => void
   applyLocalForce: (force: Triplet, localPoint: Triplet) => void
   applyLocalImpulse: (impulse: Triplet, localPoint: Triplet) => void
+  applyTorque: (torque: Triplet) => void
 }
 
 interface PublicApi extends WorkerApi {

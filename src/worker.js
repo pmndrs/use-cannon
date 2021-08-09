@@ -273,6 +273,9 @@ self.onmessage = (e) => {
     case 'applyLocalImpulse':
       state.bodies[uuid].applyLocalImpulse(new Vec3(...props[0]), new Vec3(...props[1]))
       break
+    case 'applyTorque':
+      state.bodies[uuid].applyTorque(new Vec3(...props[0]))
+      break
     case 'addConstraint': {
       const [bodyA, bodyB, optns] = props
       let { pivotA, pivotB, axisA, axisB, ...options } = optns
