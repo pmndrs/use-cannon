@@ -104,6 +104,7 @@ export interface WorkerApi extends WorkerProps<AtomicProps> {
   applyImpulse: (impulse: Triplet, worldPoint: Triplet) => void
   applyLocalForce: (force: Triplet, localPoint: Triplet) => void
   applyLocalImpulse: (impulse: Triplet, localPoint: Triplet) => void
+  applyTorque: (torque: Triplet) => void
   wakeUp: () => void
   sleep: () => void
 }
@@ -343,6 +344,9 @@ function useBody<B extends BodyProps<unknown>>(
         },
         applyLocalImpulse(impulse: Triplet, localPoint: Triplet) {
           post(ref, worker, 'applyLocalImpulse', index, [impulse, localPoint])
+        },
+        applyTorque(torque: Triplet) {
+          post(ref, worker, 'applyTorque', index, [torque])
         },
         // force particular sleep state
         wakeUp() {
