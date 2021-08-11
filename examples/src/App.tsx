@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react'
+import { Suspense } from 'react'
 import styled from 'styled-components'
 import { HashRouter as Router, Link, Route, Switch, useRouteMatch } from 'react-router-dom'
 import { Global } from './styles'
@@ -24,13 +24,14 @@ const Page = styled(PageImpl)`
 `
 
 const defaultComponent = 'MondayMorning'
-const visibleComponents = Object.entries(demos)
-  //.filter(([name, item]) => !item.dev)
-  .reduce((acc, [name, item]) => ({ ...acc, [name]: item }), {})
+const visibleComponents = Object.entries(demos).reduce<any>(
+  (acc, [name, item]) => ({ ...acc, [name]: item }),
+  {},
+)
 
 function Intro() {
-  let match = useRouteMatch('/demo/:name')
-  let { bright } = visibleComponents[match ? match.params.name : defaultComponent]
+  const match = useRouteMatch<{ name: string }>('/demo/:name')
+  const { bright } = visibleComponents[match ? match.params.name : defaultComponent]
   return (
     <Page>
       <Suspense fallback={null}>
@@ -55,8 +56,8 @@ function Intro() {
 }
 
 function Demos() {
-  let match = useRouteMatch('/demo/:name')
-  let { bright } = visibleComponents[match ? match.params.name : defaultComponent]
+  const match = useRouteMatch<{ name: string }>('/demo/:name')
+  const { bright } = visibleComponents[match ? match.params.name : defaultComponent]
   return (
     <DemoPanel>
       {Object.entries(visibleComponents).map(([name]) => (

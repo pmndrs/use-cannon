@@ -1,4 +1,4 @@
 dist
-examples/build
+examples/dist
 examples/public
 node_modules
