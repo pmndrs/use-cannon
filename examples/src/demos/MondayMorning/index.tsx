@@ -1,7 +1,8 @@
-import React, {
+import {
   Suspense,
   createRef,
   createContext,
+  forwardRef,
   useContext,
   useCallback,
   useEffect,
@@ -22,11 +23,20 @@ import {
 } from '@react-three/cannon'
 import { createRagdoll } from './createConfig'
 
-const { shapes, joints } = createRagdoll(4.8, Math.PI / 16, Math.PI / 16, 0)
-const context = createContext()
-const cursor = createRef()
+import type { PropsWithChildren, ReactNode, RefObject } from 'react'
+import type { ConeTwistConstraintOpts, PlaneProps, Triplet } from '@react-three/cannon'
+import type { BoxBufferGeometryProps, MeshStandardMaterialProps, MeshProps } from '@react-three/fiber'
+import type { GLTF } from 'three-stdlib/loaders/GLTFLoader'
+import type { BufferGeometry, Material, Object3D } from 'three'
+import type { ShapeName } from './createConfig'
 
-function useDragConstraint(child) {
+const { shapes, joints } = createRagdoll(4.8, Math.PI / 16, Math.PI / 16, 0)
+const context = createContext<RefObject<Object3D>>(createRef<Object3D>())
+const cursor = createRef<Object3D>()
+
+const double = ([x, y, z]: Readonly<Triplet>): Triplet => [x * 2, y * 2, z * 2]
+
+function useDragConstraint(child: RefObject<Object3D>) {
   const [, , api] = usePointToPointConstraint(cursor, child, { pivotA: [0, 0, 0], pivotB: [0, 0, 0] })
   useEffect(() => void api.disable(), [])
   const onPointerUp = useCallback(() => api.disable(), [])
@@ -38,16 +48,39 @@ function useDragConstraint(child) {
   return { onPointerUp, onPointerDown }
 }
 
-const BodyPart = ({ config, children, render, name, ...props }) => {
+type BoxProps = PropsWithChildren<
+  Omit<MeshProps, 'args'> &
+    Pick<BoxBufferGeometryProps, 'args'> &
+    Pick<MeshStandardMaterialProps, 'color' | 'opacity' | 'transparent'>
+>
+const Box = forwardRef<Object3D | undefined, BoxProps>(
+  ({ children, transparent = false, opacity = 1, color = 'white', args = [1, 1, 1], ...props }, ref) => {
+    return (
+      <mesh receiveShadow castShadow ref={ref} {...props}>
+        <boxBufferGeometry args={args} />
+        <meshStandardMaterial color={color} transparent={transparent} opacity={opacity} />
+        {children}
+      </mesh>
+    )
+  },
+)
+
+type BodyPartProps = PropsWithChildren<{
+  config?: ConeTwistConstraintOpts
+  name: ShapeName
+  render?: ReactNode
+}> &
+  BoxProps
+const BodyPart = ({ config = {}, children, render, name, ...props }: BodyPartProps) => {
   const { color, args, mass, position } = shapes[name]
-  const scale = useMemo(() => args.map((s) => s * 2), [args])
+  const scale = useMemo<Triplet>(() => double(args), [args])
   const parent = useContext(context)
-  const [ref] = useBox(() => ({ mass, args, position, linearDamping: 0.99 }))
+  const [ref] = useBox(() => ({ mass, args: [...args], position: [...position], linearDamping: 0.99 }))
   useConeTwistConstraint(ref, parent, config)
   const bind = useDragConstraint(ref)
   return (
     <context.Provider value={ref}>
-      <Box castShadow receiveShadow ref={ref} {...props} {...bind} scale={scale} name={name} color={color}>
+      <Box castShadow receiveShadow {...props} {...bind} scale={scale} name={name} color={color} ref={ref}>
         {render}
       </Box>
       {children}
@@ -55,10 +88,10 @@ const BodyPart = ({ config, children, render, name, ...props }) => {
   )
 }
 
-function Ragdoll(props) {
-  const mouth = useRef()
-  const eyes = useRef()
-  const [ref, api] = useSphere(() => ({ type: 'Static', args: [0.5], position: [0, 0, 10000] }), cursor)
+function Ragdoll(props: Pick<MeshProps, 'position'>) {
+  const mouth = useRef<Object3D>(null!)
+  const eyes = useRef<Object3D>(null!)
+  const [ref, api] = useSphere(() => ({ type: 'Static', args: 0.5, position: [0, 0, 10000] }), cursor)
   useFrame((e) => {
     eyes.current.position.y = Math.sin(e.clock.getElapsedTime() * 1) * 0.06
     mouth.current.scale.y = (1 + Math.sin(e.clock.getElapsedTime())) * 1.5
@@ -67,7 +100,7 @@ function Ragdoll(props) {
     api.position.set(x / 1.4, y, 0)
   })
   return (
-    <BodyPart name={'upperBody'} {...props}>
+    <BodyPart {...props} name={'upperBody'}>
       <mesh ref={ref}>
         <sphereBufferGeometry args={[0.5, 32, 32]} />
         <meshBasicMaterial fog={false} depthTest={false} transparent opacity={0.5} />
@@ -123,7 +156,7 @@ function Ragdoll(props) {
   )
 }
 
-function Plane(props) {
+function Plane(props: PlaneProps) {
   const [ref] = usePlane(() => ({ ...props }))
   return (
     <mesh ref={ref} receiveShadow>
@@ -132,18 +165,6 @@ function Plane(props) {
     </mesh>
   )
 }
-
-const Box = React.forwardRef(
-  ({ children, transparent = false, opacity = 1, color = 'white', args = [1, 1, 1], ...props }, ref) => {
-    return (
-      <mesh receiveShadow castShadow ref={ref} {...props}>
-        <boxBufferGeometry args={args} />
-        <meshStandardMaterial color={color} transparent={transparent} opacity={opacity} />
-        {children}
-      </mesh>
-    )
-  },
-)
 
 function Chair() {
   const [ref] = useCompoundBody(() => ({
@@ -172,18 +193,29 @@ function Chair() {
   )
 }
 
-//radiusTop, radiusBottom, height, numSegments
+interface CupGLTF extends GLTF {
+  materials: {
+    default: Material
+    Liquid: Material
+  }
+  nodes: {
+    'buffer-0-mesh-0': { geometry: BufferGeometry }
+    'buffer-0-mesh-0_1': { geometry: BufferGeometry }
+  }
+}
+
 function Mug() {
-  const { nodes, materials } = useLoader(GLTFLoader, '/cup.glb')
-  const [cup] = useCylinder(() => ({
+  const { nodes, materials } = useLoader(GLTFLoader, '/cup.glb') as CupGLTF
+  const [ref] = useCylinder(() => ({
     mass: 1,
     rotation: [Math.PI / 2, 0, 0],
     position: [9, 0, 0],
+    //radiusTop, radiusBottom, height, numSegments
     args: [0.6, 0.6, 1, 16],
   }))
-  const bind = useDragConstraint(cup)
+  const bind = useDragConstraint(ref)
   return (
-    <group ref={cup} {...bind} dispose={null}>
+    <group ref={ref} {...bind} dispose={null}>
       <group scale={[0.01, 0.01, 0.01]}>
         <mesh
           receiveShadow
@@ -227,7 +259,7 @@ const Lamp = () => {
   const [fixed] = useSphere(() => ({ type: 'Static', args: 1, position: [0, 16, 0] }))
   const [lamp] = useBox(() => ({
     mass: 1,
-    args: [1, 0, 5, 1],
+    args: [1, 0, 5],
     linearDamping: 0.9,
     angulardamping: 1.99,
     position: [0, 16, 0],
