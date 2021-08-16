@@ -59,7 +59,7 @@ useFrame(({ clock }) => api.position.set(Math.sin(clock.getElapsedTime()) * 5, 0
 const velocity = useRef([0, 0, 0])
 useEffect(() => {
   const unsubscribe = api.velocity.subscribe((v) => (velocity.current = v))
-  return () => unsubscribe()
+  return unsubscribe
 }, [])
 ```
 
