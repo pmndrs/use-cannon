@@ -84,7 +84,7 @@ export interface CompoundBodyProps extends BodyProps {
 interface WorkerVec {
   set: (x: number, y: number, z: number) => void
   copy: ({ x, y, z }: Vector3 | Euler) => void
-  subscribe: (callback: (value: Triplet) => void) => void
+  subscribe: (callback: (value: Triplet) => void) => () => void
 }
 
 export type WorkerProps<T> = {
