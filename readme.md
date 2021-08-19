@@ -254,25 +254,37 @@ function useRaycastAll(options: RayOptns, callback: (e: Event) => void, deps: an
 ### Returned api
 
 ```typescript
-interface WorkerApi extends WorkerProps<AtomicProps> {
-  position: WorkerVec
-  rotation: WorkerVec
-  velocity: WorkerVec
-  angularVelocity: WorkerVec
-  linearFactor: WorkerVec
-  angularFactor: WorkerVec
-  applyForce: (force: Triplet, worldPoint: Triplet) => void
-  applyImpulse: (impulse: Triplet, worldPoint: Triplet) => void
-  applyLocalForce: (force: Triplet, localPoint: Triplet) => void
-  applyLocalImpulse: (impulse: Triplet, localPoint: Triplet) => void
-  applyTorque: (torque: Triplet) => void
-}
+type WorkerApi = AtomicApi &
+  VectorApi & {
+    applyForce: (force: Triplet, worldPoint: Triplet) => void
+    applyImpulse: (impulse: Triplet, worldPoint: Triplet) => void
+    applyLocalForce: (force: Triplet, localPoint: Triplet) => void
+    applyLocalImpulse: (impulse: Triplet, localPoint: Triplet) => void
+    applyTorque: (torque: Triplet) => void
+    wakeUp: () => void
+    sleep: () => void
+  }
 
 interface PublicApi extends WorkerApi {
   at: (index: number) => WorkerApi
 }
 
 type Api = [React.MutableRefObject<THREE.Object3D | null>, PublicApi]
+
+type AtomicApi = {
+  [K in keyof AtomicProps]: {
+    set: (value: AtomicProps[K]) => void
+    subscribe: (callback: (value: AtomicProps[K]) => void) => () => void
+  }
+}
+
+type VectorApi = {
+  [K in keyof VectorProps]: {
+    set: (x: number, y: number, z: number) => void
+    copy: ({ x, y, z }: Vector3 | Euler) => void
+    subscribe: (callback: (value: Triplet) => void) => () => void
+  }
+}
 
 type ConstraintApi = [
   React.MutableRefObject<THREE.Object3D | null>,
@@ -340,37 +352,34 @@ type ProviderProps = {
   size?: number
 }
 
-interface AtomicProps {
-  mass?: number
-  material?: MaterialOptions
-  linearDamping?: number
-  angularDamping?: number
-  allowSleep?: boolean
-  sleepSpeedLimit?: number
-  sleepTimeLimit?: number
-  collisionFilterGroup?: number
-  collisionFilterMask?: number
-  collisionResponse?: number
-  fixedRotation?: boolean
-  userData?: object
-  isTrigger?: boolean
+type AtomicProps = {
+  allowSleep: boolean
+  angularDamping: number
+  collisionFilterGroup: number
+  collisionFilterMask: number
+  collisionResponse: number
+  fixedRotation: boolean
+  isTrigger: boolean
+  linearDamping: number
+  mass: number
+  material: MaterialOptions
+  sleepSpeedLimit: number
+  sleepTimeLimit: number
+  userData: {}
 }
 
 type Triplet = [x: number, y: number, z: number]
 
-interface BodyProps<T = unknown> extends AtomicProps {
-  args?: T
-  position?: Triplet
-  rotation?: Triplet
-  velocity?: Triplet
-  angularVelocity?: Triplet
-  linearFactor?: Triplet
-  angularFactor?: Triplet
-  type?: 'Dynamic' | 'Static' | 'Kinematic'
-  onCollide?: (e: CollideEvent) => void
-  onCollideBegin?: (e: CollideBeginEvent) => void
-  onCollideEnd?: (e: CollideEndEvent) => void
-}
+type VectorProps = Record<VectorName, Triplet>
+
+type BodyProps<T = unknown> = Partial<AtomicProps> &
+  Partial<VectorProps> & {
+    args?: T
+    type?: 'Dynamic' | 'Static' | 'Kinematic'
+    onCollide?: (e: CollideEvent) => void
+    onCollideBegin?: (e: CollideBeginEvent) => void
+    onCollideEnd?: (e: CollideEndEvent) => void
+  }
 
 type Event = RayhitEvent | CollideEvent | CollideBeginEvent | CollideEndEvent
 type CollideEvent = {
