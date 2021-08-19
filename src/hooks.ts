@@ -1,45 +1,58 @@
-import type { MaterialOptions, RayOptions } from 'cannon-es'
-import type { CollideBeginEvent, CollideEndEvent, CollideEvent, Event, Events, Subscriptions } from './setup'
-import type { Euler } from 'three'
+import type { MaterialOptions } from 'cannon-es'
 import type { MutableRefObject } from 'react'
+import type { Euler } from 'three'
+import type {
+  AddRayMessage,
+  AtomicName,
+  CannonWorker,
+  CannonVectorName,
+  CollideBeginEvent,
+  CollideEndEvent,
+  CollideEvent,
+  Event,
+  Events,
+  RayMode,
+  SetOpName,
+  Subscriptions,
+  SubscriptionName,
+  SubscriptionTarget,
+  VectorName,
+} from './setup'
 import { Object3D, InstancedMesh, DynamicDrawUsage, Vector3, MathUtils } from 'three'
 import { useLayoutEffect, useContext, useRef, useMemo, useEffect, useState } from 'react'
 import { context, debugContext } from './setup'
 
-export interface AtomicProps {
-  mass?: number
-  material?: MaterialOptions
-  linearDamping?: number
-  angularDamping?: number
-  allowSleep?: boolean
-  sleepSpeedLimit?: number
-  sleepTimeLimit?: number
-  collisionFilterGroup?: number
-  collisionFilterMask?: number
-  collisionResponse?: number
-  fixedRotation?: boolean
-  userData?: {}
-  isTrigger?: boolean
+export type AtomicProps = {
+  allowSleep: boolean
+  angularDamping: number
+  collisionFilterGroup: number
+  collisionFilterMask: number
+  collisionResponse: number
+  fixedRotation: boolean
+  isTrigger: boolean
+  linearDamping: number
+  mass: number
+  material: MaterialOptions
+  sleepSpeedLimit: number
+  sleepTimeLimit: number
+  userData: {}
 }
+
+export type VectorProps = Record<VectorName, Triplet>
 
 export type Triplet = [x: number, y: number, z: number]
 type VectorTypes = Vector3 | Triplet
 
-export interface BodyProps<T = unknown> extends AtomicProps {
-  args?: T
-  position?: Triplet
-  rotation?: Triplet
-  velocity?: Triplet
-  angularVelocity?: Triplet
-  linearFactor?: Triplet
-  angularFactor?: Triplet
-  type?: 'Dynamic' | 'Static' | 'Kinematic'
-  onCollide?: (e: CollideEvent) => void
-  onCollideBegin?: (e: CollideBeginEvent) => void
-  onCollideEnd?: (e: CollideEndEvent) => void
-}
+export type BodyProps<T = unknown> = Partial<AtomicProps> &
+  Partial<VectorProps> & {
+    args?: T
+    type?: 'Dynamic' | 'Static' | 'Kinematic'
+    onCollide?: (e: CollideEvent) => void
+    onCollideBegin?: (e: CollideBeginEvent) => void
+    onCollideEnd?: (e: CollideEndEvent) => void
+  }
 
-export interface BodyPropsArgsRequired<T = unknown> extends BodyProps<T> {
+export type BodyPropsArgsRequired<T = unknown> = BodyProps<T> & {
   args: T
 }
 
@@ -80,33 +93,31 @@ export interface CompoundBodyProps extends BodyProps {
   shapes: BodyProps & { type: ShapeType }[]
 }
 
-interface WorkerVec {
-  set: (x: number, y: number, z: number) => void
-  copy: ({ x, y, z }: Vector3 | Euler) => void
-  subscribe: (callback: (value: Triplet) => void) => () => void
-}
-
-export type WorkerProps<T> = {
-  [K in keyof T]: {
-    set: (value: T[K]) => void
-    subscribe: (callback: (value: T[K]) => void) => () => void
+export type AtomicApi = {
+  [K in keyof AtomicProps]: {
+    set: (value: AtomicProps[K]) => void
+    subscribe: (callback: (value: AtomicProps[K]) => void) => () => void
   }
 }
-export interface WorkerApi extends WorkerProps<AtomicProps> {
-  position: WorkerVec
-  rotation: WorkerVec
-  velocity: WorkerVec
-  angularVelocity: WorkerVec
-  linearFactor: WorkerVec
-  angularFactor: WorkerVec
-  applyForce: (force: Triplet, worldPoint: Triplet) => void
-  applyImpulse: (impulse: Triplet, worldPoint: Triplet) => void
-  applyLocalForce: (force: Triplet, localPoint: Triplet) => void
-  applyLocalImpulse: (impulse: Triplet, localPoint: Triplet) => void
-  applyTorque: (torque: Triplet) => void
-  wakeUp: () => void
-  sleep: () => void
+
+export type VectorApi = {
+  [K in keyof VectorProps]: {
+    set: (x: number, y: number, z: number) => void
+    copy: ({ x, y, z }: Vector3 | Euler) => void
+    subscribe: (callback: (value: Triplet) => void) => () => void
+  }
 }
+
+export type WorkerApi = AtomicApi &
+  VectorApi & {
+    applyForce: (force: Triplet, worldPoint: Triplet) => void
+    applyImpulse: (impulse: Triplet, worldPoint: Triplet) => void
+    applyLocalForce: (force: Triplet, localPoint: Triplet) => void
+    applyLocalImpulse: (impulse: Triplet, localPoint: Triplet) => void
+    applyTorque: (torque: Triplet) => void
+    wakeUp: () => void
+    sleep: () => void
+  }
 
 export interface PublicApi extends WorkerApi {
   at: (index: number) => WorkerApi
@@ -159,8 +170,8 @@ export interface SpringOptns {
 
 const temp = new Object3D()
 
-function opString(action: string, type: string) {
-  return action + type.charAt(0).toUpperCase() + type.slice(1)
+function capitalize<T extends string>(str: T): Capitalize<T> {
+  return (str.charAt(0).toUpperCase() + str.slice(1)) as Capitalize<T>
 }
 
 function getUUID(ref: MutableRefObject<Object3D | null>, index?: number) {
@@ -168,33 +179,19 @@ function getUUID(ref: MutableRefObject<Object3D | null>, index?: number) {
   return ref.current && `${ref.current.uuid}${suffix}`
 }
 
-function post(
-  ref: MutableRefObject<Object3D | null>,
-  worker: Worker,
-  op: string,
-  index?: number,
-  props?: any,
-) {
-  const uuid = getUUID(ref, index)
-  return uuid && worker.postMessage({ op, uuid, props })
-}
-
 function subscribe(
   ref: MutableRefObject<Object3D | null>,
-  worker: Worker,
+  worker: CannonWorker,
   subscriptions: Subscriptions,
-  type: string,
+  type: SubscriptionName,
   index?: number,
-  target?: string,
+  target: SubscriptionTarget = 'bodies',
 ) {
   return (callback: (value: any) => void) => {
     const id = subscriptionGuid++
     subscriptions[id] = callback
-    post(ref, worker, 'subscribe', index, {
-      id,
-      type,
-      target: target === undefined || target === null ? 'bodies' : target,
-    })
+    const uuid = getUUID(ref, index)
+    uuid && worker.postMessage({ op: 'subscribe', uuid, props: { id, type, target } })
     return () => {
       delete subscriptions[id]
       worker.postMessage({ op: 'unsubscribe', props: id })
@@ -307,15 +304,30 @@ function useBody<B extends BodyProps<unknown>>(
   }, deps)
 
   const api = useMemo(() => {
-    const makeVec = (type: string, index?: number) => ({
-      set: (x: number, y: number, z: number) => post(ref, worker, opString('set', type), index, [x, y, z]),
-      copy: ({ x, y, z }: Vector3 | Euler) => post(ref, worker, opString('set', type), index, [x, y, z]),
-      subscribe: subscribe(ref, worker, subscriptions, type, index),
-    })
-    const makeAtomic = (type: string, index?: number) => ({
-      set: (value: any) => post(ref, worker, opString('set', type), index, value),
-      subscribe: subscribe(ref, worker, subscriptions, type, index),
-    })
+    const makeVec = (type: CannonVectorName, index?: number) => {
+      const op: SetOpName<CannonVectorName> = `set${capitalize(type)}`
+      return {
+        set: (x: number, y: number, z: number) => {
+          const uuid = getUUID(ref, index)
+          uuid && worker.postMessage({ op, props: [x, y, z], uuid })
+        },
+        copy: ({ x, y, z }: Vector3 | Euler) => {
+          const uuid = getUUID(ref, index)
+          uuid && worker.postMessage({ op, props: [x, y, z], uuid })
+        },
+        subscribe: subscribe(ref, worker, subscriptions, type, index),
+      }
+    }
+    const makeAtomic = (type: AtomicName, index?: number) => {
+      const op: SetOpName<AtomicName> = `set${capitalize(type)}`
+      return {
+        set: (value: any) => {
+          const uuid = getUUID(ref, index)
+          uuid && worker.postMessage({ op, props: value, uuid })
+        },
+        subscribe: subscribe(ref, worker, subscriptions, type, index),
+      }
+    }
 
     function makeApi(index?: number): WorkerApi {
       return {
@@ -327,40 +339,48 @@ function useBody<B extends BodyProps<unknown>>(
         linearFactor: makeVec('linearFactor', index),
         angularFactor: makeVec('angularFactor', index),
         // Atomic props
-        mass: makeAtomic('mass', index),
-        linearDamping: makeAtomic('linearDamping', index),
-        angularDamping: makeAtomic('angularDamping', index),
         allowSleep: makeAtomic('allowSleep', index),
-        sleepSpeedLimit: makeAtomic('sleepSpeedLimit', index),
-        sleepTimeLimit: makeAtomic('sleepTimeLimit', index),
+        angularDamping: makeAtomic('angularDamping', index),
         collisionFilterGroup: makeAtomic('collisionFilterGroup', index),
         collisionFilterMask: makeAtomic('collisionFilterMask', index),
         collisionResponse: makeAtomic('collisionResponse', index),
-        fixedRotation: makeAtomic('fixedRotation', index),
-        userData: makeAtomic('userData', index),
         isTrigger: makeAtomic('isTrigger', index),
+        fixedRotation: makeAtomic('fixedRotation', index),
+        linearDamping: makeAtomic('linearDamping', index),
+        mass: makeAtomic('mass', index),
+        material: makeAtomic('material', index),
+        sleepSpeedLimit: makeAtomic('sleepSpeedLimit', index),
+        sleepTimeLimit: makeAtomic('sleepTimeLimit', index),
+        userData: makeAtomic('userData', index),
         // Apply functions
         applyForce(force: Triplet, worldPoint: Triplet) {
-          post(ref, worker, 'applyForce', index, [force, worldPoint])
+          const uuid = getUUID(ref, index)
+          uuid && worker.postMessage({ op: 'applyForce', props: [force, worldPoint], uuid })
         },
         applyImpulse(impulse: Triplet, worldPoint: Triplet) {
-          post(ref, worker, 'applyImpulse', index, [impulse, worldPoint])
+          const uuid = getUUID(ref, index)
+          uuid && worker.postMessage({ op: 'applyImpulse', props: [impulse, worldPoint], uuid })
         },
         applyLocalForce(force: Triplet, localPoint: Triplet) {
-          post(ref, worker, 'applyLocalForce', index, [force, localPoint])
+          const uuid = getUUID(ref, index)
+          uuid && worker.postMessage({ op: 'applyLocalForce', props: [force, localPoint], uuid })
         },
         applyLocalImpulse(impulse: Triplet, localPoint: Triplet) {
-          post(ref, worker, 'applyLocalImpulse', index, [impulse, localPoint])
+          const uuid = getUUID(ref, index)
+          uuid && worker.postMessage({ op: 'applyLocalImpulse', props: [impulse, localPoint], uuid })
         },
         applyTorque(torque: Triplet) {
-          post(ref, worker, 'applyTorque', index, [torque])
+          const uuid = getUUID(ref, index)
+          uuid && worker.postMessage({ op: 'applyTorque', props: [torque], uuid })
         },
         // force particular sleep state
         wakeUp() {
-          post(ref, worker, 'wakeUp', index)
+          const uuid = getUUID(ref, index)
+          uuid && worker.postMessage({ op: 'wakeUp', uuid })
         },
         sleep() {
-          post(ref, worker, 'sleep', index)
+          const uuid = getUUID(ref, index)
+          uuid && worker.postMessage({ op: 'sleep', uuid })
         },
       }
     }
@@ -507,9 +527,9 @@ function useConstraint<T extends 'Hinge' | ConstraintTypes>(
     if (bodyA.current && bodyB.current) {
       worker.postMessage({
         op: 'addConstraint',
-        uuid,
-        type,
         props: [bodyA.current.uuid, bodyB.current.uuid, optns],
+        type,
+        uuid,
       })
       return () => worker.postMessage({ op: 'removeConstraint', uuid })
     }
@@ -619,17 +639,9 @@ export function useSpring(
   return [bodyA, bodyB, api]
 }
 
-type RayOptns = Omit<RayOptions, 'mode' | 'from' | 'to' | 'result' | 'callback'> & {
-  from?: Triplet
-  to?: Triplet
-}
+type RayOptions = Omit<AddRayMessage['props'], 'mode'>
 
-function useRay(
-  mode: 'Closest' | 'Any' | 'All',
-  options: RayOptns,
-  callback: (e: Event) => void,
-  deps: any[] = [],
-) {
+function useRay(mode: RayMode, options: RayOptions, callback: (e: Event) => void, deps: any[] = []) {
   const { worker, events } = useContext(context)
   const [uuid] = useState(() => MathUtils.generateUUID())
   useEffect(() => {
@@ -642,15 +654,15 @@ function useRay(
   }, deps)
 }
 
-export function useRaycastClosest(options: RayOptns, callback: (e: Event) => void, deps: any[] = []) {
+export function useRaycastClosest(options: RayOptions, callback: (e: Event) => void, deps: any[] = []) {
   useRay('Closest', options, callback, deps)
 }
 
-export function useRaycastAny(options: RayOptns, callback: (e: Event) => void, deps: any[] = []) {
+export function useRaycastAny(options: RayOptions, callback: (e: Event) => void, deps: any[] = []) {
   useRay('Any', options, callback, deps)
 }
 
-export function useRaycastAll(options: RayOptns, callback: (e: Event) => void, deps: any[] = []) {
+export function useRaycastAll(options: RayOptions, callback: (e: Event) => void, deps: any[] = []) {
   useRay('All', options, callback, deps)
 }
 
@@ -728,20 +740,21 @@ export function useRaycastVehicle(
   }, deps)
 
   const api = useMemo<RaycastVehiclePublicApi>(() => {
-    const post = (op: string, props?: any) =>
-      ref.current && worker.postMessage({ op, uuid: ref.current.uuid, props })
     return {
       sliding: {
         subscribe: subscribe(ref, worker, subscriptions, 'sliding', undefined, 'vehicles'),
       },
       setSteeringValue(value: number, wheelIndex: number) {
-        post('setRaycastVehicleSteeringValue', [value, wheelIndex])
+        const uuid = getUUID(ref)
+        uuid && worker.postMessage({ op: 'setRaycastVehicleSteeringValue', props: [value, wheelIndex], uuid })
       },
       applyEngineForce(value: number, wheelIndex: number) {
-        post('applyRaycastVehicleEngineForce', [value, wheelIndex])
+        const uuid = getUUID(ref)
+        uuid && worker.postMessage({ op: 'applyRaycastVehicleEngineForce', props: [value, wheelIndex], uuid })
       },
       setBrake(brake: number, wheelIndex: number) {
-        post('setRaycastVehicleBrake', [brake, wheelIndex])
+        const uuid = getUUID(ref)
+        uuid && worker.postMessage({ op: 'setRaycastVehicleBrake', props: [brake, wheelIndex], uuid })
       },
     }
   }, deps)
