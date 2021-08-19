@@ -12,20 +12,62 @@ on:
 
 jobs:
   build:
-
+    name: Build
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [16.x]
-
     steps:
     - uses: actions/checkout@v2
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
+    - uses: actions/setup-node@v1
       with:
-        node-version: ${{ matrix.node-version }}
+        node-version: 16
+        cache: 'yarn'
+    - run: yarn install
+    - run: npm run build
+    - uses: actions/upload-artifact@v2
+      with:
+        name: dist
+        path: dist
+
+  prettier:
+    name: Prettier
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v1
+      with:
+        node-version: 16
+        cache: 'yarn'
     - run: yarn install
     - run: npm run prettier
+
+  eslint:
+    name: ESLint
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v1
+      with:
+        node-version: 16
+        cache: 'yarn'
+    - run: yarn install
     - run: npm run eslint
-    - run: npm run build
+
+  example-build:
+    name: Example Build
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v1
+      with:
+        node-version: 16
+    - name: Download dist
+      uses: actions/download-artifact@v2
+      with:
+        name: dist
+        path: dist
+    - name: Install
+      run: yarn install
+      working-directory: ./examples
+    - name: Build
+      run: npm run build
+      working-directory: ./examples
