@@ -164,7 +164,8 @@ function opString(action: string, type: string) {
 }
 
 function getUUID(ref: MutableRefObject<Object3D | null>, index?: number) {
-  return ref.current && [ref.current.uuid, index].join('/')
+  const suffix = index === undefined ? '' : `/${index}`
+  return ref.current && `${ref.current.uuid}${suffix}`
 }
 
 function post(
