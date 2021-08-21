@@ -9,13 +9,13 @@ Desktop.ini
 .docz/
 .idea
 .rpt2_cache/
+.eslintcache
 .eslintignore
 .eslintrc.json
 .github/
 .husky/
 .prettierignore
 .prettierrc.json
-.travis.yml
 rollup.config.js
 tsconfig.json
 tsconfig.tsbuildinfo
