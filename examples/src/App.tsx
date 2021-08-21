@@ -48,7 +48,7 @@ function Intro() {
         </Switch>
       </Suspense>
       <Demos />
-      <a href="https://github.com/react-spring/use-cannon" style={{ color: bright ? '#2c2d31' : 'white' }}>
+      <a href="https://github.com/pmndrs/use-cannon" style={{ color: bright ? '#2c2d31' : 'white' }}>
         Github
       </a>
     </Page>
