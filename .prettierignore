@@ -1,6 +1,7 @@
 .github/*
+.husky/*
 dist/*
-examples/build/*
+examples/dist/*
 examples/public/*
 examples/node_modules/*
 node_modules/*
