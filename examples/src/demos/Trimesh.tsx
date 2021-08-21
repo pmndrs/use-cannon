@@ -1,10 +1,20 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { Canvas, invalidate } from '@react-three/fiber'
 import { Physics, useSphere, useTrimesh } from '@react-three/cannon'
 import { OrbitControls, TorusKnot, useGLTF } from '@react-three/drei'
 import create from 'zustand'
 
-const useStore = create((set) => ({
+import type { SphereProps, TrimeshProps } from '@react-three/cannon'
+import type { GLTF } from 'three-stdlib/loaders/GLTFLoader'
+import type { BufferGeometry } from 'three'
+
+type Store = {
+  isPaused: boolean
+  pause: () => void
+  play: () => void
+}
+
+const useStore = create<Store>((set) => ({
   isPaused: false,
   pause: () => set({ isPaused: true }),
   play: () => set({ isPaused: false }),
@@ -21,18 +31,28 @@ function Controls() {
   )
 }
 
-const WeirdCheerio = (props) => {
-  const [ref] = useSphere(() => ({ mass: 1, args: props.radius, ...props }))
+const WeirdCheerio = ({ args = 0.1, position }: Pick<SphereProps, 'args' | 'position'>) => {
+  const [ref] = useSphere(() => ({ args, mass: 1, position }))
 
   return (
-    <TorusKnot ref={ref} args={[props.radius, props.radius / 2]}>
+    <TorusKnot ref={ref} args={[args, args / 2]}>
       <meshNormalMaterial />
     </TorusKnot>
   )
 }
 
-const Bowl = (props) => {
-  const { nodes } = useGLTF('/bowl.glb')
+type BowlGLTF = GLTF & {
+  nodes: {
+    bowl: {
+      geometry: BufferGeometry & {
+        index: ArrayLike<number>
+      }
+    }
+  }
+}
+
+const Bowl = ({ rotation }: Pick<TrimeshProps, 'rotation'>) => {
+  const { nodes } = useGLTF('/bowl.glb') as BowlGLTF
   const geometry = nodes.bowl.geometry
   const vertices = geometry.attributes.position.array
   const indices = geometry.index.array
@@ -42,7 +62,7 @@ const Bowl = (props) => {
 
   const [ref] = useTrimesh(() => ({
     mass: 0,
-    rotation: props.rotation,
+    rotation,
     args: [vertices, indices],
   }))
 
@@ -55,8 +75,7 @@ const Bowl = (props) => {
       ref={ref}
       geometry={nodes.bowl.geometry}
       onPointerOver={() => setHover(true)}
-      onPointerOut={() => setHover(false)}
-      {...props}>
+      onPointerOut={() => setHover(false)}>
       <meshStandardMaterial color={'white'} wireframe={hovered} />
     </mesh>
   )
@@ -71,10 +90,10 @@ export default () => (
       <OrbitControls />
       <Physics shouldInvalidate={false}>
         <Bowl rotation={[0, 0, 0]} />
-        <WeirdCheerio radius={0.1} position={[0.3, 11, 0]} />
-        <WeirdCheerio radius={0.1} position={[0, 10, 0]} />
-        <WeirdCheerio radius={0.1} position={[0.4, 9, 0.7]} />
-        <WeirdCheerio radius={0.1} position={[0.2, 13, 1]} />
+        <WeirdCheerio position={[0.3, 11, 0]} />
+        <WeirdCheerio position={[0, 10, 0]} />
+        <WeirdCheerio position={[0.4, 9, 0.7]} />
+        <WeirdCheerio position={[0.2, 13, 1]} />
       </Physics>
     </Canvas>
     <div

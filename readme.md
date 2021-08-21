@@ -436,7 +436,7 @@ type RayhitEvent = {
 }
 
 type CylinderArgs = [radiusTop?: number, radiusBottom?: number, height?: number, numSegments?: number]
-type TrimeshArgs = [vertices: number[], indices: number[]]
+type TrimeshArgs = [vertices: ArrayLike<number>, indices: ArrayLike<number>]
 type HeightfieldArgs = [
   data: number[][],
   options: { elementSize?: number; maxValue?: number; minValue?: number },

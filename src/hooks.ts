@@ -68,7 +68,7 @@ export type ShapeType =
 export type BodyShapeType = ShapeType | 'Compound'
 
 export type CylinderArgs = [radiusTop?: number, radiusBottom?: number, height?: number, numSegments?: number]
-export type TrimeshArgs = [vertices: number[], indices: number[]]
+export type TrimeshArgs = [vertices: ArrayLike<number>, indices: ArrayLike<number>]
 export type HeightfieldArgs = [
   data: number[][],
   options: { elementSize?: number; maxValue?: number; minValue?: number },
