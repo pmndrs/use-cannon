@@ -60,7 +60,7 @@ const Global = createGlobalStyle`
     overscroll-behavior-y: none;
     font-family: -apple-system, BlinkMacSystemFont, avenir next, avenir, helvetica neue, helvetica, ubuntu, roboto, noto, segoe ui, arial, sans-serif;
     color: black;
-    background: white;
+    background: #171720;
   }
 `
 
