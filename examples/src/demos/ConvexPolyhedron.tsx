@@ -1,16 +1,16 @@
-import * as THREE from 'three'
-import React, { Suspense, useMemo } from 'react'
+import { BoxGeometry, ConeGeometry } from 'three'
+import { Suspense, useMemo, useState } from 'react'
 import { Canvas, useLoader } from '@react-three/fiber'
 import { Physics, usePlane, useConvexPolyhedron } from '@react-three/cannon'
 import { GLTFLoader } from 'three-stdlib/loaders/GLTFLoader'
 import { Geometry } from 'three-stdlib/deprecated/Geometry'
-import { useState } from 'react'
 
-/**
- * Returns legacy geometry vertices, faces for ConvP
- * @param {THREE.BufferGeometry} bufferGeometry
- */
-function toConvexProps(bufferGeometry) {
+import type { ConvexPolyhedronProps, PlaneProps } from '@react-three/cannon'
+import type { GLTF } from 'three-stdlib/loaders/GLTFLoader'
+import type { BufferGeometry } from 'three'
+
+// Returns legacy geometry vertices, faces for ConvP
+function toConvexProps(bufferGeometry: BufferGeometry): ConvexPolyhedronProps['args'] {
   const geo = new Geometry().fromBufferGeometry(bufferGeometry)
   // Merge duplicate vertices resulting from glTF export.
   // Cannon assumes contiguous, closed meshes to work
@@ -18,45 +18,61 @@ function toConvexProps(bufferGeometry) {
   return [geo.vertices.map((v) => [v.x, v.y, v.z]), geo.faces.map((f) => [f.a, f.b, f.c]), []]
 }
 
-function Diamond(props) {
-  const { nodes } = useLoader(GLTFLoader, '/diamond.glb')
-  const geo = useMemo(() => toConvexProps(nodes.Cylinder.geometry), [nodes])
-  const [ref] = useConvexPolyhedron(() => ({ mass: 100, ...props, args: geo }))
+type DiamondGLTF = GLTF & {
+  nodes: { Cylinder: { geometry: BufferGeometry } }
+}
+
+function Diamond({ position, rotation }: ConvexPolyhedronProps) {
+  const {
+    nodes: {
+      Cylinder: { geometry },
+    },
+  } = useLoader(GLTFLoader, '/diamond.glb') as DiamondGLTF
+  const args = useMemo(() => toConvexProps(geometry), [geometry])
+  const [ref] = useConvexPolyhedron(() => ({ args, mass: 100, position, rotation }))
 
   return (
-    <mesh castShadow receiveShadow ref={ref} geometry={nodes.Cylinder.geometry} {...props}>
+    <mesh castShadow receiveShadow {...{ geometry, position, ref, rotation }}>
       <meshStandardMaterial wireframe color="white" />
     </mesh>
   )
 }
 
+type ConeProps = Pick<ConvexPolyhedronProps, 'position' | 'rotation'> & {
+  sides: number
+}
 // A cone is a convex shape by definition...
-function Cone({ sides, ...props }) {
-  const geo = useMemo(() => toConvexProps(new THREE.ConeGeometry(0.7, 0.7, sides, 1)), [])
-  const [ref] = useConvexPolyhedron(() => ({ mass: 100, ...props, args: geo }))
+function Cone({ position, rotation, sides }: ConeProps) {
+  const geometry = new ConeGeometry(0.7, 0.7, sides, 1)
+  const args = useMemo(() => toConvexProps(geometry), [geometry])
+  const [ref] = useConvexPolyhedron(() => ({ args, mass: 100, position, rotation }))
 
   return (
-    <mesh castShadow ref={ref} {...props}>
+    <mesh castShadow {...{ geometry, position, ref, rotation }}>
       <coneBufferGeometry args={[0.7, 0.7, sides, 1]} />
       <meshNormalMaterial />
     </mesh>
   )
 }
 
+type CubeProps = Pick<ConvexPolyhedronProps, 'position' | 'rotation'> & {
+  size: number
+}
 // ...And so is a cube!
-function Cube({ size, ...props }) {
+function Cube({ position, rotation, size }: CubeProps) {
   // note, this is wildly inefficient vs useBox
-  const geo = useMemo(() => toConvexProps(new THREE.BoxGeometry(size, size, size)), [])
-  const [ref] = useConvexPolyhedron(() => ({ mass: 100, ...props, args: geo }))
+  const geometry = new BoxGeometry(size, size, size)
+  const args = useMemo(() => toConvexProps(geometry), [geometry])
+  const [ref] = useConvexPolyhedron(() => ({ args, mass: 100, position, rotation }))
   return (
-    <mesh castShadow receiveShadow ref={ref} {...props} geometry={geo}>
+    <mesh castShadow receiveShadow {...{ geometry, position, ref, rotation }}>
       <boxBufferGeometry args={[size, size, size]} />
       <meshPhysicalMaterial color="rebeccapurple" />
     </mesh>
   )
 }
 
-function Plane(props) {
+function Plane(props: PlaneProps) {
   const [ref] = usePlane(() => ({ type: 'Static', ...props }))
   return (
     <mesh ref={ref} receiveShadow>
