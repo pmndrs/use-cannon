@@ -1,10 +1,12 @@
-import * as THREE from 'three'
-import React, { useMemo, useState } from 'react'
+import { Color } from 'three'
+import { useMemo, useState } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import niceColors from 'nice-color-palettes'
 import { Physics, usePlane, useBox, useSphere } from '@react-three/cannon'
 
-function Plane(props) {
+import type { PlaneProps, Triplet } from '@react-three/cannon'
+
+function Plane(props: PlaneProps) {
   const [ref] = usePlane(() => ({ ...props }))
   return (
     <mesh ref={ref} receiveShadow>
@@ -14,7 +16,13 @@ function Plane(props) {
   )
 }
 
-const Spheres = ({ colors, number, size: args }) => {
+type InstancedGeometryProps = {
+  colors: Float32Array
+  number: number
+  size: number
+}
+
+const Spheres = ({ colors, number, size: args }: InstancedGeometryProps) => {
   const [ref, { at }] = useSphere(() => ({
     args,
     mass: 1,
@@ -22,17 +30,17 @@ const Spheres = ({ colors, number, size: args }) => {
   }))
   useFrame(() => at(Math.floor(Math.random() * number)).position.set(0, Math.random() * 2, 0))
   return (
-    <instancedMesh receiveShadow castShadow ref={ref} args={[null, null, number]}>
-      <sphereBufferGeometry args={args}>
+    <instancedMesh receiveShadow castShadow ref={ref} args={[undefined, undefined, number]}>
+      <sphereBufferGeometry args={[args, 48]}>
         <instancedBufferAttribute attachObject={['attributes', 'color']} args={[colors, 3]} />
       </sphereBufferGeometry>
-      <meshLambertMaterial vertexColors={THREE.VertexColors} />
+      <meshLambertMaterial vertexColors />
     </instancedMesh>
   )
 }
 
-const Boxes = ({ colors, number, size }) => {
-  const args = [size, size, size]
+const Boxes = ({ colors, number, size }: InstancedGeometryProps) => {
+  const args: Triplet = [size, size, size]
   const [ref, { at }] = useBox(() => ({
     mass: 1,
     args,
@@ -40,11 +48,11 @@ const Boxes = ({ colors, number, size }) => {
   }))
   useFrame(() => at(Math.floor(Math.random() * number)).position.set(0, Math.random() * 2, 0))
   return (
-    <instancedMesh receiveShadow castShadow ref={ref} args={[null, null, number]}>
+    <instancedMesh receiveShadow castShadow ref={ref} args={[undefined, undefined, number]}>
       <boxBufferGeometry args={args}>
         <instancedBufferAttribute attachObject={['attributes', 'color']} args={[colors, 3]} />
       </boxBufferGeometry>
-      <meshLambertMaterial vertexColors={THREE.VertexColors} />
+      <meshLambertMaterial vertexColors />
     </instancedMesh>
   )
 }
@@ -55,13 +63,13 @@ const instancedGeometry = {
 }
 
 export default () => {
-  const [geometry, setGeometry] = useState('box')
+  const [geometry, setGeometry] = useState<'box' | 'sphere'>('box')
   const [number] = useState(200)
   const [size] = useState(0.1)
 
   const colors = useMemo(() => {
     const array = new Float32Array(number * 3)
-    const color = new THREE.Color()
+    const color = new Color()
     for (let i = 0; i < number; i++)
       color
         .set(niceColors[17][Math.floor(Math.random() * 5)])
@@ -74,11 +82,12 @@ export default () => {
 
   return (
     <Canvas
+      mode="concurrent"
       shadows
       gl={{ alpha: false }}
       camera={{ position: [-1, 1, 2.5], fov: 50 }}
       onPointerMissed={() => setGeometry((geometry) => (geometry === 'box' ? 'sphere' : 'box'))}
-      onCreated={({ scene }) => (scene.background = new THREE.Color('lightblue'))}>
+      onCreated={({ scene }) => (scene.background = new Color('lightblue'))}>
       <hemisphereLight intensity={0.35} />
       <spotLight
         position={[5, 5, 5]}
