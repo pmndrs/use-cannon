@@ -17,6 +17,7 @@
         "@typescript-eslint/ban-types": ["error", { "extendDefaults": true, "types": { "{}": false } }],
         "@typescript-eslint/consistent-type-imports": "error",
         "@typescript-eslint/explicit-module-boundary-types": "off",
+        "@typescript-eslint/no-namespace": ["error", { "allowDeclarations": true }],
         "@typescript-eslint/no-non-null-assertion": "off",
         "@typescript-eslint/no-unused-vars": ["error", { "ignoreRestSiblings": true }],
         "@typescript-eslint/quotes": [
