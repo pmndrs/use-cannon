@@ -1,16 +1,33 @@
-import React, { createContext, useContext, Suspense, useEffect, useRef, useState } from 'react'
+import {
+  createContext,
+  createRef,
+  forwardRef,
+  Suspense,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { Physics, usePlane, useBox, useHingeConstraint, useLockConstraint } from '@react-three/cannon'
 import { PerspectiveCamera, OrbitControls } from '@react-three/drei'
+import { Vector3 } from 'three'
 
-function normalizeSize([px = 0, py = 0, pz = 0]) {
+import type { BoxProps, HingeConstraintOpts, PlaneProps, Triplet } from '@react-three/cannon'
+import type { PlaneBufferGeometryProps, MeshStandardMaterialProps } from '@react-three/fiber'
+import type { PropsWithChildren, RefObject } from 'react'
+import type { Object3D, PerspectiveCamera as Cam } from 'three'
+
+function normalizeSize([px = 0, py = 0, pz = 0]): (scale: Triplet) => Triplet {
   return ([ox = 1, oy = 1, oz = 1]) => [px * ox, py * oy, pz * oz]
 }
 
 const GROUP_GROUND = 2 ** 0
 const GROUP_BODY = 2 ** 1
 
-function Plane({ args, ...props }) {
+type OurPlaneProps = Pick<PlaneBufferGeometryProps, 'args'> & Pick<PlaneProps, 'position' | 'rotation'>
+
+function Plane({ args, ...props }: OurPlaneProps) {
   const [ref] = usePlane(() => ({ type: 'Static', collisionFilterGroup: GROUP_GROUND, ...props }))
   return (
     <group ref={ref}>
@@ -26,17 +43,29 @@ function Plane({ args, ...props }) {
   )
 }
 
-const context = createContext()
+const ref = createRef<Object3D>()
+const context = createContext<[bodyRef: RefObject<Object3D>, props: BoxShapeProps]>([ref, {}])
 
-const ConstraintPart = React.forwardRef(
+type ConstraintPartProps = PropsWithChildren<
+  {
+    config?: HingeConstraintOpts
+    enableMotor?: boolean
+    motorSpeed?: number
+    parentPivot?: Triplet
+    pivot?: Triplet
+  } & Pick<BoxShapeProps, 'color'> &
+    BoxProps
+> &
+  BoxShapeProps
+
+const ConstraintPart = forwardRef<Object3D | null, ConstraintPartProps>(
   (
     {
       config = {},
       enableMotor,
-      motorSpeed,
+      motorSpeed = 7,
       color,
       children,
-      name,
       pivot = [0, 0, 0],
       parentPivot = [0, 0, 0],
       ...props
@@ -45,7 +74,7 @@ const ConstraintPart = React.forwardRef(
   ) => {
     const parent = useContext(context)
 
-    const normParentPivot = parent ? normalizeSize(parent[1].args) : () => undefined
+    const normParentPivot = parent && parent[1].args ? normalizeSize(parent[1].args) : () => undefined
     const normPivot = props.args ? normalizeSize(props.args) : () => undefined
 
     const [bodyRef] = useBox(
@@ -56,10 +85,10 @@ const ConstraintPart = React.forwardRef(
         mass: 1,
         ...props,
       }),
-      ref,
+      ref as RefObject<Object3D>,
     )
 
-    const [, , hingeApi] = useHingeConstraint(bodyRef, parent ? parent[0] : null, {
+    const [, , hingeApi] = useHingeConstraint(bodyRef, parent[0], {
       collideConnected: false,
       axisA: [0, 0, 1],
       axisB: [0, 0, 1],
@@ -89,37 +118,43 @@ const ConstraintPart = React.forwardRef(
   },
 )
 
-const BoxShape = React.forwardRef(
-  ({ children, transparent = false, opacity = 1, color = 'white', args = [1, 1, 1], ...props }, ref) => {
-    return (
-      <mesh receiveShadow castShadow ref={ref} {...props}>
-        <boxBufferGeometry args={args} />
-        <meshStandardMaterial color={color} transparent={transparent} opacity={opacity} />
-
-        {children}
-      </mesh>
-    )
-  },
+type BoxShapeProps = Pick<MeshStandardMaterialProps, 'color' | 'opacity' | 'transparent'> &
+  Pick<BoxProps, 'args'>
+const BoxShape = forwardRef<Object3D | null, BoxShapeProps>(
+  ({ children, transparent = false, opacity = 1, color = 'white', args = [1, 1, 1], ...props }, ref) => (
+    <mesh receiveShadow castShadow ref={ref} {...props}>
+      <boxBufferGeometry args={args} />
+      <meshStandardMaterial color={color} transparent={transparent} opacity={opacity} />
+      {children}
+    </mesh>
+  ),
 )
 
-const Robot = React.forwardRef(({ ...props }, ref) => {
+const Robot = forwardRef<Object3D>((_, legsLeftRef) => {
   const [motorSpeed, setMotorSpeed] = useState(7)
-  const legsLeftRef = ref
-  const legsRightRef = useRef()
-  useLockConstraint(legsRightRef, legsLeftRef)
+
+  const legsRightRef = useRef<Object3D>(null)
+
+  useLockConstraint(legsRightRef, legsLeftRef as RefObject<Object3D>, {})
+
   return (
-    <group {...props} onPointerDown={() => setMotorSpeed(2)} onPointerUp={() => setMotorSpeed(7)}>
+    <group onPointerDown={() => setMotorSpeed(2)} onPointerUp={() => setMotorSpeed(7)}>
       <Legs ref={legsLeftRef} delay={1000} bodyDepth={3} motorSpeed={motorSpeed} />
       <Legs ref={legsRightRef} motorSpeed={motorSpeed} />
     </group>
   )
 })
 
-const Legs = React.forwardRef(({ bodyDepth = 0, delay = 0, motorSpeed = 7, ...props }, bodyRef) => {
-  const horizontalRef = useRef()
-  const frontLegRef = useRef()
-  const frontUpperLegRef = useRef()
-  const backLegRef = useRef()
+type LegsProps = {
+  bodyDepth?: number
+  delay?: number
+} & Pick<ConstraintPartProps, 'motorSpeed'>
+
+const Legs = forwardRef<Object3D, LegsProps>(({ bodyDepth = 0, delay = 0, motorSpeed = 7 }, bodyRef) => {
+  const horizontalRef = useRef<Object3D>(null)
+  const frontLegRef = useRef<Object3D>(null)
+  const frontUpperLegRef = useRef<Object3D>(null)
+  const backLegRef = useRef<Object3D>(null)
   const partDepth = 0.3
   const bodyWidth = 10
   const bodyHeight = 2
@@ -154,7 +189,7 @@ const Legs = React.forwardRef(({ bodyDepth = 0, delay = 0, motorSpeed = 7, ...pr
   }, [])
 
   return (
-    <group {...props}>
+    <group>
       {/* Body */}
       <ConstraintPart
         ref={bodyRef}
@@ -253,12 +288,16 @@ function Obstacles() {
   )
 }
 
+const v = new Vector3()
+
 function Scene() {
-  const cameraRef = useRef()
-  const robotRef = useRef()
+  const cameraRef = useRef<Cam>(null)
+  const robotRef = useRef<Object3D>(null)
 
   useFrame(() => {
-    cameraRef.current.lookAt(robotRef.current.position)
+    if (!cameraRef.current || !robotRef.current) return
+    robotRef.current.getWorldPosition(v)
+    cameraRef.current.lookAt(v)
   })
 
   return (
