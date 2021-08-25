@@ -1,14 +1,33 @@
-import * as THREE from 'three'
+import { Color, Float32BufferAttribute } from 'three'
 import { useMemo, useRef, useEffect, useLayoutEffect } from 'react'
 import { Canvas, useFrame, extend, useThree } from '@react-three/fiber'
 import { Physics, useHeightfield, useSphere } from '@react-three/cannon'
 import niceColors from 'nice-color-palettes'
 import { OrbitControls } from 'three-stdlib/controls/OrbitControls'
 
+import type { Node } from '@react-three/fiber'
+import type { HeightfieldProps } from '@react-three/cannon'
+import type { BufferGeometry, PerspectiveCamera } from 'three'
+
 extend({ OrbitControls })
 
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      orbitControls: Node<OrbitControls, typeof OrbitControls>
+    }
+  }
+}
+
+type GenerateHeightmapArgs = {
+  height: number
+  number: number
+  scale: number
+  width: number
+}
+
 /* Generates a 2D array using Worley noise. */
-function generateHeightmap({ width, height, number, scale }) {
+function generateHeightmap({ width, height, number, scale }: GenerateHeightmapArgs) {
   const data = []
 
   const seedPoints = []
@@ -45,10 +64,13 @@ function generateHeightmap({ width, height, number, scale }) {
   return data
 }
 
-function HeightmapGeometry({ heights, elementSize, ...rest }) {
-  const ref = useRef()
+type HeightmapGeometryProps = { heights: number[][]; elementSize: number }
+
+function HeightmapGeometry({ heights, elementSize }: HeightmapGeometryProps) {
+  const ref = useRef<BufferGeometry>(null)
 
   useEffect(() => {
+    if (!ref.current) return
     const dx = elementSize
     const dy = elementSize
 
@@ -67,18 +89,21 @@ function HeightmapGeometry({ heights, elementSize, ...rest }) {
     }
 
     ref.current.setIndex(indices)
-    ref.current.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3))
+    ref.current.setAttribute('position', new Float32BufferAttribute(vertices, 3))
     ref.current.computeVertexNormals()
     ref.current.computeBoundingBox()
     ref.current.computeBoundingSphere()
   }, [heights])
 
-  return <bufferGeometry {...rest} ref={ref} />
+  return <bufferGeometry ref={ref} />
 }
 
-function Heightfield(props) {
-  const { elementSize, heights, position, rotation, ...rest } = props
+type OurHeightfieldProps = {
+  heights: HeightfieldProps['args'][0]
+} & Pick<HeightfieldProps, 'position' | 'rotation'> &
+  Required<Pick<HeightfieldProps['args'][1], 'elementSize'>>
 
+function Heightfield({ elementSize, heights, position, rotation }: OurHeightfieldProps) {
   const [ref] = useHeightfield(() => ({
     args: [
       heights,
@@ -91,14 +116,20 @@ function Heightfield(props) {
   }))
 
   return (
-    <mesh ref={ref} castShadow receiveShadow {...rest}>
+    <mesh ref={ref} castShadow receiveShadow>
       <meshPhongMaterial color={niceColors[17][4]} />
       <HeightmapGeometry heights={heights} elementSize={elementSize} />
     </mesh>
   )
 }
 
-function Spheres({ rows, columns, spread }) {
+type SpheresProps = {
+  columns: number
+  rows: number
+  spread: number
+}
+
+function Spheres({ rows, columns, spread }: SpheresProps) {
   const number = rows * columns
   const [ref] = useSphere((index) => ({
     mass: 1,
@@ -111,7 +142,7 @@ function Spheres({ rows, columns, spread }) {
   }))
   const colors = useMemo(() => {
     const array = new Float32Array(number * 3)
-    const color = new THREE.Color()
+    const color = new Color()
     for (let i = 0; i < number; i++)
       color
         .set(niceColors[17][Math.floor(Math.random() * 5)])
@@ -121,43 +152,43 @@ function Spheres({ rows, columns, spread }) {
   }, [number])
 
   return (
-    <instancedMesh ref={ref} castShadow receiveShadow args={[null, null, number]}>
+    <instancedMesh ref={ref} castShadow receiveShadow args={[undefined, undefined, number]}>
       <sphereBufferGeometry args={[0.2, 16, 16]}>
         <instancedBufferAttribute attachObject={['attributes', 'color']} args={[colors, 3]} />
       </sphereBufferGeometry>
-      <meshPhongMaterial vertexColors={THREE.VertexColors} />
+      <meshPhongMaterial vertexColors />
     </instancedMesh>
   )
 }
 
-const Camera = (props) => {
-  const cameraRef = useRef()
-  const controlsRef = useRef()
+const Camera = () => {
+  const cameraRef = useRef<PerspectiveCamera>(null)
+  const controlsRef = useRef<OrbitControls>(null)
   const { gl, camera } = useThree()
   const set = useThree((state) => state.set)
   const size = useThree((state) => state.size)
 
   useLayoutEffect(() => {
-    if (cameraRef.current) {
-      cameraRef.current.aspect = size.width / size.height
-      cameraRef.current.updateProjectionMatrix()
-    }
-  }, [size, props])
+    if (!cameraRef.current) return
+    cameraRef.current.aspect = size.width / size.height
+    cameraRef.current.updateProjectionMatrix()
+  }, [size])
 
   useLayoutEffect(() => {
-    set(() => ({ camera: cameraRef.current }))
+    const camera = cameraRef.current
+    if (!camera) return
+    set(() => ({ camera }))
   }, [])
 
   useFrame(() => {
-    if (cameraRef.current && controlsRef.current) {
-      cameraRef.current.updateMatrixWorld()
-      controlsRef.current.update()
-    }
+    if (!cameraRef.current || !controlsRef.current) return
+    cameraRef.current.updateMatrixWorld()
+    controlsRef.current.update()
   })
 
   return (
     <>
-      <perspectiveCamera {...props} ref={cameraRef} position={[0, -10, 10]} />
+      <perspectiveCamera ref={cameraRef} position={[0, -10, 10]} />
       <orbitControls
         enableDamping
         ref={controlsRef}
