@@ -1,10 +1,15 @@
-import { VertexColors, Color } from 'three'
-import React, { useMemo } from 'react'
+import { Color } from 'three'
+import { useMemo } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { Physics, useBox, usePlane, useSphere } from '@react-three/cannon'
 import niceColors from 'nice-color-palettes'
 
-function Plane({ color, ...props }) {
+import type { PlaneProps, Triplet } from '@react-three/cannon'
+import type { MeshPhongMaterialProps } from '@react-three/fiber'
+
+type OurPlaneProps = Pick<MeshPhongMaterialProps, 'color'> & Pick<PlaneProps, 'position' | 'rotation'>
+
+function Plane({ color, ...props }: OurPlaneProps) {
   const [ref] = usePlane(() => ({ ...props }))
   return (
     <mesh ref={ref} receiveShadow>
@@ -15,7 +20,7 @@ function Plane({ color, ...props }) {
 }
 
 function Box() {
-  const boxSize = [4, 4, 4]
+  const boxSize: Triplet = [4, 4, 4]
   const [ref, api] = useBox(() => ({ type: 'Kinematic', mass: 1, args: boxSize }))
   useFrame((state) => {
     const t = state.clock.getElapsedTime()
@@ -48,17 +53,17 @@ function InstancedSpheres({ number = 100 }) {
   }, [number])
 
   return (
-    <instancedMesh ref={ref} castShadow receiveShadow args={[null, null, number]}>
+    <instancedMesh ref={ref} castShadow receiveShadow args={[undefined, undefined, number]}>
       <sphereBufferGeometry args={[1, 16, 16]}>
         <instancedBufferAttribute attachObject={['attributes', 'color']} args={[colors, 3]} />
       </sphereBufferGeometry>
-      <meshPhongMaterial vertexColors={VertexColors} />
+      <meshPhongMaterial vertexColors />
     </instancedMesh>
   )
 }
 
 export default () => (
-  <Canvas concurrent shadows gl={{ alpha: false }} camera={{ position: [0, -12, 16] }}>
+  <Canvas mode="concurrent" shadows gl={{ alpha: false }} camera={{ position: [0, -12, 16] }}>
     <hemisphereLight intensity={0.35} />
     <spotLight
       position={[30, 0, 30]}
