@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { Debug, Physics, useSphere, usePlane } from '@react-three/cannon'
 
@@ -29,8 +29,8 @@ function ScalableBall() {
   )
 }
 
-function Plane(props) {
-  const [ref] = usePlane(() => ({ type: 'Static', rotation: [-Math.PI / 2, 0, 0], ...props }))
+function Plane() {
+  const [ref] = usePlane(() => ({ type: 'Static', rotation: [-Math.PI / 2, 0, 0] }))
   return (
     <mesh receiveShadow ref={ref}>
       <planeBufferGeometry args={[20, 20]} />
