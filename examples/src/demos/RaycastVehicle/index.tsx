@@ -1,14 +1,16 @@
 // This demo is also playable without installation here:
 // https://codesandbox.io/s/basic-demo-forked-ebr0x
 
-import React, { Suspense } from 'react'
+import { Suspense } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { Physics, useCylinder, usePlane } from '@react-three/cannon'
 import { OrbitControls, Environment } from '@react-three/drei'
 
+import type { CylinderArgs, CylinderProps, PlaneProps } from '@react-three/cannon'
+
 import Vehicle from './Vehicle'
 
-function Plane(props) {
+function Plane(props: PlaneProps) {
   const [ref] = usePlane(() => ({ type: 'Static', material: 'ground', ...props }))
   return (
     <group ref={ref}>
@@ -20,8 +22,8 @@ function Plane(props) {
   )
 }
 
-function Pillar(props) {
-  const args = [0.7, 0.7, 5, 16]
+function Pillar(props: CylinderProps) {
+  const args: CylinderArgs = [0.7, 0.7, 5, 16]
   const [ref] = useCylinder(() => ({
     mass: 10,
     args,
@@ -43,14 +45,12 @@ const VehicleScene = () => {
         <color attach="background" args={['#171720']} />
         <ambientLight intensity={0.1} />
         <spotLight position={[10, 10, 10]} angle={0.5} intensity={1} castShadow penumbra={1} />
-        <Physics broadphase="SAP" contactEquationRelaxation={4} friction={1e-3} allowSleep>
+        <Physics
+          broadphase="SAP"
+          defaultContactMaterial={{ contactEquationRelaxation: 4, friction: 1e-3 }}
+          allowSleep>
           <Plane rotation={[-Math.PI / 2, 0, 0]} userData={{ id: 'floor' }} />
-          <Vehicle
-            position={[0, 2, 0]}
-            rotation={[0, -Math.PI / 4, 0]}
-            angularVelocity={[0, 0.5, 0]}
-            wheelRadius={0.3}
-          />
+          <Vehicle position={[0, 2, 0]} rotation={[0, -Math.PI / 4, 0]} angularVelocity={[0, 0.5, 0]} />
           <Pillar position={[-5, 2.5, -5]} userData={{ id: 'pillar-1' }} />
           <Pillar position={[0, 2.5, -5]} userData={{ id: 'pillar-2' }} />
           <Pillar position={[5, 2.5, -5]} userData={{ id: 'pillar-3' }} />

@@ -1,11 +1,28 @@
 import { useRef, useEffect } from 'react'
 import { useFrame } from '@react-three/fiber'
-import { useRaycastVehicle } from '@react-three/cannon'
-import Beetle from './Chassis'
-import Wheel from './Wheel'
+import { useBox, useRaycastVehicle } from '@react-three/cannon'
+import { Chassis } from './Chassis'
+import { Wheel } from './Wheel'
+
+import type { BoxProps, WheelInfoOptions } from '@react-three/cannon'
+import type { Object3D } from 'three'
+
+export type VehicleProps = Pick<BoxProps, 'angularVelocity' | 'position' | 'rotation'> & {
+  radius?: number
+  width?: number
+  height?: number
+  front?: number
+  back?: number
+  steer?: number
+  force?: number
+  maxBrake?: number
+}
 
 function Vehicle({
+  angularVelocity,
+  position,
   radius = 0.7,
+  rotation,
   width = 1.2,
   height = -0.04,
   front = 1.3,
@@ -13,16 +30,18 @@ function Vehicle({
   steer = 0.5,
   force = 1500,
   maxBrake = 50,
-  ...props
-}) {
-  const chassis = useRef()
-  const wheel1 = useRef()
-  const wheel2 = useRef()
-  const wheel3 = useRef()
-  const wheel4 = useRef()
+}: VehicleProps) {
+  const chassisBody = useRef<Object3D>(null)
+  const wheels = [
+    useRef<Object3D>(null),
+    useRef<Object3D>(null),
+    useRef<Object3D>(null),
+    useRef<Object3D>(null),
+  ]
+
   const controls = useControls()
 
-  const wheelInfo = {
+  const wheelInfo: WheelInfoOptions = {
     radius,
     directionLocal: [0, -1, 0], // set to same as Physics Gravity
     suspensionStiffness: 30,
@@ -38,77 +57,91 @@ function Vehicle({
     frictionSlip: 2,
   }
 
-  const wheelInfo1 = {
+  const wheelInfo1: WheelInfoOptions = {
     ...wheelInfo,
     isFrontWheel: true,
     chassisConnectionPointLocal: [-width / 2, height, front],
   }
-  const wheelInfo2 = {
+  const wheelInfo2: WheelInfoOptions = {
     ...wheelInfo,
     isFrontWheel: true,
     chassisConnectionPointLocal: [width / 2, height, front],
   }
-  const wheelInfo3 = {
+  const wheelInfo3: WheelInfoOptions = {
     ...wheelInfo,
     isFrontWheel: false,
     chassisConnectionPointLocal: [-width / 2, height, back],
   }
-  const wheelInfo4 = {
+  const wheelInfo4: WheelInfoOptions = {
     ...wheelInfo,
     isFrontWheel: false,
     chassisConnectionPointLocal: [width / 2, height, back],
   }
 
-  const [vehicle, api] = useRaycastVehicle(() => ({
-    chassisBody: chassis,
-    wheels: [wheel1, wheel2, wheel3, wheel4],
+  const [, chassisApi] = useBox(
+    () => ({
+      allowSleep: false,
+      angularVelocity,
+      args: [1.7, 1, 4],
+      mass: 500,
+      onCollide: (e) => console.log('bonk', e.body.userData),
+      position,
+      rotation,
+    }),
+    chassisBody,
+  )
+
+  const [vehicle, vehicleApi] = useRaycastVehicle(() => ({
+    chassisBody,
+    wheels,
     wheelInfos: [wheelInfo1, wheelInfo2, wheelInfo3, wheelInfo4],
     indexForwardAxis: 2,
     indexRightAxis: 0,
     indexUpAxis: 1,
   }))
 
-  useEffect(() => {
-    chassis.current.api.velocity.subscribe(() => null)
-    api.sliding.subscribe((v) => console.log('sliding', v))
-  }, [])
+  useEffect(() => vehicleApi.sliding.subscribe((v) => console.log('sliding', v)), [])
 
   useFrame(() => {
     const { forward, backward, left, right, brake, reset } = controls.current
-    for (let e = 2; e < 4; e++)
-      api.applyEngineForce(forward || backward ? force * (forward && !backward ? -1 : 1) : 0, 2)
-    for (let s = 0; s < 2; s++) api.setSteeringValue(left || right ? steer * (left && !right ? 1 : -1) : 0, s)
-    for (let b = 2; b < 4; b++) api.setBrake(brake ? maxBrake : 0, b)
+
+    for (let e = 2; e < 4; e++) {
+      vehicleApi.applyEngineForce(forward || backward ? force * (forward && !backward ? -1 : 1) : 0, 2)
+    }
+
+    for (let s = 0; s < 2; s++) {
+      vehicleApi.setSteeringValue(left || right ? steer * (left && !right ? 1 : -1) : 0, s)
+    }
+
+    for (let b = 2; b < 4; b++) {
+      vehicleApi.setBrake(brake ? maxBrake : 0, b)
+    }
+
     if (reset) {
-      chassis.current.api.position.set(0, 0.5, 0)
-      chassis.current.api.velocity.set(0, 0, 0)
-      chassis.current.api.angularVelocity.set(0, 0.5, 0)
-      chassis.current.api.rotation.set(0, -Math.PI / 4, 0)
+      chassisApi.position.set(0, 0.5, 0)
+      chassisApi.velocity.set(0, 0, 0)
+      chassisApi.angularVelocity.set(0, 0.5, 0)
+      chassisApi.rotation.set(0, -Math.PI / 4, 0)
     }
   })
 
   return (
     <group ref={vehicle} position={[0, -0.4, 0]}>
-      <Beetle
-        ref={chassis}
-        rotation={props.rotation}
-        position={props.position}
-        angularVelocity={props.angularVelocity}
-      />
-      <Wheel ref={wheel1} radius={radius} leftSide />
-      <Wheel ref={wheel2} radius={radius} />
-      <Wheel ref={wheel3} radius={radius} leftSide />
-      <Wheel ref={wheel4} radius={radius} />
+      <Chassis ref={chassisBody} />
+      <Wheel ref={wheels[0]} radius={radius} leftSide />
+      <Wheel ref={wheels[1]} radius={radius} />
+      <Wheel ref={wheels[2]} radius={radius} leftSide />
+      <Wheel ref={wheels[3]} radius={radius} />
     </group>
   )
 }
 
 export default Vehicle
 
-export function useKeyPress(target, event) {
+export function useKeyPress(target: string[], event: (pressed: boolean) => void) {
   useEffect(() => {
-    const downHandler = ({ key }) => target.indexOf(key) !== -1 && event(true)
-    const upHandler = ({ key }) => target.indexOf(key) !== -1 && event(false)
+    const downHandler = ({ key }: KeyboardEvent) => target.indexOf(key) !== -1 && event(true)
+    const upHandler = ({ key }: KeyboardEvent) => target.indexOf(key) !== -1 && event(false)
     window.addEventListener('keydown', downHandler)
     window.addEventListener('keyup', upHandler)
     return () => {
