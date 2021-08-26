@@ -1,23 +1,20 @@
-import React, { createContext, useContext } from 'react'
+import { createContext, createRef, useContext } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
-import {
-  Physics,
-  useSphere,
-  useBox,
-  useConeTwistConstraint,
-  useDistanceConstraint,
-} from '@react-three/cannon'
+import { Physics, useSphere, useBox, useConeTwistConstraint } from '@react-three/cannon'
 
-const parent = createContext()
+import type { PropsWithChildren } from 'react'
+import type { Triplet } from '@react-three/cannon'
+import type { Object3D } from 'three'
 
-const ChainLink = ({ children, ...props }) => {
+const parent = createContext(createRef<Object3D>())
+
+const ChainLink = ({ children }: PropsWithChildren<{}>) => {
   const parentRef = useContext(parent)
-  const chainSize = [0.15, 1, 0.15]
+  const chainSize: Triplet = [0.15, 1, 0.15]
   const [ref] = useBox(() => ({
     mass: 1,
     linearDamping: 0.8,
     args: chainSize,
-    position: props.position,
   }))
   useConeTwistConstraint(parentRef, ref, {
     pivotA: [0, -chainSize[1] / 2, 0],
@@ -29,7 +26,7 @@ const ChainLink = ({ children, ...props }) => {
   })
   return (
     <>
-      <mesh ref={ref} {...props}>
+      <mesh ref={ref}>
         <cylinderBufferGeometry args={[chainSize[0], chainSize[0], chainSize[1], 8]} />
         <meshStandardMaterial />
       </mesh>
@@ -38,13 +35,14 @@ const ChainLink = ({ children, ...props }) => {
   )
 }
 
-const Handle = ({ children, ...props }) => {
+const Handle = ({ children }: PropsWithChildren<{}>) => {
   const [ref, { position }] = useSphere(() => ({ type: 'Static', args: 0.5, position: [0, 0, 0] }))
-  useFrame((e) => position.set((e.mouse.x * e.viewport.width) / 2, (e.mouse.y * e.viewport.height) / 2, 0))
-  useDistanceConstraint(ref, null, { distance: 1 })
+  useFrame(({ mouse: { x, y }, viewport: { height, width } }) =>
+    position.set((x * width) / 2, (y * height) / 2, 0),
+  )
   return (
     <group>
-      <mesh ref={ref} position={props.position}>
+      <mesh ref={ref}>
         <sphereBufferGeometry args={[0.5, 64, 64]} />
         <meshStandardMaterial />
       </mesh>
