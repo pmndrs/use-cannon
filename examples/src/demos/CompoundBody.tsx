@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { Physics, Debug, usePlane, useCompoundBody } from '@react-three/cannon'
 
-function Plane(props) {
+import type { CompoundBodyProps, PlaneProps, Triplet } from '@react-three/cannon'
+
+function Plane(props: PlaneProps) {
   const [ref] = usePlane(() => ({ type: 'Static', ...props }))
   return (
     <group ref={ref}>
@@ -18,8 +20,10 @@ function Plane(props) {
   )
 }
 
-function CompoundBody(props) {
-  const boxSize = [1, 1, 1]
+type OurCompoundBodyProps = Pick<CompoundBodyProps, 'position' | 'rotation'>
+
+function CompoundBody(props: OurCompoundBodyProps) {
+  const boxSize: Triplet = [1, 1, 1]
   const sphereRadius = 0.65
   const [ref] = useCompoundBody(() => ({
     mass: 12,
