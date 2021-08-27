@@ -1,14 +1,28 @@
-import React, { Suspense, useState, useRef, useLayoutEffect, useMemo } from 'react'
+import { Suspense, useState, useRef, useLayoutEffect, useMemo } from 'react'
 import { Canvas, useFrame, useThree, extend } from '@react-three/fiber'
 import { Html } from '@react-three/drei'
 import { Physics, useSphere, useBox, useRaycastAll } from '@react-three/cannon'
-import { Vector3, BufferGeometry } from 'three'
+import { BufferGeometry, Line as ThreeLine, Vector3 } from 'three'
 import { OrbitControls } from 'three-stdlib/controls/OrbitControls'
 import { prettyPrint } from './prettyPrint'
 
-extend({ OrbitControls })
+import type { Triplet } from '@react-three/cannon'
+import type { GroupProps, Node, Object3DNode } from '@react-three/fiber'
+import type { PerspectiveCamera } from 'three'
 
-function Plane(props) {
+extend({ OrbitControls })
+extend({ ThreeLine })
+
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      orbitControls: Node<OrbitControls, typeof OrbitControls>
+      threeLine: Object3DNode<ThreeLine, typeof ThreeLine>
+    }
+  }
+}
+
+function Plane(props: GroupProps) {
   return (
     <group {...props}>
       <mesh>
@@ -23,7 +37,12 @@ function Plane(props) {
   )
 }
 
-function Sphere({ radius, position }) {
+type SphereProps = {
+  radius: number
+  position: Triplet
+}
+
+function Sphere({ radius, position }: SphereProps) {
   const [ref, api] = useSphere(() => ({ type: 'Static', args: radius, position }))
   useFrame(({ clock: { elapsedTime } }) => {
     api.position.set(position[0], position[1], Math.sin(elapsedTime / 3) * 2)
@@ -36,7 +55,12 @@ function Sphere({ radius, position }) {
   )
 }
 
-function Cube({ size, position }) {
+type CubeProps = {
+  size: Triplet
+  position: Triplet
+}
+
+function Cube({ size, position }: CubeProps) {
   const [ref, api] = useBox(() => ({ type: 'Static', args: size, position }))
   useFrame(({ clock: { elapsedTime } }) => {
     api.position.set(Math.sin(elapsedTime / 2) * 2, position[1], position[2])
@@ -49,21 +73,27 @@ function Cube({ size, position }) {
   )
 }
 
-function Ray({ from, to, setHit }) {
-  useRaycastAll({ from, to }, (result) => setHit(result))
-  const geo = useMemo(() => {
+type RayProps = {
+  from: Triplet
+  setHit: (e: {}) => void
+  to: Triplet
+}
+
+function Ray({ from, to, setHit }: RayProps) {
+  useRaycastAll({ from, to }, setHit)
+  const geometry = useMemo(() => {
     const points = [from, to].map((v) => new Vector3(...v))
     return new BufferGeometry().setFromPoints(points)
   }, [from, to])
 
   return (
-    <line geometry={geo}>
+    <threeLine geometry={geometry}>
       <lineBasicMaterial color="black" />
-    </line>
+    </threeLine>
   )
 }
 
-function Text({ hit }) {
+function Text({ hit }: { hit: unknown }) {
   return (
     <Html center style={{ pointerEvents: 'none' }}>
       <pre>{prettyPrint(hit)}</pre>
@@ -82,34 +112,34 @@ function Raycast() {
   )
 }
 
-const Camera = (props) => {
-  const cameraRef = useRef()
-  const controlsRef = useRef()
+const Camera = () => {
+  const cameraRef = useRef<PerspectiveCamera>(null)
+  const controlsRef = useRef<OrbitControls>(null)
   const { gl, camera } = useThree()
   const set = useThree((state) => state.set)
   const size = useThree((state) => state.size)
 
   useLayoutEffect(() => {
-    if (cameraRef.current) {
-      cameraRef.current.aspect = size.width / size.height
-      cameraRef.current.updateProjectionMatrix()
-    }
-  }, [size, props])
+    if (!cameraRef.current) return
+    cameraRef.current.aspect = size.width / size.height
+    cameraRef.current.updateProjectionMatrix()
+  }, [size])
 
   useLayoutEffect(() => {
-    set(() => ({ camera: cameraRef.current }))
+    const camera = cameraRef.current
+    if (!camera) return
+    set(() => ({ camera }))
   }, [])
 
   useFrame(() => {
-    if (cameraRef.current && controlsRef.current) {
-      cameraRef.current.updateMatrixWorld()
-      controlsRef.current.update()
-    }
+    if (!cameraRef.current || !controlsRef.current) return
+    cameraRef.current.updateMatrixWorld()
+    controlsRef.current.update()
   })
 
   return (
     <>
-      <perspectiveCamera {...props} ref={cameraRef} position={[0, -10, 10]} />
+      <perspectiveCamera ref={cameraRef} position={[0, -10, 10]} />
       <orbitControls
         autoRotate
         enableDamping
