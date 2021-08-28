@@ -1,5 +1,5 @@
-import * as THREE from 'three'
-import React, { Suspense, useRef } from 'react'
+import { TextureLoader } from 'three'
+import { Suspense, useRef } from 'react'
 import { Canvas, useFrame, useLoader } from '@react-three/fiber'
 import { Physics, useSphere, useBox, usePlane } from '@react-three/cannon'
 import lerp from 'lerp'
@@ -12,8 +12,20 @@ import Text from './Text'
 import pingSound from './resources/ping.mp3'
 import earthImg from './resources/cross.jpg'
 
+import type { BufferGeometry, Loader, Material, Object3D, Skeleton } from 'three'
+import type { GLTF } from 'three-stdlib/loaders/GLTFLoader'
+
+type State = {
+  count: number
+  welcome: boolean
+  api: {
+    pong: (velocity: number) => void
+    reset: (welcome: boolean) => void
+  }
+}
+
 const ping = new Audio(pingSound)
-const useStore = create((set) => ({
+const useStore = create<State>((set) => ({
   count: 0,
   welcome: true,
   api: {
@@ -27,27 +39,42 @@ const useStore = create((set) => ({
   },
 }))
 
+type PingPongGLTF = GLTF & {
+  materials: Record<'foam' | 'glove' | 'lower' | 'side' | 'upper' | 'wood', Material>
+  nodes: Record<'Bone' | 'Bone003' | 'Bone006' | 'Bone010', {}> &
+    Record<'mesh' | 'mesh_1' | 'mesh_2' | 'mesh_3' | 'mesh_4', { geometry: BufferGeometry }> & {
+      arm: { geometry: BufferGeometry; skeleton: Skeleton }
+    }
+}
+
+const extensions = (loader: GLTFLoader) => {
+  const dracoLoader = new DRACOLoader()
+  dracoLoader.setDecoderPath('/draco-gltf/')
+  loader.setDRACOLoader(dracoLoader)
+}
+
 function Paddle() {
-  const { nodes, materials } = useLoader(GLTFLoader, '/pingpong.glb', (loader) => {
-    const dracoLoader = new DRACOLoader()
-    dracoLoader.setDecoderPath('/draco-gltf/')
-    loader.setDRACOLoader(dracoLoader)
-  })
+  const { nodes, materials } = useLoader<PingPongGLTF, '/pingpong.glb'>(
+    GLTFLoader,
+    '/pingpong.glb',
+    extensions as (loader: Loader) => void,
+  )
   const { pong } = useStore((state) => state.api)
   const welcome = useStore((state) => state.welcome)
   const count = useStore((state) => state.count)
-  const model = useRef()
+  const model = useRef<Object3D>(null)
   const [ref, api] = useBox(() => ({
     type: 'Kinematic',
     args: [3.4, 1, 3],
     onCollide: (e) => pong(e.contact.impactVelocity),
   }))
-  let values = useRef([0, 0])
+  const values = useRef([0, 0])
   useFrame((state) => {
     values.current[0] = lerp(values.current[0], (state.mouse.x * Math.PI) / 5, 0.2)
     values.current[1] = lerp(values.current[1], (state.mouse.x * Math.PI) / 5, 0.2)
     api.position.set(state.mouse.x * 10, state.mouse.y * 5, 0)
     api.rotation.set(0, 0, values.current[1])
+    if (!model.current) return
     model.current.rotation.x = lerp(model.current.rotation.x, welcome ? Math.PI / 2 : 0, 0.2)
     model.current.rotation.y = values.current[0]
   })
@@ -55,7 +82,7 @@ function Paddle() {
   return (
     <mesh ref={ref} dispose={null}>
       <group ref={model} position={[-0.05, 0.37, 0.3]} scale={[0.15, 0.15, 0.15]}>
-        <Text rotation={[-Math.PI / 2, 0, 0]} position={[0, 1, 2]} size={1} children={count.toString()} />
+        <Text rotation={[-Math.PI / 2, 0, 0]} position={[0, 1, 2]} count={count.toString()} />
         <group rotation={[1.88, -0.35, 2.32]} scale={[2.97, 2.97, 2.97]}>
           <primitive object={nodes.Bone} />
           <primitive object={nodes.Bone003} />
@@ -83,7 +110,7 @@ function Paddle() {
 }
 
 function Ball() {
-  const map = useLoader(THREE.TextureLoader, earthImg)
+  const map = useLoader(TextureLoader, earthImg)
   const [ref] = useSphere(() => ({ mass: 1, args: 0.5, position: [0, 5, 0] }))
   return (
     <mesh castShadow ref={ref}>
