@@ -2,7 +2,6 @@ import { forwardRef, useEffect, useRef, useState } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { Physics, useSphere, useBox, useSpring } from '@react-three/cannon'
 
-import type { RefObject } from 'react'
 import type { BoxProps, SphereProps, Triplet } from '@react-three/cannon'
 import type { Object3D } from 'three'
 
@@ -15,7 +14,7 @@ const Box = forwardRef<Object3D, BoxProps>((props, ref) => {
       linearDamping: 0.7,
       ...props,
     }),
-    ref as RefObject<Object3D>,
+    ref,
   )
   return (
     <mesh ref={ref}>
@@ -26,10 +25,7 @@ const Box = forwardRef<Object3D, BoxProps>((props, ref) => {
 })
 
 const Ball = forwardRef<Object3D, SphereProps>((props, ref) => {
-  const [, { position }] = useSphere(
-    () => ({ type: 'Kinematic', args: 0.5, ...props }),
-    ref as RefObject<Object3D>,
-  )
+  const [, { position }] = useSphere(() => ({ type: 'Kinematic', args: 0.5, ...props }), ref)
   useFrame(({ mouse: { x, y }, viewport: { height, width } }) =>
     position.set((x * width) / 2, (y * height) / 2, 0),
   )

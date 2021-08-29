@@ -85,7 +85,7 @@ const ConstraintPart = forwardRef<Object3D | null, ConstraintPartProps>(
         mass: 1,
         ...props,
       }),
-      ref as RefObject<Object3D>,
+      ref,
     )
 
     const [, , hingeApi] = useHingeConstraint(bodyRef, parent[0], {
@@ -135,7 +135,7 @@ const Robot = forwardRef<Object3D>((_, legsLeftRef) => {
 
   const legsRightRef = useRef<Object3D>(null)
 
-  useLockConstraint(legsRightRef, legsLeftRef as RefObject<Object3D>, {})
+  useLockConstraint(legsRightRef, legsLeftRef, {})
 
   return (
     <group onPointerDown={() => setMotorSpeed(2)} onPointerUp={() => setMotorSpeed(7)}>
