@@ -137,8 +137,8 @@ type RayMessage = AddRayMessage | RemoveRayMessage
 type AddRaycastVehicleMessage = WithUUIDs<
   'addRaycastVehicle',
   [
-    chassisBodyUUID: string | undefined,
-    wheelsUUID: (string | undefined)[],
+    chassisBodyUUID: string,
+    wheelsUUID: string[],
     wheelInfos: WheelInfoOptions[],
     indexForwardAxis: number,
     indexRightAxis: number,

@@ -2,7 +2,6 @@ import { forwardRef } from 'react'
 import { useGLTF } from '@react-three/drei'
 import { useCylinder } from '@react-three/cannon'
 
-import type { RefObject } from 'react'
 import type { BufferGeometry, Material, Object3D } from 'three'
 import type { GLTF } from 'three-stdlib/loaders/GLTFLoader'
 import type { CylinderProps } from '@react-three/cannon'
@@ -32,7 +31,7 @@ export const Wheel = forwardRef<Object3D, WheelProps>(({ radius = 0.7, leftSide,
       args: [radius, radius, 0.5, 16],
       ...props,
     }),
-    ref as RefObject<Object3D>,
+    ref,
   )
   return (
     <mesh ref={ref}>
