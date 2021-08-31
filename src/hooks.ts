@@ -1,5 +1,5 @@
 import type { MaterialOptions } from 'cannon-es'
-import type { MutableRefObject, Ref, RefObject } from 'react'
+import type { DependencyList, MutableRefObject, Ref, RefObject } from 'react'
 import type { Euler } from 'three'
 import type {
   AddRayMessage,
@@ -244,7 +244,7 @@ function useBody<B extends BodyProps<unknown>>(
   fn: GetByIndex<B>,
   argsFn: ArgFn<B['args']>,
   fwdRef: Ref<Object3D>,
-  deps: any[] = [],
+  deps: DependencyList = [],
 ): Api {
   const ref = useForwardedRef(fwdRef)
   const { worker, refs, events, subscriptions } = useContext(context)
@@ -403,33 +403,49 @@ function makeTriplet(v: Vector3 | Triplet): Triplet {
   return v instanceof Vector3 ? [v.x, v.y, v.z] : v
 }
 
-export function usePlane(fn: GetByIndex<PlaneProps>, fwdRef: Ref<Object3D> = null, deps?: any[]) {
+export function usePlane(fn: GetByIndex<PlaneProps>, fwdRef: Ref<Object3D> = null, deps?: DependencyList) {
   return useBody('Plane', fn, () => [], fwdRef, deps)
 }
-export function useBox(fn: GetByIndex<BoxProps>, fwdRef: Ref<Object3D> = null, deps?: any[]) {
+export function useBox(fn: GetByIndex<BoxProps>, fwdRef: Ref<Object3D> = null, deps?: DependencyList) {
   const defaultBoxArgs: Triplet = [1, 1, 1]
   return useBody('Box', fn, (args = defaultBoxArgs): Triplet => args, fwdRef, deps)
 }
-export function useCylinder(fn: GetByIndex<CylinderProps>, fwdRef: Ref<Object3D> = null, deps?: any[]) {
+export function useCylinder(
+  fn: GetByIndex<CylinderProps>,
+  fwdRef: Ref<Object3D> = null,
+  deps?: DependencyList,
+) {
   return useBody('Cylinder', fn, (args = [] as []) => args, fwdRef, deps)
 }
-export function useHeightfield(fn: GetByIndex<HeightfieldProps>, fwdRef: Ref<Object3D> = null, deps?: any[]) {
+export function useHeightfield(
+  fn: GetByIndex<HeightfieldProps>,
+  fwdRef: Ref<Object3D> = null,
+  deps?: DependencyList,
+) {
   return useBody('Heightfield', fn, (args) => args, fwdRef, deps)
 }
-export function useParticle(fn: GetByIndex<ParticleProps>, fwdRef: Ref<Object3D> = null, deps?: any[]) {
+export function useParticle(
+  fn: GetByIndex<ParticleProps>,
+  fwdRef: Ref<Object3D> = null,
+  deps?: DependencyList,
+) {
   return useBody('Particle', fn, () => [], fwdRef, deps)
 }
-export function useSphere(fn: GetByIndex<SphereProps>, fwdRef: Ref<Object3D> = null, deps?: any[]) {
+export function useSphere(fn: GetByIndex<SphereProps>, fwdRef: Ref<Object3D> = null, deps?: DependencyList) {
   return useBody('Sphere', fn, (radius = 1): [number] => [radius], fwdRef, deps)
 }
-export function useTrimesh(fn: GetByIndex<TrimeshProps>, fwdRef: Ref<Object3D> = null, deps?: any[]) {
+export function useTrimesh(
+  fn: GetByIndex<TrimeshProps>,
+  fwdRef: Ref<Object3D> = null,
+  deps?: DependencyList,
+) {
   return useBody<TrimeshProps>('Trimesh', fn, (args) => args, fwdRef, deps)
 }
 
 export function useConvexPolyhedron(
   fn: GetByIndex<ConvexPolyhedronProps>,
   fwdRef: Ref<Object3D> = null,
-  deps?: any[],
+  deps?: DependencyList,
 ) {
   return useBody<ConvexPolyhedronProps>(
     'ConvexPolyhedron',
@@ -448,7 +464,7 @@ export function useConvexPolyhedron(
 export function useCompoundBody(
   fn: GetByIndex<CompoundBodyProps>,
   fwdRef: Ref<Object3D> = null,
-  deps?: any[],
+  deps?: DependencyList,
 ) {
   return useBody('Compound', fn, (args) => args as unknown[], fwdRef, deps)
 }
@@ -494,7 +510,7 @@ function useConstraint<T extends 'Hinge' | ConstraintTypes>(
   bodyA: Ref<Object3D>,
   bodyB: Ref<Object3D>,
   optns: any = {},
-  deps: any[] = [],
+  deps: DependencyList = [],
 ): ConstraintORHingeApi<T> {
   const { worker } = useContext(context)
   const uuid = MathUtils.generateUUID()
@@ -542,7 +558,7 @@ export function usePointToPointConstraint(
   bodyA: Ref<Object3D> = null,
   bodyB: Ref<Object3D> = null,
   optns: PointToPointConstraintOpts,
-  deps: any[] = [],
+  deps: DependencyList = [],
 ) {
   return useConstraint('PointToPoint', bodyA, bodyB, optns, deps)
 }
@@ -550,7 +566,7 @@ export function useConeTwistConstraint(
   bodyA: Ref<Object3D> = null,
   bodyB: Ref<Object3D> = null,
   optns: ConeTwistConstraintOpts,
-  deps: any[] = [],
+  deps: DependencyList = [],
 ) {
   return useConstraint('ConeTwist', bodyA, bodyB, optns, deps)
 }
@@ -558,7 +574,7 @@ export function useDistanceConstraint(
   bodyA: Ref<Object3D> = null,
   bodyB: Ref<Object3D> = null,
   optns: DistanceConstraintOpts,
-  deps: any[] = [],
+  deps: DependencyList = [],
 ) {
   return useConstraint('Distance', bodyA, bodyB, optns, deps)
 }
@@ -566,7 +582,7 @@ export function useHingeConstraint(
   bodyA: Ref<Object3D> = null,
   bodyB: Ref<Object3D> = null,
   optns: HingeConstraintOpts,
-  deps: any[] = [],
+  deps: DependencyList = [],
 ) {
   return useConstraint('Hinge', bodyA, bodyB, optns, deps)
 }
@@ -574,7 +590,7 @@ export function useLockConstraint(
   bodyA: Ref<Object3D> = null,
   bodyB: Ref<Object3D> = null,
   optns: LockConstraintOpts,
-  deps: any[] = [],
+  deps: DependencyList = [],
 ) {
   return useConstraint('Lock', bodyA, bodyB, optns, deps)
 }
@@ -583,7 +599,7 @@ export function useSpring(
   bodyA: Ref<Object3D> = null,
   bodyB: Ref<Object3D> = null,
   optns: SpringOptns,
-  deps: any[] = [],
+  deps: DependencyList = [],
 ): SpringApi {
   const { worker } = useContext(context)
   const [uuid] = useState(() => MathUtils.generateUUID())
@@ -618,7 +634,7 @@ export function useSpring(
 
 type RayOptions = Omit<AddRayMessage['props'], 'mode'>
 
-function useRay(mode: RayMode, options: RayOptions, callback: (e: Event) => void, deps: any[] = []) {
+function useRay(mode: RayMode, options: RayOptions, callback: (e: Event) => void, deps: DependencyList = []) {
   const { worker, events } = useContext(context)
   const [uuid] = useState(() => MathUtils.generateUUID())
   useEffect(() => {
@@ -631,15 +647,19 @@ function useRay(mode: RayMode, options: RayOptions, callback: (e: Event) => void
   }, deps)
 }
 
-export function useRaycastClosest(options: RayOptions, callback: (e: Event) => void, deps: any[] = []) {
+export function useRaycastClosest(
+  options: RayOptions,
+  callback: (e: Event) => void,
+  deps: DependencyList = [],
+) {
   useRay('Closest', options, callback, deps)
 }
 
-export function useRaycastAny(options: RayOptions, callback: (e: Event) => void, deps: any[] = []) {
+export function useRaycastAny(options: RayOptions, callback: (e: Event) => void, deps: DependencyList = []) {
   useRay('Any', options, callback, deps)
 }
 
-export function useRaycastAll(options: RayOptions, callback: (e: Event) => void, deps: any[] = []) {
+export function useRaycastAll(options: RayOptions, callback: (e: Event) => void, deps: DependencyList = []) {
   useRay('All', options, callback, deps)
 }
 
@@ -687,7 +707,7 @@ function isString(v: unknown): v is string {
 export function useRaycastVehicle(
   fn: () => RaycastVehicleProps,
   fwdRef: Ref<Object3D> = null,
-  deps: any[] = [],
+  deps: DependencyList = [],
 ): [RefObject<Object3D>, RaycastVehiclePublicApi] {
   const ref = useForwardedRef(fwdRef)
   const { worker, subscriptions } = useContext(context)

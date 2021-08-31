@@ -144,87 +144,115 @@ function Physics({
 
 function Debug({ children, color = 'black', scale = 1 }: DebugProps): JSX.Element
 
-function usePlane(fn: GetByIndex<PlaneProps>, fwdRef?: React.Ref<THREE.Object3D>, deps?: any[]): Api
+function usePlane(
+  fn: GetByIndex<PlaneProps>,
+  fwdRef?: React.Ref<THREE.Object3D>,
+  deps?: React.DependencyList,
+): Api
 
-function useBox(fn: GetByIndex<BoxProps>, fwdRef?: React.Ref<THREE.Object3D>, deps?: any[]): Api
+function useBox(
+  fn: GetByIndex<BoxProps>,
+  fwdRef?: React.Ref<THREE.Object3D>,
+  deps?: React.DependencyList,
+): Api
 
-function useCylinder(fn: GetByIndex<CylinderProps>, fwdRef?: React.Ref<THREE.Object3D>, deps?: any[]): Api
+function useCylinder(
+  fn: GetByIndex<CylinderProps>,
+  fwdRef?: React.Ref<THREE.Object3D>,
+  deps?: React.DependencyList,
+): Api
 
 function useHeightfield(
   fn: GetByIndex<HeightfieldProps>,
   fwdRef?: React.Ref<THREE.Object3D>,
-  deps?: any[],
+  deps?: React.DependencyList,
 ): Api
 
-function useParticle(fn: GetByIndex<ParticleProps>, fwdRef?: React.Ref<THREE.Object3D>, deps?: any[]): Api
+function useParticle(
+  fn: GetByIndex<ParticleProps>,
+  fwdRef?: React.Ref<THREE.Object3D>,
+  deps?: React.DependencyList,
+): Api
 
-function useSphere(fn: GetByIndex<SphereProps>, fwdRef?: React.Ref<THREE.Object3D>, deps?: any[]): Api
+function useSphere(
+  fn: GetByIndex<SphereProps>,
+  fwdRef?: React.Ref<THREE.Object3D>,
+  deps?: React.DependencyList,
+): Api
 
-function useTrimesh(fn: GetByIndex<TrimeshProps>, fwdRef?: React.Ref<THREE.Object3D>, deps?: any[]): Api
+function useTrimesh(
+  fn: GetByIndex<TrimeshProps>,
+  fwdRef?: React.Ref<THREE.Object3D>,
+  deps?: React.DependencyList,
+): Api
 
 function useConvexPolyhedron(
   fn: GetByIndex<ConvexPolyhedronProps>,
   fwdRef?: React.Ref<THREE.Object3D>,
-  deps?: any[],
+  deps?: React.DependencyList,
 ): Api
 
 function useCompoundBody(
   fn: GetByIndex<CompoundBodyProps>,
   fwdRef?: React.Ref<THREE.Object3D>,
-  deps?: any[],
+  deps?: React.DependencyList,
 ): Api
 
 function useRaycastVehicle(
   fn: () => RaycastVehicleProps,
   fwdRef?: React.Ref<THREE.Object3D>,
-  deps: any[] = [],
+  deps: React.DependencyList[] = [],
 ): [React.RefObject<THREE.Object3D>, RaycastVehiclePublicApi]
 
 function usePointToPointConstraint(
   bodyA: React.Ref<THREE.Object3D>,
   bodyB: React.Ref<THREE.Object3D>,
   optns: PointToPointConstraintOpts,
-  deps: any[] = [],
+  deps: React.DependencyList = [],
 ): ConstraintApi
 
 function useConeTwistConstraint(
   bodyA: React.Ref<THREE.Object3D>,
   bodyB: React.Ref<THREE.Object3D>,
   optns: ConeTwistConstraintOpts,
-  deps: any[] = [],
+  deps: React.DependencyList = [],
 ): ConstraintApi
 
 function useDistanceConstraint(
   bodyA: React.Ref<THREE.Object3D>,
   bodyB: React.Ref<THREE.Object3D>,
   optns: DistanceConstraintOpts,
-  deps: any[] = [],
+  deps: React.DependencyList = [],
 ): ConstraintApi
 
 function useHingeConstraint(
   bodyA: React.Ref<THREE.Object3D>,
   bodyB: React.Ref<THREE.Object3D>,
   optns: HingeConstraintOpts,
-  deps: any[] = [],
+  deps: React.DependencyList = [],
 ): ConstraintApi
 
 function useLockConstraint(
   bodyA: React.Ref<THREE.Object3D>,
   bodyB: React.Ref<THREE.Object3D>,
   optns: LockConstraintOpts,
-  deps: any[] = [],
+  deps: React.DependencyList = [],
 ): ConstraintApi
 
 function useSpring(
   bodyA: React.Ref<THREE.Object3D>,
   bodyB: React.Ref<THREE.Object3D>,
   optns: SpringOptns,
-  deps: any[] = [],
+  deps: React.DependencyList = [],
 ): void
 
-function useRaycastClosest(options: RayOptns, callback: (e: Event) => void, deps: any[] = []): void
-function useRaycastAny(options: RayOptns, callback: (e: Event) => void, deps: any[] = []): void
-function useRaycastAll(options: RayOptns, callback: (e: Event) => void, deps: any[] = []): void
+function useRaycastClosest(
+  options: RayOptns,
+  callback: (e: Event) => void,
+  deps: React.DependencyList = [],
+): void
+function useRaycastAny(options: RayOptns, callback: (e: Event) => void, deps: React.DependencyList = []): void
+function useRaycastAll(options: RayOptns, callback: (e: Event) => void, deps: React.DependencyList = []): void
 ```
 
 ### Returned api
