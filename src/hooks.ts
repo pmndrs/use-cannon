@@ -724,7 +724,7 @@ export function useRaycastVehicle(
     const raycastVehicleProps = fn()
 
     const chassisBodyUUID = getUUID(raycastVehicleProps.chassisBody)
-    const wheelUUIDs = raycastVehicleProps.wheels.map(getUUID)
+    const wheelUUIDs = raycastVehicleProps.wheels.map((ref) => getUUID(ref))
 
     if (!chassisBodyUUID || !wheelUUIDs.every(isString)) return
 
