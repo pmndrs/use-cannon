@@ -7,7 +7,7 @@
 
     yarn add @react-three/cannon
 
-Experimental React hooks for [cannon-es](https://github.com/pmndrs/cannon-es). Use this in combination with [react-three-fiber](https://github.com/pmndrs/react-three-fiber).
+React hooks for [cannon-es](https://github.com/pmndrs/cannon-es). Use this in combination with [react-three-fiber](https://github.com/pmndrs/react-three-fiber).
 
 - [x] Doesn't block the main thread, runs in a web worker
 - [x] Supports instancing out of the box
@@ -15,11 +15,9 @@ Experimental React hooks for [cannon-es](https://github.com/pmndrs/cannon-es). U
 
 ## Demos
 
-Ping pong: https://codesandbox.io/s/white-resonance-0mgum
+Check out all of our examples at https://cannon.pmnd.rs
 
-Cube pushing spheres away: https://codesandbox.io/s/r3f-cannon-instanced-physics-devf8
-
-Heap of cubes: https://codesandbox.io/s/r3f-cannon-instanced-physics-g1s88
+The code for the examples lives in [./examples](./examples)
 
 ## How it works
 
