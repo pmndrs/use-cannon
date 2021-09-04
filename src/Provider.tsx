@@ -12,7 +12,9 @@ import CannonWorker from '../src/worker'
 import { useUpdateWorldPropsEffect } from './useUpdateWorldPropsEffect'
 
 import type { Buffers, Refs, Events, Subscriptions, ProviderContext } from './setup'
-import type { AtomicProps } from './hooks'
+import type { AtomicProps, Triplet } from './hooks'
+
+export type Broadphase = 'Naive' | 'SAP'
 
 export type ProviderProps = {
   children: React.ReactNode
@@ -23,8 +25,8 @@ export type ProviderProps = {
   iterations?: number
 
   allowSleep?: boolean
-  broadphase?: 'Naive' | 'SAP'
-  gravity?: number[]
+  broadphase?: Broadphase
+  gravity?: Triplet
   quatNormalizeFast?: boolean
   quatNormalizeSkip?: number
   solver?: 'GS' | 'Split'
@@ -303,7 +305,7 @@ export default function Provider({
     return () => worker.terminate()
   }, [])
 
-  useUpdateWorldPropsEffect({ worker, axisIndex, broadphase, gravity, iterations, step, tolerance })
+  useUpdateWorldPropsEffect({ axisIndex, broadphase, gravity, iterations, step, tolerance, worker })
 
   const api = useMemo(
     () => ({ worker, bodies, refs, buffers, events, subscriptions }),
