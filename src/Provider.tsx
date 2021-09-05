@@ -11,8 +11,12 @@ import { context } from './setup'
 import CannonWorker from '../src/worker'
 import { useUpdateWorldPropsEffect } from './useUpdateWorldPropsEffect'
 
-import type { Buffers, Refs, Events, Subscriptions, ProviderContext } from './setup'
+import type { Buffers, Refs, Subscriptions, ProviderContext } from './setup'
 import type { AtomicProps, Triplet } from './hooks'
+
+function noop() {
+  /**/
+}
 
 export type Broadphase = 'Naive' | 'SAP'
 
@@ -171,7 +175,7 @@ export default function Provider({
     positions: new Float32Array(size * 3),
     quaternions: new Float32Array(size * 4),
   }))
-  const [events] = useState<Events>({})
+  const [events] = useState<ProviderContext['events']>({})
   const [subscriptions] = useState<Subscriptions>({})
 
   const bodies = useRef<{ [uuid: string]: number }>({})
@@ -205,6 +209,7 @@ export default function Provider({
 
     let i = 0
     let body: string
+    let callback
     worker.onmessage = (e: IncomingWorkerMessage) => {
       switch (e.data.op) {
         case 'frame':
@@ -244,7 +249,8 @@ export default function Provider({
         case 'event':
           switch (e.data.type) {
             case 'collide':
-              events[e.data.target]({
+              callback = events[e.data.target]?.collide || noop
+              callback({
                 ...e.data,
                 target: refs[e.data.target],
                 body: refs[e.data.body],
@@ -256,44 +262,40 @@ export default function Provider({
               })
               break
             case 'collideBegin':
-              if (events[e.data.bodyA]) {
-                events[e.data.bodyA]({
-                  op: 'event',
-                  type: 'collideBegin',
-                  target: refs[e.data.bodyA],
-                  body: refs[e.data.bodyB],
-                })
-              }
-              if (events[e.data.bodyB]) {
-                events[e.data.bodyB]({
-                  op: 'event',
-                  type: 'collideBegin',
-                  target: refs[e.data.bodyB],
-                  body: refs[e.data.bodyA],
-                })
-              }
+              callback = events[e.data.bodyA]?.collideBegin || noop
+              callback({
+                op: 'event',
+                type: 'collideBegin',
+                target: refs[e.data.bodyA],
+                body: refs[e.data.bodyB],
+              })
+              callback = events[e.data.bodyB]?.collideBegin || noop
+              callback({
+                op: 'event',
+                type: 'collideBegin',
+                target: refs[e.data.bodyB],
+                body: refs[e.data.bodyA],
+              })
               break
             case 'collideEnd':
-              if (events[e.data.bodyA]) {
-                events[e.data.bodyA]({
-                  op: 'event',
-                  type: 'collideEnd',
-                  target: refs[e.data.bodyA],
-                  body: refs[e.data.bodyB],
-                })
-              }
-              if (events[e.data.bodyB]) {
-                events[e.data.bodyB]({
-                  op: 'event',
-                  type: 'collideEnd',
-                  target: refs[e.data.bodyB],
-                  body: refs[e.data.bodyA],
-                })
-              }
+              callback = events[e.data.bodyA]?.collideEnd || noop
+              callback({
+                op: 'event',
+                type: 'collideEnd',
+                target: refs[e.data.bodyA],
+                body: refs[e.data.bodyB],
+              })
+              callback = events[e.data.bodyB]?.collideEnd || noop
+              callback({
+                op: 'event',
+                type: 'collideEnd',
+                target: refs[e.data.bodyB],
+                body: refs[e.data.bodyA],
+              })
               break
             case 'rayhit':
-              if (!events[e.data.ray.uuid]) break
-              events[e.data.ray.uuid]({
+              callback = events[e.data.ray.uuid]?.rayhit || noop
+              callback({
                 ...e.data,
                 body: e.data.body ? refs[e.data.body] : null,
               })
