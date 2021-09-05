@@ -37,8 +37,12 @@ export type CollideEndEvent = {
   body: Object3D
 }
 export type RayhitEvent = Omit<WorkerRayhitEvent['data'], 'body'> & { body: Object3D | null }
-export type Event = RayhitEvent | CollideEvent | CollideBeginEvent | CollideEndEvent
-export type Events = { [uuid: string]: (e: Event) => void }
+
+type CannonEvent = CollideBeginEvent | CollideEndEvent | CollideEvent | RayhitEvent
+type CallbackByType<T extends { type: string }> = {
+  [uuid: string]: Partial<{ [K in T['type']]?: T extends { type: K } ? (e: T) => void : never }>
+}
+
 export type Subscriptions = {
   [id: string]: (value: AtomicProps[AtomicName] | Triplet) => void
 }
@@ -234,7 +238,7 @@ export type ProviderContext = {
   bodies: MutableRefObject<{ [uuid: string]: number }>
   buffers: Buffers
   refs: Refs
-  events: Events
+  events: CallbackByType<CannonEvent>
   subscriptions: Subscriptions
 }
 

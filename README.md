@@ -245,12 +245,22 @@ function useSpring(
 ): void
 
 function useRaycastClosest(
-  options: RayOptns,
-  callback: (e: Event) => void,
+  options: RayOptions,
+  callback: (e: RayhitEvent) => void,
   deps: React.DependencyList = [],
 ): void
-function useRaycastAny(options: RayOptns, callback: (e: Event) => void, deps: React.DependencyList = []): void
-function useRaycastAll(options: RayOptns, callback: (e: Event) => void, deps: React.DependencyList = []): void
+
+function useRaycastAny(
+  options: RayOptions,
+  callback: (e: RayhitEvent) => void,
+  deps: React.DependencyList = [],
+): void
+
+function useRaycastAll(
+  options: RayOptions,
+  callback: (e: RayhitEvent) => void,
+  deps: React.DependencyList = [],
+): void
 ```
 
 ### Returned api

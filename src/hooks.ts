@@ -9,8 +9,8 @@ import type {
   CollideBeginEvent,
   CollideEndEvent,
   CollideEvent,
-  Event,
-  Events,
+  ProviderContext,
+  RayhitEvent,
   RayMode,
   SetOpName,
   Subscriptions,
@@ -213,24 +213,14 @@ function prepare(object: Object3D, props: BodyProps) {
 }
 
 function setupCollision(
-  events: Events,
+  events: ProviderContext['events'],
   { onCollide, onCollideBegin, onCollideEnd }: Partial<BodyProps>,
-  id: string,
+  uuid: string,
 ) {
-  if (onCollide || onCollideBegin || onCollideEnd) {
-    events[id] = (ev: Event) => {
-      switch (ev.type) {
-        case 'collide':
-          if (onCollide) onCollide(ev)
-          break
-        case 'collideBegin':
-          if (onCollideBegin) onCollideBegin(ev)
-          break
-        case 'collideEnd':
-          if (onCollideEnd) onCollideEnd(ev)
-          break
-      }
-    }
+  events[uuid] = {
+    collide: onCollide,
+    collideBegin: onCollideBegin,
+    collideEnd: onCollideEnd,
   }
 }
 
@@ -634,11 +624,16 @@ export function useSpring(
 
 type RayOptions = Omit<AddRayMessage['props'], 'mode'>
 
-function useRay(mode: RayMode, options: RayOptions, callback: (e: Event) => void, deps: DependencyList = []) {
+function useRay(
+  mode: RayMode,
+  options: RayOptions,
+  callback: (e: RayhitEvent) => void,
+  deps: DependencyList = [],
+) {
   const { worker, events } = useContext(context)
   const [uuid] = useState(() => MathUtils.generateUUID())
   useEffect(() => {
-    events[uuid] = callback
+    events[uuid] = { rayhit: callback }
     worker.postMessage({ op: 'addRay', uuid, props: { mode, ...options } })
     return () => {
       worker.postMessage({ op: 'removeRay', uuid })
@@ -649,17 +644,25 @@ function useRay(mode: RayMode, options: RayOptions, callback: (e: Event) => void
 
 export function useRaycastClosest(
   options: RayOptions,
-  callback: (e: Event) => void,
+  callback: (e: RayhitEvent) => void,
   deps: DependencyList = [],
 ) {
   useRay('Closest', options, callback, deps)
 }
 
-export function useRaycastAny(options: RayOptions, callback: (e: Event) => void, deps: DependencyList = []) {
+export function useRaycastAny(
+  options: RayOptions,
+  callback: (e: RayhitEvent) => void,
+  deps: DependencyList = [],
+) {
   useRay('Any', options, callback, deps)
 }
 
-export function useRaycastAll(options: RayOptions, callback: (e: Event) => void, deps: DependencyList = []) {
+export function useRaycastAll(
+  options: RayOptions,
+  callback: (e: RayhitEvent) => void,
+  deps: DependencyList = [],
+) {
   useRay('All', options, callback, deps)
 }
 
