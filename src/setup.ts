@@ -1,6 +1,6 @@
 import type { RayOptions } from 'cannon-es'
 import type { Object3D } from 'three'
-import type { WorkerCollideEvent, WorkerRayhitEvent } from './Provider'
+import type { ProviderProps, WorkerCollideEvent, WorkerRayhitEvent } from './Provider'
 import type {
   AtomicProps,
   BodyProps,
@@ -71,7 +71,7 @@ export const vectorNames = [
 export type VectorName = typeof vectorNames[number]
 export type CannonVectorName = Exclude<VectorName, 'rotation'> | 'quaternion'
 
-export type SetOpName<T extends AtomicName | CannonVectorName> = `set${Capitalize<T>}`
+export type SetOpName<T extends AtomicName | CannonVectorName | WorldPropName> = `set${Capitalize<T>}`
 export type SubscriptionName = AtomicName | CannonVectorName | 'sliding'
 
 type Operation<T extends string, P> = { op: T } & (P extends void ? {} : { props: P })
@@ -206,6 +206,10 @@ type UnsubscribeMessage = Operation<'unsubscribe', number>
 
 type SubscriptionMessage = SubscribeMessage | UnsubscribeMessage
 
+export type WorldPropName = 'axisIndex' | 'broadphase' | 'gravity' | 'iterations' | 'step' | 'tolerance'
+
+type WorldMessage<T extends WorldPropName> = Operation<SetOpName<T>, Required<ProviderProps[T]>>
+
 type CannonMessage =
   | ApplyMessage
   | AtomicMessage
@@ -219,6 +223,7 @@ type CannonMessage =
   | SubscriptionMessage
   | VectorMessage
   | WakeUpMessage
+  | WorldMessage<WorldPropName>
 
 export interface CannonWorker extends Worker {
   postMessage: (message: CannonMessage) => void
