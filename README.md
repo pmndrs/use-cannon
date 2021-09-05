@@ -336,12 +336,12 @@ interface RaycastVehiclePublicApi {
 type ProviderProps = {
   children: React.ReactNode
   shouldInvalidate?: boolean
-  gravity?: number[]
+  gravity?: Triplet
   tolerance?: number
   step?: number
   iterations?: number
   allowSleep?: boolean
-  broadphase?: 'Naive' | 'SAP'
+  broadphase?: Broadphase
   axisIndex?: number
   defaultContactMaterial?: {
     friction?: number
@@ -370,6 +370,7 @@ type AtomicProps = {
   userData: {}
 }
 
+type Broadphase = 'Naive' | 'SAP'
 type Triplet = [x: number, y: number, z: number]
 
 type VectorProps = Record<VectorName, Triplet>
