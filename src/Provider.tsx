@@ -10,9 +10,10 @@ import { context } from './setup'
 // @ts-expect-error Types are not setup for this yet
 import CannonWorker from '../src/worker'
 import { useUpdateWorldPropsEffect } from './useUpdateWorldPropsEffect'
+import { subscriptionNames } from './setup'
 
-import type { Buffers, Refs, Subscriptions, ProviderContext } from './setup'
-import type { AtomicProps, Triplet } from './hooks'
+import type { AtomicName, Buffers, PropValue, Refs, ProviderContext } from './setup'
+import type { Triplet } from './hooks'
 
 function noop() {
   /**/
@@ -47,10 +48,12 @@ export type ProviderProps = {
   size?: number
 }
 
+type Observation = { [K in AtomicName]: [number, PropValue<K>, K] }[AtomicName]
+
 type WorkerFrameMessage = {
   data: Buffers & {
     op: 'frame'
-    observations: [key: string, value: AtomicProps[keyof AtomicProps] | number[]][]
+    observations: Observation[]
     active: boolean
     bodies?: string[]
   }
@@ -176,7 +179,12 @@ export default function Provider({
     quaternions: new Float32Array(size * 4),
   }))
   const [events] = useState<ProviderContext['events']>({})
-  const [subscriptions] = useState<Subscriptions>({})
+  const [subscriptions] = useState<ProviderContext['subscriptions']>(
+    subscriptionNames.reduce<ProviderContext['subscriptions']>((previousValue, currentValue) => {
+      previousValue[currentValue] = {}
+      return previousValue
+    }, {} as ProviderContext['subscriptions']),
+  )
 
   const bodies = useRef<{ [uuid: string]: number }>({})
   const loop = useCallback(() => {
@@ -222,8 +230,10 @@ export default function Provider({
             }
           }
 
-          e.data.observations.forEach(([key, value]) => {
-            if (subscriptions[key]) subscriptions[key](value)
+          e.data.observations.forEach(([id, value, type]) => {
+            callback = subscriptions[type][id] || noop
+            // HELP: We clearly know the type of the callback, but typescript can't deal with it
+            callback(value as never)
           })
 
           if (e.data.active) {
