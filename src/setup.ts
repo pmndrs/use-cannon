@@ -45,9 +45,10 @@ type CallbackByType<T extends { type: string }> = {
 
 type CannonEvents = { [uuid: string]: Partial<CallbackByType<CannonEvent>> }
 
-type Subscriptions = {
-  [K in SubscriptionName]: { [id: number]: (value: PropValue<K>) => void }
-}
+export type Subscription = Partial<{ [K in SubscriptionName]: (value: PropValue<K>) => void }>
+export type Subscriptions = Partial<{
+  [id: number]: Subscription
+}>
 
 export type PropValue<T extends SubscriptionName = SubscriptionName> = T extends AtomicName
   ? AtomicProps[T]

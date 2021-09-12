@@ -185,6 +185,8 @@ function getUUID(ref: Ref<Object3D>, index?: number): string | null {
   return ref && ref.current && `${ref.current.uuid}${suffix}`
 }
 
+let incrementingId = 0
+
 function subscribe<T extends SubscriptionName>(
   ref: RefObject<Object3D>,
   worker: CannonWorker,
@@ -195,12 +197,11 @@ function subscribe<T extends SubscriptionName>(
 ) {
   return (callback: (value: PropValue<T>) => void) => {
     const id = incrementingId++
-    // HELP: We clearly know the type of the callback, but typescript can't deal with it
-    subscriptions[type][id] = callback as never
+    subscriptions[id] = { [type]: callback }
     const uuid = getUUID(ref, index)
     uuid && worker.postMessage({ op: 'subscribe', uuid, props: { id, type, target } })
     return () => {
-      delete subscriptions[type][id]
+      delete subscriptions[id]
       worker.postMessage({ op: 'unsubscribe', props: id })
     }
   }
@@ -224,8 +225,6 @@ function setupCollision(
     collideEnd: onCollideEnd,
   }
 }
-
-let incrementingId = 0
 
 type GetByIndex<T extends BodyProps> = (index: number) => T
 type ArgFn<T> = (args: T) => unknown[]
@@ -321,7 +320,7 @@ function useBody<B extends BodyProps<unknown>>(
           const uuid = getUUID(ref, index)
           uuid && worker.postMessage({ op, props: value, uuid })
         },
-        subscribe: subscribe<T>(ref, worker, subscriptions, type, index),
+        subscribe: subscribe(ref, worker, subscriptions, type, index),
       }
     }
 

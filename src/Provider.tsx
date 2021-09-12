@@ -10,7 +10,6 @@ import { context } from './setup'
 // @ts-expect-error Types are not setup for this yet
 import CannonWorker from '../src/worker'
 import { useUpdateWorldPropsEffect } from './useUpdateWorldPropsEffect'
-import { subscriptionNames } from './setup'
 
 import type { AtomicName, Buffers, PropValue, Refs, ProviderContext } from './setup'
 import type { Triplet } from './hooks'
@@ -48,7 +47,7 @@ export type ProviderProps = {
   size?: number
 }
 
-type Observation = { [K in AtomicName]: [number, PropValue<K>, K] }[AtomicName]
+type Observation = { [K in AtomicName]: [id: number, value: PropValue<K>, type: K] }[AtomicName]
 
 type WorkerFrameMessage = {
   data: Buffers & {
@@ -179,12 +178,7 @@ export default function Provider({
     quaternions: new Float32Array(size * 4),
   }))
   const [events] = useState<ProviderContext['events']>({})
-  const [subscriptions] = useState<ProviderContext['subscriptions']>(
-    subscriptionNames.reduce<ProviderContext['subscriptions']>((previousValue, currentValue) => {
-      previousValue[currentValue] = {}
-      return previousValue
-    }, {} as ProviderContext['subscriptions']),
-  )
+  const [subscriptions] = useState<ProviderContext['subscriptions']>({})
 
   const bodies = useRef<{ [uuid: string]: number }>({})
   const loop = useCallback(() => {
@@ -231,7 +225,8 @@ export default function Provider({
           }
 
           e.data.observations.forEach(([id, value, type]) => {
-            callback = subscriptions[type][id] || noop
+            const subscription = subscriptions[id] || {}
+            callback = subscription[type] || noop
             // HELP: We clearly know the type of the callback, but typescript can't deal with it
             callback(value as never)
           })
