@@ -40,12 +40,23 @@ export type RayhitEvent = Omit<WorkerRayhitEvent['data'], 'body'> & { body: Obje
 
 type CannonEvent = CollideBeginEvent | CollideEndEvent | CollideEvent | RayhitEvent
 type CallbackByType<T extends { type: string }> = {
-  [uuid: string]: Partial<{ [K in T['type']]?: T extends { type: K } ? (e: T) => void : never }>
+  [K in T['type']]?: T extends { type: K } ? (e: T) => void : never
 }
 
-export type Subscriptions = {
-  [id: string]: (value: AtomicProps[AtomicName] | Triplet) => void
-}
+type CannonEvents = { [uuid: string]: Partial<CallbackByType<CannonEvent>> }
+
+export type Subscription = Partial<{ [K in SubscriptionName]: (value: PropValue<K>) => void }>
+export type Subscriptions = Partial<{
+  [id: number]: Subscription
+}>
+
+export type PropValue<T extends SubscriptionName = SubscriptionName> = T extends AtomicName
+  ? AtomicProps[T]
+  : T extends VectorName
+  ? Triplet
+  : T extends 'sliding'
+  ? boolean
+  : never
 
 export const atomicNames = [
   'allowSleep',
@@ -69,14 +80,17 @@ export const vectorNames = [
   'angularVelocity',
   'linearFactor',
   'position',
-  'rotation',
+  'quaternion',
   'velocity',
 ] as const
 export type VectorName = typeof vectorNames[number]
-export type CannonVectorName = Exclude<VectorName, 'rotation'> | 'quaternion'
 
-export type SetOpName<T extends AtomicName | CannonVectorName | WorldPropName> = `set${Capitalize<T>}`
-export type SubscriptionName = AtomicName | CannonVectorName | 'sliding'
+export const subscriptionNames = [...atomicNames, ...vectorNames, 'sliding'] as const
+export type SubscriptionName = typeof subscriptionNames[number]
+
+export type PublicVectorName = Exclude<VectorName, 'quaternion'> | 'rotation'
+
+export type SetOpName<T extends AtomicName | VectorName | WorldPropName> = `set${Capitalize<T>}`
 
 type Operation<T extends string, P> = { op: T } & (P extends void ? {} : { props: P })
 type WithUUID<T extends string, P = void> = Operation<T, P> & { uuid: string }
@@ -169,7 +183,7 @@ type RaycastVehicleMessage =
   | SetRaycastVehicleSteeringValueMessage
 
 type AtomicMessage = WithUUID<SetOpName<AtomicName>, any>
-type VectorMessage = WithUUID<SetOpName<CannonVectorName>, Triplet>
+type VectorMessage = WithUUID<SetOpName<VectorName>, Triplet>
 
 type ApplyForceMessage = WithUUID<'applyForce', [force: Triplet, worldPoint: Triplet]>
 type ApplyImpulseMessage = WithUUID<'applyImpulse', [impulse: Triplet, worldPoint: Triplet]>
@@ -238,7 +252,7 @@ export type ProviderContext = {
   bodies: MutableRefObject<{ [uuid: string]: number }>
   buffers: Buffers
   refs: Refs
-  events: CallbackByType<CannonEvent>
+  events: CannonEvents
   subscriptions: Subscriptions
 }
 

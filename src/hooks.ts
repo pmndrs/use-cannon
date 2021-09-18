@@ -5,15 +5,15 @@ import type {
   AddRayMessage,
   AtomicName,
   CannonWorker,
-  CannonVectorName,
   CollideBeginEvent,
   CollideEndEvent,
   CollideEvent,
+  PropValue,
   ProviderContext,
+  PublicVectorName,
   RayhitEvent,
   RayMode,
   SetOpName,
-  Subscriptions,
   SubscriptionName,
   SubscriptionTarget,
   VectorName,
@@ -38,7 +38,7 @@ export type AtomicProps = {
   userData: {}
 }
 
-export type VectorProps = Record<VectorName, Triplet>
+export type VectorProps = Record<PublicVectorName, Triplet>
 
 export type Triplet = [x: number, y: number, z: number]
 type VectorTypes = Vector3 | Triplet
@@ -94,14 +94,14 @@ export interface CompoundBodyProps extends BodyProps {
 }
 
 export type AtomicApi = {
-  [K in keyof AtomicProps]: {
+  [K in AtomicName]: {
     set: (value: AtomicProps[K]) => void
     subscribe: (callback: (value: AtomicProps[K]) => void) => () => void
   }
 }
 
 export type VectorApi = {
-  [K in keyof VectorProps]: {
+  [K in PublicVectorName]: {
     set: (x: number, y: number, z: number) => void
     copy: ({ x, y, z }: Vector3 | Euler) => void
     subscribe: (callback: (value: Triplet) => void) => () => void
@@ -185,17 +185,19 @@ function getUUID(ref: Ref<Object3D>, index?: number): string | null {
   return ref && ref.current && `${ref.current.uuid}${suffix}`
 }
 
-function subscribe(
+let incrementingId = 0
+
+function subscribe<T extends SubscriptionName>(
   ref: RefObject<Object3D>,
   worker: CannonWorker,
-  subscriptions: Subscriptions,
-  type: SubscriptionName,
+  subscriptions: ProviderContext['subscriptions'],
+  type: T,
   index?: number,
   target: SubscriptionTarget = 'bodies',
 ) {
-  return (callback: (value: any) => void) => {
-    const id = subscriptionGuid++
-    subscriptions[id] = callback
+  return (callback: (value: PropValue<T>) => void) => {
+    const id = incrementingId++
+    subscriptions[id] = { [type]: callback }
     const uuid = getUUID(ref, index)
     uuid && worker.postMessage({ op: 'subscribe', uuid, props: { id, type, target } })
     return () => {
@@ -223,8 +225,6 @@ function setupCollision(
     collideEnd: onCollideEnd,
   }
 }
-
-let subscriptionGuid = 0
 
 type GetByIndex<T extends BodyProps> = (index: number) => T
 type ArgFn<T> = (args: T) => unknown[]
@@ -299,8 +299,8 @@ function useBody<B extends BodyProps<unknown>>(
   }, deps)
 
   const api = useMemo(() => {
-    const makeVec = (type: CannonVectorName, index?: number) => {
-      const op: SetOpName<CannonVectorName> = `set${capitalize(type)}`
+    const makeVec = (type: VectorName, index?: number) => {
+      const op: SetOpName<VectorName> = `set${capitalize(type)}`
       return {
         set: (x: number, y: number, z: number) => {
           const uuid = getUUID(ref, index)
@@ -313,10 +313,10 @@ function useBody<B extends BodyProps<unknown>>(
         subscribe: subscribe(ref, worker, subscriptions, type, index),
       }
     }
-    const makeAtomic = (type: AtomicName, index?: number) => {
-      const op: SetOpName<AtomicName> = `set${capitalize(type)}`
+    const makeAtomic = <T extends AtomicName>(type: T, index?: number) => {
+      const op: SetOpName<T> = `set${capitalize(type)}`
       return {
-        set: (value: any) => {
+        set: (value: PropValue<T>) => {
           const uuid = getUUID(ref, index)
           uuid && worker.postMessage({ op, props: value, uuid })
         },

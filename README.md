@@ -284,14 +284,14 @@ interface PublicApi extends WorkerApi {
 type Api = [React.RefObject<THREE.Object3D>, PublicApi]
 
 type AtomicApi = {
-  [K in keyof AtomicProps]: {
+  [K in AtomicName]: {
     set: (value: AtomicProps[K]) => void
     subscribe: (callback: (value: AtomicProps[K]) => void) => () => void
   }
 }
 
 type VectorApi = {
-  [K in keyof VectorProps]: {
+  [K in PublicVectorName]: {
     set: (x: number, y: number, z: number) => void
     copy: ({ x, y, z }: Vector3 | Euler) => void
     subscribe: (callback: (value: Triplet) => void) => () => void
@@ -383,7 +383,7 @@ type AtomicProps = {
 type Broadphase = 'Naive' | 'SAP'
 type Triplet = [x: number, y: number, z: number]
 
-type VectorProps = Record<VectorName, Triplet>
+type VectorProps = Record<PublicVectorName, Triplet>
 
 type BodyProps<T = unknown> = Partial<AtomicProps> &
   Partial<VectorProps> & {

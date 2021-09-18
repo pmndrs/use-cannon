@@ -119,7 +119,7 @@ self.onmessage = (e) => {
           value.toEuler(state.tempVector)
           value = state.tempVector.toArray()
         }
-        observations.push([id, value])
+        observations.push([id, value, type])
       }
       const message = {
         op: 'frame',
