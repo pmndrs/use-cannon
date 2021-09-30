@@ -266,15 +266,21 @@ function useRaycastAll(
 ### Returned api
 
 ```typescript
-type WorkerApi = AtomicApi &
-  VectorApi & {
+type WorkerApi = {
+  [K in AtomicName]: AtomicApi<K>
+} &
+  {
+    [K in VectorName]: VectorApi
+  } & {
     applyForce: (force: Triplet, worldPoint: Triplet) => void
     applyImpulse: (impulse: Triplet, worldPoint: Triplet) => void
     applyLocalForce: (force: Triplet, localPoint: Triplet) => void
     applyLocalImpulse: (impulse: Triplet, localPoint: Triplet) => void
     applyTorque: (torque: Triplet) => void
-    wakeUp: () => void
+    quaternion: QuaternionApi
+    rotation: VectorApi
     sleep: () => void
+    wakeUp: () => void
   }
 
 interface PublicApi extends WorkerApi {
@@ -283,19 +289,21 @@ interface PublicApi extends WorkerApi {
 
 type Api = [React.RefObject<THREE.Object3D>, PublicApi]
 
-type AtomicApi = {
-  [K in AtomicName]: {
-    set: (value: AtomicProps[K]) => void
-    subscribe: (callback: (value: AtomicProps[K]) => void) => () => void
-  }
+type AtomicApi<K extends AtomicName> = {
+  set: (value: AtomicProps[K]) => void
+  subscribe: (callback: (value: AtomicProps[K]) => void) => () => void
+}
+
+type QuaternionApi = {
+  set: (x: number, y: number, z: number, w: number) => void
+  copy: ({ w, x, y, z }: Quaternion) => void
+  subscribe: (callback: (value: Quad) => void) => () => void
 }
 
 type VectorApi = {
-  [K in PublicVectorName]: {
-    set: (x: number, y: number, z: number) => void
-    copy: ({ x, y, z }: Vector3 | Euler) => void
-    subscribe: (callback: (value: Triplet) => void) => () => void
-  }
+  set: (x: number, y: number, z: number) => void
+  copy: ({ x, y, z }: Vector3 | Euler) => void
+  subscribe: (callback: (value: Triplet) => void) => () => void
 }
 
 type ConstraintApi = [
@@ -382,16 +390,19 @@ type AtomicProps = {
 
 type Broadphase = 'Naive' | 'SAP'
 type Triplet = [x: number, y: number, z: number]
+type Quad = [x: number, y: number, z: number, w: number]
 
-type VectorProps = Record<PublicVectorName, Triplet>
+type VectorProps = Record<VectorName, Triplet>
 
 type BodyProps<T = unknown> = Partial<AtomicProps> &
   Partial<VectorProps> & {
     args?: T
-    type?: 'Dynamic' | 'Static' | 'Kinematic'
     onCollide?: (e: CollideEvent) => void
     onCollideBegin?: (e: CollideBeginEvent) => void
     onCollideEnd?: (e: CollideEndEvent) => void
+    quaternion?: Quad
+    rotation?: Triplet
+    type?: 'Dynamic' | 'Static' | 'Kinematic'
   }
 
 type Event = RayhitEvent | CollideEvent | CollideBeginEvent | CollideEndEvent

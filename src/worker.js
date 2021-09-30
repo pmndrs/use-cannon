@@ -28,7 +28,6 @@ const state = {
   world: new World(),
   config: { step: 1 / 60 },
   subscriptions: {},
-  tempVector: new Vec3(),
   bodiesNeedSyncing: false,
   lastCallTime: undefined,
 }
@@ -114,11 +113,7 @@ self.onmessage = (e) => {
         let object = state[target]
         if (!object || !object[uuid]) continue
         let value = object[uuid][type]
-        if (value instanceof Vec3) value = value.toArray()
-        else if (value instanceof Quaternion) {
-          value.toEuler(state.tempVector)
-          value = state.tempVector.toArray()
-        }
+        if (value instanceof Vec3 || value instanceof Quaternion) value = value.toArray()
         observations.push([id, value, type])
       }
       const message = {
@@ -193,6 +188,9 @@ self.onmessage = (e) => {
       state.bodies[uuid].position.set(props[0], props[1], props[2])
       break
     case 'setQuaternion':
+      state.bodies[uuid].quaternion.set(props[0], props[1], props[2], props[3])
+      break
+    case 'setRotation':
       state.bodies[uuid].quaternion.setFromEuler(props[0], props[1], props[2])
       break
     case 'setVelocity':

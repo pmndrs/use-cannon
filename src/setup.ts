@@ -6,6 +6,7 @@ import type {
   BodyProps,
   BodyShapeType,
   ConstraintTypes,
+  Quad,
   SpringOptns,
   Triplet,
   WheelInfoOptions,
@@ -54,6 +55,8 @@ export type PropValue<T extends SubscriptionName = SubscriptionName> = T extends
   ? AtomicProps[T]
   : T extends VectorName
   ? Triplet
+  : T extends 'quaternion'
+  ? Quad
   : T extends 'sliding'
   ? boolean
   : never
@@ -80,17 +83,15 @@ export const vectorNames = [
   'angularVelocity',
   'linearFactor',
   'position',
-  'quaternion',
   'velocity',
 ] as const
 export type VectorName = typeof vectorNames[number]
 
-export const subscriptionNames = [...atomicNames, ...vectorNames, 'sliding'] as const
+export const subscriptionNames = [...atomicNames, ...vectorNames, 'quaternion', 'sliding'] as const
 export type SubscriptionName = typeof subscriptionNames[number]
 
-export type PublicVectorName = Exclude<VectorName, 'quaternion'> | 'rotation'
-
-export type SetOpName<T extends AtomicName | VectorName | WorldPropName> = `set${Capitalize<T>}`
+export type SetOpName<T extends AtomicName | VectorName | WorldPropName | 'quaternion' | 'rotation'> =
+  `set${Capitalize<T>}`
 
 type Operation<T extends string, P> = { op: T } & (P extends void ? {} : { props: P })
 type WithUUID<T extends string, P = void> = Operation<T, P> & { uuid: string }
@@ -183,6 +184,8 @@ type RaycastVehicleMessage =
   | SetRaycastVehicleSteeringValueMessage
 
 type AtomicMessage = WithUUID<SetOpName<AtomicName>, any>
+type QuaternionMessage = WithUUID<SetOpName<'quaternion'>, Quad>
+type RotationMessage = WithUUID<SetOpName<'rotation'>, Triplet>
 type VectorMessage = WithUUID<SetOpName<VectorName>, Triplet>
 
 type ApplyForceMessage = WithUUID<'applyForce', [force: Triplet, worldPoint: Triplet]>
@@ -234,8 +237,10 @@ type CannonMessage =
   | BodiesMessage
   | ConstraintMessage
   | ConstraintMotorMessage
+  | QuaternionMessage
   | RaycastVehicleMessage
   | RayMessage
+  | RotationMessage
   | SleepMessage
   | SpringMessage
   | SubscriptionMessage

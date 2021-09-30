@@ -1,6 +1,5 @@
 import type { MaterialOptions } from 'cannon-es'
 import type { DependencyList, MutableRefObject, Ref, RefObject } from 'react'
-import type { Euler } from 'three'
 import type {
   AddRayMessage,
   AtomicName,
@@ -10,7 +9,6 @@ import type {
   CollideEvent,
   PropValue,
   ProviderContext,
-  PublicVectorName,
   RayhitEvent,
   RayMode,
   SetOpName,
@@ -18,7 +16,7 @@ import type {
   SubscriptionTarget,
   VectorName,
 } from './setup'
-import { Object3D, InstancedMesh, DynamicDrawUsage, Vector3, MathUtils } from 'three'
+import { DynamicDrawUsage, Euler, InstancedMesh, MathUtils, Object3D, Quaternion, Vector3 } from 'three'
 import { useLayoutEffect, useContext, useRef, useMemo, useEffect, useState } from 'react'
 import { context, debugContext } from './setup'
 
@@ -38,18 +36,22 @@ export type AtomicProps = {
   userData: {}
 }
 
-export type VectorProps = Record<PublicVectorName, Triplet>
-
 export type Triplet = [x: number, y: number, z: number]
+
+export type VectorProps = Record<VectorName, Triplet>
 type VectorTypes = Vector3 | Triplet
+
+export type Quad = [x: number, y: number, z: number, w: number]
 
 export type BodyProps<T = unknown> = Partial<AtomicProps> &
   Partial<VectorProps> & {
     args?: T
-    type?: 'Dynamic' | 'Static' | 'Kinematic'
     onCollide?: (e: CollideEvent) => void
     onCollideBegin?: (e: CollideBeginEvent) => void
     onCollideEnd?: (e: CollideEndEvent) => void
+    quaternion?: Quad
+    rotation?: Triplet
+    type?: 'Dynamic' | 'Static' | 'Kinematic'
   }
 
 export type BodyPropsArgsRequired<T = unknown> = BodyProps<T> & {
@@ -93,30 +95,38 @@ export interface CompoundBodyProps extends BodyProps {
   shapes: BodyProps & { type: ShapeType }[]
 }
 
-export type AtomicApi = {
-  [K in AtomicName]: {
-    set: (value: AtomicProps[K]) => void
-    subscribe: (callback: (value: AtomicProps[K]) => void) => () => void
-  }
+export type AtomicApi<K extends AtomicName> = {
+  set: (value: AtomicProps[K]) => void
+  subscribe: (callback: (value: AtomicProps[K]) => void) => () => void
+}
+
+export type QuaternionApi = {
+  set: (x: number, y: number, z: number, w: number) => void
+  copy: ({ w, x, y, z }: Quaternion) => void
+  subscribe: (callback: (value: Quad) => void) => () => void
 }
 
 export type VectorApi = {
-  [K in PublicVectorName]: {
-    set: (x: number, y: number, z: number) => void
-    copy: ({ x, y, z }: Vector3 | Euler) => void
-    subscribe: (callback: (value: Triplet) => void) => () => void
-  }
+  set: (x: number, y: number, z: number) => void
+  copy: ({ x, y, z }: Vector3 | Euler) => void
+  subscribe: (callback: (value: Triplet) => void) => () => void
 }
 
-export type WorkerApi = AtomicApi &
-  VectorApi & {
+export type WorkerApi = {
+  [K in AtomicName]: AtomicApi<K>
+} &
+  {
+    [K in VectorName]: VectorApi
+  } & {
     applyForce: (force: Triplet, worldPoint: Triplet) => void
     applyImpulse: (impulse: Triplet, worldPoint: Triplet) => void
     applyLocalForce: (force: Triplet, localPoint: Triplet) => void
     applyLocalImpulse: (impulse: Triplet, localPoint: Triplet) => void
     applyTorque: (torque: Triplet) => void
-    wakeUp: () => void
+    quaternion: QuaternionApi
+    rotation: VectorApi
     sleep: () => void
+    wakeUp: () => void
   }
 
 export interface PublicApi extends WorkerApi {
@@ -186,6 +196,18 @@ function getUUID(ref: Ref<Object3D>, index?: number): string | null {
 }
 
 let incrementingId = 0
+const e = new Euler()
+const q = new Quaternion()
+const rotationXYZ: Triplet = [0, 0, 0]
+
+const quaternionToRotation = (callback: (value: Triplet) => void) => {
+  return (value: Quad) => {
+    q.set(...value)
+    e.setFromQuaternion(q)
+    e.toArray(rotationXYZ)
+    callback(rotationXYZ)
+  }
+}
 
 function subscribe<T extends SubscriptionName>(
   ref: RefObject<Object3D>,
@@ -299,6 +321,60 @@ function useBody<B extends BodyProps<unknown>>(
   }, deps)
 
   const api = useMemo(() => {
+    const makeAtomic = <T extends AtomicName>(type: T, index?: number) => {
+      const op: SetOpName<T> = `set${capitalize(type)}`
+      return {
+        set: (value: PropValue<T>) => {
+          const uuid = getUUID(ref, index)
+          uuid && worker.postMessage({ op, props: value, uuid })
+        },
+        subscribe: subscribe(ref, worker, subscriptions, type, index),
+      }
+    }
+
+    const makeQuaternion = (index?: number) => {
+      const op = 'setQuaternion'
+      const type = 'quaternion'
+      return {
+        set: (x: number, y: number, z: number, w: number) => {
+          const uuid = getUUID(ref, index)
+          uuid && worker.postMessage({ op, props: [x, y, z, w], uuid })
+        },
+        copy: ({ w, x, y, z }: Quaternion) => {
+          const uuid = getUUID(ref, index)
+          uuid && worker.postMessage({ op, props: [x, y, z, w], uuid })
+        },
+        subscribe: subscribe(ref, worker, subscriptions, type, index),
+      }
+    }
+
+    const makeRotation = (index?: number) => {
+      const op = 'setRotation'
+      return {
+        set: (x: number, y: number, z: number) => {
+          const uuid = getUUID(ref, index)
+          uuid && worker.postMessage({ op, props: [x, y, z], uuid })
+        },
+        copy: ({ x, y, z }: Vector3 | Euler) => {
+          const uuid = getUUID(ref, index)
+          uuid && worker.postMessage({ op, props: [x, y, z], uuid })
+        },
+        subscribe: (callback: (value: Triplet) => void) => {
+          const id = incrementingId++
+          const target = 'bodies'
+          const type = 'quaternion'
+          const uuid = getUUID(ref, index)
+
+          subscriptions[id] = { [type]: quaternionToRotation(callback) }
+          uuid && worker.postMessage({ op: 'subscribe', uuid, props: { id, type, target } })
+          return () => {
+            delete subscriptions[id]
+            worker.postMessage({ op: 'unsubscribe', props: id })
+          }
+        },
+      }
+    }
+
     const makeVec = (type: VectorName, index?: number) => {
       const op: SetOpName<VectorName> = `set${capitalize(type)}`
       return {
@@ -313,27 +389,16 @@ function useBody<B extends BodyProps<unknown>>(
         subscribe: subscribe(ref, worker, subscriptions, type, index),
       }
     }
-    const makeAtomic = <T extends AtomicName>(type: T, index?: number) => {
-      const op: SetOpName<T> = `set${capitalize(type)}`
-      return {
-        set: (value: PropValue<T>) => {
-          const uuid = getUUID(ref, index)
-          uuid && worker.postMessage({ op, props: value, uuid })
-        },
-        subscribe: subscribe(ref, worker, subscriptions, type, index),
-      }
-    }
 
     function makeApi(index?: number): WorkerApi {
       return {
-        // Vectors
-        position: makeVec('position', index),
-        rotation: makeVec('quaternion', index),
-        velocity: makeVec('velocity', index),
+        angularFactor: makeVec('angularFactor', index),
         angularVelocity: makeVec('angularVelocity', index),
         linearFactor: makeVec('linearFactor', index),
-        angularFactor: makeVec('angularFactor', index),
-        // Atomic props
+        position: makeVec('position', index),
+        quaternion: makeQuaternion(index),
+        rotation: makeRotation(index),
+        velocity: makeVec('velocity', index),
         allowSleep: makeAtomic('allowSleep', index),
         angularDamping: makeAtomic('angularDamping', index),
         collisionFilterGroup: makeAtomic('collisionFilterGroup', index),
@@ -369,13 +434,13 @@ function useBody<B extends BodyProps<unknown>>(
           uuid && worker.postMessage({ op: 'applyTorque', props: [torque], uuid })
         },
         // force particular sleep state
-        wakeUp() {
-          const uuid = getUUID(ref, index)
-          uuid && worker.postMessage({ op: 'wakeUp', uuid })
-        },
         sleep() {
           const uuid = getUUID(ref, index)
           uuid && worker.postMessage({ op: 'sleep', uuid })
+        },
+        wakeUp() {
+          const uuid = getUUID(ref, index)
+          uuid && worker.postMessage({ op: 'wakeUp', uuid })
         },
       }
     }
