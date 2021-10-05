@@ -1,6 +1,6 @@
 {
   "name": "@react-three/cannon",
-  "version": "3.1.2",
+  "version": "4.0.0",
   "description": "physics based hooks for react-three-fiber",
   "keywords": [
     "cannon",
@@ -11,7 +11,8 @@
   ],
   "author": "Paul Henschel",
   "contributors": [
-    "Cody Persinger <codypersinger@gmail.com> (https://github.com/codynova)"
+    "Cody Persinger <codypersinger@gmail.com> (https://github.com/codynova)",
+    "Bjorn Stromberg <bjorn@bjornstar.com> (https://github.com/bjornstar)"
   ],
   "repository": "github:pmndrs/use-cannon",
   "license": "MIT",
