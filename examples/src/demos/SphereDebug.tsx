@@ -4,8 +4,8 @@ import { Debug, Physics, useSphere, usePlane } from '@react-three/cannon'
 
 function ScalableBall() {
   const [ref, api] = useSphere(() => ({
+    args: [1],
     mass: 1,
-    args: 1,
     position: [0, 5, 0],
   }))
   const [sleeping, setSleeping] = useState(false)

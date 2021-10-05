@@ -394,7 +394,7 @@ type Quad = [x: number, y: number, z: number, w: number]
 
 type VectorProps = Record<VectorName, Triplet>
 
-type BodyProps<T = unknown> = Partial<AtomicProps> &
+type BodyProps<T extends any[] = unknown[]> = Partial<AtomicProps> &
   Partial<VectorProps> & {
     args?: T
     onCollide?: (e: CollideEvent) => void
@@ -460,6 +460,7 @@ type RayhitEvent = {
 }
 
 type CylinderArgs = [radiusTop?: number, radiusBottom?: number, height?: number, numSegments?: number]
+type SphereArgs = [radius: number]
 type TrimeshArgs = [vertices: ArrayLike<number>, indices: ArrayLike<number>]
 type HeightfieldArgs = [
   data: number[][],
@@ -477,7 +478,7 @@ interface PlaneProps extends BodyProps {}
 interface BoxProps extends BodyProps<Triplet> {} // extents: [x, y, z]
 interface CylinderProps extends BodyProps<CylinderArgs> {}
 interface ParticleProps extends BodyProps {}
-interface SphereProps extends BodyProps<number> {} // radius
+interface SphereProps extends BodyProps<SphereArgs> {}
 interface TrimeshProps extends BodyPropsArgsRequired<TrimeshArgs> {}
 interface HeightfieldProps extends BodyPropsArgsRequired<HeightfieldArgs> {}
 interface ConvexPolyhedronProps extends BodyProps<ConvexPolyhedronArgs> {}

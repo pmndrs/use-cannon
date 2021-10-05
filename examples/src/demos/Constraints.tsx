@@ -25,7 +25,7 @@ const Box = forwardRef<Object3D, BoxProps>((props, ref) => {
 })
 
 const Ball = forwardRef<Object3D, SphereProps>((props, ref) => {
-  const [, { position }] = useSphere(() => ({ type: 'Kinematic', args: 0.5, ...props }), ref)
+  const [, { position }] = useSphere(() => ({ type: 'Kinematic', args: [0.5], ...props }), ref)
   useFrame(({ mouse: { x, y }, viewport: { height, width } }) =>
     position.set((x * width) / 2, (y * height) / 2, 0),
   )

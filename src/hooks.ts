@@ -43,7 +43,7 @@ type VectorTypes = Vector3 | Triplet
 
 export type Quad = [x: number, y: number, z: number, w: number]
 
-export type BodyProps<T = unknown> = Partial<AtomicProps> &
+export type BodyProps<T extends any[] = unknown[]> = Partial<AtomicProps> &
   Partial<VectorProps> & {
     args?: T
     onCollide?: (e: CollideEvent) => void
@@ -54,7 +54,7 @@ export type BodyProps<T = unknown> = Partial<AtomicProps> &
     type?: 'Dynamic' | 'Static' | 'Kinematic'
   }
 
-export type BodyPropsArgsRequired<T = unknown> = BodyProps<T> & {
+export type BodyPropsArgsRequired<T extends any[] = unknown[]> = BodyProps<T> & {
   args: T
 }
 
@@ -70,6 +70,7 @@ export type ShapeType =
 export type BodyShapeType = ShapeType | 'Compound'
 
 export type CylinderArgs = [radiusTop?: number, radiusBottom?: number, height?: number, numSegments?: number]
+export type SphereArgs = [radius: number]
 export type TrimeshArgs = [vertices: ArrayLike<number>, indices: ArrayLike<number>]
 export type HeightfieldArgs = [
   data: number[][],
@@ -87,7 +88,7 @@ export type PlaneProps = BodyProps
 export type BoxProps = BodyProps<Triplet>
 export type CylinderProps = BodyProps<CylinderArgs>
 export type ParticleProps = BodyProps
-export type SphereProps = BodyProps<number>
+export type SphereProps = BodyProps<SphereArgs>
 export type TrimeshProps = BodyPropsArgsRequired<TrimeshArgs>
 export type HeightfieldProps = BodyPropsArgsRequired<HeightfieldArgs>
 export type ConvexPolyhedronProps = BodyProps<ConvexPolyhedronArgs>
@@ -251,7 +252,7 @@ function setupCollision(
 type GetByIndex<T extends BodyProps> = (index: number) => T
 type ArgFn<T> = (args: T) => unknown[]
 
-function useBody<B extends BodyProps<unknown>>(
+function useBody<B extends BodyProps<unknown[]>>(
   type: BodyShapeType,
   fn: GetByIndex<B>,
   argsFn: ArgFn<B['args']>,
@@ -487,7 +488,16 @@ export function useParticle(
   return useBody('Particle', fn, () => [], fwdRef, deps)
 }
 export function useSphere(fn: GetByIndex<SphereProps>, fwdRef: Ref<Object3D> = null, deps?: DependencyList) {
-  return useBody('Sphere', fn, (radius = 1): [number] => [radius], fwdRef, deps)
+  return useBody(
+    'Sphere',
+    fn,
+    (args: SphereArgs = [1]): SphereArgs => {
+      if (!Array.isArray(args)) throw new Error('useSphere args must be an array')
+      return [args[0]]
+    },
+    fwdRef,
+    deps,
+  )
 }
 export function useTrimesh(
   fn: GetByIndex<TrimeshProps>,

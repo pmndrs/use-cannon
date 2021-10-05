@@ -43,7 +43,7 @@ type SphereProps = {
 }
 
 function Sphere({ radius, position }: SphereProps) {
-  const [ref, api] = useSphere(() => ({ type: 'Static', args: radius, position }))
+  const [ref, api] = useSphere(() => ({ type: 'Static', args: [radius], position }))
   useFrame(({ clock: { elapsedTime } }) => {
     api.position.set(position[0], position[1], Math.sin(elapsedTime / 3) * 2)
   })

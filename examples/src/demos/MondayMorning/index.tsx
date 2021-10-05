@@ -91,7 +91,7 @@ const BodyPart = ({ config = {}, children, render, name, ...props }: BodyPartPro
 function Ragdoll(props: Pick<MeshProps, 'position'>) {
   const mouth = useRef<Object3D>(null!)
   const eyes = useRef<Object3D>(null!)
-  const [ref, api] = useSphere(() => ({ type: 'Static', args: 0.5, position: [0, 0, 10000] }), cursor)
+  const [ref, api] = useSphere(() => ({ type: 'Static', args: [0.5], position: [0, 0, 10000] }), cursor)
   useFrame((e) => {
     eyes.current.position.y = Math.sin(e.clock.getElapsedTime() * 1) * 0.06
     mouth.current.scale.y = (1 + Math.sin(e.clock.getElapsedTime())) * 1.5
@@ -256,7 +256,7 @@ function Table() {
 
 const Lamp = () => {
   const light = useRef()
-  const [fixed] = useSphere(() => ({ type: 'Static', args: 1, position: [0, 16, 0] }))
+  const [fixed] = useSphere(() => ({ type: 'Static', args: [1], position: [0, 16, 0] }))
   const [lamp] = useBox(() => ({
     mass: 1,
     args: [1, 0, 5],

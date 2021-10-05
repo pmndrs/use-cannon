@@ -35,15 +35,15 @@ const ChainLink = ({ children }: PropsWithChildren<{}>) => {
   )
 }
 
-const Handle = ({ children }: PropsWithChildren<{}>) => {
-  const [ref, { position }] = useSphere(() => ({ type: 'Static', args: 0.5, position: [0, 0, 0] }))
+const Handle = ({ children, radius }: PropsWithChildren<{ radius: number }>) => {
+  const [ref, { position }] = useSphere(() => ({ type: 'Static', args: [radius], position: [0, 0, 0] }))
   useFrame(({ mouse: { x, y }, viewport: { height, width } }) =>
     position.set((x * width) / 2, (y * height) / 2, 0),
   )
   return (
     <group>
       <mesh ref={ref}>
-        <sphereBufferGeometry args={[0.5, 64, 64]} />
+        <sphereBufferGeometry args={[radius, 64, 64]} />
         <meshStandardMaterial />
       </mesh>
       <parent.Provider value={ref}>{children}</parent.Provider>
@@ -59,7 +59,7 @@ const ChainScene = () => {
       <pointLight position={[-10, -10, -10]} />
       <spotLight position={[10, 10, 10]} angle={0.3} penumbra={1} intensity={1} castShadow />
       <Physics gravity={[0, -40, 0]} allowSleep={false}>
-        <Handle>
+        <Handle radius={0.5}>
           <ChainLink>
             <ChainLink>
               <ChainLink>

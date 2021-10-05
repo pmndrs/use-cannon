@@ -31,11 +31,11 @@ function Controls() {
   )
 }
 
-const WeirdCheerio = ({ args = 0.1, position }: Pick<SphereProps, 'args' | 'position'>) => {
+const WeirdCheerio = ({ args = [0.1], position }: Pick<SphereProps, 'args' | 'position'>) => {
   const [ref] = useSphere(() => ({ args, mass: 1, position }))
-
+  const [radius] = args
   return (
-    <TorusKnot ref={ref} args={[args, args / 2]}>
+    <TorusKnot ref={ref} args={[radius, radius / 2]}>
       <meshNormalMaterial />
     </TorusKnot>
   )

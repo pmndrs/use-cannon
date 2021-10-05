@@ -16,9 +16,9 @@ function BoxTrigger({ args, onCollide, position }: BoxProps) {
 
 function Ball() {
   const [ref] = useSphere(() => ({
+    args: [1],
     mass: 1,
     position: [0, 10, 0],
-    args: 1,
   }))
   return (
     <mesh castShadow receiveShadow ref={ref}>
