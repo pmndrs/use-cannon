@@ -111,7 +111,7 @@ function Paddle() {
 
 function Ball() {
   const map = useLoader(TextureLoader, earthImg)
-  const [ref] = useSphere(() => ({ mass: 1, args: 0.5, position: [0, 5, 0] }))
+  const [ref] = useSphere(() => ({ mass: 1, args: [0.5], position: [0, 5, 0] }))
   return (
     <mesh castShadow ref={ref}>
       <sphereBufferGeometry args={[0.5, 64, 64]} />

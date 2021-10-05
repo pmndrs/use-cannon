@@ -22,16 +22,16 @@ type InstancedGeometryProps = {
   size: number
 }
 
-const Spheres = ({ colors, number, size: args }: InstancedGeometryProps) => {
+const Spheres = ({ colors, number, size }: InstancedGeometryProps) => {
   const [ref, { at }] = useSphere(() => ({
-    args,
+    args: [size],
     mass: 1,
     position: [Math.random() - 0.5, Math.random() * 2, Math.random() - 0.5],
   }))
   useFrame(() => at(Math.floor(Math.random() * number)).position.set(0, Math.random() * 2, 0))
   return (
     <instancedMesh receiveShadow castShadow ref={ref} args={[undefined, undefined, number]}>
-      <sphereBufferGeometry args={[args, 48]}>
+      <sphereBufferGeometry args={[size, 48]}>
         <instancedBufferAttribute attachObject={['attributes', 'color']} args={[colors, 3]} />
       </sphereBufferGeometry>
       <meshLambertMaterial vertexColors />

@@ -132,13 +132,13 @@ type SpheresProps = {
 function Spheres({ rows, columns, spread }: SpheresProps) {
   const number = rows * columns
   const [ref] = useSphere((index) => ({
+    args: [0.2],
     mass: 1,
     position: [
       ((index % columns) - (columns - 1) / 2) * spread,
       2.0,
       (Math.floor(index / columns) - (rows - 1) / 2) * spread,
     ],
-    args: 0.2,
   }))
   const colors = useMemo(() => {
     const array = new Float32Array(number * 3)
