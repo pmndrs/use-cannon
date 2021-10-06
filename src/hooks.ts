@@ -196,19 +196,14 @@ function getUUID(ref: Ref<Object3D>, index?: number): string | null {
   return ref && ref.current && `${ref.current.uuid}${suffix}`
 }
 
-let incrementingId = 0
 const e = new Euler()
 const q = new Quaternion()
-const rotationXYZ: Triplet = [0, 0, 0]
 
-const quaternionToRotation = (callback: (value: Triplet) => void) => {
-  return (value: Quad) => {
-    q.set(...value)
-    e.setFromQuaternion(q)
-    e.toArray(rotationXYZ)
-    callback(rotationXYZ)
-  }
+const quaternionToRotation = (callback: (v: Triplet) => void) => {
+  return (v: Quad) => callback(e.setFromQuaternion(q.fromArray(v)).toArray() as Triplet)
 }
+
+let incrementingId = 0
 
 function subscribe<T extends SubscriptionName>(
   ref: RefObject<Object3D>,
