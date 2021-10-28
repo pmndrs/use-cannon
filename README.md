@@ -126,7 +126,7 @@ function Physics({
   children,
   shouldInvalidate = true,
   step = 1 / 60,
-  gravity = [0, -10, 0],
+  gravity = [0, -9.81, 0],
   tolerance = 0.001,
   iterations = 5,
   allowSleep = false,
