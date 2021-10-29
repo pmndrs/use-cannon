@@ -24,6 +24,7 @@ const prepareConvexPolyhedron = ([v, faces, n, a, boundingSphereRadius]) => [
     boundingSphereRadius,
   },
 ]
+const planeBoxDepth = 1
 
 function createShape(type, args) {
   switch (type) {
@@ -39,6 +40,8 @@ function createShape(type, args) {
       return new Particle() // no args
     case 'Plane':
       return new Plane() // no args, infinite x and y
+    case 'Plane-Box':
+      return new Box(new Vec3(args[0] / 2, args[1] / 2, planeBoxDepth)) // [width, height] = args
     case 'Sphere':
       return new Sphere(...prepareSphere(args)) // radius = args
     case 'Trimesh':

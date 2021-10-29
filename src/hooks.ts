@@ -60,6 +60,7 @@ export type BodyPropsArgsRequired<T extends any[] = unknown[]> = BodyProps<T> & 
 
 export type ShapeType =
   | 'Plane'
+  | 'Plane-Box'
   | 'Box'
   | 'Cylinder'
   | 'Heightfield'
@@ -464,18 +465,7 @@ export function useInfinitePlane(
   return useBody('Plane', fn, () => [], fwdRef, deps)
 }
 export function usePlane(fn: GetByIndex<PlaneProps>, fwdRef: Ref<Object3D> = null, deps?: DependencyList) {
-  return useBody(
-    'Box',
-    fn,
-    (args: PlaneArgs = [1, 1]): Triplet => {
-      if (!Array.isArray(args)) throw new Error('usePlane args must be an array')
-      const width = <number>args[0]
-      const height = <number>args[1]
-      return [width, height, 0.1]
-    },
-    fwdRef,
-    deps,
-  )
+  return useBody('Plane-Box', fn, (args: PlaneArgs = [1, 1]): PlaneArgs => args, fwdRef, deps)
 }
 export function useBox(fn: GetByIndex<BoxProps>, fwdRef: Ref<Object3D> = null, deps?: DependencyList) {
   const defaultBoxArgs: Triplet = [1, 1, 1]
