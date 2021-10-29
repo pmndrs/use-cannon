@@ -471,7 +471,7 @@ export function usePlane(fn: GetByIndex<PlaneProps>, fwdRef: Ref<Object3D> = nul
       if (!Array.isArray(args)) throw new Error('usePlane args must be an array')
       const width = <number>args[0]
       const height = <number>args[1]
-      return [width, height, 0.1]
+      return [width, height, 0.001]
     },
     fwdRef,
     deps,
