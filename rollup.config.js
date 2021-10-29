@@ -2,7 +2,7 @@ import babel from '@rollup/plugin-babel'
 import resolve from '@rollup/plugin-node-resolve'
 import worker from 'rollup-plugin-web-worker-loader'
 
-const external = ['react', '@react-three/fiber', 'three']
+const external = ['react', '@react-three/fiber', 'three', 'cannon-es', 'cannon-es-debugger']
 const extensions = ['.js', '.jsx', '.ts', '.tsx', '.json']
 
 const getBabelOptions = ({ useESModules }, targets) => ({
