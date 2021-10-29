@@ -69,6 +69,7 @@ export type ShapeType =
   | 'ConvexPolyhedron'
 export type BodyShapeType = ShapeType | 'Compound'
 
+export type PlaneArgs = [width?: number, height?: number]
 export type CylinderArgs = [radiusTop?: number, radiusBottom?: number, height?: number, numSegments?: number]
 export type SphereArgs = [radius: number]
 export type TrimeshArgs = [vertices: ArrayLike<number>, indices: ArrayLike<number>]
@@ -84,7 +85,8 @@ export type ConvexPolyhedronArgs<V extends VectorTypes = VectorTypes> = [
   boundingSphereRadius?: number,
 ]
 
-export type PlaneProps = BodyProps
+export type InfinitePlaneProps = BodyProps
+export type PlaneProps = BodyProps<PlaneArgs>
 export type BoxProps = BodyProps<Triplet>
 export type CylinderProps = BodyProps<CylinderArgs>
 export type ParticleProps = BodyProps
@@ -454,8 +456,26 @@ function makeTriplet(v: Vector3 | Triplet): Triplet {
   return v instanceof Vector3 ? [v.x, v.y, v.z] : v
 }
 
-export function usePlane(fn: GetByIndex<PlaneProps>, fwdRef: Ref<Object3D> = null, deps?: DependencyList) {
+export function useInfinitePlane(
+  fn: GetByIndex<InfinitePlaneProps>,
+  fwdRef: Ref<Object3D> = null,
+  deps?: DependencyList,
+) {
   return useBody('Plane', fn, () => [], fwdRef, deps)
+}
+export function usePlane(fn: GetByIndex<PlaneProps>, fwdRef: Ref<Object3D> = null, deps?: DependencyList) {
+  return useBody(
+    'Box',
+    fn,
+    (args: PlaneArgs = [1, 1]): Triplet => {
+      if (!Array.isArray(args)) throw new Error('usePlane args must be an array')
+      const width = <number>args[0]
+      const height = <number>args[1]
+      return [width, height, 0.1]
+    },
+    fwdRef,
+    deps,
+  )
 }
 export function useBox(fn: GetByIndex<BoxProps>, fwdRef: Ref<Object3D> = null, deps?: DependencyList) {
   const defaultBoxArgs: Triplet = [1, 1, 1]
