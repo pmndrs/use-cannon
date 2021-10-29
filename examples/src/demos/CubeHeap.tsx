@@ -2,15 +2,15 @@ import { Color } from 'three'
 import { useMemo, useState } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import niceColors from 'nice-color-palettes'
-import { Physics, useInfinitePlane, useBox, useSphere } from '@react-three/cannon'
+import { Physics, usePlane, useBox, useSphere } from '@react-three/cannon'
 
-import type { InfinitePlaneProps, Triplet } from '@react-three/cannon'
+import type { PlaneProps, Triplet } from '@react-three/cannon'
 
-function Plane(props: InfinitePlaneProps) {
-  const [ref] = useInfinitePlane(() => ({ ...props }))
+function Plane(props: PlaneProps) {
+  const [ref] = usePlane(() => ({ ...props }))
   return (
     <mesh ref={ref} receiveShadow>
-      <planeBufferGeometry args={[5, 5]} />
+      <planeBufferGeometry args={props.args} />
       <shadowMaterial color="#171717" />
     </mesh>
   )
@@ -99,7 +99,7 @@ export default () => {
         shadow-mapSize-height={256}
       />
       <Physics broadphase="SAP">
-        <Plane rotation={[-Math.PI / 2, 0, 0]} />
+        <Plane rotation={[-Math.PI / 2, 0, 0]} args={[40, 40]} />
         <InstancedGeometry {...{ colors, number, size }} />
       </Physics>
     </Canvas>
