@@ -1,16 +1,16 @@
 import { Color } from 'three'
 import { useMemo } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
-import { Physics, useBox, usePlane, useSphere } from '@react-three/cannon'
+import { Physics, useBox, useInfinitePlane, useSphere } from '@react-three/cannon'
 import niceColors from 'nice-color-palettes'
 
-import type { PlaneProps, Triplet } from '@react-three/cannon'
+import type { InfinitePlaneProps, Triplet } from '@react-three/cannon'
 import type { MeshPhongMaterialProps } from '@react-three/fiber'
 
-type OurPlaneProps = Pick<MeshPhongMaterialProps, 'color'> & Pick<PlaneProps, 'position' | 'rotation'>
+type OurPlaneProps = Pick<MeshPhongMaterialProps, 'color'> & Pick<InfinitePlaneProps, 'position' | 'rotation'>
 
 function Plane({ color, ...props }: OurPlaneProps) {
-  const [ref] = usePlane(() => ({ ...props }))
+  const [ref] = useInfinitePlane(() => ({ ...props }))
   return (
     <mesh ref={ref} receiveShadow>
       <planeBufferGeometry args={[1000, 1000]} />

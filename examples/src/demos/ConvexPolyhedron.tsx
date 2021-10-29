@@ -76,7 +76,7 @@ function Plane(props: PlaneProps) {
   const [ref] = usePlane(() => ({ type: 'Static', ...props }))
   return (
     <mesh ref={ref} receiveShadow>
-      <planeBufferGeometry args={[10, 10]} />
+      <planeBufferGeometry args={props.args} />
       <shadowMaterial color="#171717" />
     </mesh>
   )
@@ -104,7 +104,7 @@ function ConvexPolyhedron() {
               onPointerDown={() => {
                 setInvertGravity(!invertGravity)
               }}>
-              <Plane rotation={[-Math.PI / 2, 0, 0]} />
+              <Plane rotation={[-Math.PI / 2, 0, 0]} args={[40, 40]} />
               <Diamond position={[1, 5, 0]} rotation={[0.4, 0.1, 0.1]} />
               <Cone position={[-1, 5, 0.5]} rotation={[0.1, 0.2, 0.1]} sides={6} />
               <Cone position={[-1, 6, 0]} rotation={[0.5, 0.1, 0.1]} sides={8} />

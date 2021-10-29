@@ -14,7 +14,7 @@ import { PerspectiveCamera, OrbitControls } from '@react-three/drei'
 import { Vector3 } from 'three'
 
 import type { BoxProps, HingeConstraintOpts, PlaneProps, Triplet } from '@react-three/cannon'
-import type { PlaneBufferGeometryProps, MeshStandardMaterialProps } from '@react-three/fiber'
+import type { MeshStandardMaterialProps } from '@react-three/fiber'
 import type { PropsWithChildren, RefObject } from 'react'
 import type { Object3D, PerspectiveCamera as Cam } from 'three'
 
@@ -25,18 +25,18 @@ function normalizeSize([px = 0, py = 0, pz = 0]): (scale: Triplet) => Triplet {
 const GROUP_GROUND = 2 ** 0
 const GROUP_BODY = 2 ** 1
 
-type OurPlaneProps = Pick<PlaneBufferGeometryProps, 'args'> & Pick<PlaneProps, 'position' | 'rotation'>
+// type OurPlaneProps = Pick<PlaneBufferGeometryProps, 'args'> & Pick<PlaneProps, 'position' | 'rotation'>
 
-function Plane({ args, ...props }: OurPlaneProps) {
+function Plane(props: PlaneProps) {
   const [ref] = usePlane(() => ({ type: 'Static', collisionFilterGroup: GROUP_GROUND, ...props }))
   return (
     <group ref={ref}>
       <mesh>
-        <planeBufferGeometry args={args} />
+        <planeBufferGeometry args={props.args} />
         <meshBasicMaterial color="#ffb385" />
       </mesh>
       <mesh receiveShadow>
-        <planeBufferGeometry args={args} />
+        <planeBufferGeometry args={props.args} />
         <shadowMaterial color="lightsalmon" />
       </mesh>
     </group>

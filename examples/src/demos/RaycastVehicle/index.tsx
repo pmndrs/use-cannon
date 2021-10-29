@@ -15,7 +15,7 @@ function Plane(props: PlaneProps) {
   return (
     <group ref={ref}>
       <mesh receiveShadow>
-        <planeGeometry args={[100, 100]} />
+        <planeGeometry args={props.args} />
         <meshStandardMaterial color="#303030" />
       </mesh>
     </group>
@@ -49,7 +49,7 @@ const VehicleScene = () => {
           broadphase="SAP"
           defaultContactMaterial={{ contactEquationRelaxation: 4, friction: 1e-3 }}
           allowSleep>
-          <Plane rotation={[-Math.PI / 2, 0, 0]} userData={{ id: 'floor' }} />
+          <Plane rotation={[-Math.PI / 2, 0, 0]} userData={{ id: 'floor' }} args={[100, 100]} />
           <Vehicle position={[0, 2, 0]} rotation={[0, -Math.PI / 4, 0]} angularVelocity={[0, 0.5, 0]} />
           <Pillar position={[-5, 2.5, -5]} userData={{ id: 'pillar-1' }} />
           <Pillar position={[0, 2.5, -5]} userData={{ id: 'pillar-2' }} />

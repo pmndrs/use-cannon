@@ -2,18 +2,18 @@ import { useEffect, useRef, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { Physics, Debug, usePlane, useCompoundBody } from '@react-three/cannon'
 
-import type { CompoundBodyProps, PlaneProps, Triplet } from '@react-three/cannon'
+import type { CompoundBodyProps, PlaneProps, PlaneArgs, Triplet } from '@react-three/cannon'
 
 function Plane(props: PlaneProps) {
   const [ref] = usePlane(() => ({ type: 'Static', ...props }))
   return (
     <group ref={ref}>
       <mesh>
-        <planeBufferGeometry args={[8, 8]} />
+        <planeBufferGeometry args={props.args} />
         <meshBasicMaterial color="#ffb385" />
       </mesh>
       <mesh receiveShadow>
-        <planeBufferGeometry args={[8, 8]} />
+        <planeBufferGeometry args={props.args} />
         <shadowMaterial color="lightsalmon" />
       </mesh>
     </group>
@@ -67,6 +67,8 @@ function CompoundBody({ isTrigger, mass = 12, setPosition, setRotation, ...props
 }
 
 export default function () {
+  const planeSize: PlaneArgs = [8, 8]
+
   const [ready, set] = useState(false)
   useEffect(() => {
     const timeout = setTimeout(() => set(true), 2000)
@@ -104,7 +106,7 @@ export default function () {
       />
       <Physics iterations={6}>
         <Debug scale={1.1} color="black">
-          <Plane rotation={[-Math.PI / 2, 0, 0]} />
+          <Plane rotation={[-Math.PI / 2, 0, 0]} args={planeSize} />
           <CompoundBody position={[1.5, 5, 0.5]} rotation={[1.25, 0, 0]} />
           <CompoundBody
             position={[2.5, 3, 0.25]}

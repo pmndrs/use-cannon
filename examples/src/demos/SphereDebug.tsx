@@ -30,7 +30,12 @@ function ScalableBall() {
 }
 
 function Plane() {
-  const [ref] = usePlane(() => ({ type: 'Static', rotation: [-Math.PI / 2, 0, 0] }))
+  const [ref] = usePlane(() => ({
+    type: 'Static',
+    args: [20, 20],
+    rotation: [-Math.PI / 2, 0, 0],
+    position: [0, 0, 0],
+  }))
   return (
     <mesh receiveShadow ref={ref}>
       <planeBufferGeometry args={[20, 20]} />

@@ -17,14 +17,14 @@ import {
   useCompoundBody,
   useCylinder,
   useSphere,
-  usePlane,
+  useInfinitePlane,
   useConeTwistConstraint,
   usePointToPointConstraint,
 } from '@react-three/cannon'
 import { createRagdoll } from './createConfig'
 
 import type { PropsWithChildren, ReactNode, RefObject } from 'react'
-import type { ConeTwistConstraintOpts, PlaneProps, Triplet } from '@react-three/cannon'
+import type { ConeTwistConstraintOpts, InfinitePlaneProps, Triplet } from '@react-three/cannon'
 import type { BoxBufferGeometryProps, MeshStandardMaterialProps, MeshProps } from '@react-three/fiber'
 import type { GLTF } from 'three-stdlib/loaders/GLTFLoader'
 import type { BufferGeometry, Material, Object3D } from 'three'
@@ -156,8 +156,8 @@ function Ragdoll(props: Pick<MeshProps, 'position'>) {
   )
 }
 
-function Plane(props: PlaneProps) {
-  const [ref] = usePlane(() => ({ ...props }))
+function Plane(props: InfinitePlaneProps) {
+  const [ref] = useInfinitePlane(() => ({ ...props }))
   return (
     <mesh ref={ref} receiveShadow>
       <planeBufferGeometry args={[1000, 1000]} />
