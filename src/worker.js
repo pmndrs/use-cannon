@@ -16,6 +16,7 @@ import {
   RaycastVehicle,
   GSSolver,
   SplitSolver,
+  ContactMaterial,
 } from 'cannon-es'
 import propsToBody from './propsToBody'
 
@@ -504,13 +505,18 @@ self.onmessage = (e) => {
       state.vehicles[uuid].setBrake(brake, wheelIndex)
       break
     }
-
     case 'wakeUp': {
       state.bodies[uuid].wakeUp()
       break
     }
     case 'sleep': {
       state.bodies[uuid].sleep()
+      break
+    }
+    case 'addContactMaterial': {
+      const { m1, m2, options } = props
+      const contactMaterial = new ContactMaterial(m1, m2, options)
+      state.world.addContactMaterial(contactMaterial)
       break
     }
   }

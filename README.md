@@ -382,7 +382,7 @@ type AtomicProps = {
   isTrigger: boolean
   linearDamping: number
   mass: number
-  material: MaterialOptions
+  material: Material | MaterialOptions
   sleepSpeedLimit: number
   sleepTimeLimit: number
   userData: {}

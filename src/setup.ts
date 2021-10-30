@@ -1,4 +1,4 @@
-import type { RayOptions } from 'cannon-es'
+import type { ContactMaterialOptions, Material, RayOptions } from 'cannon-es'
 import type { Object3D } from 'three'
 import type { ProviderProps, WorkerCollideEvent, WorkerRayhitEvent } from './Provider'
 import type {
@@ -223,9 +223,15 @@ type SubscribeMessage = WithUUID<
     type: SubscriptionName
   }
 >
+
 type UnsubscribeMessage = Operation<'unsubscribe', number>
 
 type SubscriptionMessage = SubscribeMessage | UnsubscribeMessage
+
+type AddContactMaterialMessage = Operation<
+  'addContactMaterial',
+  { m1: Material; m2: Material; options: ContactMaterialOptions }
+>
 
 export type WorldPropName = 'axisIndex' | 'broadphase' | 'gravity' | 'iterations' | 'step' | 'tolerance'
 
@@ -246,6 +252,7 @@ type CannonMessage =
   | SubscriptionMessage
   | VectorMessage
   | WakeUpMessage
+  | AddContactMaterialMessage
   | WorldMessage<WorldPropName>
 
 export interface CannonWorker extends Worker {

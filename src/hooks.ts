@@ -1,4 +1,5 @@
-import type { MaterialOptions } from 'cannon-es'
+import type { ContactMaterialOptions, MaterialOptions } from 'cannon-es'
+import { Material } from 'cannon-es'
 import type { DependencyList, MutableRefObject, Ref, RefObject } from 'react'
 import type {
   AddRayMessage,
@@ -30,7 +31,7 @@ export type AtomicProps = {
   isTrigger: boolean
   linearDamping: number
   mass: number
-  material: MaterialOptions
+  material: Material | MaterialOptions
   sleepSpeedLimit: number
   sleepTimeLimit: number
   userData: {}
@@ -838,4 +839,18 @@ export function useRaycastVehicle(
     }
   }, deps)
   return [ref, api]
+}
+
+type MaterialFn = () => MaterialOptions
+
+export function useMaterial(fn?: MaterialFn): Material {
+  const [material] = useState(() => new Material(fn && fn()))
+  return material
+}
+
+export function useContactMaterial(m1: Material, m2: Material, options: ContactMaterialOptions) {
+  const { worker } = useContext(context)
+  useEffect(() => {
+    worker.postMessage({ op: 'addContactMaterial', props: { m1, m2, options } })
+  }, [])
 }

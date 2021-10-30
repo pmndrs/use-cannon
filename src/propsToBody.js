@@ -75,7 +75,7 @@ const propsToBody = (uuid, props, type) => {
     ...extra,
     mass: bodyType === 'Static' ? 0 : mass,
     type: bodyType ? Body[bodyType.toUpperCase()] : undefined,
-    material: material ? new Material(material) : undefined,
+    material: material ? (material instanceof Material ? material : new Material(material)) : undefined,
   })
   body.uuid = uuid
 
