@@ -134,9 +134,11 @@ type WorkerEventMessage =
 type IncomingWorkerMessage = WorkerFrameMessage | WorkerEventMessage
 
 const v = new Vector3()
+const v2 = new Vector3()
 const s = new Vector3(1, 1, 1)
 const q = new Quaternion()
 const m = new Matrix4()
+const m2 = new Matrix4()
 
 function apply(index: number, buffers: Buffers, object?: Object3D) {
   if (index !== undefined) {
@@ -145,9 +147,13 @@ function apply(index: number, buffers: Buffers, object?: Object3D) {
       q.fromArray(buffers.quaternions, index * 4),
       object ? object.scale : s,
     )
+
+    v2.fromArray(buffers.positions, index * 3)
+    v2.set(v2.x, v2.y + 0.1, v2.z)
+    m2.compose(v2, q.fromArray(buffers.quaternions, index * 4), object ? object.scale : s)
     if (object) {
       object.matrixAutoUpdate = false
-      object.matrix.copy(m)
+      object.matrix.copy(object.name === 'Plane-Box' ? m2 : m)
     }
     return m
   }

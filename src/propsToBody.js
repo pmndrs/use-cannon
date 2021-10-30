@@ -24,7 +24,7 @@ const prepareConvexPolyhedron = ([v, faces, n, a, boundingSphereRadius]) => [
     boundingSphereRadius,
   },
 ]
-const planeBoxDepth = 1
+const planeBoxDepth = 0.1
 
 function createShape(type, args) {
   switch (type) {

@@ -228,9 +228,19 @@ function subscribe<T extends SubscriptionName>(
   }
 }
 
-function prepare(object: Object3D, props: BodyProps) {
+function prepare(object: Object3D, props: BodyProps, type: BodyShapeType) {
   object.userData = props.userData || {}
-  object.position.set(...(props.position || [0, 0, 0]))
+
+  if (type === 'Plane-Box') {
+    object.position.set(
+      ...((props.position && <Triplet>[props.position[0], props.position[1] + 0.1, props.position[2]]) || [
+        0, 0.1, 0,
+      ]),
+    )
+  } else {
+    object.position.set(...(props.position || [0, 0, 0]))
+  }
+
   object.rotation.set(...(props.rotation || [0, 0, 0]))
   object.updateMatrix()
 }
@@ -269,6 +279,7 @@ function useBody<B extends BodyProps<unknown[]>>(
     }
 
     const object = ref.current
+    object.name = type
     const currentWorker = worker
 
     const objectCount =
@@ -283,7 +294,7 @@ function useBody<B extends BodyProps<unknown[]>>(
       object instanceof InstancedMesh
         ? uuid.map((id, i) => {
             const props = fn(i)
-            prepare(temp, props)
+            prepare(temp, props, type)
             object.setMatrixAt(i, temp.matrix)
             object.instanceMatrix.needsUpdate = true
             refs[id] = object
@@ -293,7 +304,7 @@ function useBody<B extends BodyProps<unknown[]>>(
           })
         : uuid.map((id, i) => {
             const props = fn(i)
-            prepare(object, props)
+            prepare(object, props, type)
             refs[id] = object
             if (debugApi) debugApi.add(id, props, type)
             setupCollision(events, props, id)
