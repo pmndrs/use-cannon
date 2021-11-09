@@ -73,7 +73,7 @@ function Plane(props) {
   const [ref] = usePlane(() => ({ rotation: [-Math.PI / 2, 0, 0], ...props }))
   return (
     <mesh ref={ref}>
-      <planeBufferGeometry args={[100, 100]} />
+      <planeGeometry args={[100, 100]} />
     </mesh>
   )
 }
@@ -82,7 +82,7 @@ function Cube(props) {
   const [ref] = useBox(() => ({ mass: 1, position: [0, 5, 0], ...props }))
   return (
     <mesh ref={ref}>
-      <boxBufferGeometry />
+      <boxGeometry />
     </mesh>
   )
 }
