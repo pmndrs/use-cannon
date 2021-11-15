@@ -1,4 +1,5 @@
-import { FontLoader, TextGeometry } from 'three'
+import { FontLoader } from 'three/examples/jsm/loaders/FontLoader'
+import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry'
 import { forwardRef, useMemo } from 'react'
 import fontJson from './resources/firasans_regular.json'
 
