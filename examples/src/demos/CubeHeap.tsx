@@ -87,7 +87,8 @@ export default () => {
       gl={{ alpha: false }}
       camera={{ position: [-1, 1, 2.5], fov: 50 }}
       onPointerMissed={() => setGeometry((geometry) => (geometry === 'box' ? 'sphere' : 'box'))}
-      onCreated={({ scene }) => (scene.background = new Color('lightblue'))}>
+      onCreated={({ scene }) => (scene.background = new Color('lightblue'))}
+    >
       <hemisphereLight intensity={0.35} />
       <spotLight
         position={[5, 5, 5]}

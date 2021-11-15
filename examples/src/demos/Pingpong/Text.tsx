@@ -23,7 +23,8 @@ const Text = forwardRef<Object3D, TextProps>(({ color = 'white', count, ...props
         <mesh
           position={[-(array.length / 2) * 3.5 + index * 3.5, 0, 0]}
           key={index}
-          geometry={geom[parseInt(char)]}>
+          geometry={geom[parseInt(char)]}
+        >
           <meshBasicMaterial color={color} transparent opacity={0.5} />
         </mesh>
       ))}

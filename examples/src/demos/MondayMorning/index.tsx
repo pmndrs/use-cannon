@@ -283,7 +283,8 @@ export default () => (
     style={{ cursor: 'none' }}
     shadows
     orthographic
-    camera={{ position: [-25, 20, 25], zoom: 25, near: 1, far: 100 }}>
+    camera={{ position: [-25, 20, 25], zoom: 25, near: 1, far: 100 }}
+  >
     <color attach="background" args={['#171720']} />
     <fog attach="fog" args={['#171720', 20, 70]} />
     <ambientLight intensity={0.2} />

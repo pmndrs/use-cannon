@@ -103,7 +103,8 @@ function ConvexPolyhedron() {
             <group
               onPointerDown={() => {
                 setInvertGravity(!invertGravity)
-              }}>
+              }}
+            >
               <Plane rotation={[-Math.PI / 2, 0, 0]} />
               <Diamond position={[1, 5, 0]} rotation={[0.4, 0.1, 0.1]} />
               <Cone position={[-1, 5, 0.5]} rotation={[0.1, 0.2, 0.1]} sides={6} />
@@ -121,7 +122,8 @@ function ConvexPolyhedron() {
           left: 50,
           color: 'white',
           fontSize: '1.2em',
-        }}>
+        }}
+      >
         <pre>* click to invert gravity</pre>
       </div>
     </>

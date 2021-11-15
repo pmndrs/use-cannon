@@ -115,20 +115,19 @@ export type VectorApi = {
 
 export type WorkerApi = {
   [K in AtomicName]: AtomicApi<K>
-} &
-  {
-    [K in VectorName]: VectorApi
-  } & {
-    applyForce: (force: Triplet, worldPoint: Triplet) => void
-    applyImpulse: (impulse: Triplet, worldPoint: Triplet) => void
-    applyLocalForce: (force: Triplet, localPoint: Triplet) => void
-    applyLocalImpulse: (impulse: Triplet, localPoint: Triplet) => void
-    applyTorque: (torque: Triplet) => void
-    quaternion: QuaternionApi
-    rotation: VectorApi
-    sleep: () => void
-    wakeUp: () => void
-  }
+} & {
+  [K in VectorName]: VectorApi
+} & {
+  applyForce: (force: Triplet, worldPoint: Triplet) => void
+  applyImpulse: (impulse: Triplet, worldPoint: Triplet) => void
+  applyLocalForce: (force: Triplet, localPoint: Triplet) => void
+  applyLocalImpulse: (impulse: Triplet, localPoint: Triplet) => void
+  applyTorque: (torque: Triplet) => void
+  quaternion: QuaternionApi
+  rotation: VectorApi
+  sleep: () => void
+  wakeUp: () => void
+}
 
 export interface PublicApi extends WorkerApi {
   at: (index: number) => WorkerApi
