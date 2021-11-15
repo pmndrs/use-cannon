@@ -140,7 +140,8 @@ export default function () {
       <Canvas
         shadows
         camera={{ position: [0, 5, 12], fov: 50 }}
-        onPointerMissed={() => welcome && reset(false)}>
+        onPointerMissed={() => welcome && reset(false)}
+      >
         <color attach="background" args={['#171720']} />
         <ambientLight intensity={0.5} />
         <pointLight position={[-10, -10, -10]} />
@@ -166,7 +167,8 @@ export default function () {
             frictionEquationRelaxation: 2,
           }}
           gravity={[0, -40, 0]}
-          allowSleep={false}>
+          allowSleep={false}
+        >
           <mesh position={[0, 0, -10]} receiveShadow>
             <planeBufferGeometry args={[1000, 1000]} />
             <meshPhongMaterial color="#172017" />
@@ -186,7 +188,8 @@ export default function () {
           left: 50,
           color: 'white',
           fontSize: '1.2em',
-        }}>
+        }}
+      >
         * click anywhere to start
       </div>
     </>

@@ -75,7 +75,8 @@ const Bowl = ({ rotation }: Pick<TrimeshProps, 'rotation'>) => {
       ref={ref}
       geometry={nodes.bowl.geometry}
       onPointerOver={() => setHover(true)}
-      onPointerOut={() => setHover(false)}>
+      onPointerOut={() => setHover(false)}
+    >
       <meshStandardMaterial color={'white'} wireframe={hovered} />
     </mesh>
   )
@@ -103,7 +104,8 @@ export default () => (
         left: 50,
         color: 'white',
         fontSize: '1.2em',
-      }}>
+      }}
+    >
       <pre>
         <Controls />
       </pre>

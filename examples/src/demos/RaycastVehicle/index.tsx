@@ -48,7 +48,8 @@ const VehicleScene = () => {
         <Physics
           broadphase="SAP"
           defaultContactMaterial={{ contactEquationRelaxation: 4, friction: 1e-3 }}
-          allowSleep>
+          allowSleep
+        >
           <Plane rotation={[-Math.PI / 2, 0, 0]} userData={{ id: 'floor' }} />
           <Vehicle position={[0, 2, 0]} rotation={[0, -Math.PI / 4, 0]} angularVelocity={[0, 0.5, 0]} />
           <Pillar position={[-5, 2.5, -5]} userData={{ id: 'pillar-1' }} />
@@ -67,7 +68,8 @@ const VehicleScene = () => {
           left: 50,
           color: 'white',
           fontSize: '1.2em',
-        }}>
+        }}
+      >
         <pre>
           * WASD to drive, space to brake
           <br />r to reset
