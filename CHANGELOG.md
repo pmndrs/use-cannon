@@ -20,6 +20,15 @@
 - Prefer CannonEvent over global Event type name (@bjornstar)
 - [TypeScript] Improve set and subscribe API (@bjornstar)
 
+## v3.1.2 - 2021-09-02
+
+- Rebuild package (@stockHuman)
+
+## v3.1.1 - 2021-09-02
+
+- Fix useRaycastVehicle, getUUID was receiving unintended index values (@bjornstar)
+- [README.md] Update demos to point to cannon.pmnd.rs (@bjornstar)
+
 ## v3.1.0 - 2021-09-01
 
 - [Examples] Convert Kinematic Cube to TypeScript (#262) (@bjornstar)
