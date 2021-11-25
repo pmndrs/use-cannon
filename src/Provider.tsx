@@ -1,18 +1,17 @@
-import React, { useState, useLayoutEffect, useRef, useMemo, useCallback } from 'react'
 import { useThree, useFrame } from '@react-three/fiber'
+import { useState, useLayoutEffect, useRef, useMemo, useCallback } from 'react'
 import { InstancedMesh, Vector3, Quaternion, Matrix4 } from 'three'
+import { context } from './setup'
+import { useUpdateWorldPropsEffect } from './useUpdateWorldPropsEffect'
 
 import type { Shape } from 'cannon-es'
+import type { ReactNode } from 'react'
 import type { Object3D } from 'three'
-
-import { context } from './setup'
+import type { AtomicName, Buffers, PropValue, Refs, ProviderContext } from './setup'
+import type { Triplet } from './hooks'
 
 // @ts-expect-error Types are not setup for this yet
 import CannonWorker from '../src/worker'
-import { useUpdateWorldPropsEffect } from './useUpdateWorldPropsEffect'
-
-import type { AtomicName, Buffers, PropValue, Refs, ProviderContext } from './setup'
-import type { Triplet } from './hooks'
 
 function noop() {
   /**/
@@ -21,7 +20,7 @@ function noop() {
 export type Broadphase = 'Naive' | 'SAP'
 
 export type ProviderProps = {
-  children: React.ReactNode
+  children: ReactNode
   shouldInvalidate?: boolean
 
   tolerance?: number
@@ -154,7 +153,7 @@ function apply(index: number, buffers: Buffers, object?: Object3D) {
   return m.identity()
 }
 
-export default function Provider({
+export function Provider({
   children,
   shouldInvalidate = true,
   step = 1 / 60,
@@ -314,9 +313,9 @@ export default function Provider({
 
   useUpdateWorldPropsEffect({ axisIndex, broadphase, gravity, iterations, step, tolerance, worker })
 
-  const api = useMemo(
+  const api: ProviderContext = useMemo(
     () => ({ worker, bodies, refs, buffers, events, subscriptions }),
     [worker, bodies, refs, buffers, events, subscriptions],
   )
-  return <context.Provider value={api as ProviderContext}>{children}</context.Provider>
+  return <context.Provider value={api}>{children}</context.Provider>
 }

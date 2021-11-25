@@ -1,3 +1,7 @@
+import { useLayoutEffect, useContext, useRef, useMemo, useEffect, useState } from 'react'
+import { DynamicDrawUsage, Euler, InstancedMesh, MathUtils, Object3D, Quaternion, Vector3 } from 'three'
+import { context, debugContext } from './setup'
+
 import type { MaterialOptions } from 'cannon-es'
 import type { DependencyList, MutableRefObject, Ref, RefObject } from 'react'
 import type {
@@ -16,9 +20,6 @@ import type {
   SubscriptionTarget,
   VectorName,
 } from './setup'
-import { DynamicDrawUsage, Euler, InstancedMesh, MathUtils, Object3D, Quaternion, Vector3 } from 'three'
-import { useLayoutEffect, useContext, useRef, useMemo, useEffect, useState } from 'react'
-import { context, debugContext } from './setup'
 
 export type AtomicProps = {
   allowSleep: boolean

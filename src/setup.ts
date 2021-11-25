@@ -1,4 +1,7 @@
+import { createContext } from 'react'
+
 import type { RayOptions } from 'cannon-es'
+import type { MutableRefObject } from 'react'
 import type { Object3D } from 'three'
 import type { ProviderProps, WorkerCollideEvent, WorkerRayhitEvent } from './Provider'
 import type {
@@ -11,8 +14,6 @@ import type {
   Triplet,
   WheelInfoOptions,
 } from './hooks'
-import type { MutableRefObject } from 'react'
-import { createContext } from 'react'
 
 export type Buffers = { positions: Float32Array; quaternions: Float32Array }
 export type Refs = { [uuid: string]: Object3D }

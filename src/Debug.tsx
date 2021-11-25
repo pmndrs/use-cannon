@@ -1,14 +1,15 @@
-import React, { useContext, useState, useRef, useMemo } from 'react'
-import type { DebugOptions } from 'cannon-es-debugger'
-import cannonDebugger from 'cannon-es-debugger'
 import { useFrame } from '@react-three/fiber'
-import type { Color } from 'three'
+import cannonDebugger from 'cannon-es-debugger'
+import { useContext, useState, useRef, useMemo } from 'react'
 import { Vector3, Quaternion, Scene } from 'three'
-import type { Vec3, Quaternion as CQuaternion } from 'cannon-es'
-import type { Body } from 'cannon-es'
 import { context, debugContext } from './setup'
 import propsToBody from './propsToBody'
-import type { BodyProps, BodyShapeType } from 'hooks'
+
+import type { Body, Quaternion as CQuaternion, Vec3 } from 'cannon-es'
+import type { DebugOptions } from 'cannon-es-debugger'
+import type { ReactNode } from 'react'
+import type { Color } from 'three'
+import type { BodyProps, BodyShapeType } from './hooks'
 
 type DebugApi = {
   update: () => void
@@ -19,7 +20,7 @@ export type DebuggerInterface = (scene: Scene, bodies: Body[], props?: DebugOpti
 export type DebugInfo = { bodies: Body[]; refs: { [uuid: string]: Body } }
 
 export type DebugProps = {
-  children: React.ReactNode
+  children: ReactNode
   color?: string | number | Color
   scale?: number
   impl?: DebuggerInterface

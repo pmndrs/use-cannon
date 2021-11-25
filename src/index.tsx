@@ -1,7 +1,9 @@
-import React, { Suspense } from 'react'
-import type { ProviderProps } from './Provider'
-import { default as Provider } from './Provider'
+import { Suspense } from 'react'
+import { Provider } from './Provider'
 import { context } from './setup'
+
+import type { ProviderProps } from './Provider'
+
 export * from './Debug'
 export * from './hooks'
 
