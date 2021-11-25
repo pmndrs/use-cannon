@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+
 import type { ProviderProps } from './Provider'
 import type { CannonWorker, WorldPropName } from './setup'
 
