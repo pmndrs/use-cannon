@@ -292,7 +292,7 @@
   integrity sha512-OWORNpfjMsSSUBVrRBVGECkhWcULOAJz9ZW8uK9qgxD+87M7jHRcvh/A96XXNhXTLmKcoYSQtBEX7lHMO7YRwg==
 
 "@react-three/cannon@file:..":
-  version "4.0.1"
+  version "4.1.0"
   dependencies:
     cannon-es "^0.18.0"
     cannon-es-debugger "^0.1.4"
