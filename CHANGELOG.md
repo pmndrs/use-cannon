@@ -1,5 +1,13 @@
 # @react-three/cannon Changelog
 
+## v4.2.0 - 2021-12-01
+
+- [Types] Use `PropsWithChildren` from React instead of `children: ReactNode` (@bjornstar)
+- [README.md] Update default Physics prop values (@bjornstar)
+- export \* from `'./setup'` there are a lot of useful types in here (@bjornstar)
+- Build using jsx runtime instead of React runtime for a slightly smaller bundle (@bjornstar)
+- [CHANGELOG.md] Add details for v3.1.1 & v3.1.2 (@bjornstar)
+
 ## v4.1.0 - 2021-11-21
 
 - Update default gravity value from `-10` to `-9.81` (@alexandernanberg)

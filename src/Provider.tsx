@@ -1,13 +1,15 @@
-import { useThree, useFrame } from '@react-three/fiber'
-import { useState, useLayoutEffect, useRef, useMemo, useCallback } from 'react'
-import { InstancedMesh, Vector3, Quaternion, Matrix4 } from 'three'
+import { useFrame, useThree } from '@react-three/fiber'
+import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { InstancedMesh, Matrix4, Quaternion, Vector3 } from 'three'
+
 import { context } from './setup'
 import { useUpdateWorldPropsEffect } from './useUpdateWorldPropsEffect'
 
-import type { Shape } from 'cannon-es'
-import type { ReactNode } from 'react'
+import type { ContactMaterial, Shape } from 'cannon-es'
+import type { PropsWithChildren } from 'react'
 import type { Object3D } from 'three'
-import type { AtomicName, Buffers, PropValue, Refs, ProviderContext } from './setup'
+
+import type { AtomicName, Buffers, PropValue, ProviderContext, Refs } from './setup'
 import type { Triplet } from './hooks'
 
 // @ts-expect-error Types are not setup for this yet
@@ -18,33 +20,35 @@ function noop() {
 }
 
 export type Broadphase = 'Naive' | 'SAP'
+export type Solver = 'GS' | 'Split'
 
-export type ProviderProps = {
-  children: ReactNode
-  shouldInvalidate?: boolean
+export type DefaultContactMaterial = Partial<
+  Pick<
+    ContactMaterial,
+    | 'contactEquationRelaxation'
+    | 'contactEquationStiffness'
+    | 'friction'
+    | 'frictionEquationRelaxation'
+    | 'frictionEquationStiffness'
+    | 'restitution'
+  >
+>
 
-  tolerance?: number
-  step?: number
-  iterations?: number
-
+export type ProviderProps = PropsWithChildren<{
   allowSleep?: boolean
+  axisIndex?: number
   broadphase?: Broadphase
+  defaultContactMaterial?: DefaultContactMaterial
   gravity?: Triplet
+  iterations?: number
   quatNormalizeFast?: boolean
   quatNormalizeSkip?: number
-  solver?: 'GS' | 'Split'
-
-  axisIndex?: number
-  defaultContactMaterial?: {
-    friction?: number
-    restitution?: number
-    contactEquationStiffness?: number
-    contactEquationRelaxation?: number
-    frictionEquationStiffness?: number
-    frictionEquationRelaxation?: number
-  }
+  shouldInvalidate?: boolean
   size?: number
-}
+  solver?: Solver
+  step?: number
+  tolerance?: number
+}>
 
 type Observation = { [K in AtomicName]: [id: number, value: PropValue<K>, type: K] }[AtomicName]
 
@@ -154,20 +158,20 @@ function apply(index: number, buffers: Buffers, object?: Object3D) {
 }
 
 export function Provider({
-  children,
-  shouldInvalidate = true,
-  step = 1 / 60,
-  gravity = [0, -9.81, 0],
-  tolerance = 0.001,
-  iterations = 5,
   allowSleep = false,
-  broadphase = 'Naive',
   axisIndex = 0,
+  broadphase = 'Naive',
+  children,
+  defaultContactMaterial = { contactEquationStiffness: 1e6 },
+  gravity = [0, -9.81, 0],
+  iterations = 5,
   quatNormalizeFast = false,
   quatNormalizeSkip = 0,
-  solver = 'GS',
-  defaultContactMaterial = { contactEquationStiffness: 1e6 },
+  shouldInvalidate = true,
   size = 1000,
+  solver = 'GS',
+  step = 1 / 60,
+  tolerance = 0.001,
 }: ProviderProps): JSX.Element {
   const { invalidate } = useThree()
   const [worker] = useState<Worker>(() => new CannonWorker() as Worker)

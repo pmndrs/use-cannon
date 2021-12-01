@@ -123,24 +123,25 @@ ReactDOM.render(
 
 ```typescript
 function Physics({
-  children,
-  shouldInvalidate = true,
-  step = 1 / 60,
-  gravity = [0, -9.81, 0],
-  tolerance = 0.001,
-  iterations = 5,
   allowSleep = false,
-  broadphase = 'Naive',
   axisIndex = 0,
-  defaultContactMaterial = {
-    contactEquationStiffness: 1e6,
-  },
+  broadphase = 'Naive',
+  children,
+  defaultContactMaterial = { contactEquationStiffness: 1e6 },
+  gravity = [0, -9.81, 0],
+  iterations = 5,
+  quatNormalizeFast = false,
+  quatNormalizeSkip = 0,
+  shouldInvalidate = true,
   // Maximum amount of physics objects inside your scene
   // Lower this value to save memory, increase if 1000 isn't enough
   size = 1000,
+  solver = 'GS',
+  step = 1 / 60,
+  tolerance = 0.001,
 }: ProviderProps): JSX.Element
 
-function Debug({ children, color = 'black', scale = 1 }: DebugProps): JSX.Element
+function Debug({ color = 'black', scale = 1 }: DebugProps): JSX.Element
 
 function usePlane(
   fn: GetByIndex<PlaneProps>,
@@ -350,8 +351,7 @@ interface RaycastVehiclePublicApi {
 ### Props
 
 ```typescript
-type ProviderProps = {
-  children: React.ReactNode
+type ProviderProps = React.PropsWithChildren<{
   shouldInvalidate?: boolean
   gravity?: Triplet
   tolerance?: number
@@ -369,7 +369,7 @@ type ProviderProps = {
     frictionEquationRelaxation?: number
   }
   size?: number
-}
+}>
 
 type AtomicProps = {
   allowSleep: boolean

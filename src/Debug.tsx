@@ -7,7 +7,7 @@ import propsToBody from './propsToBody'
 
 import type { Body, Quaternion as CQuaternion, Vec3 } from 'cannon-es'
 import type { DebugOptions } from 'cannon-es-debugger'
-import type { ReactNode } from 'react'
+import type { PropsWithChildren } from 'react'
 import type { Color } from 'three'
 import type { BodyProps, BodyShapeType } from './hooks'
 
@@ -19,12 +19,11 @@ export type DebuggerInterface = (scene: Scene, bodies: Body[], props?: DebugOpti
 
 export type DebugInfo = { bodies: Body[]; refs: { [uuid: string]: Body } }
 
-export type DebugProps = {
-  children: ReactNode
+export type DebugProps = PropsWithChildren<{
   color?: string | number | Color
-  scale?: number
   impl?: DebuggerInterface
-}
+  scale?: number
+}>
 
 const v = new Vector3()
 const s = new Vector3(1, 1, 1)
