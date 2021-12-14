@@ -289,6 +289,21 @@ interface PublicApi extends WorkerApi {
 
 type Api = [React.RefObject<THREE.Object3D>, PublicApi]
 
+type AtomicName =
+  | 'allowSleep'
+  | 'angularDamping'
+  | 'collisionFilterGroup'
+  | 'collisionFilterMask'
+  | 'collisionResponse'
+  | 'fixedRotation'
+  | 'isTrigger'
+  | 'linearDamping'
+  | 'mass'
+  | 'material'
+  | 'sleepSpeedLimit'
+  | 'sleepTimeLimit'
+  | 'userData'
+
 type AtomicApi<K extends AtomicName> = {
   set: (value: AtomicProps[K]) => void
   subscribe: (callback: (value: AtomicProps[K]) => void) => () => void
@@ -299,6 +314,8 @@ type QuaternionApi = {
   copy: ({ w, x, y, z }: Quaternion) => void
   subscribe: (callback: (value: Quad) => void) => () => void
 }
+
+type VectorName = 'angularFactor' | 'angularVelocity' | 'linearFactor' | 'position' | 'velocity'
 
 type VectorApi = {
   set: (x: number, y: number, z: number) => void
