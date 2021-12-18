@@ -1,25 +1,20 @@
 import { lazy } from 'react'
 
-const KinematicCube = { descr: '', tags: [], Component: lazy(() => import('./KinematicCube')), bright: false }
-const CubeHeap = { descr: '', tags: [], Component: lazy(() => import('./CubeHeap')), bright: false }
-const ConvexPolyhedron = {
-  descr: '',
-  tags: [],
-  Component: lazy(() => import('./ConvexPolyhedron')),
-  bright: false,
-}
-const Pingpong = { descr: '', tags: [], Component: lazy(() => import('./Pingpong')), bright: false }
-const MondayMorning = { descr: '', tags: [], Component: lazy(() => import('./MondayMorning')), bright: false }
-const Constraints = { descr: '', tags: [], Component: lazy(() => import('./Constraints')), bright: false }
-const Chain = { descr: '', tags: [], Component: lazy(() => import('./Chain')), bright: false }
-const HingeMotor = { descr: '', tags: [], Component: lazy(() => import('./HingeMotor')), bright: false }
-const CompoundBody = { descr: '', tags: [], Component: lazy(() => import('./CompoundBody')), bright: false }
-const Raycast = { descr: '', tags: [], Component: lazy(() => import('./Raycast')), bright: false }
-const Vehicle = { descr: '', tags: [], Component: lazy(() => import('./RaycastVehicle')), bright: false }
-const Triggers = { descr: '', tags: [], Component: lazy(() => import('./Triggers')), bright: false }
-const Trimesh = { descr: '', tags: [], Component: lazy(() => import('./Trimesh')), bright: false }
-const Heightfield = { descr: '', tags: [], Component: lazy(() => import('./Heightfield')), bright: false }
-const SphereDebug = { descr: '', tags: [], Component: lazy(() => import('./SphereDebug')), bright: false }
+const KinematicCube = { Component: lazy(() => import('./KinematicCube')) }
+const CubeHeap = { Component: lazy(() => import('./CubeHeap')) }
+const ConvexPolyhedron = { Component: lazy(() => import('./ConvexPolyhedron')) }
+const Pingpong = { Component: lazy(() => import('./Pingpong')) }
+const MondayMorning = { Component: lazy(() => import('./MondayMorning')) }
+const Constraints = { Component: lazy(() => import('./Constraints')) }
+const Chain = { Component: lazy(() => import('./Chain')) }
+const HingeMotor = { Component: lazy(() => import('./HingeMotor')) }
+const CompoundBody = { Component: lazy(() => import('./CompoundBody')) }
+const Raycast = { Component: lazy(() => import('./Raycast')) }
+const Vehicle = { Component: lazy(() => import('./RaycastVehicle')) }
+const Triggers = { Component: lazy(() => import('./Triggers')) }
+const Trimesh = { Component: lazy(() => import('./Trimesh')) }
+const Heightfield = { Component: lazy(() => import('./Heightfield')) }
+const SphereDebug = { Component: lazy(() => import('./SphereDebug')) }
 
 export {
   MondayMorning,
