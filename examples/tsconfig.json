@@ -21,6 +21,6 @@
     "types": ["vite/client"],
     "lib": ["DOM", "DOM.Iterable", "ESNext"]
   },
-  "include": ["./src"],
+  "include": ["./src", "vite.config.ts"],
   "exclude": ["node_modules"]
 }
