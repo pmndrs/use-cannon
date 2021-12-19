@@ -13,6 +13,7 @@ const MondayMorning = { descr: '', tags: [], Component: lazy(() => import('./Mon
 const Constraints = { descr: '', tags: [], Component: lazy(() => import('./Constraints')), bright: false }
 const Chain = { descr: '', tags: [], Component: lazy(() => import('./Chain')), bright: false }
 const HingeMotor = { descr: '', tags: [], Component: lazy(() => import('./HingeMotor')), bright: false }
+const HingeVehicle = { descr: '', tags: [], Component: lazy(() => import('./HingeVehicle')), bright: false }
 const CompoundBody = { descr: '', tags: [], Component: lazy(() => import('./CompoundBody')), bright: false }
 const Raycast = { descr: '', tags: [], Component: lazy(() => import('./Raycast')), bright: false }
 const Vehicle = { descr: '', tags: [], Component: lazy(() => import('./RaycastVehicle')), bright: false }
@@ -29,6 +30,7 @@ export {
   ConvexPolyhedron,
   Chain,
   HingeMotor,
+  HingeVehicle,
   Constraints,
   CompoundBody,
   Raycast,

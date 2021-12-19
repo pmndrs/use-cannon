@@ -3,12 +3,13 @@
 
 import { Suspense } from 'react'
 import { Canvas } from '@react-three/fiber'
-import { Physics, useCylinder, usePlane } from '@react-three/cannon'
+import { Debug, Physics, usePlane } from '@react-three/cannon'
 import { OrbitControls, Environment } from '@react-three/drei'
 
-import type { CylinderArgs, CylinderProps, PlaneProps } from '@react-three/cannon'
+import type { PlaneProps } from '@react-three/cannon'
 
 import Vehicle from './Vehicle'
+import { Pillar } from './Pillar'
 
 function Plane(props: PlaneProps) {
   const [ref] = usePlane(() => ({ type: 'Static', material: 'ground', ...props }))
@@ -19,21 +20,6 @@ function Plane(props: PlaneProps) {
         <meshStandardMaterial color="#303030" />
       </mesh>
     </group>
-  )
-}
-
-function Pillar(props: CylinderProps) {
-  const args: CylinderArgs = [0.7, 0.7, 5, 16]
-  const [ref] = useCylinder(() => ({
-    mass: 10,
-    args,
-    ...props,
-  }))
-  return (
-    <mesh ref={ref} castShadow>
-      <cylinderBufferGeometry args={args} />
-      <meshNormalMaterial />
-    </mesh>
   )
 }
 
@@ -50,11 +36,13 @@ const VehicleScene = () => {
           defaultContactMaterial={{ contactEquationRelaxation: 4, friction: 1e-3 }}
           allowSleep
         >
-          <Plane rotation={[-Math.PI / 2, 0, 0]} userData={{ id: 'floor' }} />
-          <Vehicle position={[0, 2, 0]} rotation={[0, -Math.PI / 4, 0]} angularVelocity={[0, 0.5, 0]} />
-          <Pillar position={[-5, 2.5, -5]} userData={{ id: 'pillar-1' }} />
-          <Pillar position={[0, 2.5, -5]} userData={{ id: 'pillar-2' }} />
-          <Pillar position={[5, 2.5, -5]} userData={{ id: 'pillar-3' }} />
+          <Debug>
+            <Plane rotation={[-Math.PI / 2, 0, 0]} userData={{ id: 'floor' }} />
+            <Vehicle position={[0, 2, 0]} rotation={[0, -Math.PI / 4, 0]} angularVelocity={[0, 0.5, 0]} />
+            <Pillar position={[-5, 2.5, -5]} userData={{ id: 'pillar-1' }} />
+            <Pillar position={[0, 2.5, -5]} userData={{ id: 'pillar-2' }} />
+            <Pillar position={[5, 2.5, -5]} userData={{ id: 'pillar-3' }} />
+          </Debug>
         </Physics>
         <Suspense fallback={null}>
           <Environment preset="night" />
