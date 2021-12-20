@@ -22,6 +22,7 @@ const Trimesh = { descr: '', tags: [], Component: lazy(() => import('./Trimesh')
 const Heightfield = { descr: '', tags: [], Component: lazy(() => import('./Heightfield')), bright: false }
 const SphereDebug = { descr: '', tags: [], Component: lazy(() => import('./SphereDebug')), bright: false }
 const Gears = { descr: '', tags: [], Component: lazy(() => import('./Gears')), bright: false }
+const Tear = { descr: '', tags: [], Component: lazy(() => import('./Tear')), bright: false }
 
 export {
   MondayMorning,
@@ -41,4 +42,5 @@ export {
   Heightfield,
   SphereDebug,
   Gears,
+  Tear,
 }

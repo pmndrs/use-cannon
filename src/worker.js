@@ -24,6 +24,7 @@ const state = {
   vehicles: {},
   springs: {},
   springInstances: {},
+  constraints: {},
   rays: {},
   world: new World(),
   config: { step: 1 / 60 },
@@ -276,7 +277,7 @@ self.onmessage = (e) => {
       break
     case 'addConstraint': {
       const [bodyA, bodyB, optns] = props
-      let { pivotA, pivotB, axisA, axisB, ...options } = optns
+      let { pivotA, pivotB, axisA, axisB, maxMultiplier, ...options } = optns
 
       // is there a better way to enforce defaults?
       pivotA = Array.isArray(pivotA) ? new Vec3(...pivotA) : undefined
@@ -331,12 +332,27 @@ self.onmessage = (e) => {
       }
       constraint.uuid = uuid
       state.world.addConstraint(constraint)
+
+      const postStepConstraint = () => {
+        if (isNaN(maxMultiplier)) {
+          return
+        }
+        // The multiplier is proportional to how much force that is added to the bodies by the constraint.
+        // If this exceeds a limit we disable the constraint.
+        const multiplier = Math.abs(constraint.equations[0].multiplier)
+        if (multiplier > maxMultiplier) {
+          constraint.disable()
+        }
+      }
+      state.constraints[uuid] = postStepConstraint
+      state.world.addEventListener('postStep', state.constraints[uuid])
       break
     }
     case 'removeConstraint':
       state.world.constraints
         .filter(({ uuid: thisId }) => thisId === uuid)
         .map((c) => state.world.removeConstraint(c))
+      state.world.removeEventListener('postStep', state.constraints[uuid])
       break
 
     case 'enableConstraint':
