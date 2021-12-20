@@ -6,7 +6,7 @@ import reactJsx from 'vite-react-jsx'
 // eslint-disable-next-line no-undef
 const codespaceName = process.env['CODESPACE_NAME']
 
-const server = {}
+const server: any = {}
 if (codespaceName) {
   const hmrPort = 3000
   // https://vitejs.dev/config/#server-hmr

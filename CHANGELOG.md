@@ -1,5 +1,12 @@
 # @react-three/cannon Changelog
 
+## v4.3.0 - 2021-12-18
+
+- Add AtomicName & VectorName to the README (@bjornstar)
+- Update vite to v2.7.3, change vite.config.js to vite.config.ts (@bjornstar)
+- [examples] add missing peer dependency: react-is (@bjornstar)
+- Update all dependencies, fix example routes for react-router-dom v6 (@bjornstar)
+
 ## v4.2.0 - 2021-12-01
 
 - [Types] Use `PropsWithChildren` from React instead of `children: ReactNode` (@bjornstar)

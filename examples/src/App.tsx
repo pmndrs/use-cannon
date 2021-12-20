@@ -1,6 +1,6 @@
 import { Suspense } from 'react'
 import styled from 'styled-components'
-import { HashRouter as Router, Link, Route, Switch, useRouteMatch } from 'react-router-dom'
+import { HashRouter as Router, Link, Route, Routes, useMatch } from 'react-router-dom'
 import { Global } from './styles'
 
 import * as demos from './demos'
@@ -23,32 +23,32 @@ const Page = styled(PageImpl)`
   }
 `
 
-const defaultComponent = 'MondayMorning'
+const defaultName = 'MondayMorning'
 const visibleComponents = Object.entries(demos).reduce<any>(
-  (acc, [name, item]) => ({ ...acc, [name]: item }),
+  (acc, [name, component]) => ({ ...acc, [name]: component }),
   {},
 )
+const DefaultComponent = visibleComponents[defaultName].Component
+
+const RoutedComponent = () => {
+  const {
+    params: { name },
+  } = useMatch('/demo/:name') || { params: { name: defaultName } }
+  const Component = visibleComponents[name || defaultName].Component
+  return <Component />
+}
 
 function Intro() {
-  const match = useRouteMatch<{ name: string }>('/demo/:name')
-  const { bright } = visibleComponents[match ? match.params.name : defaultComponent]
   return (
     <Page>
       <Suspense fallback={null}>
-        <Switch>
-          <Route exact path="/" component={visibleComponents[defaultComponent].Component} />
-          <Route
-            exact
-            path="/demo/:name"
-            render={({ match }) => {
-              const Component = visibleComponents[match.params.name].Component
-              return <Component />
-            }}
-          />
-        </Switch>
+        <Routes>
+          <Route path="/*" element={<DefaultComponent />} />
+          <Route path="/demo/:name" element={<RoutedComponent />} />
+        </Routes>
       </Suspense>
       <Demos />
-      <a href="https://github.com/pmndrs/use-cannon" style={{ color: bright ? '#2c2d31' : 'white' }}>
+      <a href="https://github.com/pmndrs/use-cannon" style={{ color: 'white' }}>
         Github
       </a>
     </Page>
@@ -56,22 +56,14 @@ function Intro() {
 }
 
 function Demos() {
-  const match = useRouteMatch<{ name: string }>('/demo/:name')
-  const { bright } = visibleComponents[match ? match.params.name : defaultComponent]
+  const {
+    params: { name: routeName },
+  } = useMatch('/demo/:name') || { params: { name: defaultName } }
   return (
     <DemoPanel>
-      {Object.entries(visibleComponents).map(([name]) => (
-        <Link key={name} to={`/demo/${name}`}>
-          <Spot
-            style={{
-              background:
-                (!match && name === defaultComponent) || (match && match.params.name === name)
-                  ? 'salmon'
-                  : bright
-                  ? '#2c2d31'
-                  : 'white',
-            }}
-          />
+      {Object.entries(visibleComponents).map(([name], key) => (
+        <Link key={key} to={`/demo/${name}`}>
+          <Spot style={{ backgroundColor: name === routeName ? 'salmon' : 'white' }} />
         </Link>
       ))}
     </DemoPanel>

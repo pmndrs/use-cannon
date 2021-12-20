@@ -195,14 +195,12 @@ const HingeVehicle = forwardRef<Object3D>((_, robotRef) => {
           ref={leftFrontWheelRef}
           leftSide
           radius={radius}
-          bodyDepth={bodyWidth}
           motorSpeedRef={motorSpeeds[0]}
           position={[-bodyLength / 2, wheelHeightPos, wheelSidePos]}
         />
         <Wheel
           ref={rightFrontWheelRef}
           radius={radius}
-          bodyDepth={bodyWidth}
           motorSpeedRef={motorSpeeds[1]}
           position={[-bodyLength / 2, wheelHeightPos, -wheelSidePos]}
         />
@@ -210,14 +208,12 @@ const HingeVehicle = forwardRef<Object3D>((_, robotRef) => {
           ref={leftBackWheelRef}
           leftSide
           radius={radius}
-          bodyDepth={bodyWidth}
           motorSpeedRef={motorSpeeds[2]}
           position={[bodyLength / 2, wheelHeightPos, wheelSidePos]}
         />
         <Wheel
           ref={rightBackWheelRef}
           radius={radius}
-          bodyDepth={bodyWidth}
           motorSpeedRef={motorSpeeds[3]}
           position={[bodyLength / 2, wheelHeightPos, -wheelSidePos]}
         />

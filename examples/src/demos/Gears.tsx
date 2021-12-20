@@ -348,8 +348,8 @@ const Gear = forwardRef<Object3D, GearProps>(
           <meshNormalMaterial />
         </mesh>
         {teeth.map((tooth, toothIndex) => (
-          <mesh castShadow key={toothIndex} {...tooth}>
-            <boxBufferGeometry args={tooth.args} />
+          <mesh castShadow key={toothIndex} position={tooth.position} rotation={tooth.rotation}>
+            <boxBufferGeometry args={tooth.args as Triplet} />
             <meshNormalMaterial />
           </mesh>
         ))}
