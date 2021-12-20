@@ -504,6 +504,7 @@ interface CompoundBodyProps extends BodyProps {
 
 interface ConstraintOptns {
   maxForce?: number
+  maxMultiplier?: number
   collideConnected?: boolean
   wakeUpBodies?: boolean
 }

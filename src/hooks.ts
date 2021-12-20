@@ -139,6 +139,7 @@ export type ConstraintTypes = 'PointToPoint' | 'ConeTwist' | 'Distance' | 'Lock'
 
 export interface ConstraintOptns {
   maxForce?: number
+  maxMultiplier?: number
   collideConnected?: boolean
   wakeUpBodies?: boolean
 }
