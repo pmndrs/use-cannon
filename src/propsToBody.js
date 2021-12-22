@@ -12,6 +12,9 @@ import {
   Trimesh,
   Vec3,
 } from 'cannon-es'
+/**
+ * @typedef { import('cannon-es').MaterialOptions } MaterialOptions
+ */
 
 const makeVec3 = ([x, y, z]) => new Vec3(x, y, z)
 const prepareSphere = (args) => (Array.isArray(args) ? args : [args])
@@ -47,13 +50,25 @@ function createShape(type, args) {
 }
 
 /**
- *
- * @param uuid {string}
- * @param props {BodyProps}
- * @param type {BodyShapeType}
- * @return {module:objects/Body.Body}
+ * @callback CreateMaterialCallback
+ * @param {MaterialOptions} materialOptions
+ * @returns {Material}
  */
-const propsToBody = (uuid, props, type) => {
+function createMaterialFromOptions(materialOptions) {
+  return new Material(materialOptions)
+}
+
+/**
+ * @function
+ * @param {Object} options
+ * @param {string} options.uuid
+ * @param {BodyProps} options.props
+ * @param {BodyShapeType} options.type
+ * @param {CreateMaterialCallback=} options.createMaterial
+ * @returns {Body}
+ */
+const propsToBody = (options) => {
+  const { uuid, props, type, createMaterial = createMaterialFromOptions } = options
   const {
     args = [],
     position = [0, 0, 0],
@@ -75,7 +90,7 @@ const propsToBody = (uuid, props, type) => {
     ...extra,
     mass: bodyType === 'Static' ? 0 : mass,
     type: bodyType ? Body[bodyType.toUpperCase()] : undefined,
-    material: material ? new Material(material) : undefined,
+    material: material ? createMaterial(material) : undefined,
   })
   body.uuid = uuid
 
@@ -90,7 +105,7 @@ const propsToBody = (uuid, props, type) => {
         position ? new Vec3(...position) : undefined,
         rotation ? new Quaternion().setFromEuler(...rotation) : undefined,
       )
-      if (material) shapeBody.material = new Material(material)
+      if (material) shapeBody.material = createMaterial(material)
       Object.assign(shapeBody, extra)
     })
   } else {

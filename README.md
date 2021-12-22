@@ -262,6 +262,13 @@ function useRaycastAll(
   callback: (e: RayhitEvent) => void,
   deps: React.DependencyList = [],
 ): void
+
+function useContactMaterial(
+  materialA: MaterialOptions,
+  materialB: MaterialOptions,
+  options: ContactMaterialOptions,
+  deps: React.DependencyList = [],
+): void
 ```
 
 ### Returned api
