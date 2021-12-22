@@ -1,6 +1,6 @@
 import { createContext } from 'react'
 
-import type { RayOptions } from 'cannon-es'
+import type { ContactMaterialOptions, MaterialOptions, RayOptions } from 'cannon-es'
 import type { MutableRefObject } from 'react'
 import type { Object3D } from 'three'
 import type { ProviderProps, WorkerCollideEvent, WorkerRayhitEvent } from './Provider'
@@ -137,6 +137,13 @@ type SpringMessage =
   | SetSpringRestLengthMessage
   | SetSpringStiffnessMessage
 
+type AddContactMaterialMessage = WithUUID<
+  'addContactMaterial',
+  [materialA: MaterialOptions, materialB: MaterialOptions, options: ContactMaterialOptions]
+>
+type RemoveContactMaterialMessage = WithUUID<'removeContactMaterial'>
+type ContactMaterialMessage = AddContactMaterialMessage | RemoveContactMaterialMessage
+
 export type RayMode = 'Closest' | 'Any' | 'All'
 
 export type AddRayMessage = WithUUID<
@@ -244,6 +251,7 @@ type CannonMessage =
   | RotationMessage
   | SleepMessage
   | SpringMessage
+  | ContactMaterialMessage
   | SubscriptionMessage
   | VectorMessage
   | WakeUpMessage

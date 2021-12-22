@@ -46,7 +46,7 @@ export function Debug({
   const api = useMemo(
     () => ({
       add(uuid: string, props: BodyProps, type: BodyShapeType) {
-        const body = propsToBody(uuid, props, type)
+        const body = propsToBody({ uuid, props, type })
         bodies.push(body)
         bodyMap[uuid] = body
       },
