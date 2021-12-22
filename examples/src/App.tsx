@@ -62,7 +62,7 @@ function Demos() {
   return (
     <DemoPanel>
       {Object.entries(visibleComponents).map(([name], key) => (
-        <Link key={key} to={`/demo/${name}`}>
+        <Link key={key} to={`/demo/${name}`} title={name}>
           <Spot style={{ backgroundColor: name === routeName ? 'salmon' : 'white' }} />
         </Link>
       ))}

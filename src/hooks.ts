@@ -2,7 +2,7 @@ import { useLayoutEffect, useContext, useRef, useMemo, useEffect, useState } fro
 import { DynamicDrawUsage, Euler, InstancedMesh, MathUtils, Object3D, Quaternion, Vector3 } from 'three'
 import { context, debugContext } from './setup'
 
-import type { MaterialOptions } from 'cannon-es'
+import type { ContactMaterialOptions, MaterialOptions } from 'cannon-es'
 import type { DependencyList, MutableRefObject, Ref, RefObject } from 'react'
 import type {
   AddRayMessage,
@@ -839,4 +839,26 @@ export function useRaycastVehicle(
     }
   }, deps)
   return [ref, api]
+}
+
+export function useContactMaterial(
+  materialA: MaterialOptions,
+  materialB: MaterialOptions,
+  options: ContactMaterialOptions,
+) {
+  const { worker } = useContext(context)
+  const [uuid] = useState(() => MathUtils.generateUUID())
+
+  useEffect(() => {
+    worker.postMessage({
+      op: 'addContactMaterial',
+      uuid,
+      props: [materialA, materialB, options],
+    })
+    return () => {
+      worker.postMessage({ op: 'removeContactMaterial', uuid })
+    }
+  }, [])
+
+  return []
 }

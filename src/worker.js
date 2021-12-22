@@ -16,6 +16,8 @@ import {
   RaycastVehicle,
   GSSolver,
   SplitSolver,
+  Material,
+  ContactMaterial,
 } from 'cannon-es'
 import propsToBody from './propsToBody'
 
@@ -26,6 +28,7 @@ const state = {
   springInstances: {},
   constraints: {},
   rays: {},
+  materials: {},
   world: new World(),
   config: { step: 1 / 60 },
   subscriptions: {},
@@ -46,6 +49,19 @@ function emitBeginContact({ bodyA, bodyB }) {
 function emitEndContact({ bodyA, bodyB }) {
   if (!bodyA || !bodyB) return
   self.postMessage({ op: 'event', type: 'collideEnd', bodyA: bodyA.uuid, bodyB: bodyB.uuid })
+}
+
+function getMaterialForOptions(materialOptions) {
+  if (typeof materialOptions === 'string') {
+    return (state.materials[materialOptions] =
+      state.materials[materialOptions] || new Material(materialOptions))
+  } else if (typeof materialOptions === 'object') {
+    const { name } = materialOptions
+    if (name) {
+      return (state.materials[name] = state.materials[name] || new Material(materialOptions))
+    }
+  }
+  return new Material(materialOptions)
 }
 
 self.onmessage = (e) => {
@@ -133,7 +149,16 @@ self.onmessage = (e) => {
     }
     case 'addBodies': {
       for (let i = 0; i < uuid.length; i++) {
-        const body = propsToBody(uuid[i], props[i], type)
+        const bodyProps = props[i]
+        const material = bodyProps.material ? getMaterialForOptions(bodyProps.material) : undefined
+        const body = propsToBody(
+          uuid[i],
+          {
+            ...bodyProps,
+            material,
+          },
+          type,
+        )
         state.world.addBody(body)
 
         if (props[i].onCollide)
@@ -518,6 +543,22 @@ self.onmessage = (e) => {
     case 'setRaycastVehicleBrake': {
       const [brake, wheelIndex] = props
       state.vehicles[uuid].setBrake(brake, wheelIndex)
+      break
+    }
+
+    case 'addContactMaterial': {
+      const [materialA, materialB, options] = props
+      const matA = getMaterialForOptions(materialA)
+      const matB = getMaterialForOptions(materialB)
+      const contactMaterial = new ContactMaterial(matA, matB, options)
+      contactMaterial.uuid = uuid
+      state.world.addContactMaterial(contactMaterial)
+      break
+    }
+    case 'removeContactMaterial': {
+      state.world.contactmaterials
+        .filter(({ uuid: thisId }) => thisId === uuid)
+        .forEach((m) => state.world.removeContactMaterial(m))
       break
     }
 

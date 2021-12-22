@@ -75,7 +75,7 @@ const propsToBody = (uuid, props, type) => {
     ...extra,
     mass: bodyType === 'Static' ? 0 : mass,
     type: bodyType ? Body[bodyType.toUpperCase()] : undefined,
-    material: material ? new Material(material) : undefined,
+    material: material ? castMaterial(material) : undefined,
   })
   body.uuid = uuid
 
@@ -90,7 +90,7 @@ const propsToBody = (uuid, props, type) => {
         position ? new Vec3(...position) : undefined,
         rotation ? new Quaternion().setFromEuler(...rotation) : undefined,
       )
-      if (material) shapeBody.material = new Material(material)
+      if (material) shapeBody.material = castMaterial(material)
       Object.assign(shapeBody, extra)
     })
   } else {
@@ -104,6 +104,13 @@ const propsToBody = (uuid, props, type) => {
   body.linearFactor.set(linearFactor[0], linearFactor[1], linearFactor[2])
   body.angularFactor.set(angularFactor[0], angularFactor[1], angularFactor[2])
   return body
+}
+
+function castMaterial(material) {
+  if (material instanceof Material) {
+    return material
+  }
+  return new Material(material)
 }
 
 export default propsToBody

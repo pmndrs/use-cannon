@@ -18,6 +18,7 @@ const Heightfield = { Component: lazy(() => import('./Heightfield')) }
 const SphereDebug = { Component: lazy(() => import('./SphereDebug')) }
 const Gears = { Component: lazy(() => import('./Gears')) }
 const Tear = { Component: lazy(() => import('./Tear')) }
+const Friction = { Component: lazy(() => import('./Friction')) }
 
 export {
   MondayMorning,
@@ -38,4 +39,5 @@ export {
   SphereDebug,
   Gears,
   Tear,
+  Friction,
 }
