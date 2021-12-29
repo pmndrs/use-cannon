@@ -1,27 +1,20 @@
 import { useFrame } from '@react-three/fiber'
-import cannonDebugger from 'cannon-es-debugger'
+import CannonDebugger from 'cannon-es-debugger'
 import { useContext, useState, useRef, useMemo } from 'react'
 import { Vector3, Quaternion, Scene } from 'three'
 import { context, debugContext } from './setup'
 import propsToBody from './propsToBody'
 
-import type { Body, Quaternion as CQuaternion, Vec3 } from 'cannon-es'
-import type { DebugOptions } from 'cannon-es-debugger'
+import type { World, Body, Quaternion as CQuaternion, Vec3 } from 'cannon-es'
 import type { PropsWithChildren } from 'react'
 import type { Color } from 'three'
 import type { BodyProps, BodyShapeType } from './hooks'
-
-type DebugApi = {
-  update: () => void
-}
-
-export type DebuggerInterface = (scene: Scene, bodies: Body[], props?: DebugOptions) => DebugApi
 
 export type DebugInfo = { bodies: Body[]; refs: { [uuid: string]: Body } }
 
 export type DebugProps = PropsWithChildren<{
   color?: string | number | Color
-  impl?: DebuggerInterface
+  impl?: typeof CannonDebugger
   scale?: number
 }>
 
@@ -33,22 +26,21 @@ export function Debug({
   color = 'black',
   scale = 1,
   children,
-  impl = cannonDebugger,
+  impl = CannonDebugger,
 }: DebugProps): JSX.Element {
   const [debugInfo] = useState<DebugInfo>({ bodies: [], refs: {} })
   const { refs } = useContext(context)
   const [scene] = useState(() => new Scene())
-  const instance = useRef<DebugApi>()
+  const instance = useRef<ReturnType<typeof CannonDebugger>>()
 
   let lastBodies = 0
   useFrame(() => {
     if (!instance.current || lastBodies !== debugInfo.bodies.length) {
       lastBodies = debugInfo.bodies.length
       scene.children = []
-      instance.current = impl(scene, debugInfo.bodies, {
+      instance.current = impl(scene, debugInfo as unknown as World, {
         color,
         scale,
-        autoUpdate: false,
       })
     }
 
