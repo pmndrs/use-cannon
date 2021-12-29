@@ -808,9 +808,9 @@ export function useRaycastVehicle(
         chassisBodyUUID,
         wheelUUIDs,
         raycastVehicleProps.wheelInfos,
-        raycastVehicleProps?.indexForwardAxis || 2,
-        raycastVehicleProps?.indexRightAxis || 0,
-        raycastVehicleProps?.indexUpAxis || 1,
+        raycastVehicleProps?.indexRightAxis ?? 2,
+        raycastVehicleProps?.indexForwardAxis ?? 0,
+        raycastVehicleProps?.indexUpAxis ?? 1,
       ],
     })
     return () => {
