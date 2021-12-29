@@ -51,7 +51,6 @@ function Vehicle({
     dampingRelaxation: 10,
     dampingCompression: 4.4,
     axleLocal: [-1, 0, 0], // This is inverted for asymmetrical wheel models (left v. right sided)
-    chassisConnectionPointLocal: [1, 0, 1],
     useCustomSlidingRotationalSpeed: true,
     customSlidingRotationalSpeed: -30,
     frictionSlip: 2,
@@ -95,9 +94,6 @@ function Vehicle({
     chassisBody,
     wheels,
     wheelInfos: [wheelInfo1, wheelInfo2, wheelInfo3, wheelInfo4],
-    indexForwardAxis: 2,
-    indexRightAxis: 0,
-    indexUpAxis: 1,
   }))
 
   useEffect(() => vehicleApi.sliding.subscribe((v) => console.log('sliding', v)), [])
