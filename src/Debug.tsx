@@ -10,7 +10,7 @@ import type { PropsWithChildren } from 'react'
 import type { Color } from 'three'
 import type { BodyProps, BodyShapeType } from './hooks'
 
-export type DebugInfo = { bodies: Body[]; refs: { [uuid: string]: Body } }
+type DebugInfo = { bodies: Body[]; bodyMap: { [uuid: string]: Body } }
 
 export type DebugProps = PropsWithChildren<{
   color?: string | number | Color
@@ -23,47 +23,37 @@ const s = new Vector3(1, 1, 1)
 const q = new Quaternion()
 
 export function Debug({
-  color = 'black',
-  scale = 1,
   children,
+  color = 'black',
   impl = CannonDebugger,
+  scale = 1,
 }: DebugProps): JSX.Element {
-  const [debugInfo] = useState<DebugInfo>({ bodies: [], refs: {} })
+  const [{ bodies, bodyMap }] = useState<DebugInfo>({ bodyMap: {}, bodies: [] })
   const { refs } = useContext(context)
   const [scene] = useState(() => new Scene())
-  const instance = useRef<ReturnType<typeof CannonDebugger>>()
+  const cannonDebuggerRef = useRef(impl(scene, { bodies } as World, { color, scale }))
 
-  let lastBodies = 0
   useFrame(() => {
-    if (!instance.current || lastBodies !== debugInfo.bodies.length) {
-      lastBodies = debugInfo.bodies.length
-      scene.children = []
-      instance.current = impl(scene, debugInfo as unknown as World, {
-        color,
-        scale,
-      })
-    }
-
-    for (const uuid in debugInfo.refs) {
+    for (const uuid in bodyMap) {
       refs[uuid].matrix.decompose(v, q, s)
-      debugInfo.refs[uuid].position.copy(v as unknown as Vec3)
-      debugInfo.refs[uuid].quaternion.copy(q as unknown as CQuaternion)
+      bodyMap[uuid].position.copy(v as unknown as Vec3)
+      bodyMap[uuid].quaternion.copy(q as unknown as CQuaternion)
     }
 
-    instance.current.update()
+    cannonDebuggerRef.current.update()
   })
 
   const api = useMemo(
     () => ({
-      add(id: string, props: BodyProps, type: BodyShapeType) {
-        const body = propsToBody(id, props, type)
-        debugInfo.bodies.push(body)
-        debugInfo.refs[id] = body
+      add(uuid: string, props: BodyProps, type: BodyShapeType) {
+        const body = propsToBody(uuid, props, type)
+        bodies.push(body)
+        bodyMap[uuid] = body
       },
-      remove(id: string) {
-        const debugBodyIndex = debugInfo.bodies.indexOf(debugInfo.refs[id])
-        if (debugBodyIndex > -1) debugInfo.bodies.splice(debugBodyIndex, 1)
-        delete debugInfo.refs[id]
+      remove(uuid: string) {
+        const index = bodies.indexOf(bodyMap[uuid])
+        if (index !== -1) bodies.splice(index, 1)
+        delete bodyMap[uuid]
       },
     }),
     [],

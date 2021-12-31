@@ -3,12 +3,13 @@
 
 import { Suspense } from 'react'
 import { Canvas } from '@react-three/fiber'
-import { Physics, useCylinder, usePlane } from '@react-three/cannon'
+import { Debug, Physics, useCylinder, usePlane } from '@react-three/cannon'
 import { OrbitControls, Environment } from '@react-three/drei'
 
 import type { CylinderArgs, CylinderProps, PlaneProps } from '@react-three/cannon'
 
 import Vehicle from './Vehicle'
+import { useToggledControl } from '../../use-toggled-control'
 
 function Plane(props: PlaneProps) {
   const [ref] = usePlane(() => ({ type: 'Static', material: 'ground', ...props }))
@@ -38,6 +39,8 @@ function Pillar(props: CylinderProps) {
 }
 
 const VehicleScene = () => {
+  const ToggledDebug = useToggledControl(Debug, '?')
+
   return (
     <>
       <Canvas shadows camera={{ position: [0, 5, 15], fov: 50 }}>
@@ -50,11 +53,13 @@ const VehicleScene = () => {
           defaultContactMaterial={{ contactEquationRelaxation: 4, friction: 1e-3 }}
           allowSleep
         >
-          <Plane rotation={[-Math.PI / 2, 0, 0]} userData={{ id: 'floor' }} />
-          <Vehicle position={[0, 2, 0]} rotation={[0, -Math.PI / 4, 0]} angularVelocity={[0, 0.5, 0]} />
-          <Pillar position={[-5, 2.5, -5]} userData={{ id: 'pillar-1' }} />
-          <Pillar position={[0, 2.5, -5]} userData={{ id: 'pillar-2' }} />
-          <Pillar position={[5, 2.5, -5]} userData={{ id: 'pillar-3' }} />
+          <ToggledDebug>
+            <Plane rotation={[-Math.PI / 2, 0, 0]} userData={{ id: 'floor' }} />
+            <Vehicle position={[0, 2, 0]} rotation={[0, -Math.PI / 4, 0]} angularVelocity={[0, 0.5, 0]} />
+            <Pillar position={[-5, 2.5, -5]} userData={{ id: 'pillar-1' }} />
+            <Pillar position={[0, 2.5, -5]} userData={{ id: 'pillar-2' }} />
+            <Pillar position={[5, 2.5, -5]} userData={{ id: 'pillar-3' }} />
+          </ToggledDebug>
         </Physics>
         <Suspense fallback={null}>
           <Environment preset="night" />
@@ -73,6 +78,7 @@ const VehicleScene = () => {
         <pre>
           * WASD to drive, space to brake
           <br />r to reset
+          <br />? to debug
         </pre>
       </div>
     </>
