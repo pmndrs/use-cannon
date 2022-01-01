@@ -1,5 +1,15 @@
 # @react-three/cannon Changelog
 
+## v4.4.0 - 2022-01-01
+
+- Upgrade cannon-es-debugger to 1.0.0 (@marcofugaro)
+- [`Debug`] Improve implementation (@bjornstar)
+- [`examples/RaycastVehicle`] Press `?` to debug (@bjornstar)
+
+## v4.3.1 - 2021-12-30
+
+- Fix RaycastVehicle example (@marcofugaro)
+
 ## v4.3.0 - 2021-12-18
 
 - Add AtomicName & VectorName to the README (@bjornstar)
