@@ -1,5 +1,11 @@
 # @react-three/cannon Changelog
 
+## v4.4.1 - 2022-01-04
+
+- [Hooks] Destructure and set defaults intead of using `??` (@bjornstar)
+- [`useRaycastVehicle`] Use correct ordering for arguments (@bjornstar)
+- [`examples/RaycastVehicle`] Reset restores the vehicle to it's initial angularVelocity, position, & rotation (@bjornstar)
+
 ## v4.4.0 - 2022-01-01
 
 - Upgrade cannon-es-debugger to 1.0.0 (@marcofugaro)
