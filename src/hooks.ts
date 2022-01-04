@@ -794,24 +794,24 @@ export function useRaycastVehicle(
 
     const currentWorker = worker
     const uuid: string[] = [ref.current.uuid]
-    const raycastVehicleProps = fn()
+    const {
+      chassisBody,
+      indexForwardAxis = 2,
+      indexRightAxis = 0,
+      indexUpAxis = 1,
+      wheelInfos,
+      wheels,
+    } = fn()
 
-    const chassisBodyUUID = getUUID(raycastVehicleProps.chassisBody)
-    const wheelUUIDs = raycastVehicleProps.wheels.map((ref) => getUUID(ref))
+    const chassisBodyUUID = getUUID(chassisBody)
+    const wheelUUIDs = wheels.map((ref) => getUUID(ref))
 
     if (!chassisBodyUUID || !wheelUUIDs.every(isString)) return
 
     currentWorker.postMessage({
       op: 'addRaycastVehicle',
       uuid,
-      props: [
-        chassisBodyUUID,
-        wheelUUIDs,
-        raycastVehicleProps.wheelInfos,
-        raycastVehicleProps?.indexRightAxis ?? 2,
-        raycastVehicleProps?.indexForwardAxis ?? 0,
-        raycastVehicleProps?.indexUpAxis ?? 1,
-      ],
+      props: [chassisBodyUUID, wheelUUIDs, wheelInfos, indexForwardAxis, indexRightAxis, indexUpAxis],
     })
     return () => {
       currentWorker.postMessage({ op: 'removeRaycastVehicle', uuid })

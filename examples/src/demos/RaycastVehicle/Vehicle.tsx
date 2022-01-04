@@ -7,7 +7,7 @@ import { Wheel } from './Wheel'
 import type { BoxProps, WheelInfoOptions } from '@react-three/cannon'
 import type { Object3D } from 'three'
 
-export type VehicleProps = Pick<BoxProps, 'angularVelocity' | 'position' | 'rotation'> & {
+export type VehicleProps = Required<Pick<BoxProps, 'angularVelocity' | 'position' | 'rotation'>> & {
   radius?: number
   width?: number
   height?: number
@@ -114,10 +114,10 @@ function Vehicle({
     }
 
     if (reset) {
-      chassisApi.position.set(0, 0.5, 0)
+      chassisApi.position.set(...position)
       chassisApi.velocity.set(0, 0, 0)
-      chassisApi.angularVelocity.set(0, 0.5, 0)
-      chassisApi.rotation.set(0, -Math.PI / 4, 0)
+      chassisApi.angularVelocity.set(...angularVelocity)
+      chassisApi.rotation.set(...rotation)
     }
   })
 

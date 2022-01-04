@@ -452,9 +452,9 @@ self.onmessage = (e) => {
       const [chassisBody, wheels, wheelInfos, indexForwardAxis, indexRightAxis, indexUpAxis] = props
       const vehicle = new RaycastVehicle({
         chassisBody: state.bodies[chassisBody],
-        indexForwardAxis: indexForwardAxis,
-        indexRightAxis: indexRightAxis,
-        indexUpAxis: indexUpAxis,
+        indexForwardAxis,
+        indexRightAxis,
+        indexUpAxis,
       })
       vehicle.world = state.world
       for (let i = 0; i < wheelInfos.length; i++) {
