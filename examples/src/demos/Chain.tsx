@@ -1,76 +1,91 @@
-import { createContext, createRef, useCallback, useContext, useMemo, useState } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
-import { Physics, useSphere, useBox, useConeTwistConstraint, useCylinder } from '@react-three/cannon'
-
-import type { PropsWithChildren } from 'react'
-import type { Triplet, CylinderArgs } from '@react-three/cannon'
-import type { Object3D } from 'three'
+import { Physics, useBox, useConeTwistConstraint, useCylinder, useSphere } from '@react-three/cannon'
+import { createContext, createRef, useCallback, useContext, useMemo, useState } from 'react'
 import { Color } from 'three'
 
-const maxMultiplierExamples = [0, 500, 1000, 1500, undefined]
+import type { FC } from 'react'
+import type { CylinderArgs, Triplet } from '@react-three/cannon'
+import type { Object3D } from 'three'
+
+const maxMultiplierExamples = [0, 500, 1000, 1500, undefined] as const
+
+function notUndefined<T>(value: T | undefined): value is T {
+  return value !== undefined
+}
 
 const parent = createContext({
-  ref: createRef<Object3D>(),
   position: [0, 0, 0] as Triplet,
+  ref: createRef<Object3D>(),
 })
 
-const ChainLink = ({
-  children,
-  args = [0.5, 0.5, 2, 16],
-  maxMultiplier,
-  color = 'white',
-  ...props
-}: PropsWithChildren<{
+type ChainLinkProps = {
   args?: CylinderArgs
-  maxMultiplier?: number
   color?: Color | string
-}>) => {
-  const { ref: parentRef, position: parentPos } = useContext(parent)
-  const height = args[2] ?? 2
-  const initialPosition: Triplet = [parentPos[0], parentPos[1] - height, parentPos[2]]
+  maxMultiplier?: number
+}
+
+const ChainLink: FC<ChainLinkProps> = ({
+  args = [0.5, 0.5, 2, 16],
+  children,
+  color = 'white',
+  maxMultiplier,
+}) => {
+  const {
+    position: [x, y, z],
+    ref: parentRef,
+  } = useContext(parent)
+
+  const [, , height = 2] = args
+  const position: Triplet = [x, y - height, z]
+
   const [ref] = useCylinder(() => ({
-    mass: 1,
-    linearDamping: 0.8,
     args,
-    ...props,
-    position: initialPosition,
+    linearDamping: 0.8,
+    mass: 1,
+    position,
   }))
+
   useConeTwistConstraint(parentRef, ref, {
-    pivotA: [0, -height / 2, 0],
-    pivotB: [0, height / 2, 0],
+    angle: Math.PI / 8,
     axisA: [0, 1, 0],
     axisB: [0, 1, 0],
-    twistAngle: 0,
-    angle: Math.PI / 8,
     maxMultiplier,
+    pivotA: [0, -height / 2, 0],
+    pivotB: [0, height / 2, 0],
+    twistAngle: 0,
   })
+
   return (
     <>
       <mesh ref={ref}>
         <cylinderBufferGeometry args={args} />
         <meshStandardMaterial color={color} />
       </mesh>
-      <parent.Provider value={{ ref, position: initialPosition }}>{children}</parent.Provider>
+      <parent.Provider value={{ position, ref }}>{children}</parent.Provider>
     </>
   )
 }
 
-function Chain({
-  maxMultiplier,
-  length,
-  children,
-}: PropsWithChildren<{ maxMultiplier?: number; length: number }>) {
+type ChainProps = {
+  length: number
+  maxMultiplier?: number
+}
+
+const Chain: FC<ChainProps> = ({ children, length, maxMultiplier }) => {
   const color = useMemo(() => {
     if (maxMultiplier === undefined) return 'white'
+
     const maxExample = Math.max(...maxMultiplierExamples.filter(notUndefined))
     const red = Math.floor(Math.min(100, (maxMultiplier / maxExample) * 100))
+
     return new Color(`rgb(${red}%, 0%, ${100 - red}%)`)
   }, [maxMultiplier])
+
   return (
     <>
       {Array.from({ length }).reduce((acc: React.ReactNode) => {
         return (
-          <ChainLink maxMultiplier={maxMultiplier} color={color}>
+          <ChainLink color={color} maxMultiplier={maxMultiplier}>
             {acc}
           </ChainLink>
         )
@@ -79,51 +94,62 @@ function Chain({
   )
 }
 
-function notUndefined<T>(value: T | undefined): value is T {
-  return value !== undefined
-}
-
-const PointerHandle = ({ children, size }: PropsWithChildren<{ size: number }>) => {
-  const initialPosition: Triplet = [0, 0, 0]
+const PointerHandle: FC<{ size: number }> = ({ children, size }) => {
+  const position: Triplet = [0, 0, 0]
   const args: Triplet = [size, size, size * 2]
-  const [ref, { position }] = useBox(() => ({ type: 'Kinematic', args, position: initialPosition }))
-  useFrame(({ mouse: { x, y }, viewport: { height, width } }) =>
-    position.set((x * width) / 2, (y * height) / 2, 0),
-  )
+
+  const [ref, api] = useBox(() => ({ args, position, type: 'Kinematic' }))
+
+  useFrame(({ mouse: { x, y }, viewport: { height, width } }) => {
+    api.position.set((x * width) / 2, (y * height) / 2, 0)
+  })
+
   return (
     <group>
       <mesh ref={ref}>
         <boxBufferGeometry args={args} />
         <meshStandardMaterial />
       </mesh>
-      <parent.Provider value={{ ref, position: initialPosition }}>{children}</parent.Provider>
+      <parent.Provider value={{ position, ref }}>{children}</parent.Provider>
     </group>
   )
 }
 
-const StaticHandle = ({
-  children,
-  radius,
-  position,
-}: PropsWithChildren<{ radius: number; position: Triplet }>) => {
-  const [ref] = useSphere(() => ({ type: 'Static', args: [radius], position }))
+type StaticHandleProps = {
+  position: Triplet
+  radius: number
+}
+
+const StaticHandle: FC<StaticHandleProps> = ({ children, position, radius }) => {
+  const [ref] = useSphere(() => ({ args: [radius], position, type: 'Static' }))
   return (
     <group>
       <mesh ref={ref}>
         <sphereBufferGeometry args={[radius, 64, 64]} />
         <meshStandardMaterial />
       </mesh>
-      <parent.Provider value={{ ref, position }}>{children}</parent.Provider>
+      <parent.Provider value={{ position, ref }}>{children}</parent.Provider>
     </group>
   )
 }
 
+const style = {
+  color: 'white',
+  fontSize: '1.2em',
+  left: 50,
+  position: 'absolute',
+  top: 20,
+} as const
+
 const ChainScene = () => {
   const [resetCount, setResetCount] = useState(0)
+
   const reset = useCallback(() => {
     setResetCount((prev) => prev + 1)
   }, [])
+
   const separation = 4
+
   return (
     <>
       <Canvas shadows camera={{ position: [0, 5, 20], fov: 50 }} onPointerMissed={reset}>
@@ -146,15 +172,7 @@ const ChainScene = () => {
           ))}
         </Physics>
       </Canvas>
-      <div
-        style={{
-          position: 'absolute',
-          top: 20,
-          left: 50,
-          color: 'white',
-          fontSize: '1.2em',
-        }}
-      >
+      <div style={style}>
         <pre>
           * move pointer to move the box
           <br />
