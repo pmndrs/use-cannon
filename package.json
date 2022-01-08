@@ -1,6 +1,6 @@
 {
   "name": "@react-three/cannon",
-  "version": "4.4.1",
+  "version": "4.5.0",
   "description": "physics based hooks for react-three-fiber",
   "keywords": [
     "cannon",
@@ -24,10 +24,10 @@
     "eslint": "eslint .",
     "eslint-fix": "eslint --fix .",
     "prebuild": "tsc",
+    "prepare": "husky install",
     "prettier": "prettier --list-different .",
     "prettier-fix": "prettier --write .",
-    "test": "echo tests are missing",
-    "prepare": "husky install"
+    "test": "echo tests are missing"
   },
   "dependencies": {
     "cannon-es": "^0.18.0",

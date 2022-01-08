@@ -1,5 +1,9 @@
 # @react-three/cannon Changelog
 
+## v4.5.0 - 2022-01-08
+
+- [`constraintOptns`] Add `maxMultiplier` (@Glavin001)
+
 ## v4.4.1 - 2022-01-04
 
 - [Hooks] Destructure and set defaults intead of using `??` (@bjornstar)
