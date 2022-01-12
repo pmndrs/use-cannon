@@ -137,7 +137,7 @@ type SpringMessage =
   | SetSpringRestLengthMessage
   | SetSpringStiffnessMessage
 
-type AddContactMaterialMessage = WithUUID<
+export type AddContactMaterialMessage = WithUUID<
   'addContactMaterial',
   [materialA: MaterialOptions, materialB: MaterialOptions, options: ContactMaterialOptions]
 >

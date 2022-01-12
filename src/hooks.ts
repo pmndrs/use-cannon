@@ -2,7 +2,7 @@ import { useLayoutEffect, useContext, useRef, useMemo, useEffect, useState } fro
 import { DynamicDrawUsage, Euler, InstancedMesh, MathUtils, Object3D, Quaternion, Vector3 } from 'three'
 import { context, debugContext } from './setup'
 
-import type { ContactMaterialOptions, MaterialOptions as BaseMaterialOptions } from 'cannon-es'
+import type { ContactMaterialOptions, MaterialOptions } from 'cannon-es'
 import type { DependencyList, MutableRefObject, Ref, RefObject } from 'react'
 import type {
   AddRayMessage,
@@ -20,11 +20,6 @@ import type {
   SubscriptionTarget,
   VectorName,
 } from './setup'
-
-export type MaterialOptions =
-  | string
-  | undefined
-  | (Exclude<BaseMaterialOptions, string | undefined> & { name?: string })
 
 export type AtomicProps = {
   allowSleep: boolean

@@ -50,25 +50,16 @@ function createShape(type, args) {
 }
 
 /**
- * @callback CreateMaterialCallback
- * @param {MaterialOptions} materialOptions
- * @returns {Material}
- */
-function createMaterialFromOptions(materialOptions) {
-  return new Material(materialOptions)
-}
-
-/**
  * @function
  * @param {Object} options
  * @param {string} options.uuid
  * @param {BodyProps} options.props
  * @param {BodyShapeType} options.type
- * @param {CreateMaterialCallback=} options.createMaterial
+ * @param {(materialOptions: MaterialOptions) => Material =} options.createMaterial
  * @returns {Body}
  */
 const propsToBody = (options) => {
-  const { uuid, props, type, createMaterial = createMaterialFromOptions } = options
+  const { uuid, props, type, createMaterial = (materialOptions) => new Material(materialOptions) } = options
   const {
     args = [],
     position = [0, 0, 0],
