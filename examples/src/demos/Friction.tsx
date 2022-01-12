@@ -1,33 +1,74 @@
-import React, { useState } from 'react'
-import { Canvas } from '@react-three/fiber'
-import type { BoxProps, PlaneProps, Triplet } from '@react-three/cannon'
 import { Physics, useContactMaterial, usePlane, useBox } from '@react-three/cannon'
 import { OrbitControls } from '@react-three/drei'
+import { Canvas } from '@react-three/fiber'
+import { useState } from 'react'
+
+import type { BoxProps, PlaneProps } from '@react-three/cannon'
 
 const materialColors = {
-  ground: '#9b7653',
-  slippery: 'royalblue',
-  rubber: 'darkgrey',
   bouncy: 'yellow',
   box: '#BB8E51',
+  ground: '#9b7653',
+  rubber: 'darkgrey',
+  slippery: 'royalblue',
 } as const
 
-function Box({ color = 'white', ...props }: { color?: string } & BoxProps) {
-  const boxSize: Triplet = props.args || [1, 1, 1]
+const materialNames = ['bouncy', 'box', 'ground', 'rubber', 'slippery'] as const
+
+const style = {
+  color: 'white',
+  fontSize: '1.2em',
+  left: 50,
+  position: 'absolute',
+  top: 20,
+} as const
+
+const bouncyMaterial = {
+  name: 'bouncy',
+  /*
+  Restitution for this material.
+  If non-negative, it will be used instead of the restitution given by ContactMaterials.
+  If there's no matching ContactMaterial, the value from .defaultContactMaterial in the World will be used.
+  */
+  restitution: 1.1,
+}
+
+const boxMaterial = 'box'
+
+const groundMaterial = 'ground'
+
+/*
+Setting the friction on both materials prevents overriding the friction given by ContactMaterials.
+Since we want rubber to not be slippery we do not set this here and instead use a ContactMaterial.
+See https://github.com/pmndrs/cannon-es/blob/e9f1bccd8caa250cc6e6cdaf85389058e1c9238e/src/world/World.ts#L661-L673
+*/
+const rubberMaterial = 'rubber'
+
+const slipperyMaterial = {
+  name: 'slippery',
+  /*
+  Friction for this material.
+  If non-negative, it will be used instead of the friction given by ContactMaterials.
+  If there's no matching ContactMaterial, the value from .defaultContactMaterial in the World will be used.
+  */
+  friction: 0,
+}
+
+const Box = ({ args, color = 'white', ...props }: BoxProps & { color?: string }) => {
   const [ref] = useBox(() => ({
-    args: boxSize,
+    args,
     mass: 10,
     ...props,
   }))
   return (
     <mesh ref={ref} castShadow receiveShadow>
-      <boxBufferGeometry args={boxSize} />
+      <boxBufferGeometry args={args} />
       <meshLambertMaterial color={color} />
     </mesh>
   )
 }
 
-function Plane(props: PlaneProps) {
+const Plane = (props: PlaneProps) => {
   const [ref] = usePlane(() => ({ ...props }))
   return (
     <mesh ref={ref} receiveShadow>
@@ -37,41 +78,7 @@ function Plane(props: PlaneProps) {
   )
 }
 
-function PhysicsContent() {
-  const [rubberSlips, setRubberSlips] = useState(false)
-
-  const boxMaterial = 'box'
-  const groundMaterial = {
-    name: 'ground',
-  }
-  const slipperyMaterial = {
-    name: 'slippery',
-    /*
-    Friction for this material.
-    If non-negative, it will be used instead of the friction given by ContactMaterials.
-    If there's no matching ContactMaterial, the value from .defaultContactMaterial in the World will be used.
-    */
-    friction: 0,
-  }
-  const rubberMaterial = {
-    name: 'rubber',
-    /*
-    Setting the friction on both materials prevents overriding the friction given by ContactMaterials.
-    Since we want rubber to not be slippery we do not set this here and instead use a ContactMaterial.
-    See https://github.com/pmndrs/cannon-es/blob/e9f1bccd8caa250cc6e6cdaf85389058e1c9238e/src/world/World.ts#L661-L673
-    */
-    // friction: 0.9,
-  }
-  const bouncyMaterial = {
-    name: 'bouncy',
-    /*
-    Restitution for this material.
-    If non-negative, it will be used instead of the restitution given by ContactMaterials.
-    If there's no matching ContactMaterial, the value from .defaultContactMaterial in the World will be used.
-    */
-    restitution: 1.1,
-  }
-
+const useContactMaterials = (rubberSlips: boolean) => {
   useContactMaterial(groundMaterial, groundMaterial, {
     friction: 0.4,
     restitution: 0.3,
@@ -120,22 +127,24 @@ function PhysicsContent() {
     },
     [rubberSlips],
   )
+
   useContactMaterial(rubberMaterial, bouncyMaterial, {
     restitution: 0.5,
   })
+}
+
+function PhysicsContent() {
+  const [rubberSlips, setRubberSlips] = useState(false)
+  const toggleRubberSlips = () => setRubberSlips(!rubberSlips)
+
+  useContactMaterials(rubberSlips)
 
   return (
-    <group
-      onPointerUp={() => {
-        setRubberSlips((prev) => !prev)
-      }}
-    >
-      {/* Objects */}
+    <group onPointerMissed={toggleRubberSlips} onPointerUp={toggleRubberSlips}>
       <Box material={bouncyMaterial} position={[-7, 2, -2]} color={materialColors.bouncy} />
       <Box material={boxMaterial} position={[-7, 2, 0]} color={materialColors.box} />
       <Box material={rubberMaterial} position={[-7, 2, 2]} color={materialColors.rubber} />
       <Box material={slipperyMaterial} position={[-7, 2, 4]} color={materialColors.slippery} />
-      {/* Floors */}
       <Box
         material={slipperyMaterial}
         position={[-6, 1, 0]}
@@ -172,24 +181,16 @@ export default () => (
         <PhysicsContent />
       </Physics>
     </Canvas>
-    <div
-      style={{
-        position: 'absolute',
-        top: 20,
-        left: 50,
-        color: 'white',
-        fontSize: '1.2em',
-      }}
-    >
+    <div style={style}>
       <pre>
         * Gravity is aiming to the right
         <br />
         Click to toggle rubber slipping on slipper material
         <br />
         Materials:
-        {Object.keys(materialColors).map((name) => (
-          <div key={name}>
-            <span style={{ color: materialColors[name as keyof typeof materialColors] }}>- {name}</span>
+        {materialNames.map((name, key) => (
+          <div key={key}>
+            <span style={{ color: materialColors[name] }}> - {name}</span>
           </div>
         ))}
       </pre>
