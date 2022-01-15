@@ -1,5 +1,11 @@
 # @react-three/cannon Changelog
 
+## v4.6.0 - 2022-01-15
+
+- [`hooks`] Add `useContactMaterial` (@Glavin001)
+- [`examples`] Add `Friction` example (@Glavin001)
+- [`examples`] Add title to links (@Glavin001)
+
 ## v4.5.0 - 2022-01-08
 
 - [`constraintOptns`] Add `maxMultiplier` (@Glavin001)
