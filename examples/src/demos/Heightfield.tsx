@@ -1,12 +1,13 @@
-import { Color, Float32BufferAttribute } from 'three'
-import { useMemo, useRef, useEffect, useLayoutEffect } from 'react'
 import { Canvas, useFrame, extend, useThree } from '@react-three/fiber'
 import { Physics, useHeightfield, useSphere } from '@react-three/cannon'
 import niceColors from 'nice-color-palettes'
+import { useMemo, useRef, useEffect, useLayoutEffect } from 'react'
+import { Color, Float32BufferAttribute } from 'three'
 import { OrbitControls } from 'three-stdlib/controls/OrbitControls'
 
 import type { Node } from '@react-three/fiber'
-import type { HeightfieldProps } from '@react-three/cannon'
+import type { Triplet } from '@react-three/cannon'
+import type { FC } from 'react'
 import type { BufferGeometry, PerspectiveCamera } from 'three'
 
 extend({ OrbitControls })
@@ -64,9 +65,10 @@ function generateHeightmap({ width, height, number, scale }: GenerateHeightmapAr
   return data
 }
 
-type HeightmapGeometryProps = { heights: number[][]; elementSize: number }
-
-function HeightmapGeometry({ elementSize, heights }: HeightmapGeometryProps) {
+const HeightmapGeometry: FC<{
+  elementSize: number
+  heights: number[][]
+}> = ({ elementSize, heights }) => {
   const ref = useRef<BufferGeometry>(null)
 
   useEffect(() => {
@@ -98,12 +100,12 @@ function HeightmapGeometry({ elementSize, heights }: HeightmapGeometryProps) {
   return <bufferGeometry ref={ref} />
 }
 
-type OurHeightfieldProps = {
-  heights: HeightfieldProps['args'][0]
-} & Pick<HeightfieldProps, 'position' | 'rotation'> &
-  Required<Pick<HeightfieldProps['args'][1], 'elementSize'>>
-
-function Heightfield({ elementSize, heights, position, rotation }: OurHeightfieldProps) {
+const Heightfield: FC<{
+  elementSize: number
+  heights: number[][]
+  position: Triplet
+  rotation: Triplet
+}> = ({ elementSize, heights, position, rotation }) => {
   const [ref] = useHeightfield(() => ({
     args: [
       heights,
@@ -123,13 +125,11 @@ function Heightfield({ elementSize, heights, position, rotation }: OurHeightfiel
   )
 }
 
-type SpheresProps = {
+const Spheres: FC<{
   columns: number
   rows: number
   spread: number
-}
-
-function Spheres({ columns, rows, spread }: SpheresProps) {
+}> = ({ columns, rows, spread }) => {
   const number = rows * columns
   const [ref] = useSphere((index) => ({
     args: [0.2],
@@ -161,7 +161,7 @@ function Spheres({ columns, rows, spread }: SpheresProps) {
   )
 }
 
-const Camera = () => {
+const Camera: FC = () => {
   const cameraRef = useRef<PerspectiveCamera>(null)
   const controlsRef = useRef<OrbitControls>(null)
   const { gl, camera } = useThree()
@@ -201,8 +201,7 @@ const Camera = () => {
   )
 }
 
-const scale = 10
-export default () => (
+export default ({ scale = 10 }) => (
   <Canvas shadows>
     <color attach="background" args={['#171720']} />
     <Camera />

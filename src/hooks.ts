@@ -103,14 +103,14 @@ export type AtomicApi<K extends AtomicName> = {
 }
 
 export type QuaternionApi = {
-  set: (x: number, y: number, z: number, w: number) => void
   copy: ({ w, x, y, z }: Quaternion) => void
+  set: (x: number, y: number, z: number, w: number) => void
   subscribe: (callback: (value: Quad) => void) => () => void
 }
 
 export type VectorApi = {
-  set: (x: number, y: number, z: number) => void
   copy: ({ x, y, z }: Vector3 | Euler) => void
+  set: (x: number, y: number, z: number) => void
   subscribe: (callback: (value: Triplet) => void) => () => void
 }
 
@@ -150,11 +150,11 @@ export interface PointToPointConstraintOpts extends ConstraintOptns {
 }
 
 export interface ConeTwistConstraintOpts extends ConstraintOptns {
-  pivotA?: Triplet
-  axisA?: Triplet
-  pivotB?: Triplet
-  axisB?: Triplet
   angle?: number
+  axisA?: Triplet
+  axisB?: Triplet
+  pivotA?: Triplet
+  pivotB?: Triplet
   twistAngle?: number
 }
 export interface DistanceConstraintOpts extends ConstraintOptns {
@@ -162,22 +162,22 @@ export interface DistanceConstraintOpts extends ConstraintOptns {
 }
 
 export interface HingeConstraintOpts extends ConstraintOptns {
-  pivotA?: Triplet
   axisA?: Triplet
-  pivotB?: Triplet
   axisB?: Triplet
+  pivotA?: Triplet
+  pivotB?: Triplet
 }
 
 export type LockConstraintOpts = ConstraintOptns
 
 export interface SpringOptns {
-  restLength?: number
-  stiffness?: number
   damping?: number
-  worldAnchorA?: Triplet
-  worldAnchorB?: Triplet
   localAnchorA?: Triplet
   localAnchorB?: Triplet
+  restLength?: number
+  stiffness?: number
+  worldAnchorA?: Triplet
+  worldAnchorB?: Triplet
 }
 
 const temp = new Object3D()
@@ -748,8 +748,8 @@ export interface WheelInfoOptions {
   axleLocal?: Triplet
   chassisConnectionPointLocal?: Triplet
   customSlidingRotationalSpeed?: number
-  dampingRelaxation?: number
   dampingCompression?: number
+  dampingRelaxation?: number
   directionLocal?: Triplet
   frictionSlip?: number
   isFrontWheel?: boolean
@@ -758,8 +758,8 @@ export interface WheelInfoOptions {
   radius?: number
   rollInfluence?: number
   sideAcceleration?: number
-  suspensionStiffness?: number
   suspensionRestLength?: number
+  suspensionStiffness?: number
   useCustomSlidingRotationalSpeed?: boolean
 }
 

@@ -20,23 +20,23 @@ export type Refs = { [uuid: string]: Object3D }
 type WorkerContact = WorkerCollideEvent['data']['contact']
 export type CollideEvent = Omit<WorkerCollideEvent['data'], 'body' | 'target' | 'contact'> & {
   body: Object3D
-  target: Object3D
   contact: Omit<WorkerContact, 'bi' | 'bj'> & {
     bi: Object3D
     bj: Object3D
   }
+  target: Object3D
 }
 export type CollideBeginEvent = {
-  op: 'event'
-  type: 'collideBegin'
-  target: Object3D
   body: Object3D
+  op: 'event'
+  target: Object3D
+  type: 'collideBegin'
 }
 export type CollideEndEvent = {
-  op: 'event'
-  type: 'collideEnd'
-  target: Object3D
   body: Object3D
+  op: 'event'
+  target: Object3D
+  type: 'collideEnd'
 }
 export type RayhitEvent = Omit<WorkerRayhitEvent['data'], 'body'> & { body: Object3D | null }
 
@@ -262,12 +262,12 @@ export interface CannonWorker extends Worker {
 }
 
 export type ProviderContext = {
-  worker: CannonWorker
   bodies: MutableRefObject<{ [uuid: string]: number }>
   buffers: Buffers
-  refs: Refs
   events: CannonEvents
+  refs: Refs
   subscriptions: Subscriptions
+  worker: CannonWorker
 }
 
 export type DebugApi = {

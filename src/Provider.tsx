@@ -63,78 +63,79 @@ type WorkerFrameMessage = {
 
 export type WorkerCollideEvent = {
   data: {
-    op: 'event'
-    type: 'collide'
-    target: string
     body: string
-    contact: {
-      id: string
-      ni: number[]
-      ri: number[]
-      rj: number[]
-      impactVelocity: number
-      bi: string
-      bj: string
-      /** Contact point in world space */
-      contactPoint: number[]
-      /** Normal of the contact, relative to the colliding body */
-      contactNormal: number[]
-    }
     collisionFilters: {
       bodyFilterGroup: number
       bodyFilterMask: number
       targetFilterGroup: number
       targetFilterMask: number
     }
+    contact: {
+      bi: string
+      bj: string
+      /** Normal of the contact, relative to the colliding body */
+      contactNormal: number[]
+      /** Contact point in world space */
+      contactPoint: number[]
+      id: string
+      impactVelocity: number
+      ni: number[]
+      ri: number[]
+      rj: number[]
+    }
+    op: 'event'
+    target: string
+    type: 'collide'
   }
 }
 
 export type WorkerRayhitEvent = {
   data: {
-    op: 'event'
-    type: 'rayhit'
-    ray: {
-      from: number[]
-      to: number[]
-      direction: number[]
-      collisionFilterGroup: number
-      collisionFilterMask: number
-      uuid: string
-    }
-    hasHit: boolean
     body: string | null
-    shape: (Omit<Shape, 'body'> & { body: string }) | null
-    rayFromWorld: number[]
-    rayToWorld: number[]
+    distance: number
+    hasHit: boolean
+    hitFaceIndex: number
     hitNormalWorld: number[]
     hitPointWorld: number[]
-    hitFaceIndex: number
-    distance: number
+    op: 'event'
+    ray: {
+      collisionFilterGroup: number
+      collisionFilterMask: number
+      direction: number[]
+      from: number[]
+      to: number[]
+      uuid: string
+    }
+    rayFromWorld: number[]
+    rayToWorld: number[]
+    shape: (Omit<Shape, 'body'> & { body: string }) | null
     shouldStop: boolean
+    type: 'rayhit'
   }
 }
 export type WorkerCollideBeginEvent = {
   data: {
-    op: 'event'
-    type: 'collideBegin'
     bodyA: string
     bodyB: string
+    op: 'event'
+    type: 'collideBegin'
   }
 }
 export type WorkerCollideEndEvent = {
   data: {
-    op: 'event'
-    type: 'collideEnd'
     bodyA: string
     bodyB: string
+    op: 'event'
+    type: 'collideEnd'
   }
 }
 type WorkerEventMessage =
-  | WorkerCollideEvent
-  | WorkerRayhitEvent
   | WorkerCollideBeginEvent
   | WorkerCollideEndEvent
-type IncomingWorkerMessage = WorkerFrameMessage | WorkerEventMessage
+  | WorkerCollideEvent
+  | WorkerRayhitEvent
+
+type IncomingWorkerMessage = WorkerEventMessage | WorkerFrameMessage
 
 const v = new Vector3()
 const s = new Vector3(1, 1, 1)
