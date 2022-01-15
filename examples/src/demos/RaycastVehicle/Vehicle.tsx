@@ -8,28 +8,28 @@ import type { BoxProps, WheelInfoOptions } from '@react-three/cannon'
 import type { Object3D } from 'three'
 
 export type VehicleProps = Required<Pick<BoxProps, 'angularVelocity' | 'position' | 'rotation'>> & {
-  radius?: number
-  width?: number
-  height?: number
-  front?: number
   back?: number
-  steer?: number
   force?: number
+  front?: number
+  height?: number
   maxBrake?: number
+  radius?: number
+  steer?: number
+  width?: number
 }
 
 function Vehicle({
   angularVelocity,
+  back = -1.15,
+  force = 1500,
+  front = 1.3,
+  height = -0.04,
+  maxBrake = 50,
   position,
   radius = 0.7,
   rotation,
-  width = 1.2,
-  height = -0.04,
-  front = 1.3,
-  back = -1.15,
   steer = 0.5,
-  force = 1500,
-  maxBrake = 50,
+  width = 1.2,
 }: VehicleProps) {
   const chassisBody = useRef<Object3D>(null)
   const wheels = [
@@ -42,39 +42,39 @@ function Vehicle({
   const controls = useControls()
 
   const wheelInfo: WheelInfoOptions = {
-    radius,
+    axleLocal: [-1, 0, 0], // This is inverted for asymmetrical wheel models (left v. right sided)
+    customSlidingRotationalSpeed: -30,
+    dampingCompression: 4.4,
+    dampingRelaxation: 10,
     directionLocal: [0, -1, 0], // set to same as Physics Gravity
-    suspensionStiffness: 30,
-    suspensionRestLength: 0.3,
+    frictionSlip: 2,
     maxSuspensionForce: 1e4,
     maxSuspensionTravel: 0.3,
-    dampingRelaxation: 10,
-    dampingCompression: 4.4,
-    axleLocal: [-1, 0, 0], // This is inverted for asymmetrical wheel models (left v. right sided)
+    radius,
+    suspensionRestLength: 0.3,
+    suspensionStiffness: 30,
     useCustomSlidingRotationalSpeed: true,
-    customSlidingRotationalSpeed: -30,
-    frictionSlip: 2,
   }
 
   const wheelInfo1: WheelInfoOptions = {
     ...wheelInfo,
-    isFrontWheel: true,
     chassisConnectionPointLocal: [-width / 2, height, front],
+    isFrontWheel: true,
   }
   const wheelInfo2: WheelInfoOptions = {
     ...wheelInfo,
-    isFrontWheel: true,
     chassisConnectionPointLocal: [width / 2, height, front],
+    isFrontWheel: true,
   }
   const wheelInfo3: WheelInfoOptions = {
     ...wheelInfo,
-    isFrontWheel: false,
     chassisConnectionPointLocal: [-width / 2, height, back],
+    isFrontWheel: false,
   }
   const wheelInfo4: WheelInfoOptions = {
     ...wheelInfo,
-    isFrontWheel: false,
     chassisConnectionPointLocal: [width / 2, height, back],
+    isFrontWheel: false,
   }
 
   const [, chassisApi] = useBox(
@@ -92,14 +92,14 @@ function Vehicle({
 
   const [vehicle, vehicleApi] = useRaycastVehicle(() => ({
     chassisBody,
-    wheels,
     wheelInfos: [wheelInfo1, wheelInfo2, wheelInfo3, wheelInfo4],
+    wheels,
   }))
 
   useEffect(() => vehicleApi.sliding.subscribe((v) => console.log('sliding', v)), [])
 
   useFrame(() => {
-    const { forward, backward, left, right, brake, reset } = controls.current
+    const { backward, brake, forward, left, reset, right } = controls.current
 
     for (let e = 2; e < 4; e++) {
       vehicleApi.applyEngineForce(forward || backward ? force * (forward && !backward ? -1 : 1) : 0, 2)
@@ -149,12 +149,12 @@ export function useKeyPress(target: string[], event: (pressed: boolean) => void)
 
 export function useControls() {
   const keys = useRef({
-    forward: false,
     backward: false,
-    left: false,
-    right: false,
     brake: false,
+    forward: false,
+    left: false,
     reset: false,
+    right: false,
   })
   useKeyPress(['ArrowUp', 'w'], (pressed) => (keys.current.forward = pressed))
   useKeyPress(['ArrowDown', 's'], (pressed) => (keys.current.backward = pressed))

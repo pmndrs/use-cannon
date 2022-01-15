@@ -42,8 +42,8 @@ const Spheres = ({ colors, number, size }: InstancedGeometryProps) => {
 const Boxes = ({ colors, number, size }: InstancedGeometryProps) => {
   const args: Triplet = [size, size, size]
   const [ref, { at }] = useBox(() => ({
-    mass: 1,
     args,
+    mass: 1,
     position: [Math.random() - 0.5, Math.random() * 2, Math.random() - 0.5],
   }))
   useFrame(() => at(Math.floor(Math.random() * number)).position.set(0, Math.random() * 2, 0))
@@ -85,7 +85,7 @@ export default () => {
       mode="concurrent"
       shadows
       gl={{ alpha: false }}
-      camera={{ position: [-1, 1, 2.5], fov: 50 }}
+      camera={{ fov: 50, position: [-1, 1, 2.5] }}
       onPointerMissed={() => setGeometry((geometry) => (geometry === 'box' ? 'sphere' : 'box'))}
       onCreated={({ scene }) => (scene.background = new Color('lightblue'))}
     >

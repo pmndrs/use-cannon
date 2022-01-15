@@ -152,7 +152,7 @@ const ChainScene = () => {
 
   return (
     <>
-      <Canvas shadows camera={{ position: [0, 5, 20], fov: 50 }} onPointerMissed={reset}>
+      <Canvas shadows camera={{ fov: 50, position: [0, 5, 20] }} onPointerMissed={reset}>
         <color attach="background" args={['#171720']} />
         <ambientLight intensity={0.5} />
         <pointLight position={[-10, -10, -10]} />

@@ -38,12 +38,12 @@ function Plane(props: GroupProps) {
 }
 
 type SphereProps = {
-  radius: number
   position: Triplet
+  radius: number
 }
 
 function Sphere({ radius, position }: SphereProps) {
-  const [ref, api] = useSphere(() => ({ type: 'Static', args: [radius], position }))
+  const [ref, api] = useSphere(() => ({ args: [radius], position, type: 'Static' }))
   useFrame(({ clock: { elapsedTime } }) => {
     api.position.set(position[0], position[1], Math.sin(elapsedTime / 3) * 2)
   })
@@ -56,12 +56,12 @@ function Sphere({ radius, position }: SphereProps) {
 }
 
 type CubeProps = {
-  size: Triplet
   position: Triplet
+  size: Triplet
 }
 
 function Cube({ size, position }: CubeProps) {
-  const [ref, api] = useBox(() => ({ type: 'Static', args: size, position }))
+  const [ref, api] = useBox(() => ({ args: size, position, type: 'Static' }))
   useFrame(({ clock: { elapsedTime } }) => {
     api.position.set(Math.sin(elapsedTime / 2) * 2, position[1], position[2])
   })

@@ -20,25 +20,30 @@ type WheelProps = CylinderProps & {
   radius: number
 }
 
-export const Wheel = forwardRef<Object3D, WheelProps>(({ radius = 0.7, leftSide, ...props }, ref) => {
-  const { nodes, materials } = useGLTF('/wheel.glb') as WheelGLTF
+export const Wheel = forwardRef<Object3D, WheelProps>(({ leftSide, radius = 0.7, ...props }, ref) => {
+  const {
+    materials: { Chrom, Rubber, Steel },
+    nodes,
+  } = useGLTF('/wheel.glb') as WheelGLTF
+
   useCompoundBody(
     () => ({
-      mass: 1,
-      type: 'Kinematic',
-      material: 'wheel',
       collisionFilterGroup: 0,
-      shapes: [{ type: 'Cylinder', rotation: [0, 0, -Math.PI / 2], args: [radius, radius, 0.5, 16] }],
+      mass: 1,
+      material: 'wheel',
+      shapes: [{ args: [radius, radius, 0.5, 16], rotation: [0, 0, -Math.PI / 2], type: 'Cylinder' }],
+      type: 'Kinematic',
       ...props,
     }),
     ref,
   )
+
   return (
     <group ref={ref}>
       <group rotation={[0, 0, ((leftSide ? 1 : -1) * Math.PI) / 2]}>
-        <mesh material={materials.Rubber} geometry={nodes.wheel_1.geometry} />
-        <mesh material={materials.Steel} geometry={nodes.wheel_2.geometry} />
-        <mesh material={materials.Chrom} geometry={nodes.wheel_3.geometry} />
+        <mesh material={Rubber} geometry={nodes.wheel_1.geometry} />
+        <mesh material={Steel} geometry={nodes.wheel_2.geometry} />
+        <mesh material={Chrom} geometry={nodes.wheel_3.geometry} />
       </group>
     </group>
   )

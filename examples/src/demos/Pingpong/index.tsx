@@ -16,18 +16,16 @@ import type { BufferGeometry, Loader, Material, Object3D, Skeleton } from 'three
 import type { GLTF } from 'three-stdlib/loaders/GLTFLoader'
 
 type State = {
-  count: number
-  welcome: boolean
   api: {
     pong: (velocity: number) => void
     reset: (welcome: boolean) => void
   }
+  count: number
+  welcome: boolean
 }
 
 const ping = new Audio(pingSound)
 const useStore = create<State>((set) => ({
-  count: 0,
-  welcome: true,
   api: {
     pong(velocity) {
       ping.currentTime = 0
@@ -35,8 +33,10 @@ const useStore = create<State>((set) => ({
       ping.play()
       if (velocity > 4) set((state) => ({ count: state.count + 1 }))
     },
-    reset: (welcome) => set((state) => ({ welcome, count: welcome ? state.count : 0 })),
+    reset: (welcome) => set((state) => ({ count: welcome ? state.count : 0, welcome })),
   },
+  count: 0,
+  welcome: true,
 }))
 
 type PingPongGLTF = GLTF & {
@@ -64,9 +64,9 @@ function Paddle() {
   const count = useStore((state) => state.count)
   const model = useRef<Object3D>(null)
   const [ref, api] = useBox(() => ({
-    type: 'Kinematic',
     args: [3.4, 1, 3],
     onCollide: (e) => pong(e.contact.impactVelocity),
+    type: 'Kinematic',
   }))
   const values = useRef([0, 0])
   useFrame((state) => {
@@ -111,7 +111,7 @@ function Paddle() {
 
 function Ball() {
   const map = useLoader(TextureLoader, earthImg)
-  const [ref] = useSphere(() => ({ mass: 1, args: [0.5], position: [0, 5, 0] }))
+  const [ref] = useSphere(() => ({ args: [0.5], mass: 1, position: [0, 5, 0] }))
   return (
     <mesh castShadow ref={ref}>
       <sphereBufferGeometry args={[0.5, 64, 64]} />
@@ -123,13 +123,23 @@ function Ball() {
 function ContactGround() {
   const { reset } = useStore((state) => state.api)
   const [ref] = usePlane(() => ({
-    type: 'Static',
-    rotation: [-Math.PI / 2, 0, 0],
-    position: [0, -10, 0],
     onCollide: () => reset(true),
+    position: [0, -10, 0],
+    rotation: [-Math.PI / 2, 0, 0],
+    type: 'Static',
   }))
   return <mesh ref={ref} />
 }
+
+const style = (welcome: boolean) =>
+  ({
+    color: 'white',
+    display: welcome ? 'block' : 'none',
+    fontSize: '1.2em',
+    left: 50,
+    position: 'absolute',
+    top: 50,
+  } as const)
 
 export default function () {
   const welcome = useStore((state) => state.welcome)
@@ -139,7 +149,7 @@ export default function () {
     <>
       <Canvas
         shadows
-        camera={{ position: [0, 5, 12], fov: 50 }}
+        camera={{ fov: 50, position: [0, 5, 12] }}
         onPointerMissed={() => welcome && reset(false)}
       >
         <color attach="background" args={['#171720']} />
@@ -159,12 +169,12 @@ export default function () {
           iterations={20}
           tolerance={0.0001}
           defaultContactMaterial={{
-            friction: 0.9,
-            restitution: 0.7,
-            contactEquationStiffness: 1e7,
             contactEquationRelaxation: 1,
-            frictionEquationStiffness: 1e7,
+            contactEquationStiffness: 1e7,
+            friction: 0.9,
             frictionEquationRelaxation: 2,
+            frictionEquationStiffness: 1e7,
+            restitution: 0.7,
           }}
           gravity={[0, -40, 0]}
           allowSleep={false}
@@ -180,18 +190,7 @@ export default function () {
           </Suspense>
         </Physics>
       </Canvas>
-      <div
-        style={{
-          position: 'absolute',
-          display: welcome ? 'block' : 'none',
-          top: 50,
-          left: 50,
-          color: 'white',
-          fontSize: '1.2em',
-        }}
-      >
-        * click anywhere to start
-      </div>
+      <div style={style(welcome)}>* click anywhere to start</div>
     </>
   )
 }

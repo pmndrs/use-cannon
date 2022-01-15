@@ -45,13 +45,13 @@ See https://github.com/pmndrs/cannon-es/blob/e9f1bccd8caa250cc6e6cdaf85389058e1c
 const rubberMaterial = 'rubber'
 
 const slipperyMaterial = {
-  name: 'slippery',
   /*
   Friction for this material.
   If non-negative, it will be used instead of the friction given by ContactMaterials.
   If there's no matching ContactMaterial, the value from .defaultContactMaterial in the World will be used.
   */
   friction: 0,
+  name: 'slippery',
 }
 
 const Box = ({ args, color = 'white', ...props }: BoxProps & { color?: string }) => {
@@ -80,24 +80,25 @@ const Plane = (props: PlaneProps) => {
 
 const useContactMaterials = (rubberSlips: boolean) => {
   useContactMaterial(groundMaterial, groundMaterial, {
-    friction: 0.4,
-    restitution: 0.3,
-    contactEquationStiffness: 1e8,
     contactEquationRelaxation: 3,
-    frictionEquationStiffness: 1e8,
-  })
-  useContactMaterial(boxMaterial, groundMaterial, {
-    friction: 0.4,
-    restitution: 0.3,
     contactEquationStiffness: 1e8,
-    contactEquationRelaxation: 3,
+    friction: 0.4,
     frictionEquationStiffness: 1e8,
+    restitution: 0.3,
   })
 
+  useContactMaterial(boxMaterial, groundMaterial, {
+    contactEquationRelaxation: 3,
+    contactEquationStiffness: 1e8,
+    friction: 0.4,
+    frictionEquationStiffness: 1e8,
+    restitution: 0.3,
+  })
   useContactMaterial(boxMaterial, slipperyMaterial, {
     friction: 0,
     restitution: 0.3,
   })
+
   useContactMaterial(groundMaterial, slipperyMaterial, {
     friction: 0,
     restitution: 0.3,

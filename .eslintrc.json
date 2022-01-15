@@ -51,7 +51,8 @@
     "react/display-name": 0,
     "react/prop-types": 0,
     "react/react-in-jsx-scope": 0,
-    "semi": ["error", "never"]
+    "semi": ["error", "never"],
+    "sort-keys": "error"
   },
   "settings": {
     "react": {

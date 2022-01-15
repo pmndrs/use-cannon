@@ -20,11 +20,11 @@ const makeVec3 = ([x, y, z]) => new Vec3(x, y, z)
 const prepareSphere = (args) => (Array.isArray(args) ? args : [args])
 const prepareConvexPolyhedron = ([v, faces, n, a, boundingSphereRadius]) => [
   {
-    vertices: v ? v.map(makeVec3) : undefined,
-    faces,
-    normals: n ? n.map(makeVec3) : undefined,
     axes: a ? a.map(makeVec3) : undefined,
     boundingSphereRadius,
+    faces,
+    normals: n ? n.map(makeVec3) : undefined,
+    vertices: v ? v.map(makeVec3) : undefined,
   },
 ]
 
@@ -61,27 +61,27 @@ function createShape(type, args) {
 const propsToBody = (options) => {
   const { uuid, props, type, createMaterial = (materialOptions) => new Material(materialOptions) } = options
   const {
-    args = [],
-    position = [0, 0, 0],
-    rotation = [0, 0, 0],
-    velocity = [0, 0, 0],
-    angularVelocity = [0, 0, 0],
-    linearFactor = [1, 1, 1],
     angularFactor = [1, 1, 1],
-    type: bodyType,
+    angularVelocity = [0, 0, 0],
+    args = [],
+    collisionResponse,
+    linearFactor = [1, 1, 1],
     mass,
     material,
-    shapes,
     onCollide,
-    collisionResponse,
+    position = [0, 0, 0],
+    rotation = [0, 0, 0],
+    shapes,
+    type: bodyType,
+    velocity = [0, 0, 0],
     ...extra
   } = props
 
   const body = new Body({
     ...extra,
     mass: bodyType === 'Static' ? 0 : mass,
-    type: bodyType ? Body[bodyType.toUpperCase()] : undefined,
     material: material ? createMaterial(material) : undefined,
+    type: bodyType ? Body[bodyType.toUpperCase()] : undefined,
   })
   body.uuid = uuid
 

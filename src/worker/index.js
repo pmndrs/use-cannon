@@ -29,33 +29,32 @@ function syncBodies() {
 
 function emitBeginContact({ bodyA, bodyB }) {
   if (!bodyA || !bodyB) return
-  self.postMessage({ op: 'event', type: 'collideBegin', bodyA: bodyA.uuid, bodyB: bodyB.uuid })
+  self.postMessage({ bodyA: bodyA.uuid, bodyB: bodyB.uuid, op: 'event', type: 'collideBegin' })
 }
 
 function emitEndContact({ bodyA, bodyB }) {
   if (!bodyA || !bodyB) return
-  self.postMessage({ op: 'event', type: 'collideEnd', bodyA: bodyA.uuid, bodyB: bodyB.uuid })
+  self.postMessage({ bodyA: bodyA.uuid, bodyB: bodyB.uuid, op: 'event', type: 'collideEnd' })
 }
 
+const broadphases = { NaiveBroadphase, SAPBroadphase }
 const createMaterial = createMaterialFactory(state.world.materials)
 
-self.onmessage = (e) => {
-  const { op, uuid, type, positions, quaternions, props } = e.data
-  const broadphases = { NaiveBroadphase, SAPBroadphase }
+self.onmessage = ({ data: { op, positions, props, quaternions, type, uuid } }) => {
   switch (op) {
     case 'init': {
       const {
-        gravity,
-        tolerance,
-        step,
-        iterations,
         allowSleep,
-        broadphase,
         axisIndex,
+        broadphase,
         defaultContactMaterial,
+        gravity,
+        iterations,
         quatNormalizeFast,
         quatNormalizeSkip,
+        step,
         solver,
+        tolerance,
       } = props
       state.world.allowSleep = allowSleep
       state.world.gravity.set(gravity[0], gravity[1], gravity[2])
@@ -109,11 +108,11 @@ self.onmessage = (e) => {
         observations.push([id, value, type])
       }
       const message = {
+        active: state.world.hasActiveBodies,
+        observations,
         op: 'frame',
         positions,
         quaternions,
-        observations,
-        active: state.world.hasActiveBodies,
       }
       if (state.bodiesNeedSyncing) {
         message.bodies = state.world.bodies.map((body) => body.uuid)
@@ -138,29 +137,29 @@ self.onmessage = (e) => {
             const contactPoint = bi.position.vadd(ri)
             const contactNormal = bi === body ? ni : ni.scale(-1)
             self.postMessage({
-              op: 'event',
-              type,
               body: body.uuid,
-              target: target.uuid,
-              contact: {
-                ni: ni.toArray(),
-                ri: ri.toArray(),
-                rj: rj.toArray(),
-                bi: bi.uuid,
-                bj: bj.uuid,
-                impactVelocity: contact.getImpactVelocityAlongNormal(),
-                // World position of the contact
-                contactPoint: contactPoint.toArray(),
-                // Normal of the contact, relative to the colliding body
-                contactNormal: contactNormal.toArray(),
-                id,
-              },
               collisionFilters: {
                 bodyFilterGroup: body.collisionFilterGroup,
                 bodyFilterMask: body.collisionFilterMask,
                 targetFilterGroup: target.collisionFilterGroup,
                 targetFilterMask: target.collisionFilterMask,
               },
+              contact: {
+                bi: bi.uuid,
+                bj: bj.uuid,
+                // Normal of the contact, relative to the colliding body
+                contactNormal: contactNormal.toArray(),
+                // World position of the contact
+                contactPoint: contactPoint.toArray(),
+                id,
+                impactVelocity: contact.getImpactVelocityAlongNormal(),
+                ni: ni.toArray(),
+                ri: ri.toArray(),
+                rj: rj.toArray(),
+              },
+              op: 'event',
+              target: target.uuid,
+              type,
             })
           })
       }
@@ -173,7 +172,7 @@ self.onmessage = (e) => {
       break
     }
     case 'subscribe': {
-      const { id, type, target } = props
+      const { id, target, type } = props
       state.subscriptions[id] = [uuid, type, target]
       break
     }
@@ -295,19 +294,19 @@ self.onmessage = (e) => {
           break
         case 'ConeTwist':
           constraint = new ConeTwistConstraint(state.bodies[bodyA], state.bodies[bodyB], {
-            pivotA,
-            pivotB,
             axisA,
             axisB,
+            pivotA,
+            pivotB,
             ...options,
           })
           break
         case 'Hinge':
           constraint = new HingeConstraint(state.bodies[bodyA], state.bodies[bodyB], {
-            pivotA,
-            pivotB,
             axisA,
             axisB,
+            pivotA,
+            pivotB,
             ...options,
           })
           break
@@ -381,7 +380,7 @@ self.onmessage = (e) => {
 
     case 'addSpring': {
       const [bodyA, bodyB, optns] = props
-      let { worldAnchorA, worldAnchorB, localAnchorA, localAnchorB, restLength, stiffness, damping } = optns
+      let { damping, localAnchorA, localAnchorB, restLength, stiffness, worldAnchorA, worldAnchorB } = optns
 
       worldAnchorA = Array.isArray(worldAnchorA) ? new Vec3(...worldAnchorA) : undefined
       worldAnchorB = Array.isArray(worldAnchorB) ? new Vec3(...worldAnchorB) : undefined
@@ -389,13 +388,13 @@ self.onmessage = (e) => {
       localAnchorB = Array.isArray(localAnchorB) ? new Vec3(...localAnchorB) : undefined
 
       let spring = new Spring(state.bodies[bodyA], state.bodies[bodyB], {
-        worldAnchorA,
-        worldAnchorB,
+        damping,
         localAnchorA,
         localAnchorB,
         restLength,
         stiffness,
-        damping,
+        worldAnchorA,
+        worldAnchorB,
       })
 
       spring.uuid = uuid
@@ -435,22 +434,22 @@ self.onmessage = (e) => {
         const { body, shape, rayFromWorld, rayToWorld, hitNormalWorld, hitPointWorld, ...rest } =
           options.result
         self.postMessage({
-          op: 'event',
-          type: 'rayhit',
-          ray: {
-            from,
-            to,
-            direction: ray.direction.toArray(),
-            collisionFilterGroup: ray.collisionFilterGroup,
-            collisionFilterMask: ray.collisionFilterMask,
-            uuid,
-          },
           body: body ? body.uuid : null,
-          shape: shape ? { ...shape, body: body.uuid } : null,
-          rayFromWorld: rayFromWorld.toArray(),
-          rayToWorld: rayToWorld.toArray(),
           hitNormalWorld: hitNormalWorld.toArray(),
           hitPointWorld: hitPointWorld.toArray(),
+          op: 'event',
+          ray: {
+            collisionFilterGroup: ray.collisionFilterGroup,
+            collisionFilterMask: ray.collisionFilterMask,
+            direction: ray.direction.toArray(),
+            from,
+            to,
+            uuid,
+          },
+          rayFromWorld: rayFromWorld.toArray(),
+          rayToWorld: rayToWorld.toArray(),
+          shape: shape ? { ...shape, body: body.uuid } : null,
+          type: 'rayhit',
           ...rest,
         })
       }
@@ -482,7 +481,8 @@ self.onmessage = (e) => {
       vehicle.preStep = () => {
         state.vehicles[uuid].updateVehicle(state.world.dt)
       }
-      ;(vehicle.postStep = () => {
+
+      vehicle.postStep = () => {
         for (let i = 0; i < state.vehicles[uuid].wheelInfos.length; i++) {
           state.vehicles[uuid].updateWheelTransform(i)
           const t = state.vehicles[uuid].wheelInfos[i].worldTransform
@@ -490,8 +490,10 @@ self.onmessage = (e) => {
           wheelBody.position.copy(t.position)
           wheelBody.quaternion.copy(t.quaternion)
         }
-      }),
-        (state.vehicles[uuid] = vehicle)
+      }
+
+      state.vehicles[uuid] = vehicle
+
       state.world.addEventListener('preStep', state.vehicles[uuid].preStep)
       state.world.addEventListener('postStep', state.vehicles[uuid].postStep)
       break

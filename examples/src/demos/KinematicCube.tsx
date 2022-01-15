@@ -21,7 +21,7 @@ function Plane({ color, ...props }: OurPlaneProps) {
 
 function Box() {
   const boxSize: Triplet = [4, 4, 4]
-  const [ref, api] = useBox(() => ({ type: 'Kinematic', mass: 1, args: boxSize }))
+  const [ref, api] = useBox(() => ({ args: boxSize, mass: 1, type: 'Kinematic' }))
   useFrame((state) => {
     const t = state.clock.getElapsedTime()
     api.position.set(Math.sin(t * 2) * 5, Math.cos(t * 2) * 5, 3)

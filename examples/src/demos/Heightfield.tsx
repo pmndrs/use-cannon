@@ -66,7 +66,7 @@ function generateHeightmap({ width, height, number, scale }: GenerateHeightmapAr
 
 type HeightmapGeometryProps = { heights: number[][]; elementSize: number }
 
-function HeightmapGeometry({ heights, elementSize }: HeightmapGeometryProps) {
+function HeightmapGeometry({ elementSize, heights }: HeightmapGeometryProps) {
   const ref = useRef<BufferGeometry>(null)
 
   useEffect(() => {
@@ -129,7 +129,7 @@ type SpheresProps = {
   spread: number
 }
 
-function Spheres({ rows, columns, spread }: SpheresProps) {
+function Spheres({ columns, rows, spread }: SpheresProps) {
   const number = rows * columns
   const [ref] = useSphere((index) => ({
     args: [0.2],
@@ -212,10 +212,10 @@ export default () => (
       <Heightfield
         elementSize={(scale * 1) / 128}
         heights={generateHeightmap({
-          width: 128,
           height: 128,
           number: 10,
           scale: 1,
+          width: 128,
         })}
         position={[-scale / 2, 0, scale / 2]}
         rotation={[-Math.PI / 2, 0, 0]}

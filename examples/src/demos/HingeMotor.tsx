@@ -28,7 +28,7 @@ const GROUP_BODY = 2 ** 1
 type OurPlaneProps = Pick<PlaneBufferGeometryProps, 'args'> & Pick<PlaneProps, 'position' | 'rotation'>
 
 function Plane({ args, ...props }: OurPlaneProps) {
-  const [ref] = usePlane(() => ({ type: 'Static', collisionFilterGroup: GROUP_GROUND, ...props }))
+  const [ref] = usePlane(() => ({ collisionFilterGroup: GROUP_GROUND, type: 'Static', ...props }))
   return (
     <group ref={ref}>
       <mesh>
@@ -89,9 +89,9 @@ const ConstraintPart = forwardRef<Object3D | null, ConstraintPartProps>(
     )
 
     const [, , hingeApi] = useHingeConstraint(bodyRef, parent[0], {
-      collideConnected: false,
       axisA: [0, 0, 1],
       axisB: [0, 0, 1],
+      collideConnected: false,
       pivotA: normPivot(pivot),
       pivotB: normParentPivot(parentPivot),
       ...config,
@@ -121,7 +121,7 @@ const ConstraintPart = forwardRef<Object3D | null, ConstraintPartProps>(
 type BoxShapeProps = Pick<MeshStandardMaterialProps, 'color' | 'opacity' | 'transparent'> &
   Pick<BoxProps, 'args'>
 const BoxShape = forwardRef<Object3D | null, BoxShapeProps>(
-  ({ children, transparent = false, opacity = 1, color = 'white', args = [1, 1, 1], ...props }, ref) => (
+  ({ args = [1, 1, 1], children, color = 'white', opacity = 1, transparent = false, ...props }, ref) => (
     <mesh receiveShadow castShadow ref={ref} {...props}>
       <boxBufferGeometry args={args} />
       <meshStandardMaterial color={color} transparent={transparent} opacity={opacity} />
@@ -165,17 +165,17 @@ const Legs = forwardRef<Object3D, LegsProps>(({ bodyDepth = 0, delay = 0, motorS
 
   // Hinge constraints for triangulations
   useHingeConstraint(frontUpperLegRef, frontLegRef, {
-    collideConnected: false,
     axisA: [0, 0, 1],
     axisB: [0, 0, 1],
+    collideConnected: false,
     pivotA: size3([0, 0.5, 0.5]),
     pivotB: size5([0, 0.5, -0.5]),
   })
 
   useHingeConstraint(backLegRef, horizontalRef, {
-    collideConnected: false,
     axisA: [0, 0, 1],
     axisB: [0, 0, 1],
+    collideConnected: false,
     pivotA: size5([0, 0.5, 0.5]),
     pivotB: size10([0, 0.5, -0.5]),
   })
@@ -331,6 +331,15 @@ function Scene() {
     </Suspense>
   )
 }
+
+const style = {
+  color: 'white',
+  fontSize: '1.2em',
+  left: 50,
+  position: 'absolute',
+  top: 20,
+} as const
+
 export default () => {
   return (
     <>
@@ -339,15 +348,7 @@ export default () => {
         <Scene />
       </Canvas>
 
-      <div
-        style={{
-          position: 'absolute',
-          top: 20,
-          left: 50,
-          color: 'white',
-          fontSize: '1.2em',
-        }}
-      >
+      <div style={style}>
         <pre>* click to reduce speed</pre>
       </div>
     </>

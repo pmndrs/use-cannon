@@ -8,6 +8,16 @@ import type { SphereProps, TrimeshProps } from '@react-three/cannon'
 import type { GLTF } from 'three-stdlib/loaders/GLTFLoader'
 import type { BufferGeometry } from 'three'
 
+type BowlGLTF = GLTF & {
+  nodes: {
+    bowl: {
+      geometry: BufferGeometry & {
+        index: ArrayLike<number>
+      }
+    }
+  }
+}
+
 type Store = {
   isPaused: boolean
   pause: () => void
@@ -41,29 +51,26 @@ const WeirdCheerio = ({ args = [0.1], position }: Pick<SphereProps, 'args' | 'po
   )
 }
 
-type BowlGLTF = GLTF & {
-  nodes: {
-    bowl: {
-      geometry: BufferGeometry & {
-        index: ArrayLike<number>
-      }
-    }
-  }
-}
-
 const Bowl = ({ rotation }: Pick<TrimeshProps, 'rotation'>) => {
-  const { nodes } = useGLTF('/bowl.glb') as BowlGLTF
-  const geometry = nodes.bowl.geometry
-  const vertices = geometry.attributes.position.array
-  const indices = geometry.index.array
+  const {
+    nodes: {
+      bowl: { geometry },
+    },
+  } = useGLTF('/bowl.glb') as BowlGLTF
+  const {
+    attributes: {
+      position: { array: vertices },
+    },
+    index: { array: indices },
+  } = geometry
 
   const [hovered, setHover] = useState(false)
   const { isPaused } = useStore()
 
   const [ref] = useTrimesh(() => ({
+    args: [vertices, indices],
     mass: 0,
     rotation,
-    args: [vertices, indices],
   }))
 
   useEffect(() => {
@@ -73,7 +80,7 @@ const Bowl = ({ rotation }: Pick<TrimeshProps, 'rotation'>) => {
   return (
     <mesh
       ref={ref}
-      geometry={nodes.bowl.geometry}
+      geometry={geometry}
       onPointerOver={() => setHover(true)}
       onPointerOut={() => setHover(false)}
     >
@@ -81,6 +88,14 @@ const Bowl = ({ rotation }: Pick<TrimeshProps, 'rotation'>) => {
     </mesh>
   )
 }
+
+const style = {
+  color: 'white',
+  fontSize: '1.2em',
+  left: 50,
+  position: 'absolute',
+  top: 20,
+} as const
 
 export default () => (
   <>
@@ -97,15 +112,7 @@ export default () => (
         <WeirdCheerio position={[0.2, 13, 1]} />
       </Physics>
     </Canvas>
-    <div
-      style={{
-        position: 'absolute',
-        top: 20,
-        left: 50,
-        color: 'white',
-        fontSize: '1.2em',
-      }}
-    >
+    <div style={style}>
       <pre>
         <Controls />
       </pre>
