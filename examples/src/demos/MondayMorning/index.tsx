@@ -30,7 +30,7 @@ import type { GLTF } from 'three-stdlib/loaders/GLTFLoader'
 import type { BufferGeometry, Material, Object3D } from 'three'
 import type { ShapeName } from './createConfig'
 
-const { shapes, joints } = createRagdoll(4.8, Math.PI / 16, Math.PI / 16, 0)
+const { joints, shapes } = createRagdoll(4.8, Math.PI / 16, Math.PI / 16, 0)
 const context = createContext<RefObject<Object3D>>(createRef<Object3D>())
 const cursor = createRef<Object3D>()
 
@@ -39,13 +39,13 @@ const double = ([x, y, z]: Readonly<Triplet>): Triplet => [x * 2, y * 2, z * 2]
 function useDragConstraint(child: RefObject<Object3D>) {
   const [, , api] = usePointToPointConstraint(cursor, child, { pivotA: [0, 0, 0], pivotB: [0, 0, 0] })
   useEffect(() => void api.disable(), [])
-  const onPointerUp = useCallback(() => api.disable(), [])
   const onPointerDown = useCallback((e) => {
     e.stopPropagation()
     e.target.setPointerCapture(e.pointerId)
     api.enable()
   }, [])
-  return { onPointerUp, onPointerDown }
+  const onPointerUp = useCallback(() => api.disable(), [])
+  return { onPointerDown, onPointerUp }
 }
 
 type BoxProps = PropsWithChildren<
@@ -54,7 +54,7 @@ type BoxProps = PropsWithChildren<
     Pick<MeshStandardMaterialProps, 'color' | 'opacity' | 'transparent'>
 >
 const Box = forwardRef<Object3D | undefined, BoxProps>(
-  ({ children, transparent = false, opacity = 1, color = 'white', args = [1, 1, 1], ...props }, ref) => {
+  ({ args = [1, 1, 1], children, color = 'white', opacity = 1, transparent = false, ...props }, ref) => {
     return (
       <mesh receiveShadow castShadow ref={ref} {...props}>
         <boxBufferGeometry args={args} />
@@ -71,11 +71,11 @@ type BodyPartProps = PropsWithChildren<{
   render?: ReactNode
 }> &
   BoxProps
-const BodyPart = ({ config = {}, children, render, name, ...props }: BodyPartProps) => {
+const BodyPart = ({ children, config = {}, name, render, ...props }: BodyPartProps) => {
   const { color, args, mass, position } = shapes[name]
   const scale = useMemo<Triplet>(() => double(args), [args])
   const parent = useContext(context)
-  const [ref] = useBox(() => ({ mass, args: [...args], position: [...position], linearDamping: 0.99 }))
+  const [ref] = useBox(() => ({ args: [...args], linearDamping: 0.99, mass, position: [...position] }))
   useConeTwistConstraint(ref, parent, config)
   const bind = useDragConstraint(ref)
   return (
@@ -91,7 +91,7 @@ const BodyPart = ({ config = {}, children, render, name, ...props }: BodyPartPro
 function Ragdoll(props: Pick<MeshProps, 'position'>) {
   const mouth = useRef<Object3D>(null!)
   const eyes = useRef<Object3D>(null!)
-  const [ref, api] = useSphere(() => ({ type: 'Static', args: [0.5], position: [0, 0, 10000] }), cursor)
+  const [ref, api] = useSphere(() => ({ args: [0.5], position: [0, 0, 10000], type: 'Static' }), cursor)
   useFrame((e) => {
     eyes.current.position.y = Math.sin(e.clock.getElapsedTime() * 1) * 0.06
     mouth.current.scale.y = (1 + Math.sin(e.clock.getElapsedTime())) * 1.5
@@ -107,33 +107,33 @@ function Ragdoll(props: Pick<MeshProps, 'position'>) {
       </mesh>
       <BodyPart
         {...props}
-        name={'head'}
         config={joints['neckJoint']}
+        name={'head'}
         render={
           <>
             <group ref={eyes}>
               <Box
-                position={[-0.3, 0.1, 0.5]}
                 args={[0.3, 0.01, 0.1]}
                 color="black"
-                transparent
                 opacity={0.8}
+                position={[-0.3, 0.1, 0.5]}
+                transparent
               />
               <Box
-                position={[0.3, 0.1, 0.5]}
                 args={[0.3, 0.01, 0.1]}
                 color="black"
-                transparent
                 opacity={0.8}
+                position={[0.3, 0.1, 0.5]}
+                transparent
               />
             </group>
             <Box
-              ref={mouth}
-              position={[0, -0.2, 0.5]}
               args={[0.3, 0.05, 0.1]}
               color="#270000"
-              transparent
               opacity={0.8}
+              position={[0, -0.2, 0.5]}
+              ref={mouth}
+              transparent
             />
           </>
         }
@@ -169,16 +169,16 @@ function Plane(props: PlaneProps) {
 function Chair() {
   const [ref] = useCompoundBody(() => ({
     mass: 1,
-    type: 'Dynamic',
     position: [-6, 0, 0],
     shapes: [
-      { type: 'Box', mass: 1, position: [0, 0, 0], args: [1.5, 1.5, 0.25] },
-      { type: 'Box', mass: 1, position: [0, -1.75, 1.25], args: [1.5, 0.25, 1.5] },
-      { type: 'Box', mass: 10, position: [5 + -6.25, -3.5, 0], args: [0.25, 1.5, 0.25] },
-      { type: 'Box', mass: 10, position: [5 + -3.75, -3.5, 0], args: [0.25, 1.5, 0.25] },
-      { type: 'Box', mass: 10, position: [5 + -6.25, -3.5, 2.5], args: [0.25, 1.5, 0.25] },
-      { type: 'Box', mass: 10, position: [5 + -3.75, -3.5, 2.5], args: [0.25, 1.5, 0.25] },
+      { args: [1.5, 1.5, 0.25], mass: 1, position: [0, 0, 0], type: 'Box' },
+      { args: [1.5, 0.25, 1.5], mass: 1, position: [0, -1.75, 1.25], type: 'Box' },
+      { args: [0.25, 1.5, 0.25], mass: 10, position: [5 + -6.25, -3.5, 0], type: 'Box' },
+      { args: [0.25, 1.5, 0.25], mass: 10, position: [5 + -3.75, -3.5, 0], type: 'Box' },
+      { args: [0.25, 1.5, 0.25], mass: 10, position: [5 + -6.25, -3.5, 2.5], type: 'Box' },
+      { args: [0.25, 1.5, 0.25], mass: 10, position: [5 + -3.75, -3.5, 2.5], type: 'Box' },
     ],
+    type: 'Dynamic',
   }))
   const bind = useDragConstraint(ref)
   return (
@@ -207,11 +207,10 @@ interface CupGLTF extends GLTF {
 function Mug() {
   const { nodes, materials } = useLoader(GLTFLoader, '/cup.glb') as CupGLTF
   const [ref] = useCylinder(() => ({
-    mass: 1,
-    rotation: [Math.PI / 2, 0, 0],
-    position: [9, 0, 0],
-    //radiusTop, radiusBottom, height, numSegments
     args: [0.6, 0.6, 1, 16],
+    mass: 1,
+    position: [9, 0, 0],
+    rotation: [Math.PI / 2, 0, 0],
   }))
   const bind = useDragConstraint(ref)
   return (
@@ -235,11 +234,11 @@ function Mug() {
 }
 
 function Table() {
-  const [seat] = useBox(() => ({ type: 'Static', position: [9, -0.8, 0], args: [2.5, 0.25, 2.5] }))
-  const [leg1] = useBox(() => ({ type: 'Static', position: [7.2, -3, 1.8], args: [0.25, 2, 0.25] }))
-  const [leg2] = useBox(() => ({ type: 'Static', position: [10.8, -3, 1.8], args: [0.25, 2, 0.25] }))
-  const [leg3] = useBox(() => ({ type: 'Static', position: [7.2, -3, -1.8], args: [0.25, 2, 0.25] }))
-  const [leg4] = useBox(() => ({ type: 'Static', position: [10.8, -3, -1.8], args: [0.25, 2, 0.25] }))
+  const [seat] = useBox(() => ({ args: [2.5, 0.25, 2.5], position: [9, -0.8, 0], type: 'Static' }))
+  const [leg1] = useBox(() => ({ args: [0.25, 2, 0.25], position: [7.2, -3, 1.8], type: 'Static' }))
+  const [leg2] = useBox(() => ({ args: [0.25, 2, 0.25], position: [10.8, -3, 1.8], type: 'Static' }))
+  const [leg3] = useBox(() => ({ args: [0.25, 2, 0.25], position: [7.2, -3, -1.8], type: 'Static' }))
+  const [leg4] = useBox(() => ({ args: [0.25, 2, 0.25], position: [10.8, -3, -1.8], type: 'Static' }))
   return (
     <>
       <Box scale={[5, 0.5, 5]} ref={seat} />
@@ -256,12 +255,12 @@ function Table() {
 
 const Lamp = () => {
   const light = useRef()
-  const [fixed] = useSphere(() => ({ type: 'Static', args: [1], position: [0, 16, 0] }))
+  const [fixed] = useSphere(() => ({ args: [1], position: [0, 16, 0], type: 'Static' }))
   const [lamp] = useBox(() => ({
-    mass: 1,
+    angulardamping: 1.99,
     args: [1, 0, 5],
     linearDamping: 0.9,
-    angulardamping: 1.99,
+    mass: 1,
     position: [0, 16, 0],
   }))
   usePointToPointConstraint(fixed, lamp, { pivotA: [0, 0, 0], pivotB: [0, 2, 0] })
@@ -280,10 +279,10 @@ const Lamp = () => {
 
 export default () => (
   <Canvas
-    style={{ cursor: 'none' }}
-    shadows
+    camera={{ far: 100, near: 1, position: [-25, 20, 25], zoom: 25 }}
     orthographic
-    camera={{ position: [-25, 20, 25], zoom: 25, near: 1, far: 100 }}
+    shadows
+    style={{ cursor: 'none' }}
   >
     <color attach="background" args={['#171720']} />
     <fog attach="fog" args={['#171720', 20, 70]} />

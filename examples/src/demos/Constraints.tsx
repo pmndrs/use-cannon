@@ -9,9 +9,9 @@ const Box = forwardRef<Object3D, BoxProps>((props, ref) => {
   const args: Triplet = [1, 1, 1]
   useBox(
     () => ({
-      mass: 1,
       args,
       linearDamping: 0.7,
+      mass: 1,
       ...props,
     }),
     ref,
@@ -25,7 +25,7 @@ const Box = forwardRef<Object3D, BoxProps>((props, ref) => {
 })
 
 const Ball = forwardRef<Object3D, SphereProps>((props, ref) => {
-  const [, { position }] = useSphere(() => ({ type: 'Kinematic', args: [0.5], ...props }), ref)
+  const [, { position }] = useSphere(() => ({ args: [0.5], type: 'Kinematic', ...props }), ref)
   useFrame(({ mouse: { x, y }, viewport: { height, width } }) =>
     position.set((x * width) / 2, (y * height) / 2, 0),
   )
@@ -40,7 +40,7 @@ const Ball = forwardRef<Object3D, SphereProps>((props, ref) => {
 const BoxAndBall = () => {
   const box = useRef<Object3D>(null)
   const ball = useRef<Object3D>(null)
-  const [, , api] = useSpring(box, ball, { restLength: 2, stiffness: 100, damping: 1 })
+  const [, , api] = useSpring(box, ball, { damping: 1, restLength: 2, stiffness: 100 })
   const [isDown, setIsDown] = useState(false)
 
   useEffect(() => api.setRestLength(isDown ? 0 : 2), [isDown])
@@ -53,24 +53,24 @@ const BoxAndBall = () => {
   )
 }
 
+const style = {
+  color: 'white',
+  fontSize: '1.2em',
+  left: 50,
+  position: 'absolute',
+  top: 20,
+} as const
+
 export default () => {
   return (
     <>
-      <Canvas camera={{ position: [0, 0, 8], fov: 50 }}>
+      <Canvas camera={{ fov: 50, position: [0, 0, 8] }}>
         <color attach="background" args={['#171720']} />
         <Physics gravity={[0, -40, 0]} allowSleep={false}>
           <BoxAndBall />
         </Physics>
       </Canvas>
-      <div
-        style={{
-          position: 'absolute',
-          top: 20,
-          left: 50,
-          color: 'white',
-          fontSize: '1.2em',
-        }}
-      >
+      <div style={style}>
         <pre>* click to tighten constraint</pre>
       </div>
     </>

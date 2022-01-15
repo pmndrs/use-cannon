@@ -31,13 +31,13 @@ export type ShapeName = typeof shapeNames[number]
 export type JointName = typeof jointNames[number]
 
 type JointConfig = {
+  angle: number
+  axisA: Triplet
+  axisB: Triplet
   bodyA: string
   bodyB: string
   pivotA: Triplet
   pivotB: Triplet
-  axisA: Triplet
-  axisB: Triplet
-  angle: number
   twistAngle?: number
 }
 type ShapeConfig = {
@@ -70,74 +70,74 @@ export function createRagdoll(scale: number, angleA = 0, angleB = 0, twistAngle 
 
   // Lower legs
   const lowerLeftLeg: ShapeConfig = {
-    color: 'lightblue',
     args: [lowerLegSize * 0.5, lowerLegLength * 0.5, lowerArmSize * 0.5],
+    color: 'lightblue',
     mass: scale,
     position: [-shouldersDistance / 3, lowerLegLength / 2, 0],
   }
   const lowerRightLeg: ShapeConfig = {
-    color: 'lightblue',
     args: [lowerLegSize * 0.5, lowerLegLength * 0.5, lowerArmSize * 0.5],
+    color: 'lightblue',
     mass: scale,
     position: [shouldersDistance / 3, lowerLegLength / 2, 0],
   }
 
   // Upper legs
   const upperLeftLeg: ShapeConfig = {
-    color: 'lightblue',
     args: [upperLegSize * 0.5, upperLegLength * 0.5, lowerArmSize * 0.5],
+    color: 'lightblue',
     mass: scale,
     position: [-shouldersDistance / 3, lowerLeftLeg.position[1] + lowerLegLength / 2 + upperLegLength / 2, 0],
   }
   const upperRightLeg: ShapeConfig = {
-    color: 'lightblue',
     args: [upperLegSize * 0.5, upperLegLength * 0.5, lowerArmSize * 0.5],
+    color: 'lightblue',
     mass: scale,
     position: [shouldersDistance / 3, lowerRightLeg.position[1] + lowerLegLength / 2 + upperLegLength / 2, 0],
   }
 
   // Pelvis
   const pelvis: ShapeConfig = {
-    color: 'lightblue',
     args: [shouldersDistance * 0.5, pelvisLength * 0.5, lowerArmSize * 0.5],
+    color: 'lightblue',
     mass: scale,
     position: [0, upperLeftLeg.position[1] + upperLegLength / 2 + pelvisLength / 2, 0],
   }
 
   // Upper body
   const upperBody: ShapeConfig = {
-    color: 'indianred',
     args: [shouldersDistance * 0.5, upperBodyLength * 0.5, lowerArmSize * 0.75],
+    color: 'indianred',
     mass: scale,
     position: [0, pelvis.position[1] + pelvisLength / 2 + upperBodyLength / 2, 0],
   }
 
   // Head
   const head: ShapeConfig = {
-    color: 'lightpink',
     args: [headRadius * 0.6, headRadius * 0.7, headRadius * 0.6],
+    color: 'lightpink',
     mass: scale,
     position: [0, upperBody.position[1] + upperBodyLength / 2 + headRadius / 2 + neckLength, 0],
   }
 
   // Upper arms
   const upperLeftArm: ShapeConfig = {
-    color: 'indianred',
     args: [upperArmLength * 0.5, upperArmSize * 0.5, upperArmSize * 0.5],
+    color: 'indianred',
     mass: scale,
     position: [-shouldersDistance / 2 - upperArmLength / 2, upperBody.position[1] + upperBodyLength / 2, 0],
   }
   const upperRightArm: ShapeConfig = {
-    color: 'indianred',
     args: [upperArmLength * 0.5, upperArmSize * 0.5, upperArmSize * 0.5],
+    color: 'indianred',
     mass: scale,
     position: [shouldersDistance / 2 + upperArmLength / 2, upperBody.position[1] + upperBodyLength / 2, 0],
   }
 
   // lower arms
   const lowerLeftArm: ShapeConfig = {
-    color: 'lightpink',
     args: [lowerArmLength * 0.5, lowerArmSize * 0.5, lowerArmSize * 0.5],
+    color: 'lightpink',
     mass: scale,
     position: [
       upperLeftArm.position[0] - lowerArmLength / 2 - upperArmLength / 2,
@@ -146,8 +146,8 @@ export function createRagdoll(scale: number, angleA = 0, angleB = 0, twistAngle 
     ],
   }
   const lowerRightArm: ShapeConfig = {
-    color: 'lightpink',
     args: [lowerArmLength * 0.5, lowerArmSize * 0.5, lowerArmSize * 0.5],
+    color: 'lightpink',
     mass: scale,
     position: [
       upperRightArm.position[0] + lowerArmLength / 2 + upperArmLength / 2,
@@ -160,140 +160,140 @@ export function createRagdoll(scale: number, angleA = 0, angleB = 0, twistAngle 
 
   // Neck joint
   const neckJoint: JointConfig = {
+    angle: angleA,
+    axisA: [0, 1, 0],
+    axisB: [0, 1, 0],
     bodyA: 'head',
     bodyB: 'upperBody',
     pivotA: [0, -headRadius - neckLength / 2, 0],
     pivotB: [0, upperBodyLength / 2, 0],
-    axisA: [0, 1, 0],
-    axisB: [0, 1, 0],
-    angle: angleA,
     twistAngle: twistAngle,
   }
 
   // Knee joints
   const leftKneeJoint: JointConfig = {
+    angle: angleA,
+    axisA: [0, 1, 0],
+    axisB: [0, 1, 0],
     bodyA: 'lowerLeftLeg',
     bodyB: 'upperLeftLeg',
     pivotA: [0, lowerLegLength / 2, 0],
     pivotB: [0, -upperLegLength / 2, 0],
-    axisA: [0, 1, 0],
-    axisB: [0, 1, 0],
-    angle: angleA,
     twistAngle: twistAngle,
   }
   const rightKneeJoint: JointConfig = {
+    angle: angleA,
+    axisA: [0, 1, 0],
+    axisB: [0, 1, 0],
     bodyA: 'lowerRightLeg',
     bodyB: 'upperRightLeg',
     pivotA: [0, lowerLegLength / 2, 0],
     pivotB: [0, -upperLegLength / 2, 0],
-    axisA: [0, 1, 0],
-    axisB: [0, 1, 0],
-    angle: angleA,
     twistAngle: twistAngle,
   }
 
   // Hip joints
   const leftHipJoint: JointConfig = {
+    angle: angleA,
+    axisA: [0, 1, 0],
+    axisB: [0, 1, 0],
     bodyA: 'upperLeftLeg',
     bodyB: 'pelvis',
     pivotA: [0, upperLegLength / 2, 0],
     pivotB: [-shouldersDistance / 3, -pelvisLength / 2, 0],
-    axisA: [0, 1, 0],
-    axisB: [0, 1, 0],
-    angle: angleA,
     twistAngle: twistAngle,
   }
   const rightHipJoint: JointConfig = {
+    angle: angleA,
+    axisA: [0, 1, 0],
+    axisB: [0, 1, 0],
     bodyA: 'upperRightLeg',
     bodyB: 'pelvis',
     pivotA: [0, upperLegLength / 2, 0],
     pivotB: [shouldersDistance / 3, -pelvisLength / 2, 0],
-    axisA: [0, 1, 0],
-    axisB: [0, 1, 0],
-    angle: angleA,
     twistAngle: twistAngle,
   }
 
   // Spine
   const spineJoint: JointConfig = {
+    angle: angleA,
+    axisA: [0, 1, 0],
+    axisB: [0, 1, 0],
     bodyA: 'pelvis',
     bodyB: 'upperBody',
     pivotA: [0, pelvisLength / 2, 0],
     pivotB: [0, -upperBodyLength / 2, 0],
-    axisA: [0, 1, 0],
-    axisB: [0, 1, 0],
-    angle: angleA,
     twistAngle: twistAngle,
   }
 
   // Shoulders
   const leftShoulder: JointConfig = {
+    angle: angleB,
+    axisA: [1, 0, 0],
+    axisB: [1, 0, 0],
     bodyA: 'upperBody',
     bodyB: 'upperLeftArm',
     pivotA: [upperArmLength / 2, 0, 0],
     pivotB: [-shouldersDistance / 2, upperBodyLength / 2, 0],
-    axisA: [1, 0, 0],
-    axisB: [1, 0, 0],
-    angle: angleB,
   }
   const rightShoulder: JointConfig = {
+    angle: angleB,
+    axisA: [1, 0, 0],
+    axisB: [1, 0, 0],
     bodyA: 'upperBody',
     bodyB: 'upperRightArm',
     pivotA: [-upperArmLength / 2, 0, 0],
     pivotB: [shouldersDistance / 2, upperBodyLength / 2, 0],
-    axisA: [1, 0, 0],
-    axisB: [1, 0, 0],
-    angle: angleB,
     twistAngle: twistAngle,
   }
 
   // Elbow joint
   const leftElbowJoint: JointConfig = {
+    angle: angleA,
+    axisA: [1, 0, 0],
+    axisB: [1, 0, 0],
     bodyA: 'lowerLeftArm',
     bodyB: 'upperLeftArm',
     pivotA: [lowerArmLength / 2, 0, 0],
     pivotB: [-upperArmLength / 2, 0, 0],
-    axisA: [1, 0, 0],
-    axisB: [1, 0, 0],
-    angle: angleA,
     twistAngle: twistAngle,
   }
   const rightElbowJoint: JointConfig = {
+    angle: angleA,
+    axisA: [1, 0, 0],
+    axisB: [1, 0, 0],
     bodyA: 'lowerRightArm',
     bodyB: 'upperRightArm',
     pivotA: [-lowerArmLength / 2, 0, 0],
     pivotB: [upperArmLength / 2, 0, 0],
-    axisA: [1, 0, 0],
-    axisB: [1, 0, 0],
-    angle: angleA,
     twistAngle: twistAngle,
   }
 
   return {
+    joints: {
+      leftElbowJoint,
+      leftHipJoint,
+      leftKneeJoint,
+      leftShoulder,
+      neckJoint,
+      rightElbowJoint,
+      rightHipJoint,
+      rightKneeJoint,
+      rightShoulder,
+      spineJoint,
+    },
     shapes: {
+      head,
+      lowerLeftArm,
       lowerLeftLeg,
+      lowerRightArm,
       lowerRightLeg,
-      upperLeftLeg,
-      upperRightLeg,
       pelvis,
       upperBody,
-      head,
       upperLeftArm,
+      upperLeftLeg,
       upperRightArm,
-      lowerLeftArm,
-      lowerRightArm,
-    },
-    joints: {
-      neckJoint,
-      leftKneeJoint,
-      rightKneeJoint,
-      leftHipJoint,
-      rightHipJoint,
-      spineJoint,
-      leftShoulder,
-      rightShoulder,
-      leftElbowJoint,
-      rightElbowJoint,
+      upperRightLeg,
     },
   }
 }

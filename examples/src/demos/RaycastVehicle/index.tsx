@@ -12,7 +12,7 @@ import Vehicle from './Vehicle'
 import { useToggledControl } from '../../use-toggled-control'
 
 function Plane(props: PlaneProps) {
-  const [ref] = usePlane(() => ({ type: 'Static', material: 'ground', ...props }))
+  const [ref] = usePlane(() => ({ material: 'ground', type: 'Static', ...props }))
   return (
     <group ref={ref}>
       <mesh receiveShadow>
@@ -26,8 +26,8 @@ function Plane(props: PlaneProps) {
 function Pillar(props: CylinderProps) {
   const args: CylinderArgs = [0.7, 0.7, 5, 16]
   const [ref] = useCylinder(() => ({
-    mass: 10,
     args,
+    mass: 10,
     ...props,
   }))
   return (
@@ -38,12 +38,20 @@ function Pillar(props: CylinderProps) {
   )
 }
 
+const style = {
+  color: 'white',
+  fontSize: '1.2em',
+  left: 50,
+  position: 'absolute',
+  top: 20,
+} as const
+
 const VehicleScene = () => {
   const ToggledDebug = useToggledControl(Debug, '?')
 
   return (
     <>
-      <Canvas shadows camera={{ position: [0, 5, 15], fov: 50 }}>
+      <Canvas shadows camera={{ fov: 50, position: [0, 5, 15] }}>
         <fog attach="fog" args={['#171720', 10, 50]} />
         <color attach="background" args={['#171720']} />
         <ambientLight intensity={0.1} />
@@ -66,15 +74,7 @@ const VehicleScene = () => {
         </Suspense>
         <OrbitControls />
       </Canvas>
-      <div
-        style={{
-          position: 'absolute',
-          top: 20,
-          left: 50,
-          color: 'white',
-          fontSize: '1.2em',
-        }}
-      >
+      <div style={style}>
         <pre>
           * WASD to drive, space to brake
           <br />r to reset

@@ -8,12 +8,12 @@ import type { GroupProps } from '@react-three/fiber'
 
 const font = new FontLoader().parse(fontJson)
 const geom = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'].map(
-  (number) => new TextGeometry(number, { font, size: 5, height: 0.1 }),
+  (number) => new TextGeometry(number, { font, height: 0.1, size: 5 }),
 )
 
 type TextProps = GroupProps & {
-  count: string
   color?: string
+  count: string
 }
 
 const Text = forwardRef<Object3D, TextProps>(({ color = 'white', count, ...props }, ref) => {

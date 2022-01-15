@@ -82,12 +82,20 @@ function Plane(props: PlaneProps) {
   )
 }
 
+const style = {
+  color: 'white',
+  fontSize: '1.2em',
+  left: 50,
+  position: 'absolute',
+  top: 20,
+} as const
+
 function ConvexPolyhedron() {
   const [invertGravity, setInvertGravity] = useState(false)
 
   return (
     <>
-      <Canvas shadows camera={{ position: [-1, 1, 5], fov: 50 }}>
+      <Canvas shadows camera={{ fov: 50, position: [-1, 1, 5] }}>
         <color attach="background" args={['lightpink']} />
         <spotLight
           position={[15, 15, 15]}
@@ -115,15 +123,7 @@ function ConvexPolyhedron() {
           </Physics>
         </Suspense>
       </Canvas>
-      <div
-        style={{
-          position: 'absolute',
-          top: 20,
-          left: 50,
-          color: 'white',
-          fontSize: '1.2em',
-        }}
-      >
+      <div style={style}>
         <pre>* click to invert gravity</pre>
       </div>
     </>

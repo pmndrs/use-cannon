@@ -28,7 +28,7 @@ export function Debug({
   impl = CannonDebugger,
   scale = 1,
 }: DebugProps): JSX.Element {
-  const [{ bodies, bodyMap }] = useState<DebugInfo>({ bodyMap: {}, bodies: [] })
+  const [{ bodies, bodyMap }] = useState<DebugInfo>({ bodies: [], bodyMap: {} })
   const { refs } = useContext(context)
   const [scene] = useState(() => new Scene())
   const cannonDebuggerRef = useRef(impl(scene, { bodies } as World, { color, scale }))

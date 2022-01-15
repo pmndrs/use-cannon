@@ -54,10 +54,10 @@ type Observation = { [K in AtomicName]: [id: number, value: PropValue<K>, type: 
 
 type WorkerFrameMessage = {
   data: Buffers & {
-    op: 'frame'
-    observations: Observation[]
     active: boolean
     bodies?: string[]
+    observations: Observation[]
+    op: 'frame'
   }
 }
 
@@ -198,17 +198,17 @@ export function Provider({
     worker.postMessage({
       op: 'init',
       props: {
-        gravity,
-        tolerance,
-        step,
-        iterations,
-        broadphase,
         allowSleep,
         axisIndex,
+        broadphase,
         defaultContactMaterial,
+        gravity,
+        iterations,
         quatNormalizeFast,
         quatNormalizeSkip,
         solver,
+        step,
+        tolerance,
       },
     })
 
@@ -260,45 +260,45 @@ export function Provider({
               callback = events[e.data.target]?.collide || noop
               callback({
                 ...e.data,
-                target: refs[e.data.target],
                 body: refs[e.data.body],
                 contact: {
                   ...e.data.contact,
                   bi: refs[e.data.contact.bi],
                   bj: refs[e.data.contact.bj],
                 },
+                target: refs[e.data.target],
               })
               break
             case 'collideBegin':
               callback = events[e.data.bodyA]?.collideBegin || noop
               callback({
-                op: 'event',
-                type: 'collideBegin',
-                target: refs[e.data.bodyA],
                 body: refs[e.data.bodyB],
+                op: 'event',
+                target: refs[e.data.bodyA],
+                type: 'collideBegin',
               })
               callback = events[e.data.bodyB]?.collideBegin || noop
               callback({
-                op: 'event',
-                type: 'collideBegin',
-                target: refs[e.data.bodyB],
                 body: refs[e.data.bodyA],
+                op: 'event',
+                target: refs[e.data.bodyB],
+                type: 'collideBegin',
               })
               break
             case 'collideEnd':
               callback = events[e.data.bodyA]?.collideEnd || noop
               callback({
-                op: 'event',
-                type: 'collideEnd',
-                target: refs[e.data.bodyA],
                 body: refs[e.data.bodyB],
+                op: 'event',
+                target: refs[e.data.bodyA],
+                type: 'collideEnd',
               })
               callback = events[e.data.bodyB]?.collideEnd || noop
               callback({
-                op: 'event',
-                type: 'collideEnd',
-                target: refs[e.data.bodyB],
                 body: refs[e.data.bodyA],
+                op: 'event',
+                target: refs[e.data.bodyB],
+                type: 'collideEnd',
               })
               break
             case 'rayhit':
@@ -318,8 +318,8 @@ export function Provider({
   useUpdateWorldPropsEffect({ axisIndex, broadphase, gravity, iterations, step, tolerance, worker })
 
   const api: ProviderContext = useMemo(
-    () => ({ worker, bodies, refs, buffers, events, subscriptions }),
-    [worker, bodies, refs, buffers, events, subscriptions],
+    () => ({ bodies, buffers, events, refs, subscriptions, worker }),
+    [bodies, buffers, events, refs, subscriptions, worker],
   )
   return <context.Provider value={api}>{children}</context.Provider>
 }

@@ -35,8 +35,8 @@ function CompoundBody({ isTrigger, mass = 12, setPosition, setRotation, ...props
     mass,
     ...props,
     shapes: [
-      { type: 'Box', position: [0, 0, 0], rotation: [0, 0, 0], args: boxSize },
-      { type: 'Sphere', position: [1, 0, 0], rotation: [0, 0, 0], args: [sphereRadius] },
+      { args: boxSize, position: [0, 0, 0], rotation: [0, 0, 0], type: 'Box' },
+      { args: [sphereRadius], position: [1, 0, 0], rotation: [0, 0, 0], type: 'Sphere' },
     ],
   }))
 
@@ -90,7 +90,7 @@ export default function () {
   }
 
   return (
-    <Canvas shadows gl={{ alpha: false }} camera={{ position: [-2, 1, 7], fov: 50 }}>
+    <Canvas shadows gl={{ alpha: false }} camera={{ fov: 50, position: [-2, 1, 7] }}>
       <color attach="background" args={['#f6d186']} />
       <hemisphereLight intensity={0.35} />
       <spotLight
