@@ -1,7 +1,7 @@
 import { TextureLoader } from 'three'
 import { Suspense, useRef } from 'react'
 import { Canvas, useFrame, useLoader } from '@react-three/fiber'
-import { Physics, useSphere, useBox, usePlane } from '@react-three/cannon'
+import { Physics, useBox, usePlane, useSphere } from '@react-three/cannon'
 import lerp from 'lerp'
 import clamp from 'lodash-es/clamp'
 import { GLTFLoader } from 'three-stdlib/loaders/GLTFLoader'

@@ -1,6 +1,6 @@
 import { Suspense } from 'react'
 import styled from 'styled-components'
-import { HashRouter as Router, Link, Route, Routes, useMatch } from 'react-router-dom'
+import { Link, Route, HashRouter as Router, Routes, useMatch } from 'react-router-dom'
 import { Global } from './styles'
 
 import * as demos from './demos'

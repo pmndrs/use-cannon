@@ -1,22 +1,21 @@
 import {
-  NaiveBroadphase,
-  SAPBroadphase,
-  Vec3,
-  PointToPointConstraint,
   ConeTwistConstraint,
-  HingeConstraint,
-  DistanceConstraint,
-  LockConstraint,
   Constraint,
-  Spring,
+  DistanceConstraint,
+  GSSolver,
+  HingeConstraint,
+  LockConstraint,
+  NaiveBroadphase,
+  PointToPointConstraint,
   Quaternion,
   Ray,
   RaycastResult,
   RaycastVehicle,
-  GSSolver,
+  SAPBroadphase,
   SplitSolver,
+  Spring,
+  Vec3,
 } from 'cannon-es'
-
 import propsToBody from '../propsToBody'
 import { addContactMaterial, removeContactMaterial } from './contact-material'
 import { createMaterialFactory } from './material'

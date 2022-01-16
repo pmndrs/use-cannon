@@ -2,7 +2,7 @@ import { Color } from 'three'
 import { useMemo, useState } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import niceColors from 'nice-color-palettes'
-import { Physics, usePlane, useBox, useSphere } from '@react-three/cannon'
+import { Physics, useBox, usePlane, useSphere } from '@react-three/cannon'
 
 import type { PlaneProps, Triplet } from '@react-three/cannon'
 

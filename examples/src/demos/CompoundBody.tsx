@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
-import { Physics, Debug, usePlane, useCompoundBody } from '@react-three/cannon'
+import { Debug, Physics, useCompoundBody, usePlane } from '@react-three/cannon'
 
 import type { CompoundBodyProps, PlaneProps, Triplet } from '@react-three/cannon'
 

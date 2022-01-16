@@ -9,14 +9,14 @@ import {
   useState,
 } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
-import { Physics, usePlane, useBox, useHingeConstraint, useLockConstraint } from '@react-three/cannon'
-import { PerspectiveCamera, OrbitControls } from '@react-three/drei'
+import { Physics, useBox, useHingeConstraint, useLockConstraint, usePlane } from '@react-three/cannon'
+import { OrbitControls, PerspectiveCamera } from '@react-three/drei'
 import { Vector3 } from 'three'
 
 import type { BoxProps, HingeConstraintOpts, PlaneProps, Triplet } from '@react-three/cannon'
-import type { PlaneBufferGeometryProps, MeshStandardMaterialProps } from '@react-three/fiber'
+import type { MeshStandardMaterialProps, PlaneBufferGeometryProps } from '@react-three/fiber'
 import type { PropsWithChildren, RefObject } from 'react'
-import type { Object3D, PerspectiveCamera as Cam } from 'three'
+import type { PerspectiveCamera as Cam, Object3D } from 'three'
 
 function normalizeSize([px = 0, py = 0, pz = 0]): (scale: Triplet) => Triplet {
   return ([ox = 1, oy = 1, oz = 1]) => [px * ox, py * oy, pz * oz]

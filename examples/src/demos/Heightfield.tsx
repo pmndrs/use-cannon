@@ -1,7 +1,7 @@
-import { Canvas, useFrame, extend, useThree } from '@react-three/fiber'
+import { Canvas, extend, useFrame, useThree } from '@react-three/fiber'
 import { Physics, useHeightfield, useSphere } from '@react-three/cannon'
 import niceColors from 'nice-color-palettes'
-import { useMemo, useRef, useEffect, useLayoutEffect } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef } from 'react'
 import { Color, Float32BufferAttribute } from 'three'
 import { OrbitControls } from 'three-stdlib/controls/OrbitControls'
 

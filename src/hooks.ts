@@ -1,4 +1,4 @@
-import { useLayoutEffect, useContext, useRef, useMemo, useEffect, useState } from 'react'
+import { useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { DynamicDrawUsage, Euler, InstancedMesh, MathUtils, Object3D, Quaternion, Vector3 } from 'three'
 import { context, debugContext } from './setup'
 
