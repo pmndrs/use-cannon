@@ -1,7 +1,7 @@
 import { BoxGeometry, ConeGeometry } from 'three'
 import { Suspense, useMemo, useState } from 'react'
 import { Canvas, useLoader } from '@react-three/fiber'
-import { Physics, usePlane, useConvexPolyhedron } from '@react-three/cannon'
+import { Physics, useConvexPolyhedron, usePlane } from '@react-three/cannon'
 import { GLTFLoader } from 'three-stdlib/loaders/GLTFLoader'
 import { Geometry } from 'three-stdlib/deprecated/Geometry'
 

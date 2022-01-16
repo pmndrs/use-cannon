@@ -1,10 +1,10 @@
 import {
-  Suspense,
-  createRef,
   createContext,
+  createRef,
   forwardRef,
-  useContext,
+  Suspense,
   useCallback,
+  useContext,
   useEffect,
   useMemo,
   useRef,
@@ -15,17 +15,17 @@ import {
   Physics,
   useBox,
   useCompoundBody,
-  useCylinder,
-  useSphere,
-  usePlane,
   useConeTwistConstraint,
+  useCylinder,
+  usePlane,
   usePointToPointConstraint,
+  useSphere,
 } from '@react-three/cannon'
 import { createRagdoll } from './createConfig'
 
 import type { PropsWithChildren, ReactNode, RefObject } from 'react'
 import type { ConeTwistConstraintOpts, PlaneProps, Triplet } from '@react-three/cannon'
-import type { BoxBufferGeometryProps, MeshStandardMaterialProps, MeshProps } from '@react-three/fiber'
+import type { BoxBufferGeometryProps, MeshProps, MeshStandardMaterialProps } from '@react-three/fiber'
 import type { GLTF } from 'three-stdlib/loaders/GLTFLoader'
 import type { BufferGeometry, Material, Object3D } from 'three'
 import type { ShapeName } from './createConfig'

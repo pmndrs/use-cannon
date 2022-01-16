@@ -4,7 +4,7 @@
 import { Suspense } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { Debug, Physics, useCylinder, usePlane } from '@react-three/cannon'
-import { OrbitControls, Environment } from '@react-three/drei'
+import { Environment, OrbitControls } from '@react-three/drei'
 
 import type { CylinderArgs, CylinderProps, PlaneProps } from '@react-three/cannon'
 

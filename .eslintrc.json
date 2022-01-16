@@ -46,7 +46,7 @@
     "ecmaVersion": 12,
     "sourceType": "module"
   },
-  "plugins": ["react"],
+  "plugins": ["react", "simple-import-sort"],
   "rules": {
     "eol-last": ["error", "always"],
     "no-debugger": "error",

@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { useBox, useRaycastVehicle } from '@react-three/cannon'
 import { Chassis } from './Chassis'

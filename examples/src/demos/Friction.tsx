@@ -1,4 +1,4 @@
-import { Physics, useContactMaterial, usePlane, useBox } from '@react-three/cannon'
+import { Physics, useBox, useContactMaterial, usePlane } from '@react-three/cannon'
 import { OrbitControls } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
 import { useState } from 'react'
