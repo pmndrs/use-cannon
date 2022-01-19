@@ -1,5 +1,10 @@
 # @react-three/cannon Changelog
 
+## v4.6.1 - 2022-01-19
+
+- [`createMaterialFactory`] Do not use logical assignment operator (@bjornstar)
+- [`eslint`] Disallow logical assignment and nullish coalescing operators (@bjornstar)
+
 ## v4.6.0 - 2022-01-15
 
 - [`hooks`] Add `useContactMaterial` (@Glavin001)
