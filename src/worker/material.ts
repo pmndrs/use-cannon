@@ -6,19 +6,18 @@ type MaterialOptions = {
   restitution?: number
 }
 
-export type CreateMaterial = (materialOptions?: MaterialOptions | string) => Material
+export type CreateMaterial = (nameOrOptions?: MaterialOptions | string) => Material
 
 let materialId = 0
 
 export const createMaterialFactory =
   (materials: Record<string | symbol, Material>): CreateMaterial =>
-  (materialOptions = {}) => {
-    const {
-      friction,
-      name = Symbol.for(`Material${materialId++}`),
-      restitution,
-    }: MaterialOptions = typeof materialOptions === 'string'
-      ? { name: materialOptions }
-      : { ...materialOptions }
-    return (materials[name] ||= new Material({ friction, name, restitution } as MaterialOptions))
+  (nameOrOptions = {}) => {
+    const materialOptions =
+      typeof nameOrOptions === 'string'
+        ? { name: nameOrOptions }
+        : { name: Symbol.for(`Material${materialId++}`), ...nameOrOptions }
+    const { name } = materialOptions
+    materials[name] = materials[name] || new Material(materialOptions)
+    return materials[name]
   }
