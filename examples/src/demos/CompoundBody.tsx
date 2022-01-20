@@ -1,8 +1,7 @@
-import { useEffect, useRef, useState } from 'react'
-import { Canvas } from '@react-three/fiber'
-import { Debug, Physics, useCompoundBody, usePlane } from '@react-three/cannon'
-
 import type { CompoundBodyProps, PlaneProps, Triplet } from '@react-three/cannon'
+import { Debug, Physics, useCompoundBody, usePlane } from '@react-three/cannon'
+import { Canvas } from '@react-three/fiber'
+import { useEffect, useRef, useState } from 'react'
 
 function Plane(props: PlaneProps) {
   const [ref] = usePlane(() => ({ type: 'Static', ...props }))

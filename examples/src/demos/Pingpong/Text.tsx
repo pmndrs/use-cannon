@@ -1,10 +1,10 @@
-import { FontLoader } from 'three/examples/jsm/loaders/FontLoader'
-import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry'
-import { forwardRef, useMemo } from 'react'
-import fontJson from './resources/firasans_regular.json'
-
-import type { Object3D } from 'three'
 import type { GroupProps } from '@react-three/fiber'
+import { forwardRef, useMemo } from 'react'
+import type { Object3D } from 'three'
+import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry'
+import { FontLoader } from 'three/examples/jsm/loaders/FontLoader'
+
+import fontJson from './resources/firasans_regular.json'
 
 const font = new FontLoader().parse(fontJson)
 const geom = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'].map(

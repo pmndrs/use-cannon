@@ -1,14 +1,14 @@
 import { useFrame } from '@react-three/fiber'
-import CannonDebugger from 'cannon-es-debugger'
-import { useContext, useMemo, useRef, useState } from 'react'
-import { Quaternion, Scene, Vector3 } from 'three'
-import { context, debugContext } from './setup'
-import propsToBody from './propsToBody'
-
 import type { Body, Quaternion as CQuaternion, Vec3, World } from 'cannon-es'
+import CannonDebugger from 'cannon-es-debugger'
 import type { PropsWithChildren } from 'react'
+import { useContext, useMemo, useRef, useState } from 'react'
 import type { Color } from 'three'
+import { Quaternion, Scene, Vector3 } from 'three'
+
 import type { BodyProps, BodyShapeType } from './hooks'
+import propsToBody from './propsToBody'
+import { context, debugContext } from './setup'
 
 type DebugInfo = { bodies: Body[]; bodyMap: { [uuid: string]: Body } }
 

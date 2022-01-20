@@ -1,7 +1,7 @@
 import { Suspense } from 'react'
-import { Provider } from './Provider'
 
 import type { ProviderProps } from './Provider'
+import { Provider } from './Provider'
 
 export * from './Debug'
 export * from './hooks'

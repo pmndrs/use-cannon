@@ -1,15 +1,14 @@
 // This demo is also playable without installation here:
 // https://codesandbox.io/s/basic-demo-forked-ebr0x
 
-import { Suspense } from 'react'
-import { Canvas } from '@react-three/fiber'
+import type { CylinderArgs, CylinderProps, PlaneProps } from '@react-three/cannon'
 import { Debug, Physics, useCylinder, usePlane } from '@react-three/cannon'
 import { Environment, OrbitControls } from '@react-three/drei'
+import { Canvas } from '@react-three/fiber'
+import { Suspense } from 'react'
 
-import type { CylinderArgs, CylinderProps, PlaneProps } from '@react-three/cannon'
-
-import Vehicle from './Vehicle'
 import { useToggledControl } from '../../use-toggled-control'
+import Vehicle from './Vehicle'
 
 function Plane(props: PlaneProps) {
   const [ref] = usePlane(() => ({ material: 'ground', type: 'Static', ...props }))

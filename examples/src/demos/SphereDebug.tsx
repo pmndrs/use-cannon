@@ -1,6 +1,6 @@
-import { useState } from 'react'
-import { Canvas } from '@react-three/fiber'
 import { Debug, Physics, usePlane, useSphere } from '@react-three/cannon'
+import { Canvas } from '@react-three/fiber'
+import { useState } from 'react'
 
 function ScalableBall() {
   const [ref, api] = useSphere(() => ({

@@ -16,6 +16,7 @@ import {
   Spring,
   Vec3,
 } from 'cannon-es'
+
 import propsToBody from '../propsToBody'
 import { addContactMaterial, removeContactMaterial } from './contact-material'
 import { createMaterialFactory } from './material'

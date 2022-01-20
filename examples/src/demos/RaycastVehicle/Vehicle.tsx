@@ -1,11 +1,11 @@
-import { useEffect, useRef } from 'react'
-import { useFrame } from '@react-three/fiber'
+import type { BoxProps, WheelInfoOptions } from '@react-three/cannon'
 import { useBox, useRaycastVehicle } from '@react-three/cannon'
+import { useFrame } from '@react-three/fiber'
+import { useEffect, useRef } from 'react'
+import type { Object3D } from 'three'
+
 import { Chassis } from './Chassis'
 import { Wheel } from './Wheel'
-
-import type { BoxProps, WheelInfoOptions } from '@react-three/cannon'
-import type { Object3D } from 'three'
 
 export type VehicleProps = Required<Pick<BoxProps, 'angularVelocity' | 'position' | 'rotation'>> & {
   back?: number

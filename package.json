@@ -51,6 +51,7 @@
     "eslint-plugin-es": "^4.1.0",
     "eslint-plugin-react": "^7.27.1",
     "eslint-plugin-simple-import-sort": "^7.0.0",
+    "eslint-plugin-typescript-enum": "^2.1.0",
     "husky": "^7.0.4",
     "lint-staged": "^12.1.2",
     "prettier": "^2.5.1",

@@ -1,3 +1,17 @@
+import type { ConeTwistConstraintOpts, PlaneProps, Triplet } from '@react-three/cannon'
+import {
+  Physics,
+  useBox,
+  useCompoundBody,
+  useConeTwistConstraint,
+  useCylinder,
+  usePlane,
+  usePointToPointConstraint,
+  useSphere,
+} from '@react-three/cannon'
+import type { BoxBufferGeometryProps, MeshProps, MeshStandardMaterialProps } from '@react-three/fiber'
+import { Canvas, useFrame, useLoader } from '@react-three/fiber'
+import type { PropsWithChildren, ReactNode, RefObject } from 'react'
 import {
   createContext,
   createRef,
@@ -9,26 +23,12 @@ import {
   useMemo,
   useRef,
 } from 'react'
-import { Canvas, useFrame, useLoader } from '@react-three/fiber'
-import { GLTFLoader } from 'three-stdlib/loaders/GLTFLoader'
-import {
-  Physics,
-  useBox,
-  useCompoundBody,
-  useConeTwistConstraint,
-  useCylinder,
-  usePlane,
-  usePointToPointConstraint,
-  useSphere,
-} from '@react-three/cannon'
-import { createRagdoll } from './createConfig'
-
-import type { PropsWithChildren, ReactNode, RefObject } from 'react'
-import type { ConeTwistConstraintOpts, PlaneProps, Triplet } from '@react-three/cannon'
-import type { BoxBufferGeometryProps, MeshProps, MeshStandardMaterialProps } from '@react-three/fiber'
-import type { GLTF } from 'three-stdlib/loaders/GLTFLoader'
 import type { BufferGeometry, Material, Object3D } from 'three'
+import type { GLTF } from 'three-stdlib/loaders/GLTFLoader'
+import { GLTFLoader } from 'three-stdlib/loaders/GLTFLoader'
+
 import type { ShapeName } from './createConfig'
+import { createRagdoll } from './createConfig'
 
 const { joints, shapes } = createRagdoll(4.8, Math.PI / 16, Math.PI / 16, 0)
 const context = createContext<RefObject<Object3D>>(createRef<Object3D>())

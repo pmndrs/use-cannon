@@ -1,19 +1,18 @@
-import { TextureLoader } from 'three'
-import { Suspense, useRef } from 'react'
-import { Canvas, useFrame, useLoader } from '@react-three/fiber'
 import { Physics, useBox, usePlane, useSphere } from '@react-three/cannon'
+import { Canvas, useFrame, useLoader } from '@react-three/fiber'
 import lerp from 'lerp'
 import clamp from 'lodash-es/clamp'
-import { GLTFLoader } from 'three-stdlib/loaders/GLTFLoader'
+import { Suspense, useRef } from 'react'
+import type { BufferGeometry, Loader, Material, Object3D, Skeleton } from 'three'
+import { TextureLoader } from 'three'
 import { DRACOLoader } from 'three-stdlib/loaders/DRACOLoader'
+import type { GLTF } from 'three-stdlib/loaders/GLTFLoader'
+import { GLTFLoader } from 'three-stdlib/loaders/GLTFLoader'
 import create from 'zustand'
 
-import Text from './Text'
-import pingSound from './resources/ping.mp3'
 import earthImg from './resources/cross.jpg'
-
-import type { BufferGeometry, Loader, Material, Object3D, Skeleton } from 'three'
-import type { GLTF } from 'three-stdlib/loaders/GLTFLoader'
+import pingSound from './resources/ping.mp3'
+import Text from './Text'
 
 type State = {
   api: {

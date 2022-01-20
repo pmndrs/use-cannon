@@ -1,11 +1,10 @@
-import { Color } from 'three'
-import { useMemo } from 'react'
-import { Canvas, useFrame } from '@react-three/fiber'
-import { Physics, useBox, usePlane, useSphere } from '@react-three/cannon'
-import niceColors from 'nice-color-palettes'
-
 import type { PlaneProps, Triplet } from '@react-three/cannon'
+import { Physics, useBox, usePlane, useSphere } from '@react-three/cannon'
 import type { MeshPhongMaterialProps } from '@react-three/fiber'
+import { Canvas, useFrame } from '@react-three/fiber'
+import niceColors from 'nice-color-palettes'
+import { useMemo } from 'react'
+import { Color } from 'three'
 
 type OurPlaneProps = Pick<MeshPhongMaterialProps, 'color'> & Pick<PlaneProps, 'position' | 'rotation'>
 

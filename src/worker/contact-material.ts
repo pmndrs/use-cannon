@@ -1,9 +1,8 @@
+import type { World } from 'cannon-es'
 import { ContactMaterial } from 'cannon-es'
 
-import type { World } from 'cannon-es'
-
-import type { CreateMaterial } from './material'
 import type { AddContactMaterialMessage } from '../setup'
+import type { CreateMaterial } from './material'
 
 type WithUUID<C> = C & { uuid: string }
 type DecoratedWorld = Omit<World, 'contactmaterials'> & { contactmaterials: WithUUID<ContactMaterial>[] }
