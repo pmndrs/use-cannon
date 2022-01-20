@@ -1,7 +1,7 @@
 import type { BoxProps, PlaneProps } from '@react-three/cannon'
 import { Physics, useBox, usePlane, useSphere } from '@react-three/cannon'
-import { Canvas } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
+import { Canvas } from '@react-three/fiber'
 import { useState } from 'react'
 
 function BoxTrigger({ args, onCollide, position }: BoxProps) {

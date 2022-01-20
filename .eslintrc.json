@@ -12,7 +12,7 @@
       "parserOptions": {
         "project": ["tsconfig.json", "examples/tsconfig.json"]
       },
-      "plugins": ["@typescript-eslint"],
+      "plugins": ["@typescript-eslint", "typescript-enum"],
       "rules": {
         "@typescript-eslint/ban-types": ["error", { "extendDefaults": true, "types": { "{}": false } }],
         "@typescript-eslint/consistent-type-imports": "error",
@@ -32,7 +32,8 @@
             "avoidEscape": true
           }
         ],
-        "@typescript-eslint/semi": ["error", "never"]
+        "@typescript-eslint/semi": ["error", "never"],
+        "typescript-enum/no-enum": "error"
       }
     },
     {
@@ -58,6 +59,8 @@
     "react/prop-types": 0,
     "react/react-in-jsx-scope": 0,
     "semi": ["error", "never"],
+    "simple-import-sort/exports": "error",
+    "simple-import-sort/imports": "error",
     "sort-keys": "error"
   },
   "settings": {

@@ -1,10 +1,9 @@
-import { forwardRef } from 'react'
-import { useGLTF } from '@react-three/drei'
+import type { CylinderProps } from '@react-three/cannon'
 import { useCompoundBody } from '@react-three/cannon'
-
+import { useGLTF } from '@react-three/drei'
+import { forwardRef } from 'react'
 import type { BufferGeometry, Material, Object3D } from 'three'
 import type { GLTF } from 'three-stdlib/loaders/GLTFLoader'
-import type { CylinderProps } from '@react-three/cannon'
 
 useGLTF.preload('/wheel.glb')
 

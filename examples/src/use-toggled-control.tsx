@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react'
 import type { ComponentType, PropsWithChildren } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 export const useToggledComponent = <P extends {}>(ToggledComponent: ComponentType<P>, toggle: boolean) =>
   useMemo(() => {

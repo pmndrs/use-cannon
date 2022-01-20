@@ -1,8 +1,7 @@
-import { forwardRef, useEffect, useRef, useState } from 'react'
-import { Canvas, useFrame } from '@react-three/fiber'
-import { Physics, useBox, useSphere, useSpring } from '@react-three/cannon'
-
 import type { BoxProps, SphereProps, Triplet } from '@react-three/cannon'
+import { Physics, useBox, useSphere, useSpring } from '@react-three/cannon'
+import { Canvas, useFrame } from '@react-three/fiber'
+import { forwardRef, useEffect, useRef, useState } from 'react'
 import type { Object3D } from 'three'
 
 const Box = forwardRef<Object3D, BoxProps>((props, ref) => {

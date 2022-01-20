@@ -1,14 +1,14 @@
-import { Suspense, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { Canvas, extend, useFrame, useThree } from '@react-three/fiber'
-import { Html } from '@react-three/drei'
+import type { Triplet } from '@react-three/cannon'
 import { Physics, useBox, useRaycastAll, useSphere } from '@react-three/cannon'
+import { Html } from '@react-three/drei'
+import type { GroupProps, Node, Object3DNode } from '@react-three/fiber'
+import { Canvas, extend, useFrame, useThree } from '@react-three/fiber'
+import { Suspense, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import type { PerspectiveCamera } from 'three'
 import { BufferGeometry, Line as ThreeLine, Vector3 } from 'three'
 import { OrbitControls } from 'three-stdlib/controls/OrbitControls'
-import { prettyPrint } from './prettyPrint'
 
-import type { Triplet } from '@react-three/cannon'
-import type { GroupProps, Node, Object3DNode } from '@react-three/fiber'
-import type { PerspectiveCamera } from 'three'
+import { prettyPrint } from './prettyPrint'
 
 extend({ OrbitControls })
 extend({ ThreeLine })

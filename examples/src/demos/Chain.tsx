@@ -1,11 +1,10 @@
-import { Canvas, useFrame } from '@react-three/fiber'
-import { Physics, useBox, useConeTwistConstraint, useCylinder, useSphere } from '@react-three/cannon'
-import { createContext, createRef, useCallback, useContext, useMemo, useState } from 'react'
-import { Color } from 'three'
-
-import type { FC } from 'react'
 import type { CylinderArgs, Triplet } from '@react-three/cannon'
+import { Physics, useBox, useConeTwistConstraint, useCylinder, useSphere } from '@react-three/cannon'
+import { Canvas, useFrame } from '@react-three/fiber'
+import type { FC } from 'react'
+import { createContext, createRef, useCallback, useContext, useMemo, useState } from 'react'
 import type { Object3D } from 'three'
+import { Color } from 'three'
 
 const maxMultiplierExamples = [0, 500, 1000, 1500, undefined] as const
 

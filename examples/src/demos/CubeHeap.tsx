@@ -1,10 +1,9 @@
-import { Color } from 'three'
-import { useMemo, useState } from 'react'
+import type { PlaneProps, Triplet } from '@react-three/cannon'
+import { Physics, useBox, usePlane, useSphere } from '@react-three/cannon'
 import { Canvas, useFrame } from '@react-three/fiber'
 import niceColors from 'nice-color-palettes'
-import { Physics, useBox, usePlane, useSphere } from '@react-three/cannon'
-
-import type { PlaneProps, Triplet } from '@react-three/cannon'
+import { useMemo, useState } from 'react'
+import { Color } from 'three'
 
 function Plane(props: PlaneProps) {
   const [ref] = usePlane(() => ({ ...props }))

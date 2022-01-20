@@ -1,13 +1,12 @@
-import { BoxGeometry, ConeGeometry } from 'three'
-import { Suspense, useMemo, useState } from 'react'
-import { Canvas, useLoader } from '@react-three/fiber'
-import { Physics, useConvexPolyhedron, usePlane } from '@react-three/cannon'
-import { GLTFLoader } from 'three-stdlib/loaders/GLTFLoader'
-import { Geometry } from 'three-stdlib/deprecated/Geometry'
-
 import type { ConvexPolyhedronProps, PlaneProps } from '@react-three/cannon'
-import type { GLTF } from 'three-stdlib/loaders/GLTFLoader'
+import { Physics, useConvexPolyhedron, usePlane } from '@react-three/cannon'
+import { Canvas, useLoader } from '@react-three/fiber'
+import { Suspense, useMemo, useState } from 'react'
 import type { BufferGeometry } from 'three'
+import { BoxGeometry, ConeGeometry } from 'three'
+import { Geometry } from 'three-stdlib/deprecated/Geometry'
+import type { GLTF } from 'three-stdlib/loaders/GLTFLoader'
+import { GLTFLoader } from 'three-stdlib/loaders/GLTFLoader'
 
 // Returns legacy geometry vertices, faces for ConvP
 function toConvexProps(bufferGeometry: BufferGeometry): ConvexPolyhedronProps['args'] {

@@ -1,14 +1,13 @@
-import { Canvas, extend, useFrame, useThree } from '@react-three/fiber'
+import type { Triplet } from '@react-three/cannon'
 import { Physics, useHeightfield, useSphere } from '@react-three/cannon'
+import type { Node } from '@react-three/fiber'
+import { Canvas, extend, useFrame, useThree } from '@react-three/fiber'
 import niceColors from 'nice-color-palettes'
+import type { FC } from 'react'
 import { useEffect, useLayoutEffect, useMemo, useRef } from 'react'
+import type { BufferGeometry, PerspectiveCamera } from 'three'
 import { Color, Float32BufferAttribute } from 'three'
 import { OrbitControls } from 'three-stdlib/controls/OrbitControls'
-
-import type { Node } from '@react-three/fiber'
-import type { Triplet } from '@react-three/cannon'
-import type { FC } from 'react'
-import type { BufferGeometry, PerspectiveCamera } from 'three'
 
 extend({ OrbitControls })
 

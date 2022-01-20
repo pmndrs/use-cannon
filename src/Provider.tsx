@@ -1,19 +1,16 @@
 import { useFrame, useThree } from '@react-three/fiber'
-import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { InstancedMesh, Matrix4, Quaternion, Vector3 } from 'three'
-
-import { context } from './setup'
-import { useUpdateWorldPropsEffect } from './useUpdateWorldPropsEffect'
-
 import type { ContactMaterial, Shape } from 'cannon-es'
 import type { PropsWithChildren } from 'react'
+import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import type { Object3D } from 'three'
-
-import type { AtomicName, Buffers, PropValue, ProviderContext, Refs } from './setup'
-import type { Triplet } from './hooks'
+import { InstancedMesh, Matrix4, Quaternion, Vector3 } from 'three'
 
 // @ts-expect-error Types are not setup for this yet
 import CannonWorker from '../src/worker'
+import type { Triplet } from './hooks'
+import type { AtomicName, Buffers, PropValue, ProviderContext, Refs } from './setup'
+import { context } from './setup'
+import { useUpdateWorldPropsEffect } from './useUpdateWorldPropsEffect'
 
 function noop() {
   /**/

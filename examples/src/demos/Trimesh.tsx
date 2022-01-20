@@ -1,12 +1,11 @@
-import { useEffect, useState } from 'react'
-import { Canvas, invalidate } from '@react-three/fiber'
+import type { SphereProps, TrimeshProps } from '@react-three/cannon'
 import { Physics, useSphere, useTrimesh } from '@react-three/cannon'
 import { OrbitControls, TorusKnot, useGLTF } from '@react-three/drei'
-import create from 'zustand'
-
-import type { SphereProps, TrimeshProps } from '@react-three/cannon'
-import type { GLTF } from 'three-stdlib/loaders/GLTFLoader'
+import { Canvas, invalidate } from '@react-three/fiber'
+import { useEffect, useState } from 'react'
 import type { BufferGeometry } from 'three'
+import type { GLTF } from 'three-stdlib/loaders/GLTFLoader'
+import create from 'zustand'
 
 type BowlGLTF = GLTF & {
   nodes: {
