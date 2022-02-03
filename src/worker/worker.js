@@ -74,7 +74,11 @@ self.onmessage = ({ data: { op, positions, props, quaternions, type, uuid } }) =
       break
     }
     case 'step': {
-      state.world.step(props.stepSize, props.timeSinceLastCalled, props.maxSubSteps)
+      if (!props.dt) {
+        state.world.step(props.stepSize)
+      } else {
+        state.world.step(props.stepSize, props.dt, props.maxSubSteps)
+      }
 
       const numberOfBodies = state.world.bodies.length
       for (let i = 0; i < numberOfBodies; i++) {

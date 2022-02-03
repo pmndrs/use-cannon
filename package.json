@@ -31,7 +31,8 @@
   },
   "dependencies": {
     "cannon-es": "^0.18.0",
-    "cannon-es-debugger": "^1.0.0"
+    "cannon-es-debugger": "^1.0.0",
+    "events": "^3.3.0"
   },
   "devDependencies": {
     "@babel/core": "^7.16.5",

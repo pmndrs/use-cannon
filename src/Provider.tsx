@@ -1,126 +1,44 @@
 import type { RenderCallback } from '@react-three/fiber'
 import { useFrame, useThree } from '@react-three/fiber'
-import type { Shape } from 'cannon-es'
 import type { FC } from 'react'
+import type { PropsWithChildren } from 'react'
 import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import type { Object3D } from 'three'
 import { InstancedMesh, Matrix4, Quaternion, Vector3 } from 'three'
 
-// @ts-expect-error Types are not setup for this yet
-import Worker from '../src/worker'
-import type { AtomicName, Buffers, CannonWorker, InitProps, PropValue, ProviderContext, Refs } from './setup'
+import type {
+  ProviderContext,
+  Refs,
+  WorkerCollideBeginEvent,
+  WorkerCollideEndEvent,
+  WorkerCollideEvent,
+  WorkerFrameMessage,
+  WorkerRayhitEvent,
+} from './setup'
 import { context } from './setup'
 import { useUpdateWorldPropsEffect } from './useUpdateWorldPropsEffect'
+import type { CannonWorkerProps } from './worker/cannon-worker'
+import { CannonWorker } from './worker/cannon-worker'
 
-function noop() {
-  /**/
-}
-
-export type ProviderProps = InitProps & {
-  isPaused?: boolean
-  maxSubSteps?: number
-  shouldInvalidate?: boolean
-  size?: number
-  stepSize?: number
-}
-
-type Observation = { [K in AtomicName]: [id: number, value: PropValue<K>, type: K] }[AtomicName]
-
-type WorkerFrameMessage = {
-  data: Buffers & {
-    active: boolean
-    bodies?: string[]
-    observations: Observation[]
-    op: 'frame'
+export type ProviderProps = PropsWithChildren<
+  CannonWorkerProps & {
+    isPaused?: boolean
+    maxSubSteps?: number
+    shouldInvalidate?: boolean
+    stepSize?: number
   }
-}
-
-export type WorkerCollideEvent = {
-  data: {
-    body: string
-    collisionFilters: {
-      bodyFilterGroup: number
-      bodyFilterMask: number
-      targetFilterGroup: number
-      targetFilterMask: number
-    }
-    contact: {
-      bi: string
-      bj: string
-      /** Normal of the contact, relative to the colliding body */
-      contactNormal: number[]
-      /** Contact point in world space */
-      contactPoint: number[]
-      id: string
-      impactVelocity: number
-      ni: number[]
-      ri: number[]
-      rj: number[]
-    }
-    op: 'event'
-    target: string
-    type: 'collide'
-  }
-}
-
-export type WorkerRayhitEvent = {
-  data: {
-    body: string | null
-    distance: number
-    hasHit: boolean
-    hitFaceIndex: number
-    hitNormalWorld: number[]
-    hitPointWorld: number[]
-    op: 'event'
-    ray: {
-      collisionFilterGroup: number
-      collisionFilterMask: number
-      direction: number[]
-      from: number[]
-      to: number[]
-      uuid: string
-    }
-    rayFromWorld: number[]
-    rayToWorld: number[]
-    shape: (Omit<Shape, 'body'> & { body: string }) | null
-    shouldStop: boolean
-    type: 'rayhit'
-  }
-}
-export type WorkerCollideBeginEvent = {
-  data: {
-    bodyA: string
-    bodyB: string
-    op: 'event'
-    type: 'collideBegin'
-  }
-}
-export type WorkerCollideEndEvent = {
-  data: {
-    bodyA: string
-    bodyB: string
-    op: 'event'
-    type: 'collideEnd'
-  }
-}
-type WorkerEventMessage =
-  | WorkerCollideBeginEvent
-  | WorkerCollideEndEvent
-  | WorkerCollideEvent
-  | WorkerRayhitEvent
-
-type IncomingWorkerMessage = WorkerEventMessage | WorkerFrameMessage
+>
 
 const v = new Vector3()
 const s = new Vector3(1, 1, 1)
 const q = new Quaternion()
 const m = new Matrix4()
 
-function apply(index: number, buffers: Buffers, object?: Object3D) {
+function apply(index: number, positions: Float32Array, quaternions: Float32Array, object?: Object3D) {
   if (index !== undefined) {
     m.compose(
-      v.fromArray(buffers.positions, index * 3),
-      q.fromArray(buffers.quaternions, index * 4),
+      v.fromArray(positions, index * 3),
+      q.fromArray(quaternions, index * 4),
       object ? object.scale : s,
     )
     if (object) {
@@ -152,46 +70,9 @@ export const Provider: FC<ProviderProps> = ({
 }) => {
   const { invalidate } = useThree()
 
-  const [worker] = useState<CannonWorker>(() => new Worker())
-  const [refs] = useState<Refs>({})
-  const [buffers] = useState<Buffers>(() => ({
-    positions: new Float32Array(size * 3),
-    quaternions: new Float32Array(size * 4),
-  }))
-  const [events] = useState<ProviderContext['events']>({})
-  const [subscriptions] = useState<ProviderContext['subscriptions']>({})
-
-  const bodies = useRef<{ [uuid: string]: number }>({})
-
-  let timeSinceLastCalled = 0
-
-  const loop = useCallback<RenderCallback>(
-    (_, delta) => {
-      if (isPaused) return
-      timeSinceLastCalled += delta
-      if (buffers.positions.byteLength !== 0 && buffers.quaternions.byteLength !== 0) {
-        worker.postMessage(
-          {
-            op: 'step',
-            props: { maxSubSteps, stepSize, timeSinceLastCalled },
-            ...buffers,
-          },
-          [buffers.positions.buffer, buffers.quaternions.buffer],
-        )
-        timeSinceLastCalled = 0
-      }
-    },
-    [isPaused, maxSubSteps, stepSize],
-  )
-
-  // Run loop *after* all the physics objects have ran theirs!
-  // Otherwise the buffers will be invalidated by the browser
-  useFrame(loop)
-
-  useLayoutEffect(() => {
-    worker.postMessage({
-      op: 'init',
-      props: {
+  const [worker] = useState<CannonWorker>(
+    () =>
+      new CannonWorker({
         allowSleep,
         axisIndex,
         broadphase,
@@ -200,119 +81,154 @@ export const Provider: FC<ProviderProps> = ({
         iterations,
         quatNormalizeFast,
         quatNormalizeSkip,
+        size,
         solver,
         tolerance,
-      },
+      }),
+  )
+  const [refs] = useState<Refs>({})
+  const [events] = useState<ProviderContext['events']>({})
+  const [subscriptions] = useState<ProviderContext['subscriptions']>({})
+
+  const bodies = useRef<{ [uuid: string]: number }>({})
+
+  const loop = useCallback<RenderCallback>(
+    (_, delta) => {
+      if (isPaused) return
+      worker.step(stepSize, delta, maxSubSteps)
+    },
+    [isPaused, maxSubSteps, stepSize],
+  )
+
+  const collideHandler = ({
+    body,
+    contact: { bi, bj, ...contactRest },
+    target,
+    ...rest
+  }: WorkerCollideEvent['data']) => {
+    const cb = events[target]?.collide
+    cb &&
+      cb({
+        body: refs[body],
+        contact: {
+          bi: refs[bi],
+          bj: refs[bj],
+          ...contactRest,
+        },
+        target: refs[target],
+        ...rest,
+      })
+  }
+
+  const collideBeginHandler = ({ bodyA, bodyB }: WorkerCollideBeginEvent['data']) => {
+    const cbA = events[bodyA]?.collideBegin
+    cbA &&
+      cbA({
+        body: refs[bodyB],
+        op: 'event',
+        target: refs[bodyA],
+        type: 'collideBegin',
+      })
+    const cbB = events[bodyB]?.collideBegin
+    cbB &&
+      cbB({
+        body: refs[bodyA],
+        op: 'event',
+        target: refs[bodyB],
+        type: 'collideBegin',
+      })
+  }
+
+  const collideEndHandler = ({ bodyA, bodyB }: WorkerCollideEndEvent['data']) => {
+    const cbA = events[bodyA]?.collideEnd
+    cbA &&
+      cbA({
+        body: refs[bodyB],
+        op: 'event',
+        target: refs[bodyA],
+        type: 'collideEnd',
+      })
+    const cbB = events[bodyB]?.collideEnd
+    cbB &&
+      cbB({
+        body: refs[bodyA],
+        op: 'event',
+        target: refs[bodyB],
+        type: 'collideEnd',
+      })
+  }
+
+  const frameHandler = ({
+    active,
+    bodies: uuids = [],
+    observations,
+    positions,
+    quaternions,
+  }: WorkerFrameMessage['data']) => {
+    for (let i = 0; i < uuids.length; i++) {
+      bodies.current[uuids[i]] = i
+    }
+    observations.forEach(([id, value, type]) => {
+      const subscription = subscriptions[id] || {}
+      const cb = subscription[type]
+      // HELP: We clearly know the type of the callback, but typescript can't deal with it
+      cb && cb(value as never)
     })
 
-    let i = 0
-    let body: string
-    let callback
-    worker.onmessage = (e: IncomingWorkerMessage) => {
-      switch (e.data.op) {
-        case 'frame':
-          buffers.positions = e.data.positions
-          buffers.quaternions = e.data.quaternions
-          if (e.data.bodies) {
-            for (i = 0; i < e.data.bodies.length; i++) {
-              body = e.data.bodies[i]
-              bodies.current[body] = e.data.bodies.indexOf(body)
+    if (active) {
+      for (const ref of Object.values(refs)) {
+        if (ref instanceof InstancedMesh) {
+          for (let i = 0; i < ref.count; i++) {
+            const index = bodies.current[`${ref.uuid}/${i}`]
+            if (index !== undefined) {
+              ref.setMatrixAt(i, apply(index, positions, quaternions))
             }
+            ref.instanceMatrix.needsUpdate = true
           }
-
-          e.data.observations.forEach(([id, value, type]) => {
-            const subscription = subscriptions[id] || {}
-            callback = subscription[type] || noop
-            // HELP: We clearly know the type of the callback, but typescript can't deal with it
-            callback(value as never)
-          })
-
-          if (e.data.active) {
-            for (const ref of Object.values(refs)) {
-              if (ref instanceof InstancedMesh) {
-                for (let i = 0; i < ref.count; i++) {
-                  const index = bodies.current[`${ref.uuid}/${i}`]
-                  if (index !== undefined) {
-                    ref.setMatrixAt(i, apply(index, buffers))
-                  }
-                  ref.instanceMatrix.needsUpdate = true
-                }
-              } else {
-                apply(bodies.current[ref.uuid], buffers, ref)
-              }
-            }
-            if (shouldInvalidate) {
-              invalidate()
-            }
-          }
-
-          break
-        case 'event':
-          switch (e.data.type) {
-            case 'collide':
-              callback = events[e.data.target]?.collide || noop
-              callback({
-                ...e.data,
-                body: refs[e.data.body],
-                contact: {
-                  ...e.data.contact,
-                  bi: refs[e.data.contact.bi],
-                  bj: refs[e.data.contact.bj],
-                },
-                target: refs[e.data.target],
-              })
-              break
-            case 'collideBegin':
-              callback = events[e.data.bodyA]?.collideBegin || noop
-              callback({
-                body: refs[e.data.bodyB],
-                op: 'event',
-                target: refs[e.data.bodyA],
-                type: 'collideBegin',
-              })
-              callback = events[e.data.bodyB]?.collideBegin || noop
-              callback({
-                body: refs[e.data.bodyA],
-                op: 'event',
-                target: refs[e.data.bodyB],
-                type: 'collideBegin',
-              })
-              break
-            case 'collideEnd':
-              callback = events[e.data.bodyA]?.collideEnd || noop
-              callback({
-                body: refs[e.data.bodyB],
-                op: 'event',
-                target: refs[e.data.bodyA],
-                type: 'collideEnd',
-              })
-              callback = events[e.data.bodyB]?.collideEnd || noop
-              callback({
-                body: refs[e.data.bodyA],
-                op: 'event',
-                target: refs[e.data.bodyB],
-                type: 'collideEnd',
-              })
-              break
-            case 'rayhit':
-              callback = events[e.data.ray.uuid]?.rayhit || noop
-              callback({
-                ...e.data,
-                body: e.data.body ? refs[e.data.body] : null,
-              })
-              break
-          }
-          break
+        } else {
+          apply(bodies.current[ref.uuid], positions, quaternions, ref)
+        }
+      }
+      if (shouldInvalidate) {
+        invalidate()
       }
     }
-    return () => worker.terminate()
+  }
+
+  const rayhitHandler = ({ body, ray: { uuid, ...rayRest }, ...rest }: WorkerRayhitEvent['data']) => {
+    const cb = events[uuid]?.rayhit
+    cb &&
+      cb({
+        body: body ? refs[body] : null,
+        ray: { uuid, ...rayRest },
+        ...rest,
+      })
+  }
+
+  // Run loop *after* all the physics objects have ran theirs!
+  // Otherwise the buffers will be invalidated by the browser
+  useFrame(loop)
+
+  useLayoutEffect(() => {
+    worker.init()
+
+    worker.on('collide', collideHandler)
+    worker.on('collideBegin', collideBeginHandler)
+    worker.on('collideEnd', collideEndHandler)
+    worker.on('frame', frameHandler)
+    worker.on('rayhit', rayhitHandler)
+
+    return () => {
+      worker.terminate()
+      worker.removeAllListeners()
+    }
   }, [])
 
   useUpdateWorldPropsEffect({ axisIndex, broadphase, gravity, iterations, tolerance, worker })
 
-  const api: ProviderContext = useMemo(
-    () => ({ bodies, buffers, events, refs, subscriptions, worker }),
-    [bodies, buffers, events, refs, subscriptions, worker],
+  const value: ProviderContext = useMemo(
+    () => ({ bodies, events, refs, subscriptions, worker }),
+    [bodies, events, refs, subscriptions, worker],
   )
-  return <context.Provider value={api}>{children}</context.Provider>
+  return <context.Provider value={value}>{children}</context.Provider>
 }

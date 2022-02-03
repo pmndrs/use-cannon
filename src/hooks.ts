@@ -4,22 +4,33 @@ import { useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } fro
 import { DynamicDrawUsage, Euler, InstancedMesh, MathUtils, Object3D, Quaternion, Vector3 } from 'three'
 
 import type {
-  AddRayMessage,
   AtomicName,
-  CannonWorker,
   CollideBeginEvent,
   CollideEndEvent,
   CollideEvent,
+  ConeTwistConstraintOpts,
+  ConstraintOptns,
+  ConstraintTypes,
+  DistanceConstraintOpts,
+  HingeConstraintOpts,
+  LockConstraintOpts,
+  PointToPointConstraintOpts,
   PropValue,
   ProviderContext,
+  Quad,
   RayhitEvent,
   RayMode,
+  RayOptions,
   SetOpName,
+  SpringOptns,
   SubscriptionName,
   SubscriptionTarget,
+  Triplet,
   VectorName,
+  WheelInfoOptions,
 } from './setup'
 import { context, debugContext } from './setup'
+import type { CannonWorker } from './worker/cannon-worker'
 
 export type AtomicProps = {
   allowSleep: boolean
@@ -37,12 +48,8 @@ export type AtomicProps = {
   userData: {}
 }
 
-export type Triplet = [x: number, y: number, z: number]
-
 export type VectorProps = Record<VectorName, Triplet>
 type VectorTypes = Vector3 | Triplet
-
-export type Quad = [x: number, y: number, z: number, w: number]
 
 export type BodyProps<T extends any[] = unknown[]> = Partial<AtomicProps> &
   Partial<VectorProps> & {
@@ -135,51 +142,6 @@ export interface PublicApi extends WorkerApi {
 }
 export type Api = [RefObject<Object3D>, PublicApi]
 
-export type ConstraintTypes = 'PointToPoint' | 'ConeTwist' | 'Distance' | 'Lock'
-
-export interface ConstraintOptns {
-  collideConnected?: boolean
-  maxForce?: number
-  maxMultiplier?: number
-  wakeUpBodies?: boolean
-}
-
-export interface PointToPointConstraintOpts extends ConstraintOptns {
-  pivotA: Triplet
-  pivotB: Triplet
-}
-
-export interface ConeTwistConstraintOpts extends ConstraintOptns {
-  angle?: number
-  axisA?: Triplet
-  axisB?: Triplet
-  pivotA?: Triplet
-  pivotB?: Triplet
-  twistAngle?: number
-}
-export interface DistanceConstraintOpts extends ConstraintOptns {
-  distance?: number
-}
-
-export interface HingeConstraintOpts extends ConstraintOptns {
-  axisA?: Triplet
-  axisB?: Triplet
-  pivotA?: Triplet
-  pivotB?: Triplet
-}
-
-export type LockConstraintOpts = ConstraintOptns
-
-export interface SpringOptns {
-  damping?: number
-  localAnchorA?: Triplet
-  localAnchorB?: Triplet
-  restLength?: number
-  stiffness?: number
-  worldAnchorA?: Triplet
-  worldAnchorB?: Triplet
-}
-
 const temp = new Object3D()
 
 function useForwardedRef<T>(ref: Ref<T>): MutableRefObject<T | null> {
@@ -218,10 +180,10 @@ function subscribe<T extends SubscriptionName>(
     const id = incrementingId++
     subscriptions[id] = { [type]: callback }
     const uuid = getUUID(ref, index)
-    uuid && worker.postMessage({ op: 'subscribe', props: { id, target, type }, uuid })
+    uuid && worker.subscribe({ props: { id, target, type }, uuid })
     return () => {
       delete subscriptions[id]
-      worker.postMessage({ op: 'unsubscribe', props: id })
+      worker.unsubscribe({ props: id })
     }
   }
 }
@@ -299,8 +261,7 @@ function useBody<B extends BodyProps<unknown[]>>(
           })
 
     // Register on mount, unregister on unmount
-    currentWorker.postMessage({
-      op: 'addBodies',
+    currentWorker.addBodies({
       props: props.map(({ onCollide, onCollideBegin, onCollideEnd, ...serializableProps }) => {
         return { onCollide: Boolean(onCollide), ...serializableProps }
       }),
@@ -313,48 +274,51 @@ function useBody<B extends BodyProps<unknown[]>>(
         if (debugApi) debugApi.remove(id)
         delete events[id]
       })
-      currentWorker.postMessage({ op: 'removeBodies', uuid })
+      currentWorker.removeBodies({ uuid })
     }
   }, deps)
 
   const api = useMemo(() => {
     const makeAtomic = <T extends AtomicName>(type: T, index?: number) => {
       const op: SetOpName<T> = `set${capitalize(type)}`
+
       return {
         set: (value: PropValue<T>) => {
           const uuid = getUUID(ref, index)
-          uuid && worker.postMessage({ op, props: value, uuid })
+          uuid &&
+            worker[op]({
+              props: value,
+              uuid,
+            } as never)
         },
         subscribe: subscribe(ref, worker, subscriptions, type, index),
       }
     }
 
     const makeQuaternion = (index?: number) => {
-      const op = 'setQuaternion'
       const type = 'quaternion'
       return {
         copy: ({ w, x, y, z }: Quaternion) => {
           const uuid = getUUID(ref, index)
-          uuid && worker.postMessage({ op, props: [x, y, z, w], uuid })
+          uuid && worker.setQuaternion({ props: [x, y, z, w], uuid })
         },
         set: (x: number, y: number, z: number, w: number) => {
           const uuid = getUUID(ref, index)
-          uuid && worker.postMessage({ op, props: [x, y, z, w], uuid })
+          uuid && worker.setQuaternion({ props: [x, y, z, w], uuid })
         },
         subscribe: subscribe(ref, worker, subscriptions, type, index),
       }
     }
 
     const makeRotation = (index?: number) => {
-      const op = 'setRotation'
       return {
         copy: ({ x, y, z }: Vector3 | Euler) => {
           const uuid = getUUID(ref, index)
-          uuid && worker.postMessage({ op, props: [x, y, z], uuid })
+          uuid && worker.setRotation({ props: [x, y, z], uuid })
         },
         set: (x: number, y: number, z: number) => {
           const uuid = getUUID(ref, index)
-          uuid && worker.postMessage({ op, props: [x, y, z], uuid })
+          uuid && worker.setRotation({ props: [x, y, z], uuid })
         },
         subscribe: (callback: (value: Triplet) => void) => {
           const id = incrementingId++
@@ -363,10 +327,10 @@ function useBody<B extends BodyProps<unknown[]>>(
           const uuid = getUUID(ref, index)
 
           subscriptions[id] = { [type]: quaternionToRotation(callback) }
-          uuid && worker.postMessage({ op: 'subscribe', props: { id, target, type }, uuid })
+          uuid && worker.subscribe({ props: { id, target, type }, uuid })
           return () => {
             delete subscriptions[id]
-            worker.postMessage({ op: 'unsubscribe', props: id })
+            worker.unsubscribe({ props: id })
           }
         },
       }
@@ -377,11 +341,11 @@ function useBody<B extends BodyProps<unknown[]>>(
       return {
         copy: ({ x, y, z }: Vector3 | Euler) => {
           const uuid = getUUID(ref, index)
-          uuid && worker.postMessage({ op, props: [x, y, z], uuid })
+          uuid && worker[op]({ props: [x, y, z], uuid })
         },
         set: (x: number, y: number, z: number) => {
           const uuid = getUUID(ref, index)
-          uuid && worker.postMessage({ op, props: [x, y, z], uuid })
+          uuid && worker[op]({ props: [x, y, z], uuid })
         },
         subscribe: subscribe(ref, worker, subscriptions, type, index),
       }
@@ -395,23 +359,23 @@ function useBody<B extends BodyProps<unknown[]>>(
         angularVelocity: makeVec('angularVelocity', index),
         applyForce(force: Triplet, worldPoint: Triplet) {
           const uuid = getUUID(ref, index)
-          uuid && worker.postMessage({ op: 'applyForce', props: [force, worldPoint], uuid })
+          uuid && worker.applyForce({ props: [force, worldPoint], uuid })
         },
         applyImpulse(impulse: Triplet, worldPoint: Triplet) {
           const uuid = getUUID(ref, index)
-          uuid && worker.postMessage({ op: 'applyImpulse', props: [impulse, worldPoint], uuid })
+          uuid && worker.applyImpulse({ props: [impulse, worldPoint], uuid })
         },
         applyLocalForce(force: Triplet, localPoint: Triplet) {
           const uuid = getUUID(ref, index)
-          uuid && worker.postMessage({ op: 'applyLocalForce', props: [force, localPoint], uuid })
+          uuid && worker.applyLocalForce({ props: [force, localPoint], uuid })
         },
         applyLocalImpulse(impulse: Triplet, localPoint: Triplet) {
           const uuid = getUUID(ref, index)
-          uuid && worker.postMessage({ op: 'applyLocalImpulse', props: [impulse, localPoint], uuid })
+          uuid && worker.applyLocalImpulse({ props: [impulse, localPoint], uuid })
         },
         applyTorque(torque: Triplet) {
           const uuid = getUUID(ref, index)
-          uuid && worker.postMessage({ op: 'applyTorque', props: [torque], uuid })
+          uuid && worker.applyTorque({ props: [torque], uuid })
         },
         collisionFilterGroup: makeAtomic('collisionFilterGroup', index),
         collisionFilterMask: makeAtomic('collisionFilterMask', index),
@@ -427,7 +391,7 @@ function useBody<B extends BodyProps<unknown[]>>(
         rotation: makeRotation(index),
         sleep() {
           const uuid = getUUID(ref, index)
-          uuid && worker.postMessage({ op: 'sleep', uuid })
+          uuid && worker.sleep({ uuid })
         },
         sleepSpeedLimit: makeAtomic('sleepSpeedLimit', index),
         sleepTimeLimit: makeAtomic('sleepTimeLimit', index),
@@ -435,7 +399,7 @@ function useBody<B extends BodyProps<unknown[]>>(
         velocity: makeVec('velocity', index),
         wakeUp() {
           const uuid = getUUID(ref, index)
-          uuid && worker.postMessage({ op: 'wakeUp', uuid })
+          uuid && worker.wakeUp({ uuid })
         },
       }
     }
@@ -568,7 +532,7 @@ function useConstraint<T extends 'Hinge' | ConstraintTypes>(
   type: T,
   bodyA: Ref<Object3D>,
   bodyB: Ref<Object3D>,
-  optns: any = {},
+  optns: ConstraintOptns | HingeConstraintOpts = {},
   deps: DependencyList = [],
 ): ConstraintORHingeApi<T> {
   const { worker } = useContext(context)
@@ -579,31 +543,28 @@ function useConstraint<T extends 'Hinge' | ConstraintTypes>(
 
   useEffect(() => {
     if (refA.current && refB.current) {
-      worker.postMessage({
-        op: 'addConstraint',
+      worker.addConstraint({
         props: [refA.current.uuid, refB.current.uuid, optns],
         type,
         uuid,
       })
-      return () => worker.postMessage({ op: 'removeConstraint', uuid })
+      return () => worker.removeConstraint({ uuid })
     }
   }, deps)
 
   const api = useMemo(() => {
     const enableDisable = {
-      disable: () => worker.postMessage({ op: 'disableConstraint', uuid }),
-      enable: () => worker.postMessage({ op: 'enableConstraint', uuid }),
+      disable: () => worker.disableConstraint({ uuid }),
+      enable: () => worker.enableConstraint({ uuid }),
     }
 
     if (type === 'Hinge') {
       return {
         ...enableDisable,
-        disableMotor: () => worker.postMessage({ op: 'disableConstraintMotor', uuid }),
-        enableMotor: () => worker.postMessage({ op: 'enableConstraintMotor', uuid }),
-        setMotorMaxForce: (value: number) =>
-          worker.postMessage({ op: 'setConstraintMotorMaxForce', props: value, uuid }),
-        setMotorSpeed: (value: number) =>
-          worker.postMessage({ op: 'setConstraintMotorSpeed', props: value, uuid }),
+        disableMotor: () => worker.disableConstraintMotor({ uuid }),
+        enableMotor: () => worker.enableConstraintMotor({ uuid }),
+        setMotorMaxForce: (value: number) => worker.setConstraintMotorMaxForce({ props: value, uuid }),
+        setMotorSpeed: (value: number) => worker.setConstraintMotorSpeed({ props: value, uuid }),
       }
     }
 
@@ -668,30 +629,27 @@ export function useSpring(
 
   useEffect(() => {
     if (refA.current && refB.current) {
-      worker.postMessage({
-        op: 'addSpring',
+      worker.addSpring({
         props: [refA.current.uuid, refB.current.uuid, optns],
         uuid,
       })
       return () => {
-        worker.postMessage({ op: 'removeSpring', uuid })
+        worker.removeSpring({ uuid })
       }
     }
   }, deps)
 
   const api = useMemo(
     () => ({
-      setDamping: (value: number) => worker.postMessage({ op: 'setSpringDamping', props: value, uuid }),
-      setRestLength: (value: number) => worker.postMessage({ op: 'setSpringRestLength', props: value, uuid }),
-      setStiffness: (value: number) => worker.postMessage({ op: 'setSpringStiffness', props: value, uuid }),
+      setDamping: (value: number) => worker.setSpringDamping({ props: value, uuid }),
+      setRestLength: (value: number) => worker.setSpringRestLength({ props: value, uuid }),
+      setStiffness: (value: number) => worker.setSpringStiffness({ props: value, uuid }),
     }),
     deps,
   )
 
   return [refA, refB, api]
 }
-
-type RayOptions = Omit<AddRayMessage['props'], 'mode'>
 
 function useRay(
   mode: RayMode,
@@ -703,9 +661,9 @@ function useRay(
   const [uuid] = useState(() => MathUtils.generateUUID())
   useEffect(() => {
     events[uuid] = { rayhit: callback }
-    worker.postMessage({ op: 'addRay', props: { mode, ...options }, uuid })
+    worker.addRay({ props: { ...options, mode }, uuid })
     return () => {
-      worker.postMessage({ op: 'removeRay', uuid })
+      worker.removeRay({ uuid })
       delete events[uuid]
     }
   }, deps)
@@ -744,23 +702,8 @@ export interface RaycastVehiclePublicApi {
   }
 }
 
-export interface WheelInfoOptions {
-  axleLocal?: Triplet
-  chassisConnectionPointLocal?: Triplet
-  customSlidingRotationalSpeed?: number
-  dampingCompression?: number
-  dampingRelaxation?: number
-  directionLocal?: Triplet
-  frictionSlip?: number
-  isFrontWheel?: boolean
-  maxSuspensionForce?: number
-  maxSuspensionTravel?: number
-  radius?: number
-  rollInfluence?: number
-  sideAcceleration?: number
-  suspensionRestLength?: number
-  suspensionStiffness?: number
-  useCustomSlidingRotationalSpeed?: boolean
+function isString(v: unknown): v is string {
+  return typeof v === 'string'
 }
 
 export interface RaycastVehicleProps {
@@ -770,10 +713,6 @@ export interface RaycastVehicleProps {
   indexUpAxis?: number
   wheelInfos: WheelInfoOptions[]
   wheels: Ref<Object3D>[]
-}
-
-function isString(v: unknown): v is string {
-  return typeof v === 'string'
 }
 
 export function useRaycastVehicle(
@@ -807,13 +746,12 @@ export function useRaycastVehicle(
 
     if (!chassisBodyUUID || !wheelUUIDs.every(isString)) return
 
-    currentWorker.postMessage({
-      op: 'addRaycastVehicle',
+    currentWorker.addRaycastVehicle({
       props: [chassisBodyUUID, wheelUUIDs, wheelInfos, indexForwardAxis, indexRightAxis, indexUpAxis],
       uuid,
     })
     return () => {
-      currentWorker.postMessage({ op: 'removeRaycastVehicle', uuid })
+      currentWorker.removeRaycastVehicle({ uuid })
     }
   }, deps)
 
@@ -821,15 +759,23 @@ export function useRaycastVehicle(
     return {
       applyEngineForce(value: number, wheelIndex: number) {
         const uuid = getUUID(ref)
-        uuid && worker.postMessage({ op: 'applyRaycastVehicleEngineForce', props: [value, wheelIndex], uuid })
+        uuid &&
+          worker.applyRaycastVehicleEngineForce({
+            props: [value, wheelIndex],
+            uuid,
+          })
       },
       setBrake(brake: number, wheelIndex: number) {
         const uuid = getUUID(ref)
-        uuid && worker.postMessage({ op: 'setRaycastVehicleBrake', props: [brake, wheelIndex], uuid })
+        uuid && worker.setRaycastVehicleBrake({ props: [brake, wheelIndex], uuid })
       },
       setSteeringValue(value: number, wheelIndex: number) {
         const uuid = getUUID(ref)
-        uuid && worker.postMessage({ op: 'setRaycastVehicleSteeringValue', props: [value, wheelIndex], uuid })
+        uuid &&
+          worker.setRaycastVehicleSteeringValue({
+            props: [value, wheelIndex],
+            uuid,
+          })
       },
       sliding: {
         subscribe: subscribe(ref, worker, subscriptions, 'sliding', undefined, 'vehicles'),
@@ -849,13 +795,12 @@ export function useContactMaterial(
   const [uuid] = useState(() => MathUtils.generateUUID())
 
   useEffect(() => {
-    worker.postMessage({
-      op: 'addContactMaterial',
+    worker.addContactMaterial({
       props: [materialA, materialB, options],
       uuid,
     })
     return () => {
-      worker.postMessage({ op: 'removeContactMaterial', uuid })
+      worker.removeContactMaterial({ uuid })
     }
   }, deps)
 }

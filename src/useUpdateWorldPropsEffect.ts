@@ -1,7 +1,8 @@
 import { useEffect } from 'react'
 
 import type { ProviderProps } from './Provider'
-import type { CannonWorker, WorldPropName } from './setup'
+import type { WorldPropName } from './setup'
+import type { CannonWorker } from './worker/cannon-worker'
 
 type Props = Pick<Required<ProviderProps>, WorldPropName> & { worker: CannonWorker }
 
@@ -13,9 +14,19 @@ export function useUpdateWorldPropsEffect({
   tolerance,
   worker,
 }: Props) {
-  useEffect(() => void worker.postMessage({ op: 'setAxisIndex', props: axisIndex }), [axisIndex])
-  useEffect(() => void worker.postMessage({ op: 'setBroadphase', props: broadphase }), [broadphase])
-  useEffect(() => void worker.postMessage({ op: 'setGravity', props: gravity }), [gravity])
-  useEffect(() => void worker.postMessage({ op: 'setIterations', props: iterations }), [iterations])
-  useEffect(() => void worker.postMessage({ op: 'setTolerance', props: tolerance }), [tolerance])
+  useEffect(() => {
+    worker.axisIndex = axisIndex
+  }, [axisIndex])
+  useEffect(() => {
+    worker.broadphase = broadphase
+  }, [broadphase])
+  useEffect(() => {
+    worker.gravity = gravity
+  }, [gravity])
+  useEffect(() => {
+    worker.iterations = iterations
+  }, [iterations])
+  useEffect(() => {
+    worker.tolerance = tolerance
+  }, [tolerance])
 }
