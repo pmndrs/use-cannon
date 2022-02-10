@@ -9,6 +9,7 @@ export const state = {
   constraints: {},
   lastCallTime: null,
   materials: {},
+  paused: false,
   rays: {},
   springInstances: {},
   springs: {},

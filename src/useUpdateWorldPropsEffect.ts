@@ -10,6 +10,7 @@ export function useUpdateWorldPropsEffect({
   broadphase,
   gravity,
   iterations,
+  paused,
   step,
   tolerance,
   worker,
@@ -20,4 +21,5 @@ export function useUpdateWorldPropsEffect({
   useEffect(() => void worker.postMessage({ op: 'setIterations', props: iterations }), [iterations])
   useEffect(() => void worker.postMessage({ op: 'setStep', props: step }), [step])
   useEffect(() => void worker.postMessage({ op: 'setTolerance', props: tolerance }), [tolerance])
+  useEffect(() => void worker.postMessage({ op: 'setPaused', props: paused }), [paused])
 }

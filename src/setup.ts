@@ -235,7 +235,7 @@ type UnsubscribeMessage = Operation<'unsubscribe', number>
 
 type SubscriptionMessage = SubscribeMessage | UnsubscribeMessage
 
-export type WorldPropName = 'axisIndex' | 'broadphase' | 'gravity' | 'iterations' | 'step' | 'tolerance'
+export type WorldPropName = 'axisIndex' | 'broadphase' | 'gravity' | 'iterations' | 'paused' | 'step' | 'tolerance'
 
 type WorldMessage<T extends WorldPropName> = Operation<SetOpName<T>, Required<ProviderProps[T]>>
 

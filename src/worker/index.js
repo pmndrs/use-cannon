@@ -50,6 +50,7 @@ self.onmessage = ({ data: { op, positions, props, quaternions, type, uuid } }) =
         defaultContactMaterial,
         gravity,
         iterations,
+        paused,
         quatNormalizeFast,
         quatNormalizeSkip,
         step,
@@ -73,15 +74,19 @@ self.onmessage = ({ data: { op, positions, props, quaternions, type, uuid } }) =
       state.world.addEventListener('endContact', emitEndContact)
       Object.assign(state.world.defaultContactMaterial, defaultContactMaterial)
       state.config.step = step
+      state.paused = paused
       break
     }
     case 'step': {
       const now = performance.now() / 1000
-      if (!state.lastCallTime) {
-        state.world.step(state.config.step)
-      } else {
-        const timeSinceLastCall = now - state.lastCallTime
-        state.world.step(state.config.step, timeSinceLastCall)
+
+      if (!state.paused) {
+        if (!state.lastCallTime) {
+          state.world.step(state.config.step)
+        } else {
+          const timeSinceLastCall = now - state.lastCallTime
+          state.world.step(state.config.step, timeSinceLastCall)
+        }
       }
       state.lastCallTime = now
 
@@ -248,6 +253,9 @@ self.onmessage = ({ data: { op, positions, props, quaternions, type, uuid } }) =
       break
     case 'setStep':
       state.config.step = props
+      break
+    case 'setPaused':
+      state.paused = props
       break
     case 'setIterations':
       state.world.solver.iterations = props

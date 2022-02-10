@@ -38,13 +38,14 @@ export type ProviderProps = PropsWithChildren<{
   defaultContactMaterial?: DefaultContactMaterial
   gravity?: Triplet
   iterations?: number
+  paused?: boolean
   quatNormalizeFast?: boolean
   quatNormalizeSkip?: number
   shouldInvalidate?: boolean
   size?: number
   solver?: Solver
   step?: number
-  tolerance?: number
+  tolerance?: number,
 }>
 
 type Observation = { [K in AtomicName]: [id: number, value: PropValue<K>, type: K] }[AtomicName]
@@ -163,6 +164,7 @@ export function Provider({
   defaultContactMaterial = { contactEquationStiffness: 1e6 },
   gravity = [0, -9.81, 0],
   iterations = 5,
+  paused = false,
   quatNormalizeFast = false,
   quatNormalizeSkip = 0,
   shouldInvalidate = true,
@@ -202,6 +204,7 @@ export function Provider({
         defaultContactMaterial,
         gravity,
         iterations,
+        paused,
         quatNormalizeFast,
         quatNormalizeSkip,
         solver,
@@ -313,7 +316,7 @@ export function Provider({
     return () => worker.terminate()
   }, [])
 
-  useUpdateWorldPropsEffect({ axisIndex, broadphase, gravity, iterations, step, tolerance, worker })
+  useUpdateWorldPropsEffect({ axisIndex, broadphase, gravity, iterations, paused, step, tolerance, worker })
 
   const api: ProviderContext = useMemo(
     () => ({ bodies, buffers, events, refs, subscriptions, worker }),
