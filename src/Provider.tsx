@@ -45,7 +45,7 @@ export type ProviderProps = PropsWithChildren<{
   size?: number
   solver?: Solver
   step?: number
-  tolerance?: number,
+  tolerance?: number
 }>
 
 type Observation = { [K in AtomicName]: [id: number, value: PropValue<K>, type: K] }[AtomicName]
