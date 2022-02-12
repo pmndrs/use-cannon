@@ -1,5 +1,18 @@
 # @react-three/cannon Changelog
 
+## v4.7.0 - 2022-02-12
+
+- [ESLint] Disallow enums (@bjornstar)
+- Add missing worker 'setMaterial' op handler (@isaac-mason)
+- Add isPaused property (@grndctrl & @bjornstar)
+  - BREAKING: step renamed to stepSize (default: 1 / 60)
+  - NEW: maxSubSteps (default: 10)
+  - NEW: isPaused (fixes Pause Simulation #212)
+  - NEW: Paused demo
+  - timeSinceLastCall not tracked in worker
+  - prefer FC to PropsWithChildren
+  - REMOVED: type DefaultContactMaterial
+
 ## v4.6.1 - 2022-01-19
 
 - [`createMaterialFactory`] Do not use logical assignment operator (@bjornstar)
