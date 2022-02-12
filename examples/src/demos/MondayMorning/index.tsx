@@ -11,7 +11,7 @@ import {
 } from '@react-three/cannon'
 import type { BoxBufferGeometryProps, MeshProps, MeshStandardMaterialProps } from '@react-three/fiber'
 import { Canvas, useFrame, useLoader } from '@react-three/fiber'
-import type { PropsWithChildren, ReactNode, RefObject } from 'react'
+import type { FC, ReactNode, RefObject } from 'react'
 import {
   createContext,
   createRef,
@@ -48,30 +48,29 @@ function useDragConstraint(child: RefObject<Object3D>) {
   return { onPointerDown, onPointerUp }
 }
 
-type BoxProps = PropsWithChildren<
-  Omit<MeshProps, 'args'> &
-    Pick<BoxBufferGeometryProps, 'args'> &
-    Pick<MeshStandardMaterialProps, 'color' | 'opacity' | 'transparent'>
->
+type BoxProps = Omit<MeshProps, 'args'> &
+  Pick<BoxBufferGeometryProps, 'args'> &
+  Pick<MeshStandardMaterialProps, 'color' | 'opacity' | 'transparent'>
+
 const Box = forwardRef<Object3D | undefined, BoxProps>(
   ({ args = [1, 1, 1], children, color = 'white', opacity = 1, transparent = false, ...props }, ref) => {
     return (
-      <mesh receiveShadow castShadow ref={ref} {...props}>
+      <mesh castShadow receiveShadow ref={ref} {...props}>
         <boxBufferGeometry args={args} />
-        <meshStandardMaterial color={color} transparent={transparent} opacity={opacity} />
+        <meshStandardMaterial color={color} opacity={opacity} transparent={transparent} />
         {children}
       </mesh>
     )
   },
 )
 
-type BodyPartProps = PropsWithChildren<{
+type BodyPartProps = BoxProps & {
   config?: ConeTwistConstraintOpts
   name: ShapeName
   render?: ReactNode
-}> &
-  BoxProps
-const BodyPart = ({ children, config = {}, name, render, ...props }: BodyPartProps) => {
+}
+
+const BodyPart: FC<BodyPartProps> = ({ children, config = {}, name, render, ...props }) => {
   const { color, args, mass, position } = shapes[name]
   const scale = useMemo<Triplet>(() => double(args), [args])
   const parent = useContext(context)

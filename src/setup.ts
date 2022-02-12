@@ -15,6 +15,8 @@ import type {
 } from './hooks'
 import type { ProviderProps, WorkerCollideEvent, WorkerRayhitEvent } from './Provider'
 
+export type Broadphase = 'Naive' | 'SAP'
+export type Solver = 'GS' | 'Split'
 export type Buffers = { positions: Float32Array; quaternions: Float32Array }
 export type Refs = { [uuid: string]: Object3D }
 type WorkerContact = WorkerCollideEvent['data']['contact']
@@ -235,9 +237,32 @@ type UnsubscribeMessage = Operation<'unsubscribe', number>
 
 type SubscriptionMessage = SubscribeMessage | UnsubscribeMessage
 
-export type WorldPropName = 'axisIndex' | 'broadphase' | 'gravity' | 'iterations' | 'step' | 'tolerance'
+export type WorldPropName = 'axisIndex' | 'broadphase' | 'gravity' | 'iterations' | 'tolerance'
 
 type WorldMessage<T extends WorldPropName> = Operation<SetOpName<T>, Required<ProviderProps[T]>>
+
+export type InitProps = {
+  allowSleep?: boolean
+  axisIndex?: number
+  broadphase?: Broadphase
+  defaultContactMaterial?: ContactMaterialOptions
+  gravity?: Triplet
+  iterations?: number
+  quatNormalizeFast?: boolean
+  quatNormalizeSkip?: number
+  solver?: Solver
+  tolerance?: number
+}
+
+type InitMessage = Operation<'init', InitProps>
+
+type StepProps = {
+  maxSubSteps?: number
+  stepSize: number
+  timeSinceLastCalled?: number
+}
+
+type StepMessage = Operation<'step', StepProps>
 
 type CannonMessage =
   | ApplyMessage
@@ -245,20 +270,23 @@ type CannonMessage =
   | BodiesMessage
   | ConstraintMessage
   | ConstraintMotorMessage
+  | ContactMaterialMessage
+  | InitMessage
   | QuaternionMessage
   | RaycastVehicleMessage
   | RayMessage
   | RotationMessage
   | SleepMessage
   | SpringMessage
-  | ContactMaterialMessage
+  | StepMessage
   | SubscriptionMessage
   | VectorMessage
   | WakeUpMessage
   | WorldMessage<WorldPropName>
 
 export interface CannonWorker extends Worker {
-  postMessage: (message: CannonMessage) => void
+  postMessage(message: CannonMessage, transfer: Transferable[]): void
+  postMessage(message: CannonMessage, options?: StructuredSerializeOptions): void
 }
 
 export type ProviderContext = {

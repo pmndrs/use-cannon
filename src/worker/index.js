@@ -52,7 +52,6 @@ self.onmessage = ({ data: { op, positions, props, quaternions, type, uuid } }) =
         iterations,
         quatNormalizeFast,
         quatNormalizeSkip,
-        step,
         solver,
         tolerance,
       } = props
@@ -72,18 +71,10 @@ self.onmessage = ({ data: { op, positions, props, quaternions, type, uuid } }) =
       state.world.addEventListener('beginContact', emitBeginContact)
       state.world.addEventListener('endContact', emitEndContact)
       Object.assign(state.world.defaultContactMaterial, defaultContactMaterial)
-      state.config.step = step
       break
     }
     case 'step': {
-      const now = performance.now() / 1000
-      if (!state.lastCallTime) {
-        state.world.step(state.config.step)
-      } else {
-        const timeSinceLastCall = now - state.lastCallTime
-        state.world.step(state.config.step, timeSinceLastCall)
-      }
-      state.lastCallTime = now
+      state.world.step(props.stepSize, props.timeSinceLastCalled, props.maxSubSteps)
 
       const numberOfBodies = state.world.bodies.length
       for (let i = 0; i < numberOfBodies; i++) {
@@ -245,9 +236,6 @@ self.onmessage = ({ data: { op, positions, props, quaternions, type, uuid } }) =
       break
     case 'setTolerance':
       state.world.solver.tolerance = props
-      break
-    case 'setStep':
-      state.config.step = props
       break
     case 'setIterations':
       state.world.solver.iterations = props

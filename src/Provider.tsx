@@ -1,14 +1,14 @@
+import type { RenderCallback } from '@react-three/fiber'
 import { useFrame, useThree } from '@react-three/fiber'
-import type { ContactMaterial, Shape } from 'cannon-es'
-import type { PropsWithChildren } from 'react'
+import type { Shape } from 'cannon-es'
+import type { FC } from 'react'
 import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import type { Object3D } from 'three'
 import { InstancedMesh, Matrix4, Quaternion, Vector3 } from 'three'
 
 // @ts-expect-error Types are not setup for this yet
-import CannonWorker from '../src/worker'
-import type { Triplet } from './hooks'
-import type { AtomicName, Buffers, PropValue, ProviderContext, Refs } from './setup'
+import Worker from '../src/worker'
+import type { AtomicName, Buffers, CannonWorker, InitProps, PropValue, ProviderContext, Refs } from './setup'
 import { context } from './setup'
 import { useUpdateWorldPropsEffect } from './useUpdateWorldPropsEffect'
 
@@ -16,36 +16,13 @@ function noop() {
   /**/
 }
 
-export type Broadphase = 'Naive' | 'SAP'
-export type Solver = 'GS' | 'Split'
-
-export type DefaultContactMaterial = Partial<
-  Pick<
-    ContactMaterial,
-    | 'contactEquationRelaxation'
-    | 'contactEquationStiffness'
-    | 'friction'
-    | 'frictionEquationRelaxation'
-    | 'frictionEquationStiffness'
-    | 'restitution'
-  >
->
-
-export type ProviderProps = PropsWithChildren<{
-  allowSleep?: boolean
-  axisIndex?: number
-  broadphase?: Broadphase
-  defaultContactMaterial?: DefaultContactMaterial
-  gravity?: Triplet
-  iterations?: number
-  quatNormalizeFast?: boolean
-  quatNormalizeSkip?: number
+export type ProviderProps = InitProps & {
+  isPaused?: boolean
+  maxSubSteps?: number
   shouldInvalidate?: boolean
   size?: number
-  solver?: Solver
-  step?: number
-  tolerance?: number
-}>
+  stepSize?: number
+}
 
 type Observation = { [K in AtomicName]: [id: number, value: PropValue<K>, type: K] }[AtomicName]
 
@@ -155,24 +132,27 @@ function apply(index: number, buffers: Buffers, object?: Object3D) {
   return m.identity()
 }
 
-export function Provider({
+export const Provider: FC<ProviderProps> = ({
   allowSleep = false,
   axisIndex = 0,
   broadphase = 'Naive',
   children,
   defaultContactMaterial = { contactEquationStiffness: 1e6 },
   gravity = [0, -9.81, 0],
+  isPaused = false,
   iterations = 5,
+  maxSubSteps = 10,
   quatNormalizeFast = false,
   quatNormalizeSkip = 0,
   shouldInvalidate = true,
   size = 1000,
   solver = 'GS',
-  step = 1 / 60,
+  stepSize = 1 / 60,
   tolerance = 0.001,
-}: ProviderProps): JSX.Element {
+}) => {
   const { invalidate } = useThree()
-  const [worker] = useState<Worker>(() => new CannonWorker() as Worker)
+
+  const [worker] = useState<CannonWorker>(() => new Worker())
   const [refs] = useState<Refs>({})
   const [buffers] = useState<Buffers>(() => ({
     positions: new Float32Array(size * 3),
@@ -182,11 +162,27 @@ export function Provider({
   const [subscriptions] = useState<ProviderContext['subscriptions']>({})
 
   const bodies = useRef<{ [uuid: string]: number }>({})
-  const loop = useCallback(() => {
-    if (buffers.positions.byteLength !== 0 && buffers.quaternions.byteLength !== 0) {
-      worker.postMessage({ op: 'step', ...buffers }, [buffers.positions.buffer, buffers.quaternions.buffer])
-    }
-  }, [])
+
+  let timeSinceLastCalled = 0
+
+  const loop = useCallback<RenderCallback>(
+    (_, delta) => {
+      if (isPaused) return
+      timeSinceLastCalled += delta
+      if (buffers.positions.byteLength !== 0 && buffers.quaternions.byteLength !== 0) {
+        worker.postMessage(
+          {
+            op: 'step',
+            props: { maxSubSteps, stepSize, timeSinceLastCalled },
+            ...buffers,
+          },
+          [buffers.positions.buffer, buffers.quaternions.buffer],
+        )
+        timeSinceLastCalled = 0
+      }
+    },
+    [isPaused, maxSubSteps, stepSize],
+  )
 
   // Run loop *after* all the physics objects have ran theirs!
   // Otherwise the buffers will be invalidated by the browser
@@ -205,7 +201,6 @@ export function Provider({
         quatNormalizeFast,
         quatNormalizeSkip,
         solver,
-        step,
         tolerance,
       },
     })
@@ -313,7 +308,7 @@ export function Provider({
     return () => worker.terminate()
   }, [])
 
-  useUpdateWorldPropsEffect({ axisIndex, broadphase, gravity, iterations, step, tolerance, worker })
+  useUpdateWorldPropsEffect({ axisIndex, broadphase, gravity, iterations, tolerance, worker })
 
   const api: ProviderContext = useMemo(
     () => ({ bodies, buffers, events, refs, subscriptions, worker }),

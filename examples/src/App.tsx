@@ -2,7 +2,7 @@ import { Suspense } from 'react'
 import { HashRouter as Router, Link, Route, Routes, useMatch } from 'react-router-dom'
 import styled from 'styled-components'
 
-import * as demos from './demos'
+import { demoList, demos, isDemo } from './demos'
 import { Global } from './styles'
 import { Page as PageImpl } from './styles'
 
@@ -24,17 +24,15 @@ const Page = styled(PageImpl)`
 `
 
 const defaultName = 'MondayMorning'
-const visibleComponents = Object.entries(demos).reduce<any>(
-  (acc, [name, component]) => ({ ...acc, [name]: component }),
-  {},
-)
+const visibleComponents = demos
 const DefaultComponent = visibleComponents[defaultName].Component
 
 const RoutedComponent = () => {
   const {
-    params: { name },
+    params: { name: routeName },
   } = useMatch('/demo/:name') || { params: { name: defaultName } }
-  const Component = visibleComponents[name || defaultName].Component
+  const demoName = isDemo(routeName) ? routeName : defaultName
+  const { Component } = visibleComponents[demoName]
   return <Component />
 }
 
@@ -61,9 +59,9 @@ function Demos() {
   } = useMatch('/demo/:name') || { params: { name: defaultName } }
   return (
     <DemoPanel>
-      {Object.entries(visibleComponents).map(([name], key) => (
-        <Link key={key} to={`/demo/${name}`} title={name}>
-          <Spot style={{ backgroundColor: name === routeName ? 'salmon' : 'white' }} />
+      {demoList.map((demoName, key) => (
+        <Link key={key} to={`/demo/${demoName}`} title={demoName}>
+          <Spot style={{ backgroundColor: demoName === routeName ? 'salmon' : 'white' }} />
         </Link>
       ))}
     </DemoPanel>
