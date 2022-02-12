@@ -1,7 +1,7 @@
 import { useFrame } from '@react-three/fiber'
 import type { Body, Quaternion as CQuaternion, Vec3, World } from 'cannon-es'
 import CannonDebugger from 'cannon-es-debugger'
-import type { PropsWithChildren } from 'react'
+import type { FC } from 'react'
 import { useContext, useMemo, useRef, useState } from 'react'
 import type { Color } from 'three'
 import { Quaternion, Scene, Vector3 } from 'three'
@@ -12,22 +12,17 @@ import { context, debugContext } from './setup'
 
 type DebugInfo = { bodies: Body[]; bodyMap: { [uuid: string]: Body } }
 
-export type DebugProps = PropsWithChildren<{
+export type DebugProps = {
   color?: string | number | Color
   impl?: typeof CannonDebugger
   scale?: number
-}>
+}
 
 const v = new Vector3()
 const s = new Vector3(1, 1, 1)
 const q = new Quaternion()
 
-export function Debug({
-  children,
-  color = 'black',
-  impl = CannonDebugger,
-  scale = 1,
-}: DebugProps): JSX.Element {
+export const Debug: FC<DebugProps> = ({ children, color = 'black', impl = CannonDebugger, scale = 1 }) => {
   const [{ bodies, bodyMap }] = useState<DebugInfo>({ bodies: [], bodyMap: {} })
   const { refs } = useContext(context)
   const [scene] = useState(() => new Scene())

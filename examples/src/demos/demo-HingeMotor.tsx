@@ -45,19 +45,16 @@ function Plane({ args, ...props }: OurPlaneProps) {
 const ref = createRef<Object3D>()
 const context = createContext<[bodyRef: RefObject<Object3D>, props: BoxShapeProps]>([ref, {}])
 
-type ConstraintPartProps = PropsWithChildren<
-  {
-    config?: HingeConstraintOpts
-    enableMotor?: boolean
-    motorSpeed?: number
-    parentPivot?: Triplet
-    pivot?: Triplet
-  } & Pick<BoxShapeProps, 'color'> &
-    BoxProps
-> &
+type ConstraintPartProps = {
+  config?: HingeConstraintOpts
+  enableMotor?: boolean
+  motorSpeed?: number
+  parentPivot?: Triplet
+  pivot?: Triplet
+} & BoxProps &
   BoxShapeProps
 
-const ConstraintPart = forwardRef<Object3D | null, ConstraintPartProps>(
+const ConstraintPart = forwardRef<Object3D, PropsWithChildren<ConstraintPartProps>>(
   (
     {
       config = {},

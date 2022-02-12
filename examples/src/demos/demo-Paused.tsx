@@ -1,5 +1,5 @@
-import type { BoxProps, PlaneProps} from '@react-three/cannon'
-import { Debug, Physics,useBox, usePlane } from '@react-three/cannon'
+import type { BoxProps, PlaneProps } from '@react-three/cannon'
+import { Debug, Physics, useBox, usePlane } from '@react-three/cannon'
 import { Box, OrbitControls, Plane } from '@react-three/drei'
 import type { MeshStandardMaterialProps } from '@react-three/fiber'
 import { Canvas } from '@react-three/fiber'

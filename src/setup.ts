@@ -1,4 +1,4 @@
-import type { ContactMaterial, ContactMaterialOptions, MaterialOptions, RayOptions } from 'cannon-es'
+import type { ContactMaterialOptions, MaterialOptions, RayOptions } from 'cannon-es'
 import type { MutableRefObject } from 'react'
 import { createContext } from 'react'
 import type { Object3D } from 'three'
@@ -241,23 +241,11 @@ export type WorldPropName = 'axisIndex' | 'broadphase' | 'gravity' | 'iterations
 
 type WorldMessage<T extends WorldPropName> = Operation<SetOpName<T>, Required<ProviderProps[T]>>
 
-export type DefaultContactMaterial = Partial<
-  Pick<
-    ContactMaterial,
-    | 'contactEquationRelaxation'
-    | 'contactEquationStiffness'
-    | 'friction'
-    | 'frictionEquationRelaxation'
-    | 'frictionEquationStiffness'
-    | 'restitution'
-  >
->
-
 export type InitProps = {
   allowSleep?: boolean
   axisIndex?: number
   broadphase?: Broadphase
-  defaultContactMaterial?: DefaultContactMaterial
+  defaultContactMaterial?: ContactMaterialOptions
   gravity?: Triplet
   iterations?: number
   quatNormalizeFast?: boolean

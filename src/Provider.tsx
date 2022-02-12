@@ -1,7 +1,7 @@
 import type { RenderCallback } from '@react-three/fiber'
 import { useFrame, useThree } from '@react-three/fiber'
 import type { Shape } from 'cannon-es'
-import type { PropsWithChildren } from 'react'
+import type { FC } from 'react'
 import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import type { Object3D } from 'three'
 import { InstancedMesh, Matrix4, Quaternion, Vector3 } from 'three'
@@ -16,15 +16,13 @@ function noop() {
   /**/
 }
 
-export type ProviderProps = PropsWithChildren<
-  InitProps & {
-    isPaused?: boolean
-    maxSubSteps?: number
-    shouldInvalidate?: boolean
-    size?: number
-    stepSize?: number
-  }
->
+export type ProviderProps = InitProps & {
+  isPaused?: boolean
+  maxSubSteps?: number
+  shouldInvalidate?: boolean
+  size?: number
+  stepSize?: number
+}
 
 type Observation = { [K in AtomicName]: [id: number, value: PropValue<K>, type: K] }[AtomicName]
 
@@ -134,7 +132,7 @@ function apply(index: number, buffers: Buffers, object?: Object3D) {
   return m.identity()
 }
 
-export function Provider({
+export const Provider: FC<ProviderProps> = ({
   allowSleep = false,
   axisIndex = 0,
   broadphase = 'Naive',
@@ -151,7 +149,7 @@ export function Provider({
   solver = 'GS',
   stepSize = 1 / 60,
   tolerance = 0.001,
-}: ProviderProps): JSX.Element {
+}) => {
   const { invalidate } = useThree()
 
   const [worker] = useState<CannonWorker>(() => new Worker())
