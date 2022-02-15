@@ -92,10 +92,14 @@ export const Provider: FC<ProviderProps> = ({
 
   const bodies = useRef<{ [uuid: string]: number }>({})
 
+  let timeSinceLastCalled = 0
+
   const loop = useCallback<RenderCallback>(
     (_, delta) => {
       if (isPaused) return
-      worker.step(stepSize, delta, maxSubSteps)
+      timeSinceLastCalled += delta
+      worker.step({ maxSubSteps, stepSize, timeSinceLastCalled })
+      timeSinceLastCalled = 0
     },
     [isPaused, maxSubSteps, stepSize],
   )
