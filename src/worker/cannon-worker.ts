@@ -4,27 +4,15 @@ import type {
   Broadphase,
   CannonMessageBody,
   CannonWebWorker,
-  DefaultContactMaterial,
   IncomingWorkerMessage,
-  Solver,
+  StepProps,
   Triplet,
+  WorldProps,
 } from '../setup'
 // @ts-expect-error Types are not setup for this yet
 import Worker from './worker'
 
-export type CannonWorkerProps = {
-  allowSleep?: boolean
-  axisIndex?: number
-  broadphase?: Broadphase
-  defaultContactMaterial?: DefaultContactMaterial
-  gravity?: Triplet
-  iterations?: number
-  quatNormalizeFast?: boolean
-  quatNormalizeSkip?: number
-  size?: number
-  solver?: Solver
-  tolerance?: number
-}
+export type CannonWorkerProps = Partial<WorldProps> & { size?: number }
 
 export class CannonWorker extends EventEmitter {
   get axisIndex(): number {
@@ -394,16 +382,14 @@ export class CannonWorker extends EventEmitter {
     this.worker.postMessage({ op: 'sleep', uuid })
   }
 
-  step(stepSize: number, dt?: number, maxSubSteps?: number): void {
+  step(props: StepProps): void {
     const {
       buffers: { positions, quaternions },
     } = this
 
-    if (positions.byteLength === 0 || quaternions.byteLength === 0) {
-      return
-    }
+    if (!positions.byteLength && !quaternions.byteLength) return
 
-    this.worker.postMessage({ op: 'step', positions, props: { dt, maxSubSteps, stepSize }, quaternions }, [
+    this.worker.postMessage({ op: 'step', positions, props, quaternions }, [
       positions.buffer,
       quaternions.buffer,
     ])
