@@ -24,9 +24,9 @@ export default [
     input: `./src/index.tsx`,
     output: { dir: 'dist', format: 'esm' },
     plugins: [
-      worker({ pattern: /.*\/worker$/, sourcemap: false, targetPlatform: 'browser' }),
-      babel(getBabelOptions({ useESModules: true }, '>1%, not dead, not ie 11, not op_mini all')),
       resolve({ extensions }),
+      worker({ platform: 'base64', sourcemap: false }),
+      babel(getBabelOptions({ useESModules: true }, '>1%, not dead, not ie 11, not op_mini all')),
     ],
   },
   {
@@ -34,9 +34,9 @@ export default [
     input: `./src/index.tsx`,
     output: { dir: 'dist/debug', format: 'esm' },
     plugins: [
-      worker({ pattern: /.*\/worker$/, sourcemap: true, targetPlatform: 'browser' }),
-      babel(getBabelOptions({ useESModules: true }, '>1%, not dead, not ie 11, not op_mini all')),
       resolve({ extensions }),
+      worker({ platform: 'base64', sourcemap: true }),
+      babel(getBabelOptions({ useESModules: true }, '>1%, not dead, not ie 11, not op_mini all')),
     ],
   },
 ]

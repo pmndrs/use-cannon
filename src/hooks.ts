@@ -3,6 +3,7 @@ import type { DependencyList, MutableRefObject, Ref, RefObject } from 'react'
 import { useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { DynamicDrawUsage, Euler, InstancedMesh, MathUtils, Object3D, Quaternion, Vector3 } from 'three'
 
+import type { CannonWorkerAPI } from './cannon-worker-api'
 import type {
   AtomicName,
   CollideBeginEvent,
@@ -30,14 +31,13 @@ import type {
   WheelInfoOptions,
 } from './setup'
 import { context, debugContext } from './setup'
-import type { CannonWorker } from './worker/cannon-worker'
 
 export type AtomicProps = {
   allowSleep: boolean
   angularDamping: number
   collisionFilterGroup: number
   collisionFilterMask: number
-  collisionResponse: number
+  collisionResponse: boolean
   fixedRotation: boolean
   isTrigger: boolean
   linearDamping: number
@@ -45,7 +45,7 @@ export type AtomicProps = {
   material: MaterialOptions
   sleepSpeedLimit: number
   sleepTimeLimit: number
-  userData: {}
+  userData: Record<PropertyKey, any>
 }
 
 export type VectorProps = Record<VectorName, Triplet>
@@ -170,7 +170,7 @@ let incrementingId = 0
 
 function subscribe<T extends SubscriptionName>(
   ref: RefObject<Object3D>,
-  worker: CannonWorker,
+  worker: CannonWorkerAPI,
   subscriptions: ProviderContext['subscriptions'],
   type: T,
   index?: number,
@@ -731,7 +731,7 @@ export function useRaycastVehicle(
     }
 
     const currentWorker = worker
-    const uuid: string[] = [ref.current.uuid]
+    const uuid: string = ref.current.uuid
     const {
       chassisBody,
       indexForwardAxis = 2,

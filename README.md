@@ -378,7 +378,7 @@ interface RaycastVehiclePublicApi {
 ```typescript
 type InitProps = {
   allowSleep?: boolean
-  axisIndex?: number
+  axisIndex?: 0 | 1 | 2
   broadphase?: Broadphase
   defaultContactMaterial?: ContactMaterialOptions
   gravity?: Triplet
