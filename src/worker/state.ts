@@ -1,8 +1,29 @@
+import type { Body, Constraint, ContactMaterial, Material, RaycastVehicle, Spring } from 'cannon-es'
 import { World } from 'cannon-es'
 
-const world = new World()
+import type { SubscriptionName, SubscriptionTarget } from '../setup'
+import type { WithUUID } from './types'
 
-export const state = {
+interface DecoratedWorld extends World {
+  bodies: WithUUID<Body>[]
+  constraints: WithUUID<Constraint>[]
+  contactmaterials: WithUUID<ContactMaterial>[]
+}
+
+export interface State {
+  bodies: { [uuid: string]: Body }
+  bodiesNeedSyncing: boolean
+  constraints: { [uuid: string]: () => void }
+  materials: { [uuid: string]: Material }
+  rays: { [uuid: string]: () => void }
+  springInstances: { [uuid: string]: Spring }
+  springs: { [uuid: string]: () => void }
+  subscriptions: { [id: string]: [uuid: string, type: SubscriptionName, target: SubscriptionTarget] }
+  vehicles: { [uuid: string]: { postStep: () => void; preStep: () => void; vehicle: RaycastVehicle } }
+  world: DecoratedWorld
+}
+
+export const state: State = {
   bodies: {},
   bodiesNeedSyncing: false,
   constraints: {},
@@ -12,5 +33,5 @@ export const state = {
   springs: {},
   subscriptions: {},
   vehicles: {},
-  world,
+  world: new World(),
 }

@@ -1,4 +1,5 @@
 import EventEmitter from 'events'
+import Worker from 'web-worker:./worker/index.ts'
 
 import type {
   Broadphase,
@@ -8,18 +9,16 @@ import type {
   StepProps,
   Triplet,
   WorldProps,
-} from '../setup'
-// @ts-expect-error Types are not setup for this yet
-import Worker from './worker'
+} from './setup'
 
 export type CannonWorkerProps = Partial<WorldProps> & { size?: number }
 
-export class CannonWorker extends EventEmitter {
-  get axisIndex(): number {
+export class CannonWorkerAPI extends EventEmitter {
+  get axisIndex(): 0 | 1 | 2 {
     return this.config.axisIndex
   }
 
-  set axisIndex(value: number) {
+  set axisIndex(value: 0 | 1 | 2) {
     this.config.axisIndex = value
     this.worker.postMessage({ op: 'setAxisIndex', props: value })
   }

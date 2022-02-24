@@ -2,8 +2,8 @@ import type { ContactMaterialOptions, MaterialOptions, RayOptions as RayOptionsI
 import type { MutableRefObject } from 'react'
 import { createContext } from 'react'
 import type { Object3D } from 'three'
-import type { CannonWorker } from 'worker/cannon-worker'
 
+import type { CannonWorkerAPI } from './cannon-worker-api'
 import type { AtomicProps, BodyProps, BodyShapeType } from './hooks'
 
 export type Triplet = [x: number, y: number, z: number]
@@ -108,11 +108,6 @@ type CallbackByType<T extends { type: string }> = {
 
 type CannonEvents = { [uuid: string]: Partial<CallbackByType<CannonEvent>> }
 
-export type Subscription = Partial<{ [K in SubscriptionName]: (value: PropValue<K>) => void }>
-export type Subscriptions = Partial<{
-  [id: number]: Subscription
-}>
-
 export type PropValue<T extends SubscriptionName = SubscriptionName> = T extends AtomicName
   ? AtomicProps[T]
   : T extends VectorName
@@ -122,6 +117,11 @@ export type PropValue<T extends SubscriptionName = SubscriptionName> = T extends
   : T extends 'sliding'
   ? boolean
   : never
+
+export type Subscription = Partial<{ [K in SubscriptionName]: (value: PropValue<K>) => void }>
+export type Subscriptions = Partial<{
+  [id: number]: Subscription
+}>
 
 export const atomicNames = [
   'allowSleep',
@@ -155,13 +155,27 @@ export type SubscriptionName = typeof subscriptionNames[number]
 export type SetOpName<T extends AtomicName | VectorName | WorldPropName | 'quaternion' | 'rotation'> =
   `set${Capitalize<T>}`
 
-type NoProps = symbol
+type Operation<T extends OpName, P> = { op: T } & (P extends symbol ? {} : { props: P })
+type WithUUID<T extends OpName, P = symbol> = Operation<T, P> & { uuid: string }
+type WithUUIDs<T extends OpName, P = symbol> = Operation<T, P> & { uuid: string[] }
 
-type Operation<T extends OpName, P> = { op: T } & (P extends NoProps ? {} : { props: P })
-type WithUUID<T extends OpName, P = NoProps> = Operation<T, P> & { uuid: string }
-type WithUUIDs<T extends OpName, P = NoProps> = Operation<T, P> & { uuid: string[] }
-
-type AddConstraintProps = [uuidA: string, uuidB: string, options: {}]
+type AddConstraintProps = [
+  uuidA: string,
+  uuidB: string,
+  options: {
+    angle?: number
+    axisA?: Triplet
+    axisB?: Triplet
+    collideConnected?: boolean
+    distance?: number
+    maxForce?: number
+    maxMultiplier?: number
+    pivotA?: Triplet
+    pivotB?: Triplet
+    twistAngle?: number
+    wakeUpBodies?: boolean
+  },
+]
 
 type AddContactMaterialProps = [
   materialA: MaterialOptions,
@@ -182,7 +196,7 @@ type AddRayProps = {
 
 export type RayOptions = Omit<AddRayProps, 'mode'>
 
-type AtomicMessage<T extends AtomicName> = WithUUID<SetOpName<AtomicName>, PropValue<T>>
+type AtomicMessage<T extends AtomicName> = WithUUID<SetOpName<T>, AtomicProps[T]>
 type VectorMessage = WithUUID<SetOpName<VectorName>, Triplet>
 
 type SerializableBodyProps = {
@@ -224,7 +238,7 @@ export type WorkerCollideEvent = {
       contactNormal: number[]
       /** Contact point in world space */
       contactPoint: number[]
-      id: string
+      id: number
       impactVelocity: number
       ni: number[]
       ri: number[]
@@ -294,7 +308,7 @@ export type StepProps = {
 
 export type WorldProps = {
   allowSleep: boolean
-  axisIndex: number
+  axisIndex: 0 | 1 | 2
   broadphase: Broadphase
   defaultContactMaterial: ContactMaterialOptions
   gravity: Triplet
@@ -312,11 +326,11 @@ export type CannonMessageMap = {
   addConstraint: WithUUID<'addConstraint', AddConstraintProps> & { type: 'Hinge' | ConstraintTypes }
   addContactMaterial: WithUUID<'addContactMaterial', AddContactMaterialProps>
   addRay: WithUUID<'addRay', AddRayProps>
-  addRaycastVehicle: WithUUIDs<
+  addRaycastVehicle: WithUUID<
     'addRaycastVehicle',
     [
       chassisBodyUUID: string,
-      wheelsUUID: string[],
+      wheelUUIDs: string[],
       wheelInfos: WheelInfoOptions[],
       indexForwardAxis: number,
       indexRightAxis: number,
@@ -342,7 +356,7 @@ export type CannonMessageMap = {
   removeConstraint: WithUUID<'removeConstraint'>
   removeContactMaterial: WithUUID<'removeContactMaterial'>
   removeRay: WithUUID<'removeRay'>
-  removeRaycastVehicle: WithUUIDs<'removeRaycastVehicle'>
+  removeRaycastVehicle: WithUUID<'removeRaycastVehicle'>
   removeSpring: WithUUID<'removeSpring'>
   setAllowSleep: AtomicMessage<'allowSleep'>
   setAngularDamping: AtomicMessage<'angularDamping'>
@@ -392,8 +406,11 @@ export type CannonMessageMap = {
 type OpName = keyof CannonMessageMap
 
 export type CannonMessageBody<T extends OpName> = Omit<CannonMessageMap[T], 'op'>
+export type CannonMessageProps<T extends OpName> = CannonMessageMap[T] extends { props: unknown }
+  ? CannonMessageMap[T]['props']
+  : never
+export type CannonMessage = CannonMessageMap[OpName]
 
-type CannonMessage = CannonMessageMap[OpName]
 export interface CannonWebWorker extends Worker {
   onmessage: (e: IncomingWorkerMessage) => void
   postMessage(message: CannonMessage, transfer: Transferable[]): void
@@ -406,7 +423,7 @@ export type ProviderContext = {
   events: CannonEvents
   refs: Refs
   subscriptions: Subscriptions
-  worker: CannonWorker
+  worker: CannonWorkerAPI
 }
 
 export type DebugApi = {
