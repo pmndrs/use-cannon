@@ -21,11 +21,12 @@ jobs:
         node-version: 14
         cache: 'yarn'
     - run: yarn install
-    - run: npm run build
+    - run: yarn build
+      working-directory: ./packages/react-three-cannon
     - uses: actions/upload-artifact@v2
       with:
         name: dist
-        path: dist
+        path: packages/react-three-cannon/dist
 
   prettier:
     name: Prettier
@@ -37,7 +38,7 @@ jobs:
         node-version: 14
         cache: 'yarn'
     - run: yarn install
-    - run: npm run prettier
+    - run: yarn run prettier
 
   eslint:
     name: ESLint
@@ -49,7 +50,7 @@ jobs:
         node-version: 14
         cache: 'yarn'
     - run: yarn install
-    - run: npm run eslint
+    - run: yarn run eslint
 
   example-build:
     name: Example Build
@@ -64,10 +65,9 @@ jobs:
       uses: actions/download-artifact@v2
       with:
         name: dist
-        path: dist
+        path: packages/react-three-cannon/dist
     - name: Install
       run: yarn install
-      working-directory: ./examples
     - name: Build
-      run: npm run build
-      working-directory: ./examples
+      run: yarn build
+      working-directory: ./packages/react-three-cannon-examples

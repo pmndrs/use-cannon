@@ -1,13 +1,13 @@
 # @react-three/cannon-examples
 
-The examples rely on an alias pointing to `../dist/index`, the parent project must have been built previously.
+To build the examples, the [@react-three/cannon](../react-three-cannon) package must have been built previously.
 
 To build the parent project:
 
 ```bash
 cd ..
 yarn
-npm run build
+yarn build
 cd examples
 yarn
 ```
@@ -15,7 +15,7 @@ yarn
 To start the dev server:
 
 ```bash
-npm run dev
+yarn dev
 ```
 
 And visit http://localhost:3000 in your browser

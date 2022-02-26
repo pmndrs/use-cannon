@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "pretty": true,
+    "strict": true,
+    "allowJs": true,
+    "skipLibCheck": true,
+    "declaration": true,
+    "removeComments": true,
+    "emitDeclarationOnly": true,
+    "outDir": "dist",
+    "resolveJsonModule": true,
+    "noImplicitThis": false,
+    "baseUrl": "./src",
+    "incremental": true
+  },
+  "include": ["./src"],
+  "exclude": ["./node_modules/**/*"]
+}

@@ -1,0 +1,105 @@
+{
+  "env": {
+    "browser": true,
+    "es2021": true
+  },
+  "extends": ["prettier", "plugin:react/recommended", "eslint:recommended"],
+  "overrides": [
+    {
+      "extends": "plugin:@typescript-eslint/recommended",
+      "files": ["*.tsx", "*.ts"],
+      "parser": "@typescript-eslint/parser",
+      "parserOptions": {
+        "project": ["tsconfig.json"]
+      },
+      "plugins": ["@typescript-eslint", "typescript-enum"],
+      "rules": {
+        "@typescript-eslint/ban-types": ["error", { "extendDefaults": true, "types": { "{}": false } }],
+        "@typescript-eslint/consistent-type-imports": "error",
+        "@typescript-eslint/explicit-module-boundary-types": "off",
+        "@typescript-eslint/member-ordering": [
+          "error",
+          {
+            "default": {
+              "order": "alphabetically-case-insensitive"
+            },
+            "classes": {
+              "order": "alphabetically-case-insensitive",
+              "memberTypes": [
+                "public-static-field",
+                "protected-static-field",
+                "private-static-field",
+                "public-instance-field",
+                "public-decorated-field",
+                "public-abstract-field",
+                "protected-instance-field",
+                "protected-decorated-field",
+                "protected-abstract-field",
+                "private-instance-field",
+                "private-decorated-field",
+                "private-abstract-field",
+                "static-field",
+                "public-field",
+                "instance-field",
+                "protected-field",
+                "private-field",
+                "abstract-field",
+                "constructor",
+                "public-static-method",
+                "protected-static-method",
+                "private-static-method",
+                "public-method",
+                "protected-method",
+                "private-method"
+              ]
+            }
+          }
+        ],
+        "@typescript-eslint/no-namespace": ["error", { "allowDeclarations": true }],
+        "@typescript-eslint/no-non-null-assertion": "off",
+        "@typescript-eslint/no-unused-vars": ["error", { "ignoreRestSiblings": true }],
+        "@typescript-eslint/quotes": [
+          "error",
+          "single",
+          {
+            "allowTemplateLiterals": true,
+            "avoidEscape": true
+          }
+        ],
+        "@typescript-eslint/semi": ["error", "never"],
+        "typescript-enum/no-enum": "error"
+      }
+    },
+    {
+      "files": ["*.jsx", "*.js"]
+    }
+  ],
+  "parserOptions": {
+    "ecmaFeatures": {
+      "jsx": true
+    },
+    "ecmaVersion": 12,
+    "sourceType": "module"
+  },
+  "plugins": ["es", "react", "simple-import-sort"],
+  "rules": {
+    "eol-last": ["error", "always"],
+    "es/no-logical-assignment-operators": "error",
+    "es/no-nullish-coalescing-operators": "error",
+    "no-debugger": "error",
+    "no-unused-vars": ["error", { "ignoreRestSiblings": true }],
+    "react/no-children-prop": 0,
+    "react/display-name": 0,
+    "react/prop-types": 0,
+    "react/react-in-jsx-scope": 0,
+    "semi": ["error", "never"],
+    "simple-import-sort/exports": "error",
+    "simple-import-sort/imports": "error",
+    "sort-keys": "error"
+  },
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  }
+}
