@@ -1,5 +1,11 @@
 # @react-three/cannon Changelog
 
+## v4.8.0 - 2022-02-28
+
+- Created CannonWorkerAPI (@isaac-mason)
+- Converted worker to typescript (@bjornstar)
+- [`examples/RaycastVehicle`] Use a single keyup/keydown event handler (@bjornstar)
+
 ## v4.7.0 - 2022-02-12
 
 - [ESLint] Disallow enums (@bjornstar)
