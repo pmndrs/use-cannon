@@ -6,8 +6,8 @@
   "main": "src/index.js",
   "dependencies": {
     "@react-three/cannon": "file:../",
-    "@react-three/drei": "^8.3.1",
-    "@react-three/fiber": "^7.0.24",
+    "@react-three/drei": "^8.11.1",
+    "@react-three/fiber": "^7.0.26",
     "lerp": "^1.0.3",
     "lodash-es": "^4.17.21",
     "nice-color-palettes": "3.0.0",
@@ -17,7 +17,7 @@
     "react-router-dom": "^6.2.1",
     "styled-components": "^5.3.0",
     "three": "^0.137.0",
-    "three-stdlib": "^2.6.1",
+    "three-stdlib": "^2.8.8",
     "zustand": "^3.6.7"
   },
   "scripts": {

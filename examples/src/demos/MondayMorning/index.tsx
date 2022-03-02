@@ -23,7 +23,7 @@ import {
   useMemo,
   useRef,
 } from 'react'
-import type { BufferGeometry, Material, Object3D } from 'three'
+import type { Material, Mesh, Object3D } from 'three'
 import type { GLTF } from 'three-stdlib/loaders/GLTFLoader'
 import { GLTFLoader } from 'three-stdlib/loaders/GLTFLoader'
 
@@ -198,8 +198,8 @@ interface CupGLTF extends GLTF {
     Liquid: Material
   }
   nodes: {
-    'buffer-0-mesh-0': { geometry: BufferGeometry }
-    'buffer-0-mesh-0_1': { geometry: BufferGeometry }
+    'buffer-0-mesh-0': Mesh
+    'buffer-0-mesh-0_1': Mesh
   }
 }
 

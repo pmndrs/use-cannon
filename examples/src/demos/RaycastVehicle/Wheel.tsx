@@ -2,7 +2,7 @@ import type { CylinderProps } from '@react-three/cannon'
 import { useCompoundBody } from '@react-three/cannon'
 import { useGLTF } from '@react-three/drei'
 import { forwardRef } from 'react'
-import type { BufferGeometry, Material, Object3D } from 'three'
+import type { Material, Mesh, Object3D } from 'three'
 import type { GLTF } from 'three-stdlib/loaders/GLTFLoader'
 
 useGLTF.preload('/wheel.glb')
@@ -11,7 +11,7 @@ useGLTF.preload('/wheel.glb')
 
 type WheelGLTF = GLTF & {
   materials: Record<'Chrom' | 'Rubber' | 'Steel', Material>
-  nodes: Record<'wheel_1' | 'wheel_2' | 'wheel_3', { geometry: BufferGeometry }>
+  nodes: Record<'wheel_1' | 'wheel_2' | 'wheel_3', Mesh>
 }
 
 type WheelProps = CylinderProps & {

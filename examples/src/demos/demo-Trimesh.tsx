@@ -3,16 +3,15 @@ import { Physics, useSphere, useTrimesh } from '@react-three/cannon'
 import { OrbitControls, TorusKnot, useGLTF } from '@react-three/drei'
 import { Canvas, invalidate } from '@react-three/fiber'
 import { useEffect, useState } from 'react'
-import type { BufferGeometry } from 'three'
+import type { BufferGeometry, Mesh } from 'three'
 import type { GLTF } from 'three-stdlib/loaders/GLTFLoader'
 import create from 'zustand'
 
 type BowlGLTF = GLTF & {
+  materials: {}
   nodes: {
-    bowl: {
-      geometry: BufferGeometry & {
-        index: ArrayLike<number>
-      }
+    bowl: Mesh & {
+      geometry: BufferGeometry & { index: ArrayLike<number> }
     }
   }
 }
