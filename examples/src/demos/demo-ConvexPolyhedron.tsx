@@ -2,7 +2,7 @@ import type { ConvexPolyhedronProps, PlaneProps } from '@react-three/cannon'
 import { Physics, useConvexPolyhedron, usePlane } from '@react-three/cannon'
 import { Canvas, useLoader } from '@react-three/fiber'
 import { Suspense, useMemo, useState } from 'react'
-import type { BufferGeometry } from 'three'
+import type { BufferGeometry, Mesh } from 'three'
 import { BoxGeometry, ConeGeometry } from 'three'
 import { Geometry } from 'three-stdlib/deprecated/Geometry'
 import type { GLTF } from 'three-stdlib/loaders/GLTFLoader'
@@ -18,7 +18,8 @@ function toConvexProps(bufferGeometry: BufferGeometry): ConvexPolyhedronProps['a
 }
 
 type DiamondGLTF = GLTF & {
-  nodes: { Cylinder: { geometry: BufferGeometry } }
+  materials: {}
+  nodes: { Cylinder: Mesh }
 }
 
 function Diamond({ position, rotation }: ConvexPolyhedronProps) {

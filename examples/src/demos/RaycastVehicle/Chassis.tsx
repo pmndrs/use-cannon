@@ -1,6 +1,6 @@
 import { useGLTF } from '@react-three/drei'
 import { forwardRef } from 'react'
-import type { BufferGeometry, Material, Object3D } from 'three'
+import type { Material, Mesh, Object3D } from 'three'
 import type { GLTF } from 'three-stdlib/loaders/GLTFLoader'
 
 useGLTF.preload('/Beetle.glb')
@@ -51,7 +51,7 @@ type BeetleNode = typeof beetleNodes[number]
 
 type BeetleGLTF = GLTF & {
   materials: Record<BeetleMaterial, Material>
-  nodes: Record<BeetleNode, { geometry: BufferGeometry }>
+  nodes: Record<BeetleNode, Mesh>
 }
 
 export const Chassis = forwardRef<Object3D>((_, ref) => {
