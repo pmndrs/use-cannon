@@ -1,5 +1,15 @@
 # @react-three/cannon Changelog
 
+## v4.9.0 - 2022-03-03
+
+- [`dependencies`] Updated `three` & `@types/three` from `r135` to `r137` (@bjornstar)
+- [`examples/dependencies`] Updated `@react-three/drei` from `v8.3.1` to `v8.11.1` (@bjornstar)
+- [`examples/dependencies`] Updated `@react-three/drei` from `v8.3.1` to `v8.11.1` (@bjornstar)
+- [`examples/dependencies`] Updated `three` & `@types/three` from `r135` to `r137` (@bjornstar)
+- [`examples/dependencies`] Updated `three-stdlib` from `2.6.1` to `v2.8.8` (@bjornstar)
+- [`esmaples/dependencies`] Removed `postprocessing`, it was unused (@bjornstar)
+- [`examples`] Updated GLTF types (@bjornstar)
+
 ## v4.8.0 - 2022-02-28
 
 - Created CannonWorkerAPI (@isaac-mason)
