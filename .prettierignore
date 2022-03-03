@@ -1,8 +1,0 @@
-.github/*
-.husky/*
-dist/*
-examples/dist/*
-examples/public/*
-examples/node_modules/*
-node_modules/*
-package.json

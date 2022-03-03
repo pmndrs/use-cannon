@@ -8,8 +8,8 @@ export default defineConfig({
   resolve: {
     alias: {
       // Resolve symlink ourselves
-      '@react-three/fiber': resolve('node_modules', '@react-three', 'fiber'),
-      three: resolve('node_modules', 'three'),
+      '@react-three/fiber': resolve('..', '..', 'node_modules', '@react-three', 'fiber'),
+      three: resolve('..', '..', 'node_modules', 'three'),
     },
   },
 })

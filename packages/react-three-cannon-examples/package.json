@@ -2,10 +2,11 @@
   "name": "@react-three/cannon-examples",
   "version": "1.0.0",
   "description": "",
+  "private": true,
   "keywords": [],
   "main": "src/index.js",
   "dependencies": {
-    "@react-three/cannon": "file:../",
+    "@react-three/cannon": "4.9.0",
     "@react-three/drei": "^8.11.1",
     "@react-three/fiber": "^7.0.26",
     "lerp": "^1.0.3",
@@ -23,7 +24,11 @@
   "scripts": {
     "build": "tsc && vite build",
     "dev": "vite",
-    "serve": "vite preview"
+    "serve": "vite preview",
+    "eslint": "eslint .",
+    "eslint-fix": "eslint --fix .",
+    "prettier": "prettier --list-different .",
+    "prettier-fix": "prettier --write ."
   },
   "browserslist": [
     ">0.2%",
@@ -39,10 +44,23 @@
     "@types/react-router-dom": "^5.3.2",
     "@types/styled-components": "^5.1.18",
     "@types/three": "^0.137.0",
+    "@typescript-eslint/eslint-plugin": "^5.7.0",
+    "@typescript-eslint/parser": "^5.7.0",
     "@vitejs/plugin-react-refresh": "^1.3.6",
+    "eslint": "^8.5.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-es": "^4.1.0",
+    "eslint-plugin-react": "^7.27.1",
+    "eslint-plugin-simple-import-sort": "^7.0.0",
+    "eslint-plugin-typescript-enum": "^2.1.0",
+    "prettier": "^2.5.1",
     "typescript": "^4.5.4",
     "vite": "^2.7.3",
     "vite-react-jsx": "^1.1.2"
+  },
+  "lint-staged": {
+    "*.{js,ts}": "eslint --cache --fix",
+    "*.{js,ts,md}": "prettier --write"
   },
   "license": "MIT"
 }

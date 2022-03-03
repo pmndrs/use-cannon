@@ -1,13 +1,13 @@
 {
-  "name": "@react-three/cannon",
-  "version": "4.9.0",
-  "description": "physics based hooks for react-three-fiber",
+  "name": "@pmndrs/use-cannon",
+  "description": "monorepo for @pmndrs/use-cannon",
   "keywords": [
     "cannon",
     "three",
+    "worker",
+    "physics",
     "react",
-    "react-three-fiber",
-    "physics"
+    "react-three-fiber"
   ],
   "author": "Paul Henschel",
   "contributors": [
@@ -16,59 +16,27 @@
   ],
   "repository": "github:pmndrs/use-cannon",
   "license": "MIT",
-  "module": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "sideEffects": false,
+  "private": true,
   "scripts": {
-    "build": "rollup -c",
-    "eslint": "eslint .",
-    "eslint-fix": "eslint --fix .",
-    "prebuild": "tsc",
-    "prepare": "husky install",
-    "prettier": "prettier --list-different .",
-    "prettier-fix": "prettier --write .",
-    "test": "echo tests are missing"
+    "build": "yarn workspace @react-three/cannon run build",
+    "eslint": "yarn workspaces foreach -v run eslint",
+    "eslint-fix": "yarn workspaces foreach -v run eslint-fix",
+    "prettier": "yarn workspaces foreach -v run prettier",
+    "prettier-fix": "yarn workspaces foreach -v run prettier-fix",
+    "postinstall": "husky install"
   },
-  "dependencies": {
-    "cannon-es": "^0.18.0",
-    "cannon-es-debugger": "^1.0.0",
-    "events": "^3.3.0"
-  },
+  "packageManager": "yarn@3.2.0",
+  "workspaces": [
+    "packages/cannon-worker-api",
+    "packages/react-three-cannon",
+    "packages/react-three-cannon-examples"
+  ],
   "devDependencies": {
-    "@babel/core": "^7.16.5",
-    "@babel/plugin-transform-runtime": "^7.16.5",
-    "@babel/preset-env": "^7.16.5",
-    "@babel/preset-react": "^7.16.5",
-    "@babel/preset-typescript": "^7.16.5",
-    "@react-three/fiber": "^7.0.24",
-    "@rollup/plugin-babel": "^5.3.0",
-    "@rollup/plugin-node-resolve": "^13.1.1",
-    "@types/react": "^17.0.37",
-    "@types/three": "^0.137.0",
-    "@typescript-eslint/eslint-plugin": "^5.7.0",
-    "@typescript-eslint/parser": "^5.7.0",
-    "eslint": "^8.5.0",
-    "eslint-config-prettier": "^8.3.0",
-    "eslint-plugin-es": "^4.1.0",
-    "eslint-plugin-react": "^7.27.1",
-    "eslint-plugin-simple-import-sort": "^7.0.0",
-    "eslint-plugin-typescript-enum": "^2.1.0",
     "husky": "^7.0.4",
-    "lint-staged": "^12.1.2",
-    "prettier": "^2.5.1",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
-    "rollup": "^2.61.1",
-    "rollup-plugin-web-worker-loader": "^1.6.1",
-    "three": "^0.137.0",
-    "typescript": "^4.5.4"
+    "lint-staged": "^12.1.2"
   },
   "lint-staged": {
-    "*.{js,jsx,ts,tsx}": "eslint --cache --fix",
-    "*.{js,jsx,ts,tsx,md}": "prettier --write"
-  },
-  "peerDependencies": {
-    "react": ">=17.0",
-    "react-dom": ">=17.0"
+    "*.{js,ts}": "eslint --cache --fix",
+    "*.{js,ts,md}": "prettier --write"
   }
 }
