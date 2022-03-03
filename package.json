@@ -1,6 +1,6 @@
 {
   "name": "@pmndrs/use-cannon",
-  "description": "root package for yarn workspaces monorepo",
+  "description": "monorepo for @pmndrs/use-cannon",
   "keywords": [
     "cannon",
     "three",
