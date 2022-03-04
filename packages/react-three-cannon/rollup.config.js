@@ -25,7 +25,7 @@ export default [
     output: { dir: 'dist', format: 'esm' },
     plugins: [
       resolve({ extensions }),
-      worker({ platform: 'base64', sourcemap: false }),
+      worker({ platform: 'base64', sourcemap: false, targetPlatform: 'browser' }),
       babel(getBabelOptions({ useESModules: true }, '>1%, not dead, not ie 11, not op_mini all')),
     ],
   },
@@ -35,7 +35,7 @@ export default [
     output: { dir: 'dist/debug', format: 'esm' },
     plugins: [
       resolve({ extensions }),
-      worker({ platform: 'base64', sourcemap: true }),
+      worker({ platform: 'base64', sourcemap: true, targetPlatform: 'browser' }),
       babel(getBabelOptions({ useESModules: true }, '>1%, not dead, not ie 11, not op_mini all')),
     ],
   },
