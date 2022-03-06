@@ -38,6 +38,7 @@ const double = ([x, y, z]: Readonly<Triplet>): Triplet => [x * 2, y * 2, z * 2]
 
 function useDragConstraint(child: RefObject<Object3D>) {
   const [, , api] = usePointToPointConstraint(cursor, child, { pivotA: [0, 0, 0], pivotB: [0, 0, 0] })
+  // TODO: make it so we can start the constraint with it disabled
   useEffect(() => void api.disable(), [])
   const onPointerDown = useCallback((e) => {
     e.stopPropagation()
@@ -90,20 +91,13 @@ const BodyPart: FC<BodyPartProps> = ({ children, config = {}, name, render, ...p
 function Ragdoll(props: Pick<MeshProps, 'position'>) {
   const mouth = useRef<Object3D>(null!)
   const eyes = useRef<Object3D>(null!)
-  const [ref, api] = useSphere(() => ({ args: [0.5], position: [0, 0, 10000], type: 'Static' }), cursor)
-  useFrame((e) => {
-    eyes.current.position.y = Math.sin(e.clock.getElapsedTime() * 1) * 0.06
-    mouth.current.scale.y = (1 + Math.sin(e.clock.getElapsedTime())) * 1.5
-    const x = e.mouse.x * e.viewport.width
-    const y = (e.mouse.y * e.viewport.height) / 1.9 + -x / 3.5
-    api.position.set(x / 1.4, y, 0)
+
+  useFrame(({ clock }) => {
+    eyes.current.position.y = Math.sin(clock.getElapsedTime() * 1) * 0.06
+    mouth.current.scale.y = (1 + Math.sin(clock.getElapsedTime())) * 1.5
   })
   return (
     <BodyPart {...props} name={'upperBody'}>
-      <mesh ref={ref}>
-        <sphereBufferGeometry args={[0.5, 32, 32]} />
-        <meshBasicMaterial fog={false} depthTest={false} transparent opacity={0.5} />
-      </mesh>
       <BodyPart
         {...props}
         config={joints['neckJoint']}
@@ -276,6 +270,23 @@ const Lamp = () => {
   )
 }
 
+const Cursor = () => {
+  const [ref, api] = useSphere(() => ({ args: [0.5], position: [0, 0, 10000], type: 'Static' }), cursor)
+
+  useFrame(({ mouse, viewport: { height, width } }) => {
+    const x = mouse.x * width
+    const y = (mouse.y * height) / 1.9 + -x / 3.5
+    api.position.set(x / 1.4, y, 0)
+  })
+
+  return (
+    <mesh ref={ref}>
+      <sphereBufferGeometry args={[0.5, 32, 32]} />
+      <meshBasicMaterial fog={false} depthTest={false} transparent opacity={0.5} />
+    </mesh>
+  )
+}
+
 export default () => (
   <Canvas
     camera={{ far: 100, near: 1, position: [-25, 20, 25], zoom: 25 }}
@@ -288,6 +299,7 @@ export default () => (
     <ambientLight intensity={0.2} />
     <pointLight position={[-10, -10, -10]} color="red" intensity={1.5} />
     <Physics iterations={15} gravity={[0, -200, 0]} allowSleep={false}>
+      <Cursor />
       <Ragdoll position={[0, 0, 0]} />
       <Plane position={[0, -5, 0]} rotation={[-Math.PI / 2, 0, 0]} />
       <Chair />
