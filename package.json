@@ -17,26 +17,30 @@
   "repository": "github:pmndrs/use-cannon",
   "license": "MIT",
   "private": true,
-  "scripts": {
-    "build": "yarn workspace @react-three/cannon run build",
-    "eslint": "yarn workspaces foreach -v run eslint",
-    "eslint-fix": "yarn workspaces foreach -v run eslint-fix",
-    "prettier": "yarn workspaces foreach -v run prettier",
-    "prettier-fix": "yarn workspaces foreach -v run prettier-fix",
-    "postinstall": "husky install"
-  },
-  "packageManager": "yarn@3.2.0",
-  "workspaces": [
-    "packages/cannon-worker-api",
-    "packages/react-three-cannon",
-    "packages/react-three-cannon-examples"
-  ],
   "devDependencies": {
     "husky": "^7.0.4",
     "lint-staged": "^12.1.2"
   },
+  "engines": {
+    "node": ">=14",
+    "npm": ">=8"
+  },
   "lint-staged": {
     "*.{js,ts}": "eslint --cache --fix",
     "*.{js,ts,md}": "prettier --write"
-  }
+  },
+  "packageManager": "yarn@3.2.0",
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "eslint": "npm run eslint --workspaces",
+    "eslint-fix": "npm run eslint-fix --workspaces",
+    "prettier": "npm run prettier --workspaces",
+    "prettier-fix": "npm run prettier-fix --workspaces",
+    "postinstall": "husky install"
+  },
+  "workspaces": [
+    "packages/cannon-worker-api",
+    "packages/react-three-cannon",
+    "packages/react-three-cannon-examples"
+  ]
 }

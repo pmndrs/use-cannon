@@ -13,61 +13,53 @@ on:
 jobs:
   build:
     name: Build
+    needs: install
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - uses: actions/setup-node@v1
+    - uses: actions/setup-node@v2
       with:
-        node-version: 14
         cache: 'yarn'
-    - run: yarn install
-    - run: yarn build
-      working-directory: ./packages/react-three-cannon
-    - uses: actions/upload-artifact@v2
-      with:
-        name: dist
-        path: packages/react-three-cannon/dist
-
-  prettier:
-    name: Prettier
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-node@v1
-      with:
         node-version: 14
-        cache: 'yarn'
     - run: yarn install
-    - run: yarn run prettier
+    - run: npm i -g npm@latest
+    - run: npm run build
 
   eslint:
     name: ESLint
+    needs: install
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - uses: actions/setup-node@v1
+    - uses: actions/setup-node@v2
       with:
-        node-version: 14
         cache: 'yarn'
+        node-version: 14
     - run: yarn install
-    - run: yarn run eslint
+    - run: npm i -g npm@latest
+    - run: npm run eslint
 
-  example-build:
-    name: Example Build
-    needs: build
+  install:
+    name: Install
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - uses: actions/setup-node@v1
+    - uses: actions/setup-node@v2
       with:
+        cache: 'yarn'
         node-version: 14
-    - name: Download dist
-      uses: actions/download-artifact@v2
+    - run: yarn install
+
+  prettier:
+    name: Prettier
+    needs: install
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v2
       with:
-        name: dist
-        path: packages/react-three-cannon/dist
-    - name: Install
-      run: yarn install
-    - name: Build
-      run: yarn build
-      working-directory: ./packages/react-three-cannon-examples
+        cache: 'yarn'
+        node-version: 14
+    - run: yarn install
+    - run: npm i -g npm@latest
+    - run: npm run prettier
