@@ -1,3 +1,5 @@
+import type { BodyProps, BodyShapeType } from '@pmndrs/cannon-worker-api'
+import { propsToBody } from '@pmndrs/cannon-worker-api'
 import { useFrame } from '@react-three/fiber'
 import type { Body, Quaternion as CQuaternion, Vec3, World } from 'cannon-es'
 import CannonDebugger from 'cannon-es-debugger'
@@ -6,8 +8,6 @@ import { useContext, useMemo, useRef, useState } from 'react'
 import type { Color } from 'three'
 import { Quaternion, Scene, Vector3 } from 'three'
 
-import type { BodyProps, BodyShapeType } from './hooks'
-import propsToBody from './propsToBody'
 import { context, debugContext } from './setup'
 
 type DebugInfo = { bodies: Body[]; bodyMap: { [uuid: string]: Body } }

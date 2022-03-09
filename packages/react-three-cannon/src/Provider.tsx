@@ -1,22 +1,21 @@
-import type { RenderCallback } from '@react-three/fiber'
-import { useFrame, useThree } from '@react-three/fiber'
-import type { FC } from 'react'
-import type { PropsWithChildren } from 'react'
-import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import type { Object3D } from 'three'
-import { InstancedMesh, Matrix4, Quaternion, Vector3 } from 'three'
-
-import type { CannonWorkerProps } from './cannon-worker-api'
-import { CannonWorkerAPI } from './cannon-worker-api'
 import type {
-  ProviderContext,
+  CannonWorkerProps,
   Refs,
   WorkerCollideBeginEvent,
   WorkerCollideEndEvent,
   WorkerCollideEvent,
   WorkerFrameMessage,
   WorkerRayhitEvent,
-} from './setup'
+} from '@pmndrs/cannon-worker-api'
+import { CannonWorkerAPI } from '@pmndrs/cannon-worker-api'
+import type { RenderCallback } from '@react-three/fiber'
+import { useFrame, useThree } from '@react-three/fiber'
+import type { FC, PropsWithChildren } from 'react'
+import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import type { Object3D } from 'three'
+import { InstancedMesh, Matrix4, Quaternion, Vector3 } from 'three'
+
+import type { ProviderContext } from './setup'
 import { context } from './setup'
 import { useUpdateWorldPropsEffect } from './useUpdateWorldPropsEffect'
 
