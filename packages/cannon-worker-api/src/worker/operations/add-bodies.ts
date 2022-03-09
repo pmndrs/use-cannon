@@ -1,4 +1,4 @@
-import propsToBody from '../../propsToBody'
+import { propsToBody } from '../../props-to-body'
 import type { CannonMessageMap } from '../../setup'
 import type { CreateMaterial } from '../material'
 import type { State } from '../state'

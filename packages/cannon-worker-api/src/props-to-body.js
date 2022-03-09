@@ -58,7 +58,7 @@ function createShape(type, args) {
  * @param {(materialOptions: MaterialOptions) => Material =} options.createMaterial
  * @returns {Body}
  */
-const propsToBody = (options) => {
+export const propsToBody = (options) => {
   const { uuid, props, type, createMaterial = (materialOptions) => new Material(materialOptions) } = options
   const {
     angularFactor = [1, 1, 1],
@@ -111,5 +111,3 @@ const propsToBody = (options) => {
   body.angularFactor.set(angularFactor[0], angularFactor[1], angularFactor[2])
   return body
 }
-
-export default propsToBody
