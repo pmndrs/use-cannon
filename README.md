@@ -11,6 +11,10 @@ Monorepo for [cannon-es](https://github.com/pmndrs/cannon-es) web worker package
 | [`@pmndrs/cannon-worker-api`](./packages/cannon-worker-api)       | Web worker api for [cannon-es](https://github.com/pmndrs/cannon-es). Used by `@react-three/cannon`.                                                              |
 | [`@react-three/cannon-examples`](./packages/react-three-examples) | Examples for `@react-three/cannon`                                                                                                                               |
 
+## `use-cannon` Documentation
+
+Please see the [`@react-three/cannon` README](./packages/react-three-cannon/README.md) documentation and getting started guide for using the react hooks and jsx interface.
+
 ## Demos
 
 Check out all of our `@react-three/cannon` examples at https://cannon.pmnd.rs
