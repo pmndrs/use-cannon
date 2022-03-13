@@ -5,7 +5,7 @@
   "private": true,
   "keywords": [],
   "dependencies": {
-    "@react-three/cannon": "4.9.0",
+    "@react-three/cannon": "*",
     "@react-three/drei": "^8.11.1",
     "@react-three/fiber": "^7.0.26",
     "lerp": "^1.0.3",
