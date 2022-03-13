@@ -9,7 +9,7 @@ import type {
   StepProps,
   Triplet,
   WorldProps,
-} from './setup'
+} from './types'
 
 export type CannonWorkerProps = Partial<WorldProps> & { size?: number }
 

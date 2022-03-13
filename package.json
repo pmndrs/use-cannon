@@ -29,9 +29,10 @@
     "*.{js,ts}": "eslint --cache --fix",
     "*.{js,ts,md}": "prettier --write"
   },
-  "packageManager": "yarn@3.2.0",
   "scripts": {
     "build": "npm run build --workspaces",
+    "clean": "npm run clean --workspaces",
+    "dev": "npm run dev --workspaces",
     "eslint": "npm run eslint --workspaces",
     "eslint-fix": "npm run eslint-fix --workspaces",
     "prettier": "npm run prettier --workspaces",

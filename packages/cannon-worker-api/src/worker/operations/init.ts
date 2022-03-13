@@ -1,7 +1,7 @@
 import type { Body } from 'cannon-es'
 import { GSSolver, NaiveBroadphase, SAPBroadphase, SplitSolver } from 'cannon-es'
 
-import type { CannonMessageProps } from '../../setup'
+import type { CannonMessageProps } from '../../types'
 import type { State } from '../state'
 import type { WithUUID } from '../types'
 

@@ -1,7 +1,7 @@
 import type { Body, Constraint, ContactMaterial, Material, RaycastVehicle, Spring } from 'cannon-es'
 import { World } from 'cannon-es'
 
-import type { SubscriptionName, SubscriptionTarget } from '../setup'
+import type { SubscriptionName, SubscriptionTarget } from '../types'
 import type { WithUUID } from './types'
 
 interface DecoratedWorld extends World {

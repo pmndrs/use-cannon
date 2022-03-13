@@ -14,7 +14,6 @@ import { createContext } from 'react'
 
 export type {
   AtomicName,
-  atomicNames,
   AtomicProps,
   BodyProps,
   BodyPropsArgsRequired,
@@ -63,14 +62,12 @@ export type {
   StepProps,
   Subscription,
   SubscriptionName,
-  subscriptionNames,
   Subscriptions,
   SubscriptionTarget,
   TrimeshArgs,
   TrimeshProps,
   Triplet,
   VectorName,
-  vectorNames,
   VectorProps,
   WheelInfoOptions,
   WorkerCollideBeginEvent,

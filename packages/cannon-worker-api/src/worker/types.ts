@@ -1,6 +1,6 @@
 import type { Body, ContactEquation } from 'cannon-es'
 
-import type { IncomingWorkerMessage } from '../setup'
+import type { IncomingWorkerMessage } from '../types'
 
 export type WithUUID<C> = C & { uuid?: string }
 

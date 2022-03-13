@@ -1,6 +1,6 @@
 import { ContactMaterial } from 'cannon-es'
 
-import type { CannonMessageBody } from '../setup'
+import type { CannonMessageBody } from '../types'
 import type { CreateMaterial } from './material'
 import type { State } from './state'
 import type { WithUUID } from './types'

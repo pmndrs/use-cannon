@@ -1,7 +1,7 @@
 [![Build Status](https://img.shields.io/github/workflow/status/pmndrs/use-cannon/Node.js%20CI/master?style=flat&colorA=000000&logo=github)](https://github.com/pmndrs/use-cannon/actions/workflows/nodejs.yml)
 [![Version](https://img.shields.io/npm/v/@react-three/cannon?style=flat&colorA=000000&colorB=000000)](https://www.npmjs.com/package/@react-three/cannon)
 [![Downloads](https://img.shields.io/npm/dt/@react-three/cannon.svg?style=flat&colorA=000000&colorB=000000)](https://www.npmjs.com/package/@react-three/cannon)
-[![Discord Shield](https://img.shields.io/discord/740090768164651008?style=flat&colorA=000000&colorB=000000&label=discord&logo=discord&logoColor=ffffff)](https://discord.gg/ZZjjNvJ)
+[![Discord Shield](https://img.shields.io/discord/740090768164651008?style=flat&colorA=000000&colorB=000000&label=discord&logo=discord&logoColor=ffffff)](https://discord.gg/poimandres)
 
 ![Imgur](https://imgur.com/FpBsJPL.jpg)
 

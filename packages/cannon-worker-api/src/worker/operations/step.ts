@@ -1,6 +1,6 @@
 import { Quaternion, Vec3 } from 'cannon-es'
 
-import type { CannonMessageMap, Observation, PropValue, WorkerFrameMessage } from '../../setup'
+import type { CannonMessageMap, Observation, PropValue, WorkerFrameMessage } from '../../types'
 import type { State } from '../state'
 import type { CannonWorkerGlobalScope } from '../types'
 

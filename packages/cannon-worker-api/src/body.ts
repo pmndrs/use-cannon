@@ -1,7 +1,7 @@
 import type { MaterialOptions } from 'cannon-es'
 import type { Vector3 } from 'three'
 
-import type { CollideBeginEvent, CollideEndEvent, CollideEvent, Quad, Triplet, VectorName } from './setup'
+import type { CollideBeginEvent, CollideEndEvent, CollideEvent, Quad, Triplet, VectorName } from './types'
 
 export type AtomicProps = {
   allowSleep: boolean

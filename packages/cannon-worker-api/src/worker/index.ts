@@ -4,7 +4,7 @@
 
 import { GSSolver, HingeConstraint, NaiveBroadphase, SAPBroadphase, Vec3 } from 'cannon-es'
 
-import type { CannonMessage } from '../setup'
+import type { CannonMessage } from '../types'
 import { addContactMaterial, removeContactMaterial } from './contact-material'
 import { createMaterialFactory } from './material'
 import { addBodies, addConstraint, addRay, addRaycastVehicle, addSpring, init, step } from './operations'

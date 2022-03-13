@@ -1,23 +1,23 @@
 {
   "compilerOptions": {
-    "target": "es6",
+    "allowJs": true,
+    "baseUrl": "./src",
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "esModuleInterop": true,
+    "incremental": true,
+    "jsx": "react-jsx",
     "module": "commonjs",
     "moduleResolution": "node",
-    "esModuleInterop": true,
-    "jsx": "react-jsx",
-    "pretty": true,
-    "strict": true,
-    "allowJs": true,
-    "skipLibCheck": true,
-    "declaration": true,
-    "removeComments": true,
-    "emitDeclarationOnly": true,
-    "outDir": "dist",
-    "resolveJsonModule": true,
     "noImplicitThis": false,
-    "baseUrl": "./src",
-    "incremental": true
+    "outDir": "dist",
+    "pretty": true,
+    "removeComments": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "target": "es6"
   },
-  "include": ["./src"],
-  "exclude": ["./node_modules/**/*"]
+  "exclude": ["./node_modules/**/*"],
+  "include": ["./src"]
 }
