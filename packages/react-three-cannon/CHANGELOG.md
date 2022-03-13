@@ -1,5 +1,13 @@
 # @react-three/cannon Changelog
 
+## v5.0.0 - 2022-03-13
+
+- Use newly isolated @pmndrs/cannon-worker-api (@isaac-mason)
+- Removed useUpdateWorldPropsEffect (@bjornstar)
+- [`package.json`] Added homepage property to go directly to the package (@bjornstar)
+- [`rollup.config.js`] Specify targetPlatform: 'browser' (@bjornstar)
+- [`tsconfig.json`] Alphabetize contents (@bjornstar)
+
 ## v4.9.0 - 2022-03-03
 
 - [`dependencies`] Updated `three` & `@types/three` from `r135` to `r137` (@bjornstar)
