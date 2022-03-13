@@ -13,6 +13,7 @@
     "Cody Persinger <codypersinger@gmail.com> (https://github.com/codynova)",
     "Bjorn Stromberg <bjorn@bjornstar.com> (https://github.com/bjornstar)"
   ],
+  "homepage": "https://github.com/pmndrs/use-cannon/tree/master/packages/cannon-worker-api#readme",
   "repository": "github:pmndrs/use-cannon",
   "license": "MIT",
   "module": "dist/index.js",
