@@ -3,6 +3,8 @@ import type { Object3D } from 'three'
 
 import type { AtomicProps, BodyShapeType } from './body'
 
+export type { ContactMaterialOptions }
+
 export type Triplet = [x: number, y: number, z: number]
 export type Quad = [x: number, y: number, z: number, w: number]
 
@@ -113,34 +115,24 @@ export type Subscriptions = Partial<{
   [id: number]: Subscription
 }>
 
-export const atomicNames = [
-  'allowSleep',
-  'angularDamping',
-  'collisionFilterGroup',
-  'collisionFilterMask',
-  'collisionResponse',
-  'fixedRotation',
-  'isTrigger',
-  'linearDamping',
-  'mass',
-  'material',
-  'sleepSpeedLimit',
-  'sleepTimeLimit',
-  'userData',
-] as const
-export type AtomicName = typeof atomicNames[number]
+export type AtomicName =
+  | 'allowSleep'
+  | 'angularDamping'
+  | 'collisionFilterGroup'
+  | 'collisionFilterMask'
+  | 'collisionResponse'
+  | 'fixedRotation'
+  | 'isTrigger'
+  | 'linearDamping'
+  | 'mass'
+  | 'material'
+  | 'sleepSpeedLimit'
+  | 'sleepTimeLimit'
+  | 'userData'
 
-export const vectorNames = [
-  'angularFactor',
-  'angularVelocity',
-  'linearFactor',
-  'position',
-  'velocity',
-] as const
-export type VectorName = typeof vectorNames[number]
+export type VectorName = 'angularFactor' | 'angularVelocity' | 'linearFactor' | 'position' | 'velocity'
 
-export const subscriptionNames = [...atomicNames, ...vectorNames, 'quaternion', 'sliding'] as const
-export type SubscriptionName = typeof subscriptionNames[number]
+export type SubscriptionName = AtomicName | VectorName | 'quaternion' | 'sliding'
 
 export type SetOpName<T extends AtomicName | VectorName | WorldPropName | 'quaternion' | 'rotation'> =
   `set${Capitalize<T>}`
@@ -167,7 +159,7 @@ type AddConstraintProps = [
   },
 ]
 
-type AddContactMaterialProps = [
+export type AddContactMaterialProps = [
   materialA: MaterialOptions,
   materialB: MaterialOptions,
   options: ContactMaterialOptions,
@@ -264,6 +256,7 @@ export type WorkerRayhitEvent = {
     type: 'rayhit'
   }
 }
+
 export type WorkerCollideBeginEvent = {
   data: {
     bodyA: string
@@ -272,6 +265,7 @@ export type WorkerCollideBeginEvent = {
     type: 'collideBegin'
   }
 }
+
 export type WorkerCollideEndEvent = {
   data: {
     bodyA: string
@@ -280,6 +274,7 @@ export type WorkerCollideEndEvent = {
     type: 'collideEnd'
   }
 }
+
 export type WorkerEventMessage =
   | WorkerCollideBeginEvent
   | WorkerCollideEndEvent

@@ -7,7 +7,7 @@ import {
   PointToPointConstraint,
 } from 'cannon-es'
 
-import type { CannonMessageMap } from '../../setup'
+import type { CannonMessageMap } from '../../types'
 import type { State } from '../state'
 import { tripletToVec3 } from '../triplet-to-vec3'
 import type { WithUUID } from '../types'

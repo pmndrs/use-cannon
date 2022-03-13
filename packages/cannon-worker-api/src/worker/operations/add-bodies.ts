@@ -1,5 +1,5 @@
 import { propsToBody } from '../../props-to-body'
-import type { CannonMessageMap } from '../../setup'
+import type { CannonMessageMap } from '../../types'
 import type { CreateMaterial } from '../material'
 import type { State } from '../state'
 import type { CannonCollideEvent } from '../types'

@@ -9,6 +9,7 @@ import type {
   ConeTwistConstraintOpts,
   ConstraintOptns,
   ConstraintTypes,
+  ContactMaterialOptions,
   ConvexPolyhedronArgs,
   ConvexPolyhedronProps,
   CylinderProps,
@@ -16,6 +17,7 @@ import type {
   HeightfieldProps,
   HingeConstraintOpts,
   LockConstraintOpts,
+  MaterialOptions,
   ParticleProps,
   PlaneProps,
   PointToPointConstraintOpts,
@@ -35,7 +37,6 @@ import type {
   VectorName,
   WheelInfoOptions,
 } from '@pmndrs/cannon-worker-api'
-import type { ContactMaterialOptions, MaterialOptions } from 'cannon-es'
 import type { DependencyList, MutableRefObject, Ref, RefObject } from 'react'
 import { useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { DynamicDrawUsage, Euler, InstancedMesh, MathUtils, Object3D, Quaternion, Vector3 } from 'three'

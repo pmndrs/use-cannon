@@ -1,10 +1,9 @@
 {
   "name": "@react-three/cannon-examples",
   "version": "1.0.0",
-  "description": "",
+  "description": "Examples for @react-three/cannon",
   "private": true,
   "keywords": [],
-  "main": "src/index.js",
   "dependencies": {
     "@react-three/cannon": "4.9.0",
     "@react-three/drei": "^8.11.1",
@@ -23,6 +22,7 @@
   },
   "scripts": {
     "build": "tsc && vite build",
+    "clean": "rm -rf dist/*",
     "dev": "vite",
     "serve": "vite preview",
     "eslint": "eslint .",
@@ -38,7 +38,6 @@
   ],
   "devDependencies": {
     "@types/lodash-es": "^4.17.5",
-    "@types/node": "^17.0.0",
     "@types/react": "^17.0.37",
     "@types/react-dom": "^17.0.11",
     "@types/react-router-dom": "^5.3.2",
@@ -62,5 +61,6 @@
     "*.{js,ts}": "eslint --cache --fix",
     "*.{js,ts,md}": "prettier --write"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "sideEffects": false
 }

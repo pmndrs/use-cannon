@@ -1,6 +1,7 @@
 import babel from '@rollup/plugin-babel'
-import resolve from '@rollup/plugin-node-resolve'
-import worker from 'rollup-plugin-web-worker-loader'
+import pluginCommonjs from '@rollup/plugin-commonjs'
+import pluginNodeResolve from '@rollup/plugin-node-resolve'
+import pluginWebWorker from 'rollup-plugin-web-worker-loader'
 
 const external = ['three']
 const extensions = ['.js', '.ts', '.json']
@@ -20,8 +21,9 @@ export default [
     input: `./src/index.ts`,
     output: { dir: 'dist', format: 'esm' },
     plugins: [
-      resolve({ extensions }),
-      worker({ platform: 'base64', sourcemap: false }),
+      pluginCommonjs({ esmExternals: ['events'] }),
+      pluginNodeResolve({ extensions, preferBuiltins: false }),
+      pluginWebWorker({ platform: 'base64', sourcemap: false }),
       babel(getBabelOptions({ useESModules: true }, '>1%, not dead, not ie 11, not op_mini all')),
     ],
   },
@@ -30,8 +32,9 @@ export default [
     input: `./src/index.ts`,
     output: { dir: 'dist/debug', format: 'esm' },
     plugins: [
-      resolve({ extensions }),
-      worker({ platform: 'base64', sourcemap: true }),
+      pluginCommonjs({ esmExternals: ['events'] }),
+      pluginNodeResolve({ extensions, preferBuiltins: false }),
+      pluginWebWorker({ platform: 'base64', sourcemap: true }),
       babel(getBabelOptions({ useESModules: true }, '>1%, not dead, not ie 11, not op_mini all')),
     ],
   },

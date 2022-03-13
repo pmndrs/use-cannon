@@ -11,13 +11,12 @@ import { CannonWorkerAPI } from '@pmndrs/cannon-worker-api'
 import type { RenderCallback } from '@react-three/fiber'
 import { useFrame, useThree } from '@react-three/fiber'
 import type { FC, PropsWithChildren } from 'react'
-import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import type { Object3D } from 'three'
 import { InstancedMesh, Matrix4, Quaternion, Vector3 } from 'three'
 
 import type { ProviderContext } from './setup'
 import { context } from './setup'
-import { useUpdateWorldPropsEffect } from './useUpdateWorldPropsEffect'
 
 export type ProviderProps = PropsWithChildren<
   CannonWorkerProps & {
@@ -227,7 +226,21 @@ export const Provider: FC<ProviderProps> = ({
     }
   }, [])
 
-  useUpdateWorldPropsEffect({ axisIndex, broadphase, gravity, iterations, tolerance, worker })
+  useEffect(() => {
+    worker.axisIndex = axisIndex
+  }, [axisIndex])
+  useEffect(() => {
+    worker.broadphase = broadphase
+  }, [broadphase])
+  useEffect(() => {
+    worker.gravity = gravity
+  }, [gravity])
+  useEffect(() => {
+    worker.iterations = iterations
+  }, [iterations])
+  useEffect(() => {
+    worker.tolerance = tolerance
+  }, [tolerance])
 
   const value: ProviderContext = useMemo(
     () => ({ bodies, events, refs, subscriptions, worker }),
