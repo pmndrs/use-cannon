@@ -5,11 +5,11 @@
 
 Monorepo for [cannon-es](https://github.com/pmndrs/cannon-es) web worker packages.
 
-| Package                                                           | Description                                                                                                                                                      |
-| ----------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [`@react-three/cannon`](./packages/react-three-cannon)            | React hooks for [cannon-es](https://github.com/pmndrs/cannon-es). Use this in combination with [react-three-fiber](https://github.com/pmndrs/react-three-fiber). |
-| [`@pmndrs/cannon-worker-api`](./packages/cannon-worker-api)       | Web worker api for [cannon-es](https://github.com/pmndrs/cannon-es). Used by `@react-three/cannon`.                                                              |
-| [`@react-three/cannon-examples`](./packages/react-three-examples) | Examples for `@react-three/cannon`                                                                                                                               |
+| Package                                                                  | Description                                                                                                                                                      |
+| ------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`@react-three/cannon`](./packages/react-three-cannon)                   | React hooks for [cannon-es](https://github.com/pmndrs/cannon-es). Use this in combination with [react-three-fiber](https://github.com/pmndrs/react-three-fiber). |
+| [`@pmndrs/cannon-worker-api`](./packages/cannon-worker-api)              | Web worker api for [cannon-es](https://github.com/pmndrs/cannon-es). Used by `@react-three/cannon`.                                                              |
+| [`@react-three/cannon-examples`](./packages/react-three-cannon-examples) | Examples for `@react-three/cannon`                                                                                                                               |
 
 ## `use-cannon` Documentation
 
