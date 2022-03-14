@@ -1,5 +1,9 @@
 # @react-three/cannon Changelog
 
+## v5.0.1 - 2022-03-14
+
+- Bump @pmndrs/cannon-worker-api to v1.0.1 (@bjornstar)
+
 ## v5.0.0 - 2022-03-13
 
 - Use newly isolated @pmndrs/cannon-worker-api (@isaac-mason)

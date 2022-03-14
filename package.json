@@ -1,5 +1,6 @@
 {
   "name": "@pmndrs/use-cannon",
+  "version": "1.0.1",
   "description": "monorepo for @pmndrs/use-cannon",
   "keywords": [
     "cannon",
