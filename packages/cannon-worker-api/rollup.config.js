@@ -23,7 +23,7 @@ export default [
     plugins: [
       pluginCommonjs({ esmExternals: ['events'] }),
       pluginNodeResolve({ extensions, preferBuiltins: false }),
-      pluginWebWorker({ platform: 'base64', sourcemap: false }),
+      pluginWebWorker({ platform: 'base64', sourcemap: false, targetPlatform: 'browser' }),
       babel(getBabelOptions({ useESModules: true }, '>1%, not dead, not ie 11, not op_mini all')),
     ],
   },
@@ -34,7 +34,7 @@ export default [
     plugins: [
       pluginCommonjs({ esmExternals: ['events'] }),
       pluginNodeResolve({ extensions, preferBuiltins: false }),
-      pluginWebWorker({ platform: 'base64', sourcemap: true }),
+      pluginWebWorker({ platform: 'base64', sourcemap: true, targetPlatform: 'browser' }),
       babel(getBabelOptions({ useESModules: true }, '>1%, not dead, not ie 11, not op_mini all')),
     ],
   },
