@@ -15,8 +15,8 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import type { Object3D } from 'three'
 import { InstancedMesh, Matrix4, Quaternion, Vector3 } from 'three'
 
-import type { ProviderContext } from './setup'
-import { context } from './setup'
+import type { PhysicsContext } from './physics-context'
+import { physicsContext } from './physics-context'
 
 export type ProviderProps = PropsWithChildren<
   CannonWorkerProps & {
@@ -48,7 +48,7 @@ function apply(index: number, positions: Float32Array, quaternions: Float32Array
   return m.identity()
 }
 
-export const Provider: FC<ProviderProps> = ({
+export const PhysicsProvider: FC<ProviderProps> = ({
   allowSleep = false,
   axisIndex = 0,
   broadphase = 'Naive',
@@ -85,8 +85,8 @@ export const Provider: FC<ProviderProps> = ({
       }),
   )
   const [refs] = useState<Refs>({})
-  const [events] = useState<ProviderContext['events']>({})
-  const [subscriptions] = useState<ProviderContext['subscriptions']>({})
+  const [events] = useState<PhysicsContext['events']>({})
+  const [subscriptions] = useState<PhysicsContext['subscriptions']>({})
 
   const bodies = useRef<{ [uuid: string]: number }>({})
 
@@ -242,9 +242,9 @@ export const Provider: FC<ProviderProps> = ({
     worker.tolerance = tolerance
   }, [tolerance])
 
-  const value: ProviderContext = useMemo(
+  const value: PhysicsContext = useMemo(
     () => ({ bodies, events, refs, subscriptions, worker }),
     [bodies, events, refs, subscriptions, worker],
   )
-  return <context.Provider value={value}>{children}</context.Provider>
+  return <physicsContext.Provider value={value}>{children}</physicsContext.Provider>
 }
