@@ -13,7 +13,7 @@ import { usePhysicsContext } from './physics-context'
 
 type DebugInfo = { bodies: Body[]; bodyMap: { [uuid: string]: Body } }
 
-export type DebugProps = {
+export type DebugProviderProps = {
   color?: string | number | Color
   impl?: typeof CannonDebugger
   scale?: number
@@ -23,7 +23,12 @@ const q = new Quaternion()
 const s = new Vector3(1, 1, 1)
 const v = new Vector3()
 
-export const Debug: FC<DebugProps> = ({ children, color = 'black', impl = CannonDebugger, scale = 1 }) => {
+export const DebugProvider: FC<DebugProviderProps> = ({
+  children,
+  color = 'black',
+  impl = CannonDebugger,
+  scale = 1,
+}) => {
   const [{ bodies, bodyMap }] = useState<DebugInfo>({ bodies: [], bodyMap: {} })
   const { refs } = usePhysicsContext()
   const [scene] = useState(() => new Scene())

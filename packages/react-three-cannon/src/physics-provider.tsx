@@ -17,7 +17,7 @@ import { InstancedMesh, Matrix4, Quaternion, Vector3 } from 'three'
 import type { PhysicsContext } from './physics-context'
 import { physicsContext } from './physics-context'
 
-export type ProviderProps = PropsWithChildren<
+export type PhysicsProviderProps = PropsWithChildren<
   CannonWorkerProps & {
     isPaused?: boolean
     maxSubSteps?: number
@@ -47,7 +47,7 @@ function apply(index: number, positions: Float32Array, quaternions: Float32Array
   return m.identity()
 }
 
-export const PhysicsProvider: FC<ProviderProps> = ({
+export const PhysicsProvider: FC<PhysicsProviderProps> = ({
   allowSleep = false,
   axisIndex = 0,
   broadphase = 'Naive',

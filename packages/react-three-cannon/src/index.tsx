@@ -1,13 +1,14 @@
 import type { FC } from 'react'
 import { Suspense } from 'react'
 
-import type { ProviderProps } from './physics-provider'
+import type { PhysicsProviderProps } from './physics-provider'
 import { PhysicsProvider } from './physics-provider'
 
-export * from './Debug'
+export type { DebugProviderProps as DebugProps } from './debug-provider'
+export { DebugProvider as Debug } from './debug-provider'
 export * from './hooks'
 
-export const Physics: FC<ProviderProps> = (props) => (
+export const Physics: FC<PhysicsProviderProps> = (props) => (
   <Suspense fallback={null}>
     <PhysicsProvider {...props} />
   </Suspense>
