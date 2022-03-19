@@ -27,8 +27,8 @@
     "npm": ">=8"
   },
   "lint-staged": {
-    "*.{js,ts}": "eslint --cache --fix",
-    "*.{js,ts,md}": "prettier --write"
+    "*.{js,jsx,ts,tsx}": "eslint --cache --fix",
+    "*.{js,jsx,json,md,ts,tsx}": "prettier --write"
   },
   "scripts": {
     "build": "npm run build --workspaces",
