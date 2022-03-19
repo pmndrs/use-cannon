@@ -3,13 +3,13 @@ import { useFrame } from '@react-three/fiber'
 import type { Body, Quaternion as CQuaternion, Vec3, World } from 'cannon-es'
 import CannonDebugger from 'cannon-es-debugger'
 import type { FC } from 'react'
-import { useContext, useMemo, useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import type { Color } from 'three'
 import { Quaternion, Scene, Vector3 } from 'three'
 
 import type { DebugApi } from './debug-context'
 import { debugContext } from './debug-context'
-import { physicsContext } from './physics-context'
+import { usePhysicsContext } from './physics-context'
 
 type DebugInfo = { bodies: Body[]; bodyMap: { [uuid: string]: Body } }
 
@@ -25,7 +25,7 @@ const v = new Vector3()
 
 export const Debug: FC<DebugProps> = ({ children, color = 'black', impl = CannonDebugger, scale = 1 }) => {
   const [{ bodies, bodyMap }] = useState<DebugInfo>({ bodies: [], bodyMap: {} })
-  const { refs } = useContext(physicsContext)
+  const { refs } = usePhysicsContext()
   const [scene] = useState(() => new Scene())
   const cannonDebuggerRef = useRef(impl(scene, { bodies } as World, { color, scale }))
 

@@ -31,6 +31,7 @@ import type {
   SphereProps,
   SpringOptns,
   SubscriptionName,
+  Subscriptions,
   SubscriptionTarget,
   TrimeshProps,
   Triplet,
@@ -38,12 +39,12 @@ import type {
   WheelInfoOptions,
 } from '@pmndrs/cannon-worker-api'
 import type { DependencyList, MutableRefObject, Ref, RefObject } from 'react'
-import { useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { DynamicDrawUsage, Euler, InstancedMesh, MathUtils, Object3D, Quaternion, Vector3 } from 'three'
 
-import { debugContext } from './debug-context'
-import type { PhysicsContext } from './physics-context'
-import { physicsContext } from './physics-context'
+import { useDebugContext } from './debug-context'
+import type { CannonEvents } from './physics-context'
+import { usePhysicsContext } from './physics-context'
 
 export type AtomicApi<K extends AtomicName> = {
   set: (value: AtomicProps[K]) => void
@@ -112,7 +113,7 @@ let incrementingId = 0
 function subscribe<T extends SubscriptionName>(
   ref: RefObject<Object3D>,
   worker: CannonWorkerAPI,
-  subscriptions: PhysicsContext['subscriptions'],
+  subscriptions: Subscriptions,
   type: T,
   index?: number,
   target: SubscriptionTarget = 'bodies',
@@ -137,7 +138,7 @@ function prepare(object: Object3D, props: BodyProps) {
 }
 
 function setupCollision(
-  events: PhysicsContext['events'],
+  events: CannonEvents,
   { onCollide, onCollideBegin, onCollideEnd }: Partial<BodyProps>,
   uuid: string,
 ) {
@@ -159,8 +160,9 @@ function useBody<B extends BodyProps<unknown[]>>(
   deps: DependencyList = [],
 ): Api {
   const ref = useForwardedRef(fwdRef)
-  const { worker, refs, events, subscriptions } = useContext(physicsContext)
-  const debugApi = useContext(debugContext)
+
+  const { events, refs, subscriptions, worker } = usePhysicsContext()
+  const debugApi = useDebugContext()
 
   useLayoutEffect(() => {
     if (!ref.current) {
@@ -476,7 +478,7 @@ function useConstraint<T extends 'Hinge' | ConstraintTypes>(
   optns: ConstraintOptns | HingeConstraintOpts = {},
   deps: DependencyList = [],
 ): ConstraintORHingeApi<T> {
-  const { worker } = useContext(physicsContext)
+  const { worker } = usePhysicsContext()
   const uuid = MathUtils.generateUUID()
 
   const refA = useForwardedRef(bodyA)
@@ -562,7 +564,7 @@ export function useSpring(
   optns: SpringOptns,
   deps: DependencyList = [],
 ): SpringApi {
-  const { worker } = useContext(physicsContext)
+  const { worker } = usePhysicsContext()
   const [uuid] = useState(() => MathUtils.generateUUID())
 
   const refA = useForwardedRef(bodyA)
@@ -598,7 +600,7 @@ function useRay(
   callback: (e: RayhitEvent) => void,
   deps: DependencyList = [],
 ) {
-  const { worker, events } = useContext(physicsContext)
+  const { worker, events } = usePhysicsContext()
   const [uuid] = useState(() => MathUtils.generateUUID())
   useEffect(() => {
     events[uuid] = { rayhit: callback }
@@ -662,7 +664,7 @@ export function useRaycastVehicle(
   deps: DependencyList = [],
 ): [RefObject<Object3D>, RaycastVehiclePublicApi] {
   const ref = useForwardedRef(fwdRef)
-  const { worker, subscriptions } = useContext(physicsContext)
+  const { worker, subscriptions } = usePhysicsContext()
 
   useLayoutEffect(() => {
     if (!ref.current) {
@@ -732,7 +734,7 @@ export function useContactMaterial(
   options: ContactMaterialOptions,
   deps: DependencyList = [],
 ): void {
-  const { worker } = useContext(physicsContext)
+  const { worker } = usePhysicsContext()
   const [uuid] = useState(() => MathUtils.generateUUID())
 
   useEffect(() => {

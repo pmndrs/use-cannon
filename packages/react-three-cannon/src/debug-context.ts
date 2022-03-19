@@ -1,5 +1,5 @@
 import type { BodyProps, BodyShapeType } from '@pmndrs/cannon-worker-api'
-import { createContext } from 'react'
+import { createContext, useContext } from 'react'
 
 export type DebugApi = {
   add(id: string, props: BodyProps, type: BodyShapeType): void
@@ -7,3 +7,5 @@ export type DebugApi = {
 }
 
 export const debugContext = createContext<DebugApi | null>(null)
+
+export const useDebugContext = () => useContext(debugContext)
