@@ -2,7 +2,9 @@ import { propsToBody } from '../../props-to-body'
 import type { CannonMessageMap } from '../../types'
 import type { CreateMaterial } from '../material'
 import type { State } from '../state'
-import type { CannonCollideEvent } from '../types'
+import type { CannonCollideEvent, CannonWorkerGlobalScope } from '../types'
+
+declare const self: CannonWorkerGlobalScope
 
 export const addBodies = (
   state: State,
@@ -20,11 +22,14 @@ export const addBodies = (
 
     if (props[i].onCollide)
       body.addEventListener('collide', ({ type, body, target, contact }: CannonCollideEvent) => {
+        if (!body.uuid || !target.uuid) return
+
         const { ni, ri, rj, bi, bj, id } = contact
         const contactPoint = bi.position.vadd(ri)
         const contactNormal = bi === body ? ni : ni.scale(-1)
+
         self.postMessage({
-          body: body.uuid!,
+          body: body.uuid,
           collisionFilters: {
             bodyFilterGroup: body.collisionFilterGroup,
             bodyFilterMask: body.collisionFilterMask,
@@ -47,7 +52,7 @@ export const addBodies = (
             rj: rj.toArray(),
           },
           op: 'event',
-          target: target.uuid!,
+          target: target.uuid,
           type,
         })
       })

@@ -1,7 +1,8 @@
 import babel from '@rollup/plugin-babel'
 import pluginNodeResolve from '@rollup/plugin-node-resolve'
 
-const external = ['react', 'react/jsx-runtime', '@react-three/fiber', 'three']
+// These are our dependencies, everything else is in the bundle
+const external = ['@react-three/fiber', 'react', 'react/jsx-runtime', 'three']
 const extensions = ['.js', '.jsx', '.ts', '.tsx', '.json']
 
 const getBabelOptions = ({ useESModules }, targets) => ({

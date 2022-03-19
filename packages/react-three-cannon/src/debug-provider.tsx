@@ -1,30 +1,36 @@
-import type { BodyProps, BodyShapeType } from '@pmndrs/cannon-worker-api'
 import { propsToBody } from '@pmndrs/cannon-worker-api'
 import { useFrame } from '@react-three/fiber'
 import type { Body, Quaternion as CQuaternion, Vec3, World } from 'cannon-es'
 import CannonDebugger from 'cannon-es-debugger'
 import type { FC } from 'react'
-import { useContext, useMemo, useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import type { Color } from 'three'
 import { Quaternion, Scene, Vector3 } from 'three'
 
-import { context, debugContext } from './setup'
+import type { DebugApi } from './debug-context'
+import { debugContext } from './debug-context'
+import { usePhysicsContext } from './physics-context'
 
 type DebugInfo = { bodies: Body[]; bodyMap: { [uuid: string]: Body } }
 
-export type DebugProps = {
+export type DebugProviderProps = {
   color?: string | number | Color
   impl?: typeof CannonDebugger
   scale?: number
 }
 
-const v = new Vector3()
-const s = new Vector3(1, 1, 1)
 const q = new Quaternion()
+const s = new Vector3(1, 1, 1)
+const v = new Vector3()
 
-export const Debug: FC<DebugProps> = ({ children, color = 'black', impl = CannonDebugger, scale = 1 }) => {
+export const DebugProvider: FC<DebugProviderProps> = ({
+  children,
+  color = 'black',
+  impl = CannonDebugger,
+  scale = 1,
+}) => {
   const [{ bodies, bodyMap }] = useState<DebugInfo>({ bodies: [], bodyMap: {} })
-  const { refs } = useContext(context)
+  const { refs } = usePhysicsContext()
   const [scene] = useState(() => new Scene())
   const cannonDebuggerRef = useRef(impl(scene, { bodies } as World, { color, scale }))
 
@@ -38,20 +44,20 @@ export const Debug: FC<DebugProps> = ({ children, color = 'black', impl = Cannon
     cannonDebuggerRef.current.update()
   })
 
-  const api = useMemo(
+  const api = useMemo<DebugApi>(
     () => ({
-      add(uuid: string, props: BodyProps, type: BodyShapeType) {
+      add(uuid, props, type) {
         const body = propsToBody({ props, type, uuid })
         bodies.push(body)
         bodyMap[uuid] = body
       },
-      remove(uuid: string) {
+      remove(uuid) {
         const index = bodies.indexOf(bodyMap[uuid])
         if (index !== -1) bodies.splice(index, 1)
         delete bodyMap[uuid]
       },
     }),
-    [],
+    [bodies, bodyMap],
   )
 
   return (

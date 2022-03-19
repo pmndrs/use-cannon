@@ -4,7 +4,9 @@ import { Ray, RAY_MODES, RaycastResult } from 'cannon-es'
 import type { CannonMessageMap } from '../../types'
 import type { State } from '../state'
 import { tripletToVec3 } from '../triplet-to-vec3'
-import type { WithUUID } from '../types'
+import type { CannonWorkerGlobalScope, WithUUID } from '../types'
+
+declare const self: CannonWorkerGlobalScope
 
 function toUppercase<T extends string>(str: T): Uppercase<T> {
   return str.toUpperCase() as Uppercase<T>
@@ -31,8 +33,10 @@ export const addRay = (
 
     const bodyUUID = (body as WithUUID<Body>).uuid
 
+    if (!bodyUUID) return
+
     self.postMessage({
-      body: bodyUUID || null,
+      body: bodyUUID,
       hitNormalWorld: hitNormalWorld.toArray(),
       hitPointWorld: hitPointWorld.toArray(),
       op: 'event',

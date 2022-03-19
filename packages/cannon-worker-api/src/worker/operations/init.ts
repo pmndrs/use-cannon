@@ -3,7 +3,9 @@ import { GSSolver, NaiveBroadphase, SAPBroadphase, SplitSolver } from 'cannon-es
 
 import type { CannonMessageProps } from '../../types'
 import type { State } from '../state'
-import type { WithUUID } from '../types'
+import type { CannonWorkerGlobalScope, WithUUID } from '../types'
+
+declare const self: CannonWorkerGlobalScope
 
 type TwoBodies = {
   bodyA?: WithUUID<Body>
@@ -11,12 +13,12 @@ type TwoBodies = {
 }
 
 function emitBeginContact({ bodyA, bodyB }: TwoBodies) {
-  if (!bodyA || !bodyB) return
+  if (!bodyA?.uuid || !bodyB?.uuid) return
   self.postMessage({ bodyA: bodyA.uuid, bodyB: bodyB.uuid, op: 'event', type: 'collideBegin' })
 }
 
 function emitEndContact({ bodyA, bodyB }: TwoBodies) {
-  if (!bodyA || !bodyB) return
+  if (!bodyA?.uuid || !bodyB?.uuid) return
   self.postMessage({ bodyA: bodyA.uuid, bodyB: bodyB.uuid, op: 'event', type: 'collideEnd' })
 }
 

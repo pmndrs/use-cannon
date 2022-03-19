@@ -11,13 +11,17 @@ import { addBodies, addConstraint, addRay, addRaycastVehicle, addSpring, init, s
 import { state } from './state'
 import type { CannonWorkerGlobalScope } from './types'
 
+// TODO: Declare this for all files in worker
 declare const self: CannonWorkerGlobalScope
 
 const isHingeConstraint = (c: unknown): c is HingeConstraint => c instanceof HingeConstraint
 
 function syncBodies() {
   state.bodiesNeedSyncing = true
-  state.bodies = state.world.bodies.reduce((bodies, body) => ({ ...bodies, [body.uuid!]: body }), {})
+  state.bodies = state.world.bodies.reduce(
+    (bodies, body) => (body.uuid ? { ...bodies, [body.uuid]: body } : bodies),
+    {},
+  )
 }
 
 const broadphases = { NaiveBroadphase, SAPBroadphase }

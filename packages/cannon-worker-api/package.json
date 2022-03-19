@@ -29,8 +29,6 @@
     "prettier-fix": "prettier --write ."
   },
   "dependencies": {
-    "cannon-es": "^0.19.0",
-    "events": "^3.3.0",
     "three": "^0.137.0"
   },
   "devDependencies": {
@@ -45,11 +43,13 @@
     "@types/three": "^0.137.0",
     "@typescript-eslint/eslint-plugin": "^5.7.0",
     "@typescript-eslint/parser": "^5.7.0",
+    "cannon-es": "^0.19.0",
     "eslint": "^8.5.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-es": "^4.1.0",
     "eslint-plugin-simple-import-sort": "^7.0.0",
     "eslint-plugin-typescript-enum": "^2.1.0",
+    "events": "^3.3.0",
     "prettier": "^2.5.1",
     "rollup": "^2.61.1",
     "rollup-plugin-web-worker-loader": "^1.6.1",

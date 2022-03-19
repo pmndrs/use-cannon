@@ -1,6 +1,5 @@
 import type {
   CannonWorkerProps,
-  Refs,
   WorkerCollideBeginEvent,
   WorkerCollideEndEvent,
   WorkerCollideEvent,
@@ -11,14 +10,14 @@ import { CannonWorkerAPI } from '@pmndrs/cannon-worker-api'
 import type { RenderCallback } from '@react-three/fiber'
 import { useFrame, useThree } from '@react-three/fiber'
 import type { FC, PropsWithChildren } from 'react'
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react'
 import type { Object3D } from 'three'
 import { InstancedMesh, Matrix4, Quaternion, Vector3 } from 'three'
 
-import type { ProviderContext } from './setup'
-import { context } from './setup'
+import type { PhysicsContext } from './physics-context'
+import { physicsContext } from './physics-context'
 
-export type ProviderProps = PropsWithChildren<
+export type PhysicsProviderProps = PropsWithChildren<
   CannonWorkerProps & {
     isPaused?: boolean
     maxSubSteps?: number
@@ -48,7 +47,7 @@ function apply(index: number, positions: Float32Array, quaternions: Float32Array
   return m.identity()
 }
 
-export const Provider: FC<ProviderProps> = ({
+export const PhysicsProvider: FC<PhysicsProviderProps> = ({
   allowSleep = false,
   axisIndex = 0,
   broadphase = 'Naive',
@@ -68,27 +67,25 @@ export const Provider: FC<ProviderProps> = ({
 }) => {
   const { invalidate } = useThree()
 
-  const [worker] = useState<CannonWorkerAPI>(
-    () =>
-      new CannonWorkerAPI({
-        allowSleep,
-        axisIndex,
-        broadphase,
-        defaultContactMaterial,
-        gravity,
-        iterations,
-        quatNormalizeFast,
-        quatNormalizeSkip,
-        size,
-        solver,
-        tolerance,
-      }),
-  )
-  const [refs] = useState<Refs>({})
-  const [events] = useState<ProviderContext['events']>({})
-  const [subscriptions] = useState<ProviderContext['subscriptions']>({})
-
-  const bodies = useRef<{ [uuid: string]: number }>({})
+  const [{ bodies, events, refs, subscriptions, worker }] = useState<PhysicsContext>(() => ({
+    bodies: {},
+    events: {},
+    refs: {},
+    subscriptions: {},
+    worker: new CannonWorkerAPI({
+      allowSleep,
+      axisIndex,
+      broadphase,
+      defaultContactMaterial,
+      gravity,
+      iterations,
+      quatNormalizeFast,
+      quatNormalizeSkip,
+      size,
+      solver,
+      tolerance,
+    }),
+  }))
 
   let timeSinceLastCalled = 0
 
@@ -168,7 +165,7 @@ export const Provider: FC<ProviderProps> = ({
     quaternions,
   }: WorkerFrameMessage['data']) => {
     for (let i = 0; i < uuids.length; i++) {
-      bodies.current[uuids[i]] = i
+      bodies[uuids[i]] = i
     }
     observations.forEach(([id, value, type]) => {
       const subscription = subscriptions[id] || {}
@@ -181,14 +178,14 @@ export const Provider: FC<ProviderProps> = ({
       for (const ref of Object.values(refs)) {
         if (ref instanceof InstancedMesh) {
           for (let i = 0; i < ref.count; i++) {
-            const index = bodies.current[`${ref.uuid}/${i}`]
+            const index = bodies[`${ref.uuid}/${i}`]
             if (index !== undefined) {
               ref.setMatrixAt(i, apply(index, positions, quaternions))
             }
             ref.instanceMatrix.needsUpdate = true
           }
         } else {
-          apply(bodies.current[ref.uuid], positions, quaternions, ref)
+          apply(bodies[ref.uuid], positions, quaternions, ref)
         }
       }
       if (shouldInvalidate) {
@@ -242,9 +239,10 @@ export const Provider: FC<ProviderProps> = ({
     worker.tolerance = tolerance
   }, [tolerance])
 
-  const value: ProviderContext = useMemo(
+  const value = useMemo<PhysicsContext>(
     () => ({ bodies, events, refs, subscriptions, worker }),
     [bodies, events, refs, subscriptions, worker],
   )
-  return <context.Provider value={value}>{children}</context.Provider>
+
+  return <physicsContext.Provider value={value}>{children}</physicsContext.Provider>
 }
