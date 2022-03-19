@@ -22,41 +22,11 @@
           {
             "default": {
               "order": "alphabetically-case-insensitive"
-            },
-            "classes": {
-              "order": "alphabetically-case-insensitive",
-              "memberTypes": [
-                "public-static-field",
-                "protected-static-field",
-                "private-static-field",
-                "public-instance-field",
-                "public-decorated-field",
-                "public-abstract-field",
-                "protected-instance-field",
-                "protected-decorated-field",
-                "protected-abstract-field",
-                "private-instance-field",
-                "private-decorated-field",
-                "private-abstract-field",
-                "static-field",
-                "public-field",
-                "instance-field",
-                "protected-field",
-                "private-field",
-                "abstract-field",
-                "constructor",
-                "public-static-method",
-                "protected-static-method",
-                "private-static-method",
-                "public-method",
-                "protected-method",
-                "private-method"
-              ]
             }
           }
         ],
         "@typescript-eslint/no-namespace": ["error", { "allowDeclarations": true }],
-        "@typescript-eslint/no-non-null-assertion": "off",
+        "@typescript-eslint/no-non-null-assertion": "error",
         "@typescript-eslint/no-unused-vars": ["error", { "ignoreRestSiblings": true }],
         "@typescript-eslint/quotes": [
           "error",
@@ -69,9 +39,6 @@
         "@typescript-eslint/semi": ["error", "never"],
         "typescript-enum/no-enum": "error"
       }
-    },
-    {
-      "files": ["*.jsx", "*.js"]
     }
   ],
   "parserOptions": {

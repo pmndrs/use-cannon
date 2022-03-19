@@ -3,6 +3,7 @@ import pluginCommonjs from '@rollup/plugin-commonjs'
 import pluginNodeResolve from '@rollup/plugin-node-resolve'
 import pluginWebWorker from 'rollup-plugin-web-worker-loader'
 
+// These are our dependencies, everything else is in the bundle
 const external = ['three']
 const extensions = ['.js', '.ts', '.json']
 

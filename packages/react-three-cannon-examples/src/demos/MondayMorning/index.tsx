@@ -89,10 +89,11 @@ const BodyPart: FC<BodyPartProps> = ({ children, config = {}, name, render, ...p
 }
 
 function Ragdoll(props: Pick<MeshProps, 'position'>) {
-  const mouth = useRef<Object3D>(null!)
-  const eyes = useRef<Object3D>(null!)
+  const mouth = useRef<Object3D>(null)
+  const eyes = useRef<Object3D>(null)
 
   useFrame(({ clock }) => {
+    if (!eyes.current || !mouth.current) return
     eyes.current.position.y = Math.sin(clock.getElapsedTime() * 1) * 0.06
     mouth.current.scale.y = (1 + Math.sin(clock.getElapsedTime())) * 1.5
   })
