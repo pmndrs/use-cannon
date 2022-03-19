@@ -1,4 +1,4 @@
-import type { Body, RayOptions, Shape } from 'cannon-es'
+import type { Body, RayOptions } from 'cannon-es'
 import { Ray, RAY_MODES, RaycastResult } from 'cannon-es'
 
 import type { CannonMessageMap } from '../../types'
@@ -32,9 +32,8 @@ export const addRay = (
     const { body, shape, rayFromWorld, rayToWorld, hitNormalWorld, hitPointWorld, ...rest } = options.result
 
     const bodyUUID = (body as WithUUID<Body>).uuid
-    const shapeUUID = (shape as WithUUID<Shape>).uuid
 
-    if (!bodyUUID || !shapeUUID) return
+    if (!bodyUUID) return
 
     self.postMessage({
       body: bodyUUID,
@@ -51,7 +50,7 @@ export const addRay = (
       },
       rayFromWorld: rayFromWorld.toArray(),
       rayToWorld: rayToWorld.toArray(),
-      shape: shape ? { ...shape, body: shapeUUID } : null,
+      shape: shape ? { ...shape, body: bodyUUID } : null,
       type: 'rayhit',
       ...rest,
     })
