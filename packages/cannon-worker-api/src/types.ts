@@ -245,13 +245,18 @@ export type WorkerRayhitEvent = {
       collisionFilterGroup: number
       collisionFilterMask: number
       direction: number[]
-      from: number[]
-      to: number[]
+      from?: Triplet
+      to?: Triplet
       uuid: string
     }
-    rayFromWorld: number[]
-    rayToWorld: number[]
-    shape: (Omit<Shape, 'body'> & { body: string }) | null
+    rayFromWorld: Triplet
+    rayToWorld: Triplet
+    shape:
+      | (Omit<
+          Shape,
+          'body' | 'updateBoundingSphereRadius' | 'volume' | 'calculateLocalInertia' | 'calculateWorldAABB'
+        > & { body: string })
+      | null
     shouldStop: boolean
     type: 'rayhit'
   }

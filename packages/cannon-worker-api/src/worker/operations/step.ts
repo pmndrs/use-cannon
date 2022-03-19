@@ -4,7 +4,7 @@ import type { CannonMessageMap, Observation, PropValue, WorkerFrameMessage } fro
 import type { State } from '../state'
 import type { CannonWorkerGlobalScope } from '../types'
 
-declare let self: CannonWorkerGlobalScope
+declare const self: CannonWorkerGlobalScope
 
 const isQorV = (v: unknown): v is Quaternion | Vec3 => v instanceof Quaternion || v instanceof Vec3
 
