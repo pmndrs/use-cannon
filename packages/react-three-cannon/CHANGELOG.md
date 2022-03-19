@@ -1,5 +1,20 @@
 # @react-three/cannon Changelog
 
+## v5.1.0 - 2022-03-19
+
+- Access the physics context with the `usePhysicsContext` hook, which immediately gives you a clear error message when trying to access physics components or hooks outside of a Physics provider (@bjornstar)
+- Renamed `context` to `physicsContext` (@bjornstar)
+- Added a `useDebugContext` hook for consistency (@bjornstar)
+- [`Provider.tsx`] Renamed to `physics-provider.tsx` (@bjornstar)
+- [`Debug.tsx`] Renamed to `debug-provider.tsx` (Still exported as Debug & DebugProps) (@bjornstar)
+- [`physics-provider.tsx`] One useState call that contains the whole context (@bjornstar)
+- [`physics-provider.tsx`] bodies is not a ref, no need to access current (@bjornstar)
+- [`setup.ts`] Removed, split into more appropriately named modules (@bjornstar)
+- [`worker.d.ts`] Removed, belongs in cannon-worker-api (@bjornstar)
+- [`package.json`] Use dependencies rather than peerDependencies (@bjornstar)
+- [`.eslintrc.json`] Clean up (@bjornstar)
+- [`.eslintrc.json`] Disallow non-null assertions (@bjornstar)
+
 ## v5.0.1 - 2022-03-14
 
 - Bump @pmndrs/cannon-worker-api to v1.0.1 (@bjornstar)
