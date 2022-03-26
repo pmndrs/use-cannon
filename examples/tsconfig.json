@@ -22,5 +22,5 @@
     "types": ["vite/client"]
   },
   "exclude": ["node_modules"],
-  "include": ["./src", "vite.config.ts"]
+  "include": ["./src", "vite.config.ts, '../packages/react-three-cannon"]
 }

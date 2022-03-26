@@ -2,6 +2,9 @@
   "name": "@react-three/cannon",
   "version": "5.1.0",
   "description": "physics based hooks for react-three-fiber",
+  "main": "dist/react-three-cannon.cjs.js",
+  "module": "dist/react-three-cannon.esm.js",
+  "types": "dist/react-three-cannon.cjs.d.ts",
   "keywords": [
     "cannon",
     "three",
@@ -17,11 +20,9 @@
   "homepage": "https://github.com/pmndrs/use-cannon/tree/master/packages/react-three-cannon#readme",
   "repository": "github:pmndrs/use-cannon",
   "license": "MIT",
-  "module": "dist/index.js",
-  "types": "dist/index.d.ts",
   "sideEffects": false,
   "scripts": {
-    "build": "tsc && rollup -c",
+  
     "clean": "rm -rf dist/*",
     "test": "echo tests are missing",
     "eslint": "eslint .",
@@ -30,6 +31,10 @@
     "prettier-fix": "prettier --write ."
   },
   "dependencies": {
+    "@pmndrs/cannon-worker-api": "latest",
+    "cannon-es-debugger": "latest"
+  },
+  "peerDependencies": {
     "@react-three/fiber": "^7.0.26",
     "react": ">=17.0",
     "three": "^0.137.0"

@@ -19,6 +19,10 @@
   "license": "MIT",
   "private": true,
   "devDependencies": {
+    "@babel/preset-env": "^7.16.11",
+    "@babel/preset-react": "^7.16.7",
+    "@babel/preset-typescript": "^7.16.7",
+    "@preconstruct/cli": "^2.1.5",
     "husky": "^7.0.4",
     "lint-staged": "^12.1.2"
   },
@@ -30,19 +34,25 @@
     "*.{js,jsx,ts,tsx}": "eslint --cache --fix",
     "*.{js,jsx,json,md,ts,tsx}": "prettier --write"
   },
+  "preconstruct": {
+    "packages": [
+      "packages/react-three-cannon"
+    ]
+  },
   "scripts": {
-    "build": "npm run build --workspaces",
+    "worker:build": "yarn workspace @pmndrs/cannon-worker-api build",
+    "build": "yarn worker:build && preconstruct build",
+    "dev": "preconstruct dev",
+    "examples": "yarn workspace examples dev",
     "clean": "npm run clean --workspaces",
-    "dev": "npm run dev --workspaces",
     "eslint": "npm run eslint --workspaces",
     "eslint-fix": "npm run eslint-fix --workspaces",
     "prettier": "npm run prettier --workspaces",
     "prettier-fix": "npm run prettier-fix --workspaces",
-    "postinstall": "husky install"
+    "postinstall": "preconstruct dev && husky install"
   },
   "workspaces": [
-    "packages/cannon-worker-api",
-    "packages/react-three-cannon",
-    "packages/react-three-cannon-examples"
+    "packages/*",
+    "examples"
   ]
 }

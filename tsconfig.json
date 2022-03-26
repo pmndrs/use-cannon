@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "baseUrl": "./src",
+    "baseUrl": "./",
     "declaration": true,
     "emitDeclarationOnly": true,
     "esModuleInterop": true,
@@ -9,14 +9,13 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "noImplicitThis": false,
-    "outDir": "dist",
     "pretty": true,
     "removeComments": true,
     "resolveJsonModule": true,
+    "isolatedModules": true,
     "skipLibCheck": true,
     "strict": true,
     "target": "es6"
   },
-  "exclude": ["./node_modules/**/*"],
-  "include": ["./src"]
+  "include": ["packages/*/src/**/*"]
 }

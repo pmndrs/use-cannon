@@ -2,6 +2,7 @@
   "name": "@pmndrs/cannon-worker-api",
   "version": "1.1.0",
   "description": "An API to use cannon-es in a web worker",
+  "main": "dist/pmndrs-cannon-worker-api.cjs.js",
   "keywords": [
     "cannon",
     "three",
@@ -16,7 +17,7 @@
   "homepage": "https://github.com/pmndrs/use-cannon/tree/master/packages/cannon-worker-api#readme",
   "repository": "github:pmndrs/use-cannon",
   "license": "MIT",
-  "module": "dist/index.js",
+  "module": "dist/pmndrs-cannon-worker-api.esm.js",
   "types": "dist/index.d.ts",
   "sideEffects": false,
   "scripts": {
@@ -28,8 +29,9 @@
     "prettier": "prettier --list-different .",
     "prettier-fix": "prettier --write ."
   },
-  "dependencies": {
-    "three": "^0.137.0"
+  "peerDependencies": {
+    "three": "^0.137.0",
+    "cannon-es": "latest"
   },
   "devDependencies": {
     "@babel/core": "^7.16.5",
