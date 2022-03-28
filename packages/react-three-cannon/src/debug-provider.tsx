@@ -37,7 +37,7 @@ export const DebugProvider: FC<DebugProviderProps> = ({
 
   useFrame(() => {
     for (const uuid in bodyMap) {
-      let ref = refs[uuid]
+      const ref = refs[uuid]
       if (ref instanceof InstancedMesh) {
         const index = parseInt(uuid.split('/')[1])
         ref.getMatrixAt(index, m)
