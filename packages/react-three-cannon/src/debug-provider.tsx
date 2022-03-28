@@ -4,8 +4,8 @@ import type { Body, Quaternion as CQuaternion, Vec3, World } from 'cannon-es'
 import CannonDebugger from 'cannon-es-debugger'
 import type { FC } from 'react'
 import { useMemo, useRef, useState } from 'react'
-import type { Color } from 'three'
-import { Quaternion, Scene, Vector3 } from 'three'
+import { Color, InstancedMesh } from 'three'
+import { Quaternion, Scene, Vector3, Matrix4 } from 'three'
 
 import type { DebugApi } from './debug-context'
 import { debugContext } from './debug-context'
@@ -22,6 +22,7 @@ export type DebugProviderProps = {
 const q = new Quaternion()
 const s = new Vector3(1, 1, 1)
 const v = new Vector3()
+const m = new Matrix4()
 
 export const DebugProvider: FC<DebugProviderProps> = ({
   children,
@@ -36,9 +37,18 @@ export const DebugProvider: FC<DebugProviderProps> = ({
 
   useFrame(() => {
     for (const uuid in bodyMap) {
-      refs[uuid].matrix.decompose(v, q, s)
-      bodyMap[uuid].position.copy(v as unknown as Vec3)
-      bodyMap[uuid].quaternion.copy(q as unknown as CQuaternion)
+      let ref = refs[uuid]
+      if (ref instanceof InstancedMesh) {
+        const index = parseInt(uuid.split('/')[1])
+        ref.getMatrixAt(index, m)
+        m.decompose(v, q, s)
+        bodyMap[uuid].position.copy(v as unknown as Vec3)
+        bodyMap[uuid].quaternion.copy(q as unknown as CQuaternion)
+      } else {
+        ref.matrix.decompose(v, q, s)
+        bodyMap[uuid].position.copy(v as unknown as Vec3)
+        bodyMap[uuid].quaternion.copy(q as unknown as CQuaternion)
+      }
     }
 
     cannonDebuggerRef.current.update()
