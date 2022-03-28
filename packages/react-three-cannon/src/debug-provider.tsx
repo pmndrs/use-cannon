@@ -38,17 +38,12 @@ export const DebugProvider: FC<DebugProviderProps> = ({
   useFrame(() => {
     for (const uuid in bodyMap) {
       const ref = refs[uuid]
-      if (ref instanceof InstancedMesh) {
-        const index = parseInt(uuid.split('/')[1])
-        ref.getMatrixAt(index, m)
-        m.decompose(v, q, s)
-        bodyMap[uuid].position.copy(v as unknown as Vec3)
-        bodyMap[uuid].quaternion.copy(q as unknown as CQuaternion)
-      } else {
-        ref.matrix.decompose(v, q, s)
-        bodyMap[uuid].position.copy(v as unknown as Vec3)
-        bodyMap[uuid].quaternion.copy(q as unknown as CQuaternion)
-      }
+      const matrix = ref instanceof instancedMesh
+        ? ref.getMatrixAt(parseInt(uuid.split('/')[1]))
+        : ref.matrix
+      matrix.decompose(v, q, s)
+      bodyMap[uuid].position.copy(v as unknown as Vec3)
+      bodyMap[uuid].quaternion.copy(q as unknown as CQuaternion)
     }
 
     cannonDebuggerRef.current.update()
