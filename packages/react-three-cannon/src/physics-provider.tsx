@@ -27,21 +27,30 @@ export type PhysicsProviderProps = PropsWithChildren<
 >
 
 const v = new Vector3()
-const s = new Vector3(1, 1, 1)
+const s = new Vector3(1.1, 1.1, 1.1)
 const q = new Quaternion()
 const m = new Matrix4()
+const d = new Matrix4()
+const dp = new Vector3()
+const dq = new Quaternion()
+const ds = new Vector3()
 
-function apply(index: number, positions: Float32Array, quaternions: Float32Array, object?: Object3D) {
-  if (index !== undefined) {
+const getScale = (object: Object3D, index?: number): Vector3 => {
+  if (object instanceof InstancedMesh && index !== undefined) {
+    object.getMatrixAt(index, d)
+    d.decompose(dp, dq, ds)
+    return ds
+  }
+  return object.scale
+}
+
+function getMatrix(index: number, positions: Float32Array, quaternions: Float32Array, object: Object3D, instanceIndex?: number) {
+  if (index !== undefined && object) {
     m.compose(
       v.fromArray(positions, index * 3),
       q.fromArray(quaternions, index * 4),
-      object ? object.scale : s,
+      getScale(object, instanceIndex)
     )
-    if (object) {
-      object.matrixAutoUpdate = false
-      object.matrix.copy(m)
-    }
     return m
   }
   return m.identity()
@@ -180,12 +189,13 @@ export const PhysicsProvider: FC<PhysicsProviderProps> = ({
           for (let i = 0; i < ref.count; i++) {
             const index = bodies[`${ref.uuid}/${i}`]
             if (index !== undefined) {
-              ref.setMatrixAt(i, apply(index, positions, quaternions))
+              ref.setMatrixAt(i, getMatrix(index, positions, quaternions, ref, i))
             }
             ref.instanceMatrix.needsUpdate = true
           }
         } else {
-          apply(bodies[ref.uuid], positions, quaternions, ref)
+          ref.matrixAutoUpdate = false
+          ref.matrix.copy(getMatrix(bodies[ref.uuid], positions, quaternions, ref))
         }
       }
       if (shouldInvalidate) {
