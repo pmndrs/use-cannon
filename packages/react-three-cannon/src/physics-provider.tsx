@@ -31,13 +31,11 @@ const s = new Vector3()
 const q = new Quaternion()
 const m = new Matrix4()
 const d = new Matrix4()
-const dp = new Vector3()
-const dq = new Quaternion()
 
 const getScale = (object: Object3D, index?: number): Vector3 => {
   if (object instanceof InstancedMesh && index !== undefined) {
     object.getMatrixAt(index, d)
-    d.decompose(dp, dq, s)
+    s.setFromMatrixScale(d)
     return s
   }
   return object.scale
