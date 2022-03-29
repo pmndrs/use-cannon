@@ -27,29 +27,34 @@ export type PhysicsProviderProps = PropsWithChildren<
 >
 
 const v = new Vector3()
-const s = new Vector3(1.1, 1.1, 1.1)
+const s = new Vector3()
 const q = new Quaternion()
 const m = new Matrix4()
 const d = new Matrix4()
 const dp = new Vector3()
 const dq = new Quaternion()
-const ds = new Vector3()
 
 const getScale = (object: Object3D, index?: number): Vector3 => {
   if (object instanceof InstancedMesh && index !== undefined) {
     object.getMatrixAt(index, d)
-    d.decompose(dp, dq, ds)
-    return ds
+    d.decompose(dp, dq, s)
+    return s
   }
   return object.scale
 }
 
-function getMatrix(index: number, positions: Float32Array, quaternions: Float32Array, object: Object3D, instanceIndex?: number) {
+function getMatrix(
+  index: number,
+  positions: Float32Array,
+  quaternions: Float32Array,
+  object: Object3D,
+  instanceIndex?: number,
+) {
   if (index !== undefined && object) {
     m.compose(
       v.fromArray(positions, index * 3),
       q.fromArray(quaternions, index * 4),
-      getScale(object, instanceIndex)
+      getScale(object, instanceIndex),
     )
     return m
   }
