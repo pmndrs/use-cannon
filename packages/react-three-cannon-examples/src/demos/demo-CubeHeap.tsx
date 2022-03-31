@@ -31,7 +31,7 @@ const Spheres = ({ colors, number, size }: InstancedGeometryProps) => {
   return (
     <instancedMesh receiveShadow castShadow ref={ref} args={[undefined, undefined, number]}>
       <sphereBufferGeometry args={[size, 48]}>
-        <instancedBufferAttribute attachObject={['attributes', 'color']} args={[colors, 3]} />
+        <instancedBufferAttribute attach="attributes-color" args={[colors, 3]} />
       </sphereBufferGeometry>
       <meshLambertMaterial vertexColors />
     </instancedMesh>
@@ -49,7 +49,7 @@ const Boxes = ({ colors, number, size }: InstancedGeometryProps) => {
   return (
     <instancedMesh receiveShadow castShadow ref={ref} args={[undefined, undefined, number]}>
       <boxBufferGeometry args={args}>
-        <instancedBufferAttribute attachObject={['attributes', 'color']} args={[colors, 3]} />
+        <instancedBufferAttribute attach="attributes-color" args={[colors, 3]} />
       </boxBufferGeometry>
       <meshLambertMaterial vertexColors />
     </instancedMesh>
@@ -81,7 +81,6 @@ export default () => {
 
   return (
     <Canvas
-      mode="concurrent"
       shadows
       gl={{ alpha: false }}
       camera={{ fov: 50, position: [-1, 1, 2.5] }}
