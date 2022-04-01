@@ -1184,7 +1184,7 @@
     utility-types "^3.10.0"
     zustand "^3.5.13"
 
-"@react-three/fiber@^8.0.0", "@react-three/fiber@^8.0.4":
+"@react-three/fiber@^8.0.4":
   version "8.0.6"
   resolved "https://registry.npmjs.org/@react-three/fiber/-/fiber-8.0.6.tgz#0323cedf8b888646fbd101a78e37d19d868e5979"
   integrity sha512-OURPBcTw56FtL0ohmqREpW3cQB9CLzaAsIIjVUItfu4eya/lfs9dU8DJWwVXo1fVLWyRoKg5S33j6Dk589ptvg==
@@ -3373,14 +3373,6 @@ react-use-measure@^2.1.1:
   dependencies:
     debounce "^1.2.1"
 
-react@^17.0.2:
-  version "17.0.2"
-  resolved "https://registry.npmjs.org/react/-/react-17.0.2.tgz#d0b5cc516d29eb3eee383f75b62864cfb6800037"
-  integrity sha512-gnhPt75i/dq/z3/6q/0asP78D0u592D5L1pd7M8P+dck6Fu/jJeL6iVVK23fptSUZj8Vjf++7wXA8UNclGQcbA==
-  dependencies:
-    loose-envify "^1.1.0"
-    object-assign "^4.1.1"
-
 react@^18.0.0:
   version "18.0.0"
   resolved "https://registry.npmjs.org/react/-/react-18.0.0.tgz#b468736d1f4a5891f38585ba8e8fb29f91c3cb96"
@@ -3803,7 +3795,7 @@ three-stdlib@^2.8.12:
     potpack "^1.0.1"
     zstddec "^0.0.2"
 
-three@^0.139.0, three@^0.139.1:
+three@^0.139.1:
   version "0.139.2"
   resolved "https://registry.npmjs.org/three/-/three-0.139.2.tgz#b110799a15736df673b9293e31653a4ac73648dd"
   integrity sha512-gV7q7QY8rogu7HLFZR9cWnOQAUedUhu2WXAnpr2kdXZP9YDKsG/0ychwQvWkZN5PlNw9mv5MoCTin6zNTXoONg==

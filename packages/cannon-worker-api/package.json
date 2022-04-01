@@ -50,7 +50,6 @@
     "prettier": "^2.6.1",
     "rollup": "^2.70.1",
     "rollup-plugin-web-worker-loader": "^1.6.1",
-    "three": "^0.139.0",
     "typescript": "^4.6.3"
   },
   "lint-staged": {
