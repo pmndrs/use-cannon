@@ -1,5 +1,11 @@
 # @react-three/cannon-examples Changelog
 
+## v2.0.0 - 2022-04-01
+
+- Updated `react` to v18
+- Updated `three.js` to r139
+- Updated `@react-three/cannon` to v6
+
 ## v1.1.0 - 2022-03-19
 
 - [MondayMorning] Don't use non-null assertions (@bjornstar)

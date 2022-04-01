@@ -35,7 +35,7 @@ function Box() {
 }
 
 function InstancedSpheres({ number = 100 }) {
-  const [ref] = useSphere((index: number) => ({
+  const [ref] = useSphere((index) => ({
     args: [1],
     mass: 1,
     position: [Math.random() - 0.5, Math.random() - 0.5, index * 2],

@@ -1,6 +1,6 @@
 {
   "name": "@pmndrs/cannon-worker-api",
-  "version": "1.1.0",
+  "version": "2.0.0",
   "description": "An API to use cannon-es in a web worker",
   "keywords": [
     "cannon",
@@ -28,9 +28,6 @@
     "prettier": "prettier --list-different .",
     "prettier-fix": "prettier --write ."
   },
-  "dependencies": {
-    "three": "^0.139.1"
-  },
   "devDependencies": {
     "@babel/core": "^7.17.8",
     "@babel/plugin-transform-runtime": "^7.17.0",
@@ -53,10 +50,14 @@
     "prettier": "^2.6.1",
     "rollup": "^2.70.1",
     "rollup-plugin-web-worker-loader": "^1.6.1",
+    "three": "^0.139.0",
     "typescript": "^4.6.3"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": "eslint --cache --fix",
     "*.{js,jsx,ts,tsx,md}": "prettier --write"
+  },
+  "peerDependencies": {
+    "three": ">=0.139"
   }
 }

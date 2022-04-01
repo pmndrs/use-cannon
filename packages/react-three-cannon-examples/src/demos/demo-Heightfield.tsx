@@ -130,7 +130,7 @@ const Spheres: FC<{
   spread: number
 }> = ({ columns, rows, spread }) => {
   const number = rows * columns
-  const [ref] = useSphere((index: number) => ({
+  const [ref] = useSphere((index) => ({
     args: [0.2],
     mass: 1,
     position: [
@@ -153,7 +153,7 @@ const Spheres: FC<{
   return (
     <instancedMesh ref={ref} castShadow receiveShadow args={[undefined, undefined, number]}>
       <sphereBufferGeometry args={[0.2, 16, 16]}>
-        <instancedBufferAttribute attach='attributes-color' args={[colors, 3]} />
+        <instancedBufferAttribute attach="attributes-color" args={[colors, 3]} />
       </sphereBufferGeometry>
       <meshPhongMaterial vertexColors />
     </instancedMesh>

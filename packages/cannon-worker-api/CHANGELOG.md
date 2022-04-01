@@ -1,5 +1,10 @@
 # @pmndrs/cannon-worker-api Changelog
 
+## v2.0.0 - 2022-04-01
+
+- `three.js` is now a `peerDependency` and requires r139 or higher
+- Updated many `devDependencies`
+
 ## v1.1.0 - 2022-03-19
 
 - [WorkerRayHitEvent] from & to are optional (@bjornstar)

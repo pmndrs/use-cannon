@@ -1,5 +1,16 @@
 # @react-three/cannon Changelog
 
+## v6.0.0 - 2022-04-01
+
+- Removed the Suspense wrapper around Physics, you will need to provide your own suspense boundary from now on
+- `react` is now a `peerDependency` and requires v18 or higher
+- `three.js` is now a `peerDependency` and requires r139 or higher
+- `@react-three/fiber` is now a `peerDependency` and requires v8 or higher
+- `@pmndrs/cannon-worker-api` is now a `dependency`
+- `cannon-es` is now a `dependency`
+- `cannon-es-debugger` is now a `dependency`
+- Updated many `devDependencies`
+
 ## v5.1.0 - 2022-03-19
 
 - Access the physics context with the `usePhysicsContext` hook, which immediately gives you a clear error message when trying to access physics components or hooks outside of a Physics provider (@bjornstar)
