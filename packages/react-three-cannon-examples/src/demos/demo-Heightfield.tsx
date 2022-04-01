@@ -153,7 +153,7 @@ const Spheres: FC<{
   return (
     <instancedMesh ref={ref} castShadow receiveShadow args={[undefined, undefined, number]}>
       <sphereBufferGeometry args={[0.2, 16, 16]}>
-        <instancedBufferAttribute attachObject={['attributes', 'color']} args={[colors, 3]} />
+        <instancedBufferAttribute attach="attributes-color" args={[colors, 3]} />
       </sphereBufferGeometry>
       <meshPhongMaterial vertexColors />
     </instancedMesh>

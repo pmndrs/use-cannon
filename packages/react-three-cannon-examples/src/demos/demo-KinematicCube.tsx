@@ -54,7 +54,7 @@ function InstancedSpheres({ number = 100 }) {
   return (
     <instancedMesh ref={ref} castShadow receiveShadow args={[undefined, undefined, number]}>
       <sphereBufferGeometry args={[1, 16, 16]}>
-        <instancedBufferAttribute attachObject={['attributes', 'color']} args={[colors, 3]} />
+        <instancedBufferAttribute attach="attributes-color" args={[colors, 3]} />
       </sphereBufferGeometry>
       <meshPhongMaterial vertexColors />
     </instancedMesh>
@@ -62,7 +62,7 @@ function InstancedSpheres({ number = 100 }) {
 }
 
 export default () => (
-  <Canvas mode="concurrent" shadows gl={{ alpha: false }} camera={{ position: [0, -12, 16] }}>
+  <Canvas shadows gl={{ alpha: false }} camera={{ position: [0, -12, 16] }}>
     <hemisphereLight intensity={0.35} />
     <spotLight
       position={[30, 0, 30]}
@@ -75,7 +75,7 @@ export default () => (
     />
     <pointLight position={[-30, 0, -30]} intensity={0.5} />
     <Physics gravity={[0, 0, -30]}>
-      <Plane color={niceColors[17][4]} />
+      <Plane color={niceColors[17][4]} position={[0, 0, 0]} rotation={[0, 0, 0]} />
       <Plane color={niceColors[17][1]} position={[-6, 0, 0]} rotation={[0, 0.9, 0]} />
       <Plane color={niceColors[17][2]} position={[6, 0, 0]} rotation={[0, -0.9, 0]} />
       <Plane color={niceColors[17][3]} position={[0, 6, 0]} rotation={[0.9, 0, 0]} />
