@@ -40,6 +40,7 @@
     "prettier-fix": "npm run prettier-fix --workspaces",
     "postinstall": "husky install"
   },
+  "type": "module",
   "workspaces": [
     "packages/cannon-worker-api",
     "packages/react-three-cannon",

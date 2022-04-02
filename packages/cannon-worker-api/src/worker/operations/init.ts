@@ -2,7 +2,7 @@ import type { Body } from 'cannon-es'
 import { GSSolver, NaiveBroadphase, SAPBroadphase, SplitSolver } from 'cannon-es'
 
 import type { CannonMessageProps } from '../../types'
-import type { State } from '../state'
+import type { DecoratedWorld } from '../state'
 import type { CannonWorkerGlobalScope, WithUUID } from '../types'
 
 declare const self: CannonWorkerGlobalScope
@@ -23,7 +23,7 @@ function emitEndContact({ bodyA, bodyB }: TwoBodies) {
 }
 
 export const init = (
-  state: State,
+  world: DecoratedWorld,
   {
     allowSleep,
     axisIndex = 0,
@@ -36,29 +36,29 @@ export const init = (
     solver,
     tolerance,
   }: CannonMessageProps<'init'>,
-) => {
-  state.world.allowSleep = allowSleep
-  state.world.gravity.set(gravity[0], gravity[1], gravity[2])
-  state.world.quatNormalizeFast = quatNormalizeFast
-  state.world.quatNormalizeSkip = quatNormalizeSkip
+): void => {
+  world.allowSleep = allowSleep
+  world.gravity.set(...gravity)
+  world.quatNormalizeFast = quatNormalizeFast
+  world.quatNormalizeSkip = quatNormalizeSkip
 
   if (solver === 'Split') {
-    state.world.solver = new SplitSolver(new GSSolver())
+    world.solver = new SplitSolver(new GSSolver())
   }
 
-  if (state.world.solver instanceof GSSolver) {
-    state.world.solver.tolerance = tolerance
-    state.world.solver.iterations = iterations
+  if (world.solver instanceof GSSolver) {
+    world.solver.tolerance = tolerance
+    world.solver.iterations = iterations
   }
 
-  state.world.broadphase = broadphase === 'SAP' ? new SAPBroadphase(state.world) : new NaiveBroadphase()
+  world.broadphase = broadphase === 'SAP' ? new SAPBroadphase(world) : new NaiveBroadphase()
 
-  if (state.world.broadphase instanceof SAPBroadphase) {
-    state.world.broadphase.axisIndex = axisIndex
+  if (world.broadphase instanceof SAPBroadphase) {
+    world.broadphase.axisIndex = axisIndex
   }
 
-  state.world.addEventListener('beginContact', emitBeginContact)
-  state.world.addEventListener('endContact', emitEndContact)
+  world.addEventListener('beginContact', emitBeginContact)
+  world.addEventListener('endContact', emitEndContact)
 
-  Object.assign(state.world.defaultContactMaterial, defaultContactMaterial)
+  Object.assign(world.defaultContactMaterial, defaultContactMaterial)
 }
