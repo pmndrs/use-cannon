@@ -1,5 +1,10 @@
 # @react-three/cannon Changelog
 
+## v6.1.0 - 2022-04-02
+
+- Now calls `connect` before `init` in a useEffect (instead of useLayoutEffect)
+- Update `@pmndrs/cannon-worker-api` to v2.1.0
+
 ## v6.0.0 - 2022-04-01
 
 - Removed the Suspense wrapper around Physics, you will need to provide your own suspense boundary from now on

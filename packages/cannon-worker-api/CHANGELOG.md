@@ -1,5 +1,12 @@
 # @pmndrs/cannon-worker-api Changelog
 
+## v2.1.0 - 2022-04-02
+
+- New private method `postMessage` that queues the messages if there is no worker
+- New public method: `connect`, we instantiate the worker, add the onmessage handler and flush the messageQueue
+- New public method: `disconnect`, removes the onmessage handler (probably unnecessary)
+- `init` now takes `world` instead of `state`
+
 ## v2.0.0 - 2022-04-01
 
 - `three.js` is now a `peerDependency` and requires r139 or higher

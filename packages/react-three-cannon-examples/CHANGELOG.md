@@ -1,5 +1,9 @@
 # @react-three/cannon-examples Changelog
 
+## v2.1.0 - 2022-04-02
+
+- Update `@react-three/cannon` to v6.1.0
+
 ## v2.0.0 - 2022-04-01
 
 - Updated `react` to v18

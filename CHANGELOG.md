@@ -1,5 +1,12 @@
 # @pmndrs/use-cannon Changelog
 
+## v2.1.0 - 2022-04-02
+
+- [@pmndrs/cannon-worker-api] v2.0.0
+- [@react-three/cannon] v6.0.0
+- [@react-three/cannon-examples] v2.0.0
+- Set monorepo package type to module
+
 ## v2.0.0 - 2022-04-01
 
 - [@pmndrs/cannon-worker-api] v2.0.0
