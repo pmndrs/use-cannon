@@ -10,7 +10,7 @@ import { CannonWorkerAPI } from '@pmndrs/cannon-worker-api'
 import type { RenderCallback } from '@react-three/fiber'
 import { useFrame, useThree } from '@react-three/fiber'
 import type { FC, PropsWithChildren } from 'react'
-import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { Object3D } from 'three'
 import { InstancedMesh, Matrix4, Quaternion, Vector3 } from 'three'
 
@@ -208,7 +208,8 @@ export const PhysicsProvider: FC<PhysicsProviderProps> = ({
   // Otherwise the buffers will be invalidated by the browser
   useFrame(loop)
 
-  useLayoutEffect(() => {
+  useEffect(() => {
+    worker.connect()
     worker.init()
 
     worker.on('collide', collideHandler)

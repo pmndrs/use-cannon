@@ -4,7 +4,7 @@ import { World } from 'cannon-es'
 import type { SubscriptionName, SubscriptionTarget } from '../types'
 import type { WithUUID } from './types'
 
-interface DecoratedWorld extends World {
+export interface DecoratedWorld extends World {
   bodies: WithUUID<Body>[]
   constraints: WithUUID<Constraint>[]
   contactmaterials: WithUUID<ContactMaterial>[]

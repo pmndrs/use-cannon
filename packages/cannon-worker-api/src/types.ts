@@ -402,7 +402,7 @@ export type CannonMessageProps<T extends OpName> = CannonMessageMap[T] extends {
 export type CannonMessage = CannonMessageMap[OpName]
 
 export interface CannonWebWorker extends Worker {
-  onmessage: (e: IncomingWorkerMessage) => void
+  onmessage: ((e: IncomingWorkerMessage) => void) | null
   postMessage(message: CannonMessage, transfer: Transferable[]): void
   postMessage(message: CannonMessage, options?: StructuredSerializeOptions): void
   terminate: () => void

@@ -30,7 +30,7 @@ const createMaterial = createMaterialFactory(state.materials)
 self.onmessage = ({ data }: { data: CannonMessage }) => {
   switch (data.op) {
     case 'init': {
-      init(state, data.props)
+      init(state.world, data.props)
       break
     }
     case 'step': {
@@ -43,7 +43,9 @@ self.onmessage = ({ data }: { data: CannonMessage }) => {
       break
     }
     case 'removeBodies': {
-      for (let i = 0; i < data.uuid.length; i++) state.world.removeBody(state.bodies[data.uuid[i]])
+      for (let i = 0; i < data.uuid.length; i++) {
+        state.world.removeBody(state.bodies[data.uuid[i]])
+      }
       syncBodies()
       break
     }
