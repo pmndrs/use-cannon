@@ -55,8 +55,8 @@
     "zustand": "^3.7.1"
   },
   "lint-staged": {
-    "*.{js,ts}": "eslint --cache --fix",
-    "*.{js,ts,md}": "prettier --write"
+    "*.{js,jsx,ts,tsx}": "eslint --cache --fix",
+    "*.{js,json,jsx,md,ts,tsx}": "prettier --write"
   },
   "license": "MIT",
   "sideEffects": false
