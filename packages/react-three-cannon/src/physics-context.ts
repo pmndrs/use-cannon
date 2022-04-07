@@ -8,6 +8,7 @@ import type {
   Subscriptions,
 } from '@pmndrs/cannon-worker-api'
 import { createContext, useContext } from 'react'
+import type { Vector3 } from 'three'
 
 type CannonEvent = CollideBeginEvent | CollideEndEvent | CollideEvent | RayhitEvent
 type CallbackByType<T extends { type: string }> = {
@@ -16,10 +17,13 @@ type CallbackByType<T extends { type: string }> = {
 
 export type CannonEvents = { [uuid: string]: Partial<CallbackByType<CannonEvent>> }
 
+export type ScaleOverrides = { [uuid: string]: Vector3 }
+
 export type PhysicsContext = {
   bodies: { [uuid: string]: number }
   events: CannonEvents
   refs: Refs
+  scaleOverrides: ScaleOverrides
   subscriptions: Subscriptions
   worker: CannonWorkerAPI
 }

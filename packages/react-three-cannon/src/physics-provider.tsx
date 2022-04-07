@@ -31,13 +31,15 @@ const s = new Vector3(1, 1, 1)
 const q = new Quaternion()
 const m = new Matrix4()
 
-function apply(index: number, positions: Float32Array, quaternions: Float32Array, object?: Object3D) {
+function apply(
+  index: number,
+  positions: Float32Array,
+  quaternions: Float32Array,
+  scale = s,
+  object?: Object3D,
+) {
   if (index !== undefined) {
-    m.compose(
-      v.fromArray(positions, index * 3),
-      q.fromArray(quaternions, index * 4),
-      object ? object.scale : s,
-    )
+    m.compose(v.fromArray(positions, index * 3), q.fromArray(quaternions, index * 4), scale)
     if (object) {
       object.matrixAutoUpdate = false
       object.matrix.copy(m)
@@ -67,10 +69,11 @@ export const PhysicsProvider: FC<PhysicsProviderProps> = ({
 }) => {
   const { invalidate } = useThree()
 
-  const [{ bodies, events, refs, subscriptions, worker }] = useState<PhysicsContext>(() => ({
+  const [{ bodies, events, refs, scaleOverrides, subscriptions, worker }] = useState<PhysicsContext>(() => ({
     bodies: {},
     events: {},
     refs: {},
+    scaleOverrides: {},
     subscriptions: {},
     worker: new CannonWorkerAPI({
       allowSleep,
@@ -178,14 +181,16 @@ export const PhysicsProvider: FC<PhysicsProviderProps> = ({
       for (const ref of Object.values(refs)) {
         if (ref instanceof InstancedMesh) {
           for (let i = 0; i < ref.count; i++) {
-            const index = bodies[`${ref.uuid}/${i}`]
+            const uuid = `${ref.uuid}/${i}`
+            const index = bodies[uuid]
             if (index !== undefined) {
-              ref.setMatrixAt(i, apply(index, positions, quaternions))
+              ref.setMatrixAt(i, apply(index, positions, quaternions, scaleOverrides[uuid]))
+              ref.instanceMatrix.needsUpdate = true
             }
-            ref.instanceMatrix.needsUpdate = true
           }
         } else {
-          apply(bodies[ref.uuid], positions, quaternions, ref)
+          const scale = scaleOverrides[ref.uuid] || ref.scale
+          apply(bodies[ref.uuid], positions, quaternions, scale, ref)
         }
       }
       if (shouldInvalidate) {
@@ -241,7 +246,7 @@ export const PhysicsProvider: FC<PhysicsProviderProps> = ({
   }, [tolerance])
 
   const value = useMemo<PhysicsContext>(
-    () => ({ bodies, events, refs, subscriptions, worker }),
+    () => ({ bodies, events, refs, scaleOverrides, subscriptions, worker }),
     [bodies, events, refs, subscriptions, worker],
   )
 
