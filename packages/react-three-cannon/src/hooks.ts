@@ -75,6 +75,7 @@ export type WorkerApi = {
   applyTorque: (torque: Triplet) => void
   quaternion: QuaternionApi
   rotation: VectorApi
+  scaleOverride: (scale: Triplet) => void
   sleep: () => void
   wakeUp: () => void
 }
@@ -130,10 +131,10 @@ function subscribe<T extends SubscriptionName>(
   }
 }
 
-function prepare(object: Object3D, props: BodyProps) {
-  object.userData = props.userData || {}
-  object.position.set(...(props.position || [0, 0, 0]))
-  object.rotation.set(...(props.rotation || [0, 0, 0]))
+function prepare(object: Object3D, { position = [0, 0, 0], rotation = [0, 0, 0], userData = {} }: BodyProps) {
+  object.userData = userData
+  object.position.set(...position)
+  object.rotation.set(...rotation)
   object.updateMatrix()
 }
 
@@ -161,7 +162,7 @@ function useBody<B extends BodyProps<unknown[]>>(
 ): Api {
   const ref = useForwardedRef(fwdRef)
 
-  const { events, refs, subscriptions, worker } = usePhysicsContext()
+  const { events, refs, scaleOverrides, subscriptions, worker } = usePhysicsContext()
   const debugApi = useDebugContext()
 
   useLayoutEffect(() => {
@@ -332,6 +333,10 @@ function useBody<B extends BodyProps<unknown[]>>(
         position: makeVec('position', index),
         quaternion: makeQuaternion(index),
         rotation: makeRotation(index),
+        scaleOverride(scale) {
+          const uuid = getUUID(ref, index)
+          if (uuid) scaleOverrides[uuid] = new Vector3(...scale)
+        },
         sleep() {
           const uuid = getUUID(ref, index)
           uuid && worker.sleep({ uuid })
