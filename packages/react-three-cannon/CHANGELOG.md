@@ -1,5 +1,9 @@
 # @react-three/cannon Changelog
 
+## v6.2.0 - 2022-04-08
+
+- Add scaleOverride (@bjornstar)
+
 ## v6.1.0 - 2022-04-02
 
 - Now calls `connect` before `init` in a useEffect (instead of useLayoutEffect)

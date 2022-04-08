@@ -287,6 +287,7 @@ type WorkerApi = {
   applyTorque: (torque: Triplet) => void
   quaternion: QuaternionApi
   rotation: VectorApi
+  scaleOverride: (scale: Triplet) => void
   sleep: () => void
   wakeUp: () => void
 }

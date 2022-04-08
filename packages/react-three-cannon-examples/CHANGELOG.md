@@ -1,5 +1,10 @@
 # @react-three/cannon-examples Changelog
 
+## v2.2.0 - 2022-04-08
+
+- Use `react-dom/client` for react 18 features
+- Update `@react-three/cannon` to v6.2.0
+
 ## v2.1.0 - 2022-04-02
 
 - Update `@react-three/cannon` to v6.1.0
