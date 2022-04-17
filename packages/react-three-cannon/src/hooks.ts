@@ -193,6 +193,7 @@ function useBody<B extends BodyProps<unknown[]>>(
             refs[id] = object
             debugApi?.add(id, props, type)
             setupCollision(events, props, id)
+            if (props.scaleOverride) scaleOverrides[uuid[i]] = new Vector3(...props.scaleOverride)
             return { ...props, args: argsFn(props.args) }
           })
         : uuid.map((id, i) => {
