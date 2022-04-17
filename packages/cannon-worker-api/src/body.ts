@@ -31,6 +31,7 @@ export type BodyProps<T extends any[] = unknown[]> = Partial<AtomicProps> &
     quaternion?: Quad
     rotation?: Triplet
     type?: 'Dynamic' | 'Static' | 'Kinematic'
+    scaleOverride: Triplet
   }
 
 export type BodyPropsArgsRequired<T extends any[] = unknown[]> = BodyProps<T> & {
