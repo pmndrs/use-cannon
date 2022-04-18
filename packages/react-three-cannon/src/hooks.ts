@@ -159,6 +159,7 @@ function useBody<B extends BodyProps<unknown[]>>(
   argsFn: ArgFn<B['args']>,
   fwdRef: Ref<Object3D>,
   deps: DependencyList = [],
+  scaleOverride?: Triplet,
 ): Api {
   const ref = useForwardedRef(fwdRef)
 
@@ -193,6 +194,7 @@ function useBody<B extends BodyProps<unknown[]>>(
             refs[id] = object
             debugApi?.add(id, props, type)
             setupCollision(events, props, id)
+            if (scaleOverride) scaleOverrides[uuid[i]] = new Vector3(...scaleOverride)
             return { ...props, args: argsFn(props.args) }
           })
         : uuid.map((id, i) => {
