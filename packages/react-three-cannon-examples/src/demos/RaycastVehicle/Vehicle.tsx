@@ -2,7 +2,7 @@ import type { BoxProps, WheelInfoOptions } from '@react-three/cannon'
 import { useBox, useRaycastVehicle } from '@react-three/cannon'
 import { useFrame } from '@react-three/fiber'
 import { useEffect, useRef } from 'react'
-import type { Object3D } from 'three'
+import type { Group, Mesh } from 'three'
 
 import { Chassis } from './Chassis'
 import { useControls } from './use-controls'
@@ -32,13 +32,7 @@ function Vehicle({
   steer = 0.5,
   width = 1.2,
 }: VehicleProps) {
-  const chassisBody = useRef<Object3D>(null)
-  const wheels = [
-    useRef<Object3D>(null),
-    useRef<Object3D>(null),
-    useRef<Object3D>(null),
-    useRef<Object3D>(null),
-  ]
+  const wheels = [useRef<Group>(null), useRef<Group>(null), useRef<Group>(null), useRef<Group>(null)]
 
   const controls = useControls()
 
@@ -78,7 +72,7 @@ function Vehicle({
     isFrontWheel: false,
   }
 
-  const [, chassisApi] = useBox(
+  const [chassisBody, chassisApi] = useBox(
     () => ({
       allowSleep: false,
       angularVelocity,
@@ -88,14 +82,17 @@ function Vehicle({
       position,
       rotation,
     }),
-    chassisBody,
+    useRef<Mesh>(null),
   )
 
-  const [vehicle, vehicleApi] = useRaycastVehicle(() => ({
-    chassisBody,
-    wheelInfos: [wheelInfo1, wheelInfo2, wheelInfo3, wheelInfo4],
-    wheels,
-  }))
+  const [vehicle, vehicleApi] = useRaycastVehicle(
+    () => ({
+      chassisBody,
+      wheelInfos: [wheelInfo1, wheelInfo2, wheelInfo3, wheelInfo4],
+      wheels,
+    }),
+    useRef<Group>(null),
+  )
 
   useEffect(() => vehicleApi.sliding.subscribe((v) => console.log('sliding', v)), [])
 

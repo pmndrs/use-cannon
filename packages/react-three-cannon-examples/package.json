@@ -1,6 +1,6 @@
 {
   "name": "@react-three/cannon-examples",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "Examples for @react-three/cannon",
   "private": true,
   "scripts": {
@@ -21,13 +21,13 @@
   ],
   "devDependencies": {
     "@react-three/cannon": "^6.2.0",
-    "@react-three/drei": "^9.0.1",
-    "@react-three/fiber": "^8.0.4",
+    "@react-three/drei": "^9.4.3",
+    "@react-three/fiber": "^8.0.11",
     "@types/lodash-es": "^4.17.6",
-    "@types/react": "^17.0.43",
+    "@types/react": "^18.0.5",
     "@types/react-dom": "^17.0.14",
     "@types/react-router-dom": "^5.3.3",
-    "@types/styled-components": "^5.1.24",
+    "@types/styled-components": "^5.1.25",
     "@types/three": "^0.139.0",
     "@typescript-eslint/eslint-plugin": "^5.17.0",
     "@typescript-eslint/parser": "^5.17.0",

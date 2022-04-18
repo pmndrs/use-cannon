@@ -1,5 +1,13 @@
 # @react-three/cannon Changelog
 
+## v6.3.0 - 2022-04-18
+
+- DebugProvider explicitly lists children as a prop (@bjornstar)
+- Prefer PropsWithChildren over FC (@bjornstar)
+- Prefer function declarations over const (@bjornstar)
+- [`hooks`] All hooks are now generic, they accept any Object3D and return refs of whatever type was passed in (@bjornstar)
+- Update @types/react to v18 (@bjornstar)
+
 ## v6.2.0 - 2022-04-08
 
 - Add scaleOverride (@bjornstar)

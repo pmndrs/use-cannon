@@ -1,6 +1,6 @@
 import { useGLTF } from '@react-three/drei'
 import { forwardRef } from 'react'
-import type { Material, Mesh, Object3D } from 'three'
+import type { Material, Mesh } from 'three'
 import type { GLTF } from 'three-stdlib/loaders/GLTFLoader'
 
 useGLTF.preload('/Beetle.glb')
@@ -54,7 +54,7 @@ type BeetleGLTF = GLTF & {
   nodes: Record<BeetleNode, Mesh>
 }
 
-export const Chassis = forwardRef<Object3D>((_, ref) => {
+export const Chassis = forwardRef<Mesh>((_, ref) => {
   const { nodes, materials } = useGLTF('/Beetle.glb') as BeetleGLTF
 
   return (

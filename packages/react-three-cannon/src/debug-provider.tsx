@@ -2,7 +2,7 @@ import { propsToBody } from '@pmndrs/cannon-worker-api'
 import { useFrame } from '@react-three/fiber'
 import type { Body, Quaternion as CQuaternion, Vec3, World } from 'cannon-es'
 import CannonDebugger from 'cannon-es-debugger'
-import type { FC } from 'react'
+import type { PropsWithChildren } from 'react'
 import { useMemo, useRef, useState } from 'react'
 import type { Color, Object3D } from 'three'
 import { InstancedMesh, Matrix4, Quaternion, Scene, Vector3 } from 'three'
@@ -32,12 +32,12 @@ const getMatrix = (o: Object3D): Matrix4 => {
   return o.matrix
 }
 
-export const DebugProvider: FC<DebugProviderProps> = ({
+export function DebugProvider({
   children,
   color = 'black',
   impl = CannonDebugger,
   scale = 1,
-}) => {
+}: PropsWithChildren<DebugProviderProps>): JSX.Element {
   const [{ bodies, bodyMap }] = useState<DebugInfo>({ bodies: [], bodyMap: {} })
   const { refs } = usePhysicsContext()
   const [scene] = useState(() => new Scene())

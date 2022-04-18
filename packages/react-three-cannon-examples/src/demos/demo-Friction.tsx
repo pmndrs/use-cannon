@@ -2,7 +2,8 @@ import type { BoxProps, PlaneProps } from '@react-three/cannon'
 import { Physics, useBox, useContactMaterial, usePlane } from '@react-three/cannon'
 import { OrbitControls } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
+import type { Mesh } from 'three'
 
 const materialColors = {
   bouncy: 'yellow',
@@ -54,11 +55,14 @@ const slipperyMaterial = {
 }
 
 const Box = ({ args, color = 'white', ...props }: BoxProps & { color?: string }) => {
-  const [ref] = useBox(() => ({
-    args,
-    mass: 10,
-    ...props,
-  }))
+  const [ref] = useBox(
+    () => ({
+      args,
+      mass: 10,
+      ...props,
+    }),
+    useRef<Mesh>(null),
+  )
   return (
     <mesh ref={ref} castShadow receiveShadow>
       <boxBufferGeometry args={args} />
@@ -68,7 +72,7 @@ const Box = ({ args, color = 'white', ...props }: BoxProps & { color?: string })
 }
 
 const Plane = (props: PlaneProps) => {
-  const [ref] = usePlane(() => ({ ...props }))
+  const [ref] = usePlane(() => ({ ...props }), useRef<Mesh>(null))
   return (
     <mesh ref={ref} receiveShadow>
       <planeBufferGeometry args={[100, 100]} />

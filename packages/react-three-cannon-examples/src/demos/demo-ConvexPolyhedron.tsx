@@ -1,7 +1,7 @@
 import type { ConvexPolyhedronProps, PlaneProps } from '@react-three/cannon'
 import { Physics, useConvexPolyhedron, usePlane } from '@react-three/cannon'
 import { Canvas, useLoader } from '@react-three/fiber'
-import { Suspense, useMemo, useState } from 'react'
+import { Suspense, useMemo, useRef, useState } from 'react'
 import type { BufferGeometry, Mesh } from 'three'
 import { BoxGeometry, ConeGeometry } from 'three'
 import { Geometry } from 'three-stdlib/deprecated/Geometry'
@@ -29,7 +29,7 @@ function Diamond({ position, rotation }: ConvexPolyhedronProps) {
     },
   } = useLoader(GLTFLoader, '/diamond.glb') as DiamondGLTF
   const args = useMemo(() => toConvexProps(geometry), [geometry])
-  const [ref] = useConvexPolyhedron(() => ({ args, mass: 100, position, rotation }))
+  const [ref] = useConvexPolyhedron(() => ({ args, mass: 100, position, rotation }), useRef<Mesh>(null))
 
   return (
     <mesh castShadow receiveShadow {...{ geometry, position, ref, rotation }}>
@@ -45,7 +45,7 @@ type ConeProps = Pick<ConvexPolyhedronProps, 'position' | 'rotation'> & {
 function Cone({ position, rotation, sides }: ConeProps) {
   const geometry = new ConeGeometry(0.7, 0.7, sides, 1)
   const args = useMemo(() => toConvexProps(geometry), [geometry])
-  const [ref] = useConvexPolyhedron(() => ({ args, mass: 100, position, rotation }))
+  const [ref] = useConvexPolyhedron(() => ({ args, mass: 100, position, rotation }), useRef<Mesh>(null))
 
   return (
     <mesh castShadow {...{ geometry, position, ref, rotation }}>
@@ -63,7 +63,7 @@ function Cube({ position, rotation, size }: CubeProps) {
   // note, this is wildly inefficient vs useBox
   const geometry = new BoxGeometry(size, size, size)
   const args = useMemo(() => toConvexProps(geometry), [geometry])
-  const [ref] = useConvexPolyhedron(() => ({ args, mass: 100, position, rotation }))
+  const [ref] = useConvexPolyhedron(() => ({ args, mass: 100, position, rotation }), useRef<Mesh>(null))
   return (
     <mesh castShadow receiveShadow {...{ geometry, position, ref, rotation }}>
       <boxBufferGeometry args={[size, size, size]} />
@@ -73,7 +73,7 @@ function Cube({ position, rotation, size }: CubeProps) {
 }
 
 function Plane(props: PlaneProps) {
-  const [ref] = usePlane(() => ({ type: 'Static', ...props }))
+  const [ref] = usePlane(() => ({ type: 'Static', ...props }), useRef<Mesh>(null))
   return (
     <mesh ref={ref} receiveShadow>
       <planeBufferGeometry args={[10, 10]} />

@@ -14,7 +14,7 @@ import {
   useRef,
   useState,
 } from 'react'
-import type { Object3D, PerspectiveCamera as Cam } from 'three'
+import type { Group, Mesh, Object3D, PerspectiveCamera as Cam } from 'three'
 import { Vector3 } from 'three'
 
 function normalizeSize([px = 0, py = 0, pz = 0]): (scale: Triplet) => Triplet {
@@ -27,7 +27,10 @@ const GROUP_BODY = 2 ** 1
 type OurPlaneProps = Pick<PlaneBufferGeometryProps, 'args'> & Pick<PlaneProps, 'position' | 'rotation'>
 
 function Plane({ args, ...props }: OurPlaneProps) {
-  const [ref] = usePlane(() => ({ collisionFilterGroup: GROUP_GROUND, type: 'Static', ...props }))
+  const [ref] = usePlane(
+    () => ({ collisionFilterGroup: GROUP_GROUND, type: 'Static', ...props }),
+    useRef<Group>(null),
+  )
   return (
     <group ref={ref}>
       <mesh>
@@ -54,7 +57,7 @@ type ConstraintPartProps = {
 } & BoxProps &
   BoxShapeProps
 
-const ConstraintPart = forwardRef<Object3D, PropsWithChildren<ConstraintPartProps>>(
+const ConstraintPart = forwardRef<Mesh, PropsWithChildren<ConstraintPartProps>>(
   (
     {
       config = {},
@@ -116,7 +119,7 @@ const ConstraintPart = forwardRef<Object3D, PropsWithChildren<ConstraintPartProp
 
 type BoxShapeProps = Pick<MeshStandardMaterialProps, 'color' | 'opacity' | 'transparent'> &
   Pick<BoxProps, 'args'>
-const BoxShape = forwardRef<Object3D | null, BoxShapeProps>(
+const BoxShape = forwardRef<Mesh, PropsWithChildren<BoxShapeProps>>(
   ({ args = [1, 1, 1], children, color = 'white', opacity = 1, transparent = false, ...props }, ref) => (
     <mesh receiveShadow castShadow ref={ref} {...props}>
       <boxBufferGeometry args={args} />
@@ -126,10 +129,10 @@ const BoxShape = forwardRef<Object3D | null, BoxShapeProps>(
   ),
 )
 
-const Robot = forwardRef<Object3D>((_, legsLeftRef) => {
+const Robot = forwardRef<Mesh>((_, legsLeftRef) => {
   const [motorSpeed, setMotorSpeed] = useState(7)
 
-  const legsRightRef = useRef<Object3D>(null)
+  const legsRightRef = useRef<Mesh>(null)
 
   useLockConstraint(legsRightRef, legsLeftRef, {})
 
@@ -146,11 +149,11 @@ type LegsProps = {
   delay?: number
 } & Pick<ConstraintPartProps, 'motorSpeed'>
 
-const Legs = forwardRef<Object3D, LegsProps>(({ bodyDepth = 0, delay = 0, motorSpeed = 7 }, bodyRef) => {
-  const horizontalRef = useRef<Object3D>(null)
-  const frontLegRef = useRef<Object3D>(null)
-  const frontUpperLegRef = useRef<Object3D>(null)
-  const backLegRef = useRef<Object3D>(null)
+const Legs = forwardRef<Mesh, LegsProps>(({ bodyDepth = 0, delay = 0, motorSpeed = 7 }, bodyRef) => {
+  const horizontalRef = useRef<Mesh>(null)
+  const frontLegRef = useRef<Mesh>(null)
+  const frontUpperLegRef = useRef<Mesh>(null)
+  const backLegRef = useRef<Mesh>(null)
   const partDepth = 0.3
   const bodyWidth = 10
   const bodyHeight = 2
@@ -292,7 +295,7 @@ const v = new Vector3()
 
 function Scene() {
   const cameraRef = useRef<Cam>(null)
-  const robotRef = useRef<Object3D>(null)
+  const robotRef = useRef<Mesh>(null)
 
   useFrame(() => {
     if (!cameraRef.current || !robotRef.current) return

@@ -1,6 +1,6 @@
 import styled, { createGlobalStyle } from 'styled-components'
 
-const Page = styled.div`
+export const PageStyle = styled.div`
   position: relative;
   width: 100%;
   height: 100vh;
@@ -29,7 +29,7 @@ const Page = styled.div`
   }
 `
 
-const Global = createGlobalStyle`
+export const GlobalStyle = createGlobalStyle`
   * {
     box-sizing: border-box;
   }
@@ -63,5 +63,3 @@ const Global = createGlobalStyle`
     background: #171720;
   }
 `
-
-export { Global, Page }

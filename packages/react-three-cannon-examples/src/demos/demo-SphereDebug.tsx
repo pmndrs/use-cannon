@@ -1,13 +1,17 @@
 import { Debug, Physics, usePlane, useSphere } from '@react-three/cannon'
 import { Canvas } from '@react-three/fiber'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
+import type { Mesh } from 'three'
 
 function ScalableBall() {
-  const [ref, api] = useSphere(() => ({
-    args: [1],
-    mass: 1,
-    position: [0, 5, 0],
-  }))
+  const [ref, api] = useSphere(
+    () => ({
+      args: [1],
+      mass: 1,
+      position: [0, 5, 0],
+    }),
+    useRef<Mesh>(null),
+  )
   const [sleeping, setSleeping] = useState(false)
 
   // Very quick demo to test forced sleep states. Catch ball mid-air to stop it.
@@ -30,7 +34,7 @@ function ScalableBall() {
 }
 
 function Plane() {
-  const [ref] = usePlane(() => ({ rotation: [-Math.PI / 2, 0, 0], type: 'Static' }))
+  const [ref] = usePlane(() => ({ rotation: [-Math.PI / 2, 0, 0], type: 'Static' }), useRef<Mesh>(null))
   return (
     <mesh receiveShadow ref={ref}>
       <planeBufferGeometry args={[20, 20]} />

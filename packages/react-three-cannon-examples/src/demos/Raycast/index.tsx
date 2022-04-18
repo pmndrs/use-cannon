@@ -4,7 +4,7 @@ import { Html } from '@react-three/drei'
 import type { GroupProps, Node, Object3DNode } from '@react-three/fiber'
 import { Canvas, extend, useFrame, useThree } from '@react-three/fiber'
 import { Suspense, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import type { PerspectiveCamera } from 'three'
+import type { Mesh, PerspectiveCamera } from 'three'
 import { BufferGeometry, Line as ThreeLine, Vector3 } from 'three'
 import { OrbitControls } from 'three-stdlib/controls/OrbitControls'
 
@@ -43,7 +43,7 @@ type SphereProps = {
 }
 
 function Sphere({ radius, position }: SphereProps) {
-  const [ref, api] = useSphere(() => ({ args: [radius], position, type: 'Static' }))
+  const [ref, api] = useSphere(() => ({ args: [radius], position, type: 'Static' }), useRef<Mesh>(null))
   useFrame(({ clock: { elapsedTime } }) => {
     api.position.set(position[0], position[1], Math.sin(elapsedTime / 3) * 2)
   })
@@ -61,7 +61,7 @@ type CubeProps = {
 }
 
 function Cube({ size, position }: CubeProps) {
-  const [ref, api] = useBox(() => ({ args: size, position, type: 'Static' }))
+  const [ref, api] = useBox(() => ({ args: size, position, type: 'Static' }), useRef<Mesh>(null))
   useFrame(({ clock: { elapsedTime } }) => {
     api.position.set(Math.sin(elapsedTime / 2) * 2, position[1], position[2])
   })

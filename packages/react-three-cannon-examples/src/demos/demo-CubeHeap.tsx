@@ -2,11 +2,12 @@ import type { PlaneProps, Triplet } from '@react-three/cannon'
 import { Physics, useBox, usePlane, useSphere } from '@react-three/cannon'
 import { Canvas, useFrame } from '@react-three/fiber'
 import niceColors from 'nice-color-palettes'
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
+import type { InstancedMesh, Mesh } from 'three'
 import { Color } from 'three'
 
 function Plane(props: PlaneProps) {
-  const [ref] = usePlane(() => ({ ...props }))
+  const [ref] = usePlane(() => ({ ...props }), useRef<Mesh>(null))
   return (
     <mesh ref={ref} receiveShadow>
       <planeBufferGeometry args={[5, 5]} />
@@ -22,11 +23,14 @@ type InstancedGeometryProps = {
 }
 
 const Spheres = ({ colors, number, size }: InstancedGeometryProps) => {
-  const [ref, { at }] = useSphere(() => ({
-    args: [size],
-    mass: 1,
-    position: [Math.random() - 0.5, Math.random() * 2, Math.random() - 0.5],
-  }))
+  const [ref, { at }] = useSphere(
+    () => ({
+      args: [size],
+      mass: 1,
+      position: [Math.random() - 0.5, Math.random() * 2, Math.random() - 0.5],
+    }),
+    useRef<InstancedMesh>(null),
+  )
   useFrame(() => at(Math.floor(Math.random() * number)).position.set(0, Math.random() * 2, 0))
   return (
     <instancedMesh receiveShadow castShadow ref={ref} args={[undefined, undefined, number]}>
@@ -40,11 +44,14 @@ const Spheres = ({ colors, number, size }: InstancedGeometryProps) => {
 
 const Boxes = ({ colors, number, size }: InstancedGeometryProps) => {
   const args: Triplet = [size, size, size]
-  const [ref, { at }] = useBox(() => ({
-    args,
-    mass: 1,
-    position: [Math.random() - 0.5, Math.random() * 2, Math.random() - 0.5],
-  }))
+  const [ref, { at }] = useBox(
+    () => ({
+      args,
+      mass: 1,
+      position: [Math.random() - 0.5, Math.random() * 2, Math.random() - 0.5],
+    }),
+    useRef<InstancedMesh>(null),
+  )
   useFrame(() => at(Math.floor(Math.random() * number)).position.set(0, Math.random() * 2, 0))
   return (
     <instancedMesh receiveShadow castShadow ref={ref} args={[undefined, undefined, number]}>

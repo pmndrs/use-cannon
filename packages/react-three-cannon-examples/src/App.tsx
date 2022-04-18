@@ -3,10 +3,9 @@ import { HashRouter as Router, Link, Route, Routes, useMatch } from 'react-route
 import styled from 'styled-components'
 
 import { demoList, demos, isDemo } from './demos'
-import { Global } from './styles'
-import { Page as PageImpl } from './styles'
+import { GlobalStyle, PageStyle } from './styles'
 
-const Page = styled(PageImpl)`
+const Page = styled(PageStyle)`
   padding: 0px;
 
   & > h1 {
@@ -71,7 +70,8 @@ function Demos() {
 export default function App() {
   return (
     <Router>
-      <Global />
+      {/* @ts-expect-error Not sure how to fix the type here */}
+      <GlobalStyle />
       <Intro />
     </Router>
   )

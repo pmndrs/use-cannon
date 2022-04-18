@@ -1161,10 +1161,10 @@
   resolved "https://registry.npmjs.org/@react-spring/types/-/types-9.4.4.tgz#97c69881788e624d7cc68d4385fdaa9b5fd20642"
   integrity sha512-KpxKt/D//q/t/6FBcde/RE36LKp8PpWu7kFEMLwpzMGl9RpcexunmYOQJWwmJWtkQjgE1YRr7DzBMryz6La1cQ==
 
-"@react-three/drei@^9.0.1":
-  version "9.0.1"
-  resolved "https://registry.npmjs.org/@react-three/drei/-/drei-9.0.1.tgz#b92ddef3713269f83c20e644d5939a1cbbcd7a27"
-  integrity sha512-sVZP7BGiPoydihj3H2jukV3LKRHfmRjifFbQf7fxcRADy5IuCtqP+doFtIQNzaGGQT9uPS6dCSxK3t9AQ+OVtQ==
+"@react-three/drei@^9.4.3":
+  version "9.4.3"
+  resolved "https://registry.npmjs.org/@react-three/drei/-/drei-9.4.3.tgz#a01fed740c9170783148e24532295ce6ae51beb6"
+  integrity sha512-1IQ1oSVUJ9GAQKOE1G2gzR8wo/PkkpMliE4+TVHboIUta02m8sGpDXS0ZsMu/xpA/P0hLDGOkJ4rc9sboQcSlw==
   dependencies:
     "@babel/runtime" "^7.11.2"
     "@react-spring/three" "^9.3.1"
@@ -1184,10 +1184,10 @@
     utility-types "^3.10.0"
     zustand "^3.5.13"
 
-"@react-three/fiber@^8.0.4":
-  version "8.0.6"
-  resolved "https://registry.npmjs.org/@react-three/fiber/-/fiber-8.0.6.tgz#0323cedf8b888646fbd101a78e37d19d868e5979"
-  integrity sha512-OURPBcTw56FtL0ohmqREpW3cQB9CLzaAsIIjVUItfu4eya/lfs9dU8DJWwVXo1fVLWyRoKg5S33j6Dk589ptvg==
+"@react-three/fiber@^8.0.11":
+  version "8.0.11"
+  resolved "https://registry.npmjs.org/@react-three/fiber/-/fiber-8.0.11.tgz#3fc140b43d954270da15c2d366ee940e62b43f32"
+  integrity sha512-plvh1mLDIAa3lJfqXJHBWi0PxTOQVXoPXd03/SIwt+vZFBPSzuQCRnhYY/8Q2Of3S89PWTl8TtFXNfRzTUHNnw==
   dependencies:
     "@babel/runtime" "^7.17.8"
     "@types/react-reconciler" "^0.26.4"
@@ -1346,10 +1346,19 @@
     "@types/history" "^4.7.11"
     "@types/react" "*"
 
-"@types/react@*", "@types/react@^17.0.43":
+"@types/react@*":
   version "17.0.43"
   resolved "https://registry.npmjs.org/@types/react/-/react-17.0.43.tgz#4adc142887dd4a2601ce730bc56c3436fdb07a55"
   integrity sha512-8Q+LNpdxf057brvPu1lMtC5Vn7J119xrP1aq4qiaefNioQUYANF/CYeK4NsKorSZyUGJ66g0IM+4bbjwx45o2A==
+  dependencies:
+    "@types/prop-types" "*"
+    "@types/scheduler" "*"
+    csstype "^3.0.2"
+
+"@types/react@^18.0.5":
+  version "18.0.5"
+  resolved "https://registry.npmjs.org/@types/react/-/react-18.0.5.tgz#1a4d4b705ae6af5aed369dec22800b20f89f5301"
+  integrity sha512-UPxNGInDCIKlfqBrm8LDXYWNfLHwIdisWcsH5GpMyGjhEDLFgTtlRBaoWuCua9HcyuE0rMkmAeZ3FXV1pYLIYQ==
   dependencies:
     "@types/prop-types" "*"
     "@types/scheduler" "*"
@@ -1367,10 +1376,10 @@
   resolved "https://registry.npmjs.org/@types/scheduler/-/scheduler-0.16.2.tgz#1a62f89525723dde24ba1b01b092bf5df8ad4d39"
   integrity sha512-hppQEBDmlwhFAXKJX2KnWLYu5yMfi91yazPb2l+lbJiwW+wdo1gNeRA+3RgNSO39WYX2euey41KEwnqesU2Jew==
 
-"@types/styled-components@^5.1.24":
-  version "5.1.24"
-  resolved "https://registry.npmjs.org/@types/styled-components/-/styled-components-5.1.24.tgz#b52ae677f03ea8a6018aa34c6c96b7018b7a3571"
-  integrity sha512-mz0fzq2nez+Lq5IuYammYwWgyLUE6OMAJTQL9D8hFLP4Pkh7gVYJii/VQWxq8/TK34g/OrkehXaFNdcEKcItug==
+"@types/styled-components@^5.1.25":
+  version "5.1.25"
+  resolved "https://registry.npmjs.org/@types/styled-components/-/styled-components-5.1.25.tgz#0177c4ab5fa7c6ed0565d36f597393dae3f380ad"
+  integrity sha512-fgwl+0Pa8pdkwXRoVPP9JbqF0Ivo9llnmsm+7TCI330kbPIFd9qv1Lrhr37shf4tnxCOSu+/IgqM7uJXLWZZNQ==
   dependencies:
     "@types/hoist-non-react-statics" "*"
     "@types/react" "*"

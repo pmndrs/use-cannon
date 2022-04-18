@@ -3,7 +3,7 @@ import { Canvas, useFrame, useLoader } from '@react-three/fiber'
 import lerp from 'lerp'
 import clamp from 'lodash-es/clamp'
 import { Suspense, useRef } from 'react'
-import type { Loader, Material, Mesh, Object3D, Skeleton } from 'three'
+import type { Group, Loader, Material, Mesh, Object3D, Skeleton } from 'three'
 import { TextureLoader } from 'three'
 import { DRACOLoader } from 'three-stdlib/loaders/DRACOLoader'
 import type { GLTF } from 'three-stdlib/loaders/GLTFLoader'
@@ -61,12 +61,15 @@ function Paddle() {
   const { pong } = useStore((state) => state.api)
   const welcome = useStore((state) => state.welcome)
   const count = useStore((state) => state.count)
-  const model = useRef<Object3D>(null)
-  const [ref, api] = useBox(() => ({
-    args: [3.4, 1, 3],
-    onCollide: (e) => pong(e.contact.impactVelocity),
-    type: 'Kinematic',
-  }))
+  const model = useRef<Group>(null)
+  const [ref, api] = useBox(
+    () => ({
+      args: [3.4, 1, 3],
+      onCollide: (e) => pong(e.contact.impactVelocity),
+      type: 'Kinematic',
+    }),
+    useRef<Mesh>(null),
+  )
   const values = useRef([0, 0])
   useFrame((state) => {
     values.current[0] = lerp(values.current[0], (state.mouse.x * Math.PI) / 5, 0.2)
@@ -110,7 +113,7 @@ function Paddle() {
 
 function Ball() {
   const map = useLoader(TextureLoader, earthImg)
-  const [ref] = useSphere(() => ({ args: [0.5], mass: 1, position: [0, 5, 0] }))
+  const [ref] = useSphere(() => ({ args: [0.5], mass: 1, position: [0, 5, 0] }), useRef<Mesh>(null))
   return (
     <mesh castShadow ref={ref}>
       <sphereBufferGeometry args={[0.5, 64, 64]} />
@@ -121,12 +124,15 @@ function Ball() {
 
 function ContactGround() {
   const { reset } = useStore((state) => state.api)
-  const [ref] = usePlane(() => ({
-    onCollide: () => reset(true),
-    position: [0, -10, 0],
-    rotation: [-Math.PI / 2, 0, 0],
-    type: 'Static',
-  }))
+  const [ref] = usePlane(
+    () => ({
+      onCollide: () => reset(true),
+      position: [0, -10, 0],
+      rotation: [-Math.PI / 2, 0, 0],
+      type: 'Static',
+    }),
+    useRef<Mesh>(null),
+  )
   return <mesh ref={ref} />
 }
 

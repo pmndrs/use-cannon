@@ -1,9 +1,9 @@
 import type { CylinderArgs, Triplet } from '@react-three/cannon'
 import { Physics, useBox, useConeTwistConstraint, useCylinder, useSphere } from '@react-three/cannon'
 import { Canvas, useFrame } from '@react-three/fiber'
-import type { FC } from 'react'
-import { createContext, createRef, useCallback, useContext, useMemo, useState } from 'react'
-import type { Object3D } from 'three'
+import type { PropsWithChildren } from 'react'
+import { createContext, createRef, useCallback, useContext, useMemo, useRef, useState } from 'react'
+import type { Mesh, Object3D } from 'three'
 import { Color } from 'three'
 
 const maxMultiplierExamples = [0, 500, 1000, 1500, undefined] as const
@@ -23,12 +23,12 @@ type ChainLinkProps = {
   maxMultiplier?: number
 }
 
-const ChainLink: FC<ChainLinkProps> = ({
+function ChainLink({
   args = [0.5, 0.5, 2, 16],
   children,
   color = 'white',
   maxMultiplier,
-}) => {
+}: PropsWithChildren<ChainLinkProps>): JSX.Element {
   const {
     position: [x, y, z],
     ref: parentRef,
@@ -37,12 +37,15 @@ const ChainLink: FC<ChainLinkProps> = ({
   const [, , height = 2] = args
   const position: Triplet = [x, y - height, z]
 
-  const [ref] = useCylinder(() => ({
-    args,
-    linearDamping: 0.8,
-    mass: 1,
-    position,
-  }))
+  const [ref] = useCylinder(
+    () => ({
+      args,
+      linearDamping: 0.8,
+      mass: 1,
+      position,
+    }),
+    useRef<Mesh>(null),
+  )
 
   useConeTwistConstraint(parentRef, ref, {
     angle: Math.PI / 8,
@@ -70,7 +73,7 @@ type ChainProps = {
   maxMultiplier?: number
 }
 
-const Chain: FC<ChainProps> = ({ children, length, maxMultiplier }) => {
+function Chain({ children, length, maxMultiplier }: PropsWithChildren<ChainProps>): JSX.Element {
   const color = useMemo(() => {
     if (maxMultiplier === undefined) return 'white'
 
@@ -93,11 +96,11 @@ const Chain: FC<ChainProps> = ({ children, length, maxMultiplier }) => {
   )
 }
 
-const PointerHandle: FC<{ size: number }> = ({ children, size }) => {
+function PointerHandle({ children, size }: PropsWithChildren<{ size: number }>): JSX.Element {
   const position: Triplet = [0, 0, 0]
   const args: Triplet = [size, size, size * 2]
 
-  const [ref, api] = useBox(() => ({ args, position, type: 'Kinematic' }))
+  const [ref, api] = useBox(() => ({ args, position, type: 'Kinematic' }), useRef<Mesh>(null))
 
   useFrame(({ mouse: { x, y }, viewport: { height, width } }) => {
     api.position.set((x * width) / 2, (y * height) / 2, 0)
@@ -119,8 +122,8 @@ type StaticHandleProps = {
   radius: number
 }
 
-const StaticHandle: FC<StaticHandleProps> = ({ children, position, radius }) => {
-  const [ref] = useSphere(() => ({ args: [radius], position, type: 'Static' }))
+function StaticHandle({ children, position, radius }: PropsWithChildren<StaticHandleProps>): JSX.Element {
+  const [ref] = useSphere(() => ({ args: [radius], position, type: 'Static' }), useRef<Mesh>(null))
   return (
     <group>
       <mesh ref={ref}>
@@ -140,7 +143,7 @@ const style = {
   top: 20,
 } as const
 
-const ChainScene = () => {
+function ChainScene(): JSX.Element {
   const [resetCount, setResetCount] = useState(0)
 
   const reset = useCallback(() => {
