@@ -1,5 +1,13 @@
 # @react-three/cannon-examples Changelog
 
+## v2.3.0 - 2022-04-18
+
+- Use accurate ref types for all hooks (@bjornstar)
+- Prefer `PropsWithChildren` to `FC` (@bjornstar)
+- Update `@types/react` to v18 (@bjornstar)
+- Update `@react-three/drei` & `@react-three/fiber` (@bjornstar)
+- Update `styled-components` (@bjornstar)
+
 ## v2.2.0 - 2022-04-08
 
 - Use `react-dom/client` for react 18 features

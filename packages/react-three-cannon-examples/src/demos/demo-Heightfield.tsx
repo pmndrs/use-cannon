@@ -3,9 +3,8 @@ import { Physics, useHeightfield, useSphere } from '@react-three/cannon'
 import type { Node } from '@react-three/fiber'
 import { Canvas, extend, useFrame, useThree } from '@react-three/fiber'
 import niceColors from 'nice-color-palettes'
-import type { FC } from 'react'
 import { useEffect, useLayoutEffect, useMemo, useRef } from 'react'
-import type { BufferGeometry, PerspectiveCamera } from 'three'
+import type { BufferGeometry, InstancedMesh, Mesh, PerspectiveCamera } from 'three'
 import { Color, Float32BufferAttribute } from 'three'
 import { OrbitControls } from 'three-stdlib/controls/OrbitControls'
 
@@ -64,10 +63,13 @@ function generateHeightmap({ width, height, number, scale }: GenerateHeightmapAr
   return data
 }
 
-const HeightmapGeometry: FC<{
+function HeightmapGeometry({
+  elementSize,
+  heights,
+}: {
   elementSize: number
   heights: number[][]
-}> = ({ elementSize, heights }) => {
+}): JSX.Element {
   const ref = useRef<BufferGeometry>(null)
 
   useEffect(() => {
@@ -99,22 +101,30 @@ const HeightmapGeometry: FC<{
   return <bufferGeometry ref={ref} />
 }
 
-const Heightfield: FC<{
+function Heightfield({
+  elementSize,
+  heights,
+  position,
+  rotation,
+}: {
   elementSize: number
   heights: number[][]
   position: Triplet
   rotation: Triplet
-}> = ({ elementSize, heights, position, rotation }) => {
-  const [ref] = useHeightfield(() => ({
-    args: [
-      heights,
-      {
-        elementSize,
-      },
-    ],
-    position,
-    rotation,
-  }))
+}): JSX.Element {
+  const [ref] = useHeightfield(
+    () => ({
+      args: [
+        heights,
+        {
+          elementSize,
+        },
+      ],
+      position,
+      rotation,
+    }),
+    useRef<Mesh>(null),
+  )
 
   return (
     <mesh ref={ref} castShadow receiveShadow>
@@ -124,21 +134,20 @@ const Heightfield: FC<{
   )
 }
 
-const Spheres: FC<{
-  columns: number
-  rows: number
-  spread: number
-}> = ({ columns, rows, spread }) => {
+function Spheres({ columns, rows, spread }: { columns: number; rows: number; spread: number }): JSX.Element {
   const number = rows * columns
-  const [ref] = useSphere((index) => ({
-    args: [0.2],
-    mass: 1,
-    position: [
-      ((index % columns) - (columns - 1) / 2) * spread,
-      2.0,
-      (Math.floor(index / columns) - (rows - 1) / 2) * spread,
-    ],
-  }))
+  const [ref] = useSphere(
+    (index) => ({
+      args: [0.2],
+      mass: 1,
+      position: [
+        ((index % columns) - (columns - 1) / 2) * spread,
+        2.0,
+        (Math.floor(index / columns) - (rows - 1) / 2) * spread,
+      ],
+    }),
+    useRef<InstancedMesh>(null),
+  )
   const colors = useMemo(() => {
     const array = new Float32Array(number * 3)
     const color = new Color()
@@ -160,7 +169,7 @@ const Spheres: FC<{
   )
 }
 
-const Camera: FC = () => {
+function Camera(): JSX.Element {
   const cameraRef = useRef<PerspectiveCamera>(null)
   const controlsRef = useRef<OrbitControls>(null)
   const { gl, camera } = useThree()

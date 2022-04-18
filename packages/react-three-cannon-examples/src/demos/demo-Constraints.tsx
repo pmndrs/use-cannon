@@ -2,18 +2,18 @@ import type { BoxProps, SphereProps, Triplet } from '@react-three/cannon'
 import { Physics, useBox, useSphere, useSpring } from '@react-three/cannon'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { forwardRef, useEffect, useRef, useState } from 'react'
-import type { Object3D } from 'three'
+import type { Mesh } from 'three'
 
-const Box = forwardRef<Object3D, BoxProps>((props, ref) => {
+const Box = forwardRef<Mesh, BoxProps>((props, fwdRef) => {
   const args: Triplet = [1, 1, 1]
-  useBox(
+  const [ref] = useBox(
     () => ({
       args,
       linearDamping: 0.7,
       mass: 1,
       ...props,
     }),
-    ref,
+    fwdRef,
   )
   return (
     <mesh ref={ref}>
@@ -23,8 +23,8 @@ const Box = forwardRef<Object3D, BoxProps>((props, ref) => {
   )
 })
 
-const Ball = forwardRef<Object3D, SphereProps>((props, ref) => {
-  const [, { position }] = useSphere(() => ({ args: [0.5], type: 'Kinematic', ...props }), ref)
+const Ball = forwardRef<Mesh, SphereProps>((props, fwdRef) => {
+  const [ref, { position }] = useSphere(() => ({ args: [0.5], type: 'Kinematic', ...props }), fwdRef)
   useFrame(({ mouse: { x, y }, viewport: { height, width } }) =>
     position.set((x * width) / 2, (y * height) / 2, 0),
   )
@@ -37,9 +37,11 @@ const Ball = forwardRef<Object3D, SphereProps>((props, ref) => {
 })
 
 const BoxAndBall = () => {
-  const box = useRef<Object3D>(null)
-  const ball = useRef<Object3D>(null)
-  const [, , api] = useSpring(box, ball, { damping: 1, restLength: 2, stiffness: 100 })
+  const [box, ball, api] = useSpring(useRef<Mesh>(null), useRef<Mesh>(null), {
+    damping: 1,
+    restLength: 2,
+    stiffness: 100,
+  })
   const [isDown, setIsDown] = useState(false)
 
   useEffect(() => api.setRestLength(isDown ? 0 : 2), [isDown])

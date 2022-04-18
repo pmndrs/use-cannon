@@ -2,10 +2,11 @@ import type { BoxProps, PlaneProps } from '@react-three/cannon'
 import { Physics, useBox, usePlane, useSphere } from '@react-three/cannon'
 import { OrbitControls } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
+import type { Mesh } from 'three'
 
 function BoxTrigger({ args, onCollide, position }: BoxProps) {
-  const [ref] = useBox(() => ({ args, isTrigger: true, onCollide, position }))
+  const [ref] = useBox(() => ({ args, isTrigger: true, onCollide, position }), useRef<Mesh>(null))
   return (
     <mesh {...{ position, ref }}>
       <boxBufferGeometry args={args} />
@@ -15,11 +16,14 @@ function BoxTrigger({ args, onCollide, position }: BoxProps) {
 }
 
 function Ball() {
-  const [ref] = useSphere(() => ({
-    args: [1],
-    mass: 1,
-    position: [0, 10, 0],
-  }))
+  const [ref] = useSphere(
+    () => ({
+      args: [1],
+      mass: 1,
+      position: [0, 10, 0],
+    }),
+    useRef<Mesh>(null),
+  )
   return (
     <mesh castShadow receiveShadow ref={ref}>
       <sphereBufferGeometry args={[1, 16, 16]} />
@@ -29,7 +33,7 @@ function Ball() {
 }
 
 function Plane(props: PlaneProps) {
-  const [ref] = usePlane(() => ({ type: 'Static', ...props }))
+  const [ref] = usePlane(() => ({ type: 'Static', ...props }), useRef<Mesh>(null))
   return (
     <mesh ref={ref} receiveShadow>
       <planeBufferGeometry args={[100, 100]} />

@@ -1,6 +1,5 @@
 import type { GroupProps } from '@react-three/fiber'
-import { forwardRef, useMemo } from 'react'
-import type { Object3D } from 'three'
+import { useMemo } from 'react'
 import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry'
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader'
 
@@ -16,10 +15,10 @@ type TextProps = GroupProps & {
   count: string
 }
 
-const Text = forwardRef<Object3D, TextProps>(({ color = 'white', count, ...props }, ref) => {
+export default function Text({ color = 'white', count, ...props }: TextProps): JSX.Element {
   const array = useMemo(() => [...count], [count])
   return (
-    <group ref={ref} {...props} dispose={null}>
+    <group {...props} dispose={null}>
       {array.map((char, index) => (
         <mesh
           position={[-(array.length / 2) * 3.5 + index * 3.5, 0, 0]}
@@ -31,6 +30,4 @@ const Text = forwardRef<Object3D, TextProps>(({ color = 'white', count, ...props
       ))}
     </group>
   )
-})
-
-export default Text
+}

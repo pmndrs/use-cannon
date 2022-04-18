@@ -2,7 +2,7 @@ import type { SphereProps, TrimeshProps } from '@react-three/cannon'
 import { Physics, useSphere, useTrimesh } from '@react-three/cannon'
 import { OrbitControls, TorusKnot, useGLTF } from '@react-three/drei'
 import { Canvas, invalidate } from '@react-three/fiber'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { BufferGeometry, Mesh } from 'three'
 import type { GLTF } from 'three-stdlib/loaders/GLTFLoader'
 import create from 'zustand'
@@ -40,7 +40,7 @@ function Controls() {
 }
 
 const WeirdCheerio = ({ args = [0.1], position }: Pick<SphereProps, 'args' | 'position'>) => {
-  const [ref] = useSphere(() => ({ args, mass: 1, position }))
+  const [ref] = useSphere(() => ({ args, mass: 1, position }), useRef<Mesh>(null))
   const [radius] = args
   return (
     <TorusKnot ref={ref} args={[radius, radius / 2]}>
@@ -65,11 +65,14 @@ const Bowl = ({ rotation }: Pick<TrimeshProps, 'rotation'>) => {
   const [hovered, setHover] = useState(false)
   const { isPaused } = useStore()
 
-  const [ref] = useTrimesh(() => ({
-    args: [vertices, indices],
-    mass: 0,
-    rotation,
-  }))
+  const [ref] = useTrimesh(
+    () => ({
+      args: [vertices, indices],
+      mass: 0,
+      rotation,
+    }),
+    useRef<Mesh>(null),
+  )
 
   useEffect(() => {
     if (!isPaused) invalidate()

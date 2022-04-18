@@ -1,5 +1,10 @@
 # @pmndrs/use-cannon Changelog
 
+## v2.3.0 - 2022-04-18
+
+- [@react-three/cannon] v6.3.0
+- [@react-three/cannon-examples] v2.3.0
+
 ## v2.2.0 - 2022-04-08
 
 - [@react-three/cannon] v6.2.0

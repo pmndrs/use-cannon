@@ -83,7 +83,7 @@ export type WorkerApi = {
 export interface PublicApi extends WorkerApi {
   at: (index: number) => WorkerApi
 }
-export type Api = [RefObject<Object3D>, PublicApi]
+export type Api<O extends Object3D> = [RefObject<O>, PublicApi]
 
 const temp = new Object3D()
 
@@ -153,13 +153,13 @@ function setupCollision(
 type GetByIndex<T extends BodyProps> = (index: number) => T
 type ArgFn<T> = (args: T) => unknown[]
 
-function useBody<B extends BodyProps<unknown[]>>(
+function useBody<B extends BodyProps<unknown[]>, O extends Object3D>(
   type: BodyShapeType,
   fn: GetByIndex<B>,
   argsFn: ArgFn<B['args']>,
-  fwdRef: Ref<Object3D>,
+  fwdRef: Ref<O> = null,
   deps: DependencyList = [],
-): Api {
+): Api<O> {
   const ref = useForwardedRef(fwdRef)
 
   const { events, refs, scaleOverrides, subscriptions, worker } = usePhysicsContext()
@@ -169,7 +169,8 @@ function useBody<B extends BodyProps<unknown[]>>(
     if (!ref.current) {
       // When the reference isn't used we create a stub
       // The body doesn't have a visual representation but can still be constrained
-      ref.current = new Object3D()
+      // Yes, this type may be technically incorrect
+      ref.current = new Object3D() as O
     }
 
     const object = ref.current
@@ -365,35 +366,43 @@ function makeTriplet(v: Vector3 | Triplet): Triplet {
   return v instanceof Vector3 ? [v.x, v.y, v.z] : v
 }
 
-export function usePlane(fn: GetByIndex<PlaneProps>, fwdRef: Ref<Object3D> = null, deps?: DependencyList) {
+export function usePlane<O extends Object3D>(
+  fn: GetByIndex<PlaneProps>,
+  fwdRef?: Ref<O>,
+  deps?: DependencyList,
+) {
   return useBody('Plane', fn, () => [], fwdRef, deps)
 }
-export function useBox(fn: GetByIndex<BoxProps>, fwdRef: Ref<Object3D> = null, deps?: DependencyList) {
+export function useBox<O extends Object3D>(fn: GetByIndex<BoxProps>, fwdRef?: Ref<O>, deps?: DependencyList) {
   const defaultBoxArgs: Triplet = [1, 1, 1]
   return useBody('Box', fn, (args = defaultBoxArgs): Triplet => args, fwdRef, deps)
 }
-export function useCylinder(
+export function useCylinder<O extends Object3D>(
   fn: GetByIndex<CylinderProps>,
-  fwdRef: Ref<Object3D> = null,
+  fwdRef?: Ref<O>,
   deps?: DependencyList,
 ) {
   return useBody('Cylinder', fn, (args = [] as []) => args, fwdRef, deps)
 }
-export function useHeightfield(
+export function useHeightfield<O extends Object3D>(
   fn: GetByIndex<HeightfieldProps>,
-  fwdRef: Ref<Object3D> = null,
+  fwdRef?: Ref<O>,
   deps?: DependencyList,
 ) {
   return useBody('Heightfield', fn, (args) => args, fwdRef, deps)
 }
-export function useParticle(
+export function useParticle<O extends Object3D>(
   fn: GetByIndex<ParticleProps>,
-  fwdRef: Ref<Object3D> = null,
+  fwdRef?: Ref<O>,
   deps?: DependencyList,
 ) {
   return useBody('Particle', fn, () => [], fwdRef, deps)
 }
-export function useSphere(fn: GetByIndex<SphereProps>, fwdRef: Ref<Object3D> = null, deps?: DependencyList) {
+export function useSphere<O extends Object3D>(
+  fn: GetByIndex<SphereProps>,
+  fwdRef?: Ref<O>,
+  deps?: DependencyList,
+) {
   return useBody(
     'Sphere',
     fn,
@@ -405,20 +414,20 @@ export function useSphere(fn: GetByIndex<SphereProps>, fwdRef: Ref<Object3D> = n
     deps,
   )
 }
-export function useTrimesh(
+export function useTrimesh<O extends Object3D>(
   fn: GetByIndex<TrimeshProps>,
-  fwdRef: Ref<Object3D> = null,
+  fwdRef?: Ref<O>,
   deps?: DependencyList,
 ) {
-  return useBody<TrimeshProps>('Trimesh', fn, (args) => args, fwdRef, deps)
+  return useBody<TrimeshProps, O>('Trimesh', fn, (args) => args, fwdRef, deps)
 }
 
-export function useConvexPolyhedron(
+export function useConvexPolyhedron<O extends Object3D>(
   fn: GetByIndex<ConvexPolyhedronProps>,
-  fwdRef: Ref<Object3D> = null,
+  fwdRef?: Ref<O>,
   deps?: DependencyList,
 ) {
-  return useBody<ConvexPolyhedronProps>(
+  return useBody<ConvexPolyhedronProps, O>(
     'ConvexPolyhedron',
     fn,
     ([vertices, faces, normals, axes, boundingSphereRadius] = []): ConvexPolyhedronArgs<Triplet> => [
@@ -432,26 +441,26 @@ export function useConvexPolyhedron(
     deps,
   )
 }
-export function useCompoundBody(
+export function useCompoundBody<O extends Object3D>(
   fn: GetByIndex<CompoundBodyProps>,
-  fwdRef: Ref<Object3D> = null,
+  fwdRef?: Ref<O>,
   deps?: DependencyList,
 ) {
   return useBody('Compound', fn, (args) => args as unknown[], fwdRef, deps)
 }
 
-type ConstraintApi = [
-  RefObject<Object3D>,
-  RefObject<Object3D>,
+type ConstraintApi<A extends Object3D, B extends Object3D> = [
+  RefObject<A>,
+  RefObject<B>,
   {
     disable: () => void
     enable: () => void
   },
 ]
 
-type HingeConstraintApi = [
-  RefObject<Object3D>,
-  RefObject<Object3D>,
+type HingeConstraintApi<A extends Object3D, B extends Object3D> = [
+  RefObject<A>,
+  RefObject<B>,
   {
     disable: () => void
     disableMotor: () => void
@@ -462,9 +471,9 @@ type HingeConstraintApi = [
   },
 ]
 
-type SpringApi = [
-  RefObject<Object3D>,
-  RefObject<Object3D>,
+type SpringApi<A extends Object3D, B extends Object3D> = [
+  RefObject<A>,
+  RefObject<B>,
   {
     setDamping: (value: number) => void
     setRestLength: (value: number) => void
@@ -472,17 +481,19 @@ type SpringApi = [
   },
 ]
 
-type ConstraintORHingeApi<T extends 'Hinge' | ConstraintTypes> = T extends ConstraintTypes
-  ? ConstraintApi
-  : HingeConstraintApi
+type ConstraintORHingeApi<
+  T extends 'Hinge' | ConstraintTypes,
+  A extends Object3D,
+  B extends Object3D,
+> = T extends ConstraintTypes ? ConstraintApi<A, B> : HingeConstraintApi<A, B>
 
-function useConstraint<T extends 'Hinge' | ConstraintTypes>(
+function useConstraint<T extends 'Hinge' | ConstraintTypes, A extends Object3D, B extends Object3D>(
   type: T,
-  bodyA: Ref<Object3D>,
-  bodyB: Ref<Object3D>,
+  bodyA: Ref<A>,
+  bodyB: Ref<B>,
   optns: ConstraintOptns | HingeConstraintOpts = {},
   deps: DependencyList = [],
-): ConstraintORHingeApi<T> {
+): ConstraintORHingeApi<T, A, B> {
   const { worker } = usePhysicsContext()
   const uuid = MathUtils.generateUUID()
 
@@ -519,56 +530,56 @@ function useConstraint<T extends 'Hinge' | ConstraintTypes>(
     return enableDisable
   }, deps)
 
-  return [refA, refB, api] as ConstraintORHingeApi<T>
+  return [refA, refB, api] as ConstraintORHingeApi<T, A, B>
 }
 
-export function usePointToPointConstraint(
-  bodyA: Ref<Object3D> = null,
-  bodyB: Ref<Object3D> = null,
+export function usePointToPointConstraint<A extends Object3D, B extends Object3D>(
+  bodyA: Ref<A> = null,
+  bodyB: Ref<B> = null,
   optns: PointToPointConstraintOpts,
   deps: DependencyList = [],
 ) {
   return useConstraint('PointToPoint', bodyA, bodyB, optns, deps)
 }
-export function useConeTwistConstraint(
-  bodyA: Ref<Object3D> = null,
-  bodyB: Ref<Object3D> = null,
+export function useConeTwistConstraint<A extends Object3D, B extends Object3D>(
+  bodyA: Ref<A> = null,
+  bodyB: Ref<B> = null,
   optns: ConeTwistConstraintOpts,
   deps: DependencyList = [],
 ) {
   return useConstraint('ConeTwist', bodyA, bodyB, optns, deps)
 }
-export function useDistanceConstraint(
-  bodyA: Ref<Object3D> = null,
-  bodyB: Ref<Object3D> = null,
+export function useDistanceConstraint<A extends Object3D, B extends Object3D>(
+  bodyA: Ref<A> = null,
+  bodyB: Ref<B> = null,
   optns: DistanceConstraintOpts,
   deps: DependencyList = [],
 ) {
   return useConstraint('Distance', bodyA, bodyB, optns, deps)
 }
-export function useHingeConstraint(
-  bodyA: Ref<Object3D> = null,
-  bodyB: Ref<Object3D> = null,
+export function useHingeConstraint<A extends Object3D, B extends Object3D>(
+  bodyA: Ref<A> = null,
+  bodyB: Ref<B> = null,
   optns: HingeConstraintOpts,
   deps: DependencyList = [],
 ) {
   return useConstraint('Hinge', bodyA, bodyB, optns, deps)
 }
-export function useLockConstraint(
-  bodyA: Ref<Object3D> = null,
-  bodyB: Ref<Object3D> = null,
+export function useLockConstraint<A extends Object3D, B extends Object3D>(
+  bodyA: Ref<A> = null,
+  bodyB: Ref<B> = null,
   optns: LockConstraintOpts,
   deps: DependencyList = [],
 ) {
   return useConstraint('Lock', bodyA, bodyB, optns, deps)
 }
 
-export function useSpring(
-  bodyA: Ref<Object3D> = null,
-  bodyB: Ref<Object3D> = null,
+export function useSpring<A extends Object3D, B extends Object3D>(
+  bodyA: Ref<A> = null,
+  bodyB: Ref<B> = null,
   optns: SpringOptns,
   deps: DependencyList = [],
-): SpringApi {
+): SpringApi<A, B> {
   const { worker } = usePhysicsContext()
   const [uuid] = useState(() => MathUtils.generateUUID())
 
@@ -663,11 +674,11 @@ export interface RaycastVehicleProps {
   wheels: Ref<Object3D>[]
 }
 
-export function useRaycastVehicle(
+export function useRaycastVehicle<O extends Object3D>(
   fn: () => RaycastVehicleProps,
-  fwdRef: Ref<Object3D> = null,
+  fwdRef: Ref<O> = null,
   deps: DependencyList = [],
-): [RefObject<Object3D>, RaycastVehiclePublicApi] {
+): [RefObject<O>, RaycastVehiclePublicApi] {
   const ref = useForwardedRef(fwdRef)
   const { worker, subscriptions } = usePhysicsContext()
 
@@ -675,7 +686,8 @@ export function useRaycastVehicle(
     if (!ref.current) {
       // When the reference isn't used we create a stub
       // The body doesn't have a visual representation but can still be constrained
-      ref.current = new Object3D()
+      // Yes, this type may be technically incorrect
+      ref.current = new Object3D() as O
     }
 
     const currentWorker = worker

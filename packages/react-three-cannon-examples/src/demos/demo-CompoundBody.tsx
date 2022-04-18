@@ -2,9 +2,10 @@ import type { CompoundBodyProps, PlaneProps, Triplet } from '@react-three/cannon
 import { Debug, Physics, useCompoundBody, usePlane } from '@react-three/cannon'
 import { Canvas } from '@react-three/fiber'
 import { useEffect, useRef, useState } from 'react'
+import type { Group } from 'three'
 
-function Plane(props: PlaneProps) {
-  const [ref] = usePlane(() => ({ type: 'Static', ...props }))
+function Plane(props: PlaneProps): JSX.Element {
+  const [ref] = usePlane(() => ({ type: 'Static', ...props }), useRef<Group>(null))
   return (
     <group ref={ref}>
       <mesh>
@@ -26,18 +27,27 @@ type OurCompoundBodyProps = Pick<CompoundBodyProps, 'position' | 'rotation'> & {
   setRotation?: (rotation: Triplet) => void
 }
 
-function CompoundBody({ isTrigger, mass = 12, setPosition, setRotation, ...props }: OurCompoundBodyProps) {
+function CompoundBody({
+  isTrigger,
+  mass = 12,
+  setPosition,
+  setRotation,
+  ...props
+}: OurCompoundBodyProps): JSX.Element {
   const boxSize: Triplet = [1, 1, 1]
   const sphereRadius = 0.65
-  const [ref, api] = useCompoundBody(() => ({
-    isTrigger,
-    mass,
-    ...props,
-    shapes: [
-      { args: boxSize, position: [0, 0, 0], rotation: [0, 0, 0], type: 'Box' },
-      { args: [sphereRadius], position: [1, 0, 0], rotation: [0, 0, 0], type: 'Sphere' },
-    ],
-  }))
+  const [ref, api] = useCompoundBody(
+    () => ({
+      isTrigger,
+      mass,
+      ...props,
+      shapes: [
+        { args: boxSize, position: [0, 0, 0], rotation: [0, 0, 0], type: 'Box' },
+        { args: [sphereRadius], position: [1, 0, 0], rotation: [0, 0, 0], type: 'Sphere' },
+      ],
+    }),
+    useRef<Group>(null),
+  )
 
   useEffect(() => {
     if (setPosition) {
@@ -65,7 +75,7 @@ function CompoundBody({ isTrigger, mass = 12, setPosition, setRotation, ...props
   )
 }
 
-export default function () {
+export default function (): JSX.Element {
   const [ready, set] = useState(false)
   useEffect(() => {
     const timeout = setTimeout(() => set(true), 2000)

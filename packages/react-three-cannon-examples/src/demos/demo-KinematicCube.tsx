@@ -3,13 +3,14 @@ import { Physics, useBox, usePlane, useSphere } from '@react-three/cannon'
 import type { MeshPhongMaterialProps } from '@react-three/fiber'
 import { Canvas, useFrame } from '@react-three/fiber'
 import niceColors from 'nice-color-palettes'
-import { useMemo } from 'react'
+import { useMemo, useRef } from 'react'
+import type { InstancedMesh, Mesh } from 'three'
 import { Color } from 'three'
 
 type OurPlaneProps = Pick<MeshPhongMaterialProps, 'color'> & Pick<PlaneProps, 'position' | 'rotation'>
 
 function Plane({ color, ...props }: OurPlaneProps) {
-  const [ref] = usePlane(() => ({ ...props }))
+  const [ref] = usePlane(() => ({ ...props }), useRef<Mesh>(null))
   return (
     <mesh ref={ref} receiveShadow>
       <planeBufferGeometry args={[1000, 1000]} />
@@ -20,7 +21,7 @@ function Plane({ color, ...props }: OurPlaneProps) {
 
 function Box() {
   const boxSize: Triplet = [4, 4, 4]
-  const [ref, api] = useBox(() => ({ args: boxSize, mass: 1, type: 'Kinematic' }))
+  const [ref, api] = useBox(() => ({ args: boxSize, mass: 1, type: 'Kinematic' }), useRef<Mesh>(null))
   useFrame((state) => {
     const t = state.clock.getElapsedTime()
     api.position.set(Math.sin(t * 2) * 5, Math.cos(t * 2) * 5, 3)
@@ -35,11 +36,14 @@ function Box() {
 }
 
 function InstancedSpheres({ number = 100 }) {
-  const [ref] = useSphere((index) => ({
-    args: [1],
-    mass: 1,
-    position: [Math.random() - 0.5, Math.random() - 0.5, index * 2],
-  }))
+  const [ref] = useSphere(
+    (index) => ({
+      args: [1],
+      mass: 1,
+      position: [Math.random() - 0.5, Math.random() - 0.5, index * 2],
+    }),
+    useRef<InstancedMesh>(null),
+  )
   const colors = useMemo(() => {
     const array = new Float32Array(number * 3)
     const color = new Color()

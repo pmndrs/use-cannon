@@ -9,7 +9,7 @@ import type {
 import { CannonWorkerAPI } from '@pmndrs/cannon-worker-api'
 import type { RenderCallback } from '@react-three/fiber'
 import { useFrame, useThree } from '@react-three/fiber'
-import type { FC, PropsWithChildren } from 'react'
+import type { PropsWithChildren } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { Object3D } from 'three'
 import { InstancedMesh, Matrix4, Quaternion, Vector3 } from 'three'
@@ -17,14 +17,12 @@ import { InstancedMesh, Matrix4, Quaternion, Vector3 } from 'three'
 import type { PhysicsContext } from './physics-context'
 import { physicsContext } from './physics-context'
 
-export type PhysicsProviderProps = PropsWithChildren<
-  CannonWorkerProps & {
-    isPaused?: boolean
-    maxSubSteps?: number
-    shouldInvalidate?: boolean
-    stepSize?: number
-  }
->
+export type PhysicsProviderProps = CannonWorkerProps & {
+  isPaused?: boolean
+  maxSubSteps?: number
+  shouldInvalidate?: boolean
+  stepSize?: number
+}
 
 const v = new Vector3()
 const s = new Vector3(1, 1, 1)
@@ -49,7 +47,7 @@ function apply(
   return m.identity()
 }
 
-export const PhysicsProvider: FC<PhysicsProviderProps> = ({
+export function PhysicsProvider({
   allowSleep = false,
   axisIndex = 0,
   broadphase = 'Naive',
@@ -66,7 +64,7 @@ export const PhysicsProvider: FC<PhysicsProviderProps> = ({
   solver = 'GS',
   stepSize = 1 / 60,
   tolerance = 0.001,
-}) => {
+}: PropsWithChildren<PhysicsProviderProps>): JSX.Element {
   const { invalidate } = useThree()
 
   const [{ bodies, events, refs, scaleOverrides, subscriptions, worker }] = useState<PhysicsContext>(() => ({

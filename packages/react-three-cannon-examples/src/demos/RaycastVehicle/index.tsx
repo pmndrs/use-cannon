@@ -5,13 +5,14 @@ import type { CylinderArgs, CylinderProps, PlaneProps } from '@react-three/canno
 import { Debug, Physics, useCylinder, usePlane } from '@react-three/cannon'
 import { Environment, OrbitControls } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
-import { Suspense } from 'react'
+import { Suspense, useRef } from 'react'
+import type { Group, Mesh } from 'three'
 
 import { useToggledControl } from '../../use-toggled-control'
 import Vehicle from './Vehicle'
 
 function Plane(props: PlaneProps) {
-  const [ref] = usePlane(() => ({ material: 'ground', type: 'Static', ...props }))
+  const [ref] = usePlane(() => ({ material: 'ground', type: 'Static', ...props }), useRef<Group>(null))
   return (
     <group ref={ref}>
       <mesh receiveShadow>
@@ -24,11 +25,14 @@ function Plane(props: PlaneProps) {
 
 function Pillar(props: CylinderProps) {
   const args: CylinderArgs = [0.7, 0.7, 5, 16]
-  const [ref] = useCylinder(() => ({
-    args,
-    mass: 10,
-    ...props,
-  }))
+  const [ref] = useCylinder(
+    () => ({
+      args,
+      mass: 10,
+      ...props,
+    }),
+    useRef<Mesh>(null),
+  )
   return (
     <mesh ref={ref} castShadow>
       <cylinderBufferGeometry args={args} />

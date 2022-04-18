@@ -2,7 +2,7 @@ import type { CylinderProps } from '@react-three/cannon'
 import { useCompoundBody } from '@react-three/cannon'
 import { useGLTF } from '@react-three/drei'
 import { forwardRef } from 'react'
-import type { Material, Mesh, Object3D } from 'three'
+import type { Group, Material, Mesh } from 'three'
 import type { GLTF } from 'three-stdlib/loaders/GLTFLoader'
 
 useGLTF.preload('/wheel.glb')
@@ -19,7 +19,7 @@ type WheelProps = CylinderProps & {
   radius: number
 }
 
-export const Wheel = forwardRef<Object3D, WheelProps>(({ leftSide, radius = 0.7, ...props }, ref) => {
+export const Wheel = forwardRef<Group, WheelProps>(({ leftSide, radius = 0.7, ...props }, ref) => {
   const {
     materials: { Chrom, Rubber, Steel },
     nodes,
