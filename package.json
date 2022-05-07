@@ -41,7 +41,7 @@
     "postinstall": "husky install"
   },
   "type": "module",
-  "workspaces": [
+  "workspaces": [ 
     "packages/cannon-worker-api",
     "packages/react-three-cannon",
     "packages/react-three-cannon-examples"
