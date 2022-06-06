@@ -45,6 +45,8 @@ import { DynamicDrawUsage, Euler, InstancedMesh, MathUtils, Object3D, Quaternion
 import { useDebugContext } from './debug-context'
 import type { CannonEvents } from './physics-context'
 import { usePhysicsContext } from './physics-context'
+import type { ThreeToCannonOptions } from './three-to-cannon'
+import { threeToCannon } from './three-to-cannon'
 
 export type AtomicApi<K extends AtomicName> = {
   set: (value: AtomicProps[K]) => void
@@ -153,12 +155,13 @@ function setupCollision(
 type GetByIndex<T extends BodyProps> = (index: number) => T
 type ArgFn<T> = (args: T) => unknown[]
 
-function useBody<B extends BodyProps<unknown[]>, O extends Object3D>(
-  type: BodyShapeType,
+function useBodyCommon<B extends BodyProps<unknown[]>, O extends Object3D>(
+  type: BodyShapeType | null,
   fn: GetByIndex<B>,
   argsFn: ArgFn<B['args']>,
   fwdRef: Ref<O> = null,
   deps: DependencyList = [],
+  threeToCannonOptions?: ThreeToCannonOptions,
 ): Api<O> {
   const ref = useForwardedRef(fwdRef)
 
@@ -184,23 +187,35 @@ function useBody<B extends BodyProps<unknown[]>, O extends Object3D>(
         ? new Array(objectCount).fill(0).map((_, i) => `${object.uuid}/${i}`)
         : [object.uuid]
 
-    const props: (B & { args: unknown })[] =
+    let shapeType: BodyShapeType = type || 'Particle'
+    let inferredProps: BodyProps<unknown[]> = {}
+
+    if (!type) {
+      const result = threeToCannon(object, threeToCannonOptions)
+
+      if (result) {
+        shapeType = result.shape
+        inferredProps = result.props
+      }
+    }
+
+    const props =
       object instanceof InstancedMesh
         ? uuid.map((id, i) => {
-            const props = fn(i)
+            const props = { ...inferredProps, ...fn(i) }
             prepare(temp, props)
             object.setMatrixAt(i, temp.matrix)
             object.instanceMatrix.needsUpdate = true
             refs[id] = object
-            debugApi?.add(id, props, type)
+            debugApi?.add(id, props, shapeType)
             setupCollision(events, props, id)
             return { ...props, args: argsFn(props.args) }
           })
         : uuid.map((id, i) => {
-            const props = fn(i)
+            const props = { ...inferredProps, ...fn(i) }
             prepare(object, props)
             refs[id] = object
-            debugApi?.add(id, props, type)
+            debugApi?.add(id, props, shapeType)
             setupCollision(events, props, id)
             return { ...props, args: argsFn(props.args) }
           })
@@ -210,7 +225,7 @@ function useBody<B extends BodyProps<unknown[]>, O extends Object3D>(
       props: props.map(({ onCollide, onCollideBegin, onCollideEnd, ...serializableProps }) => {
         return { onCollide: Boolean(onCollide), ...serializableProps }
       }),
-      type,
+      type: shapeType,
       uuid,
     })
     return () => {
@@ -366,44 +381,52 @@ function makeTriplet(v: Vector3 | Triplet): Triplet {
   return v instanceof Vector3 ? [v.x, v.y, v.z] : v
 }
 
+export function useBody<O extends Object3D>(
+  fn: GetByIndex<PlaneProps>,
+  fwdRef: Ref<O> = null,
+  threeToCannonOptions?: ThreeToCannonOptions,
+  deps?: DependencyList,
+) {
+  return useBodyCommon(null, fn, (args) => args || [], fwdRef, deps, threeToCannonOptions)
+}
 export function usePlane<O extends Object3D>(
   fn: GetByIndex<PlaneProps>,
   fwdRef?: Ref<O>,
   deps?: DependencyList,
 ) {
-  return useBody('Plane', fn, () => [], fwdRef, deps)
+  return useBodyCommon('Plane', fn, () => [], fwdRef, deps)
 }
 export function useBox<O extends Object3D>(fn: GetByIndex<BoxProps>, fwdRef?: Ref<O>, deps?: DependencyList) {
   const defaultBoxArgs: Triplet = [1, 1, 1]
-  return useBody('Box', fn, (args = defaultBoxArgs): Triplet => args, fwdRef, deps)
+  return useBodyCommon('Box', fn, (args = defaultBoxArgs): Triplet => args, fwdRef, deps)
 }
 export function useCylinder<O extends Object3D>(
   fn: GetByIndex<CylinderProps>,
   fwdRef?: Ref<O>,
   deps?: DependencyList,
 ) {
-  return useBody('Cylinder', fn, (args = [] as []) => args, fwdRef, deps)
+  return useBodyCommon('Cylinder', fn, (args = [] as []) => args, fwdRef, deps)
 }
 export function useHeightfield<O extends Object3D>(
   fn: GetByIndex<HeightfieldProps>,
   fwdRef?: Ref<O>,
   deps?: DependencyList,
 ) {
-  return useBody('Heightfield', fn, (args) => args, fwdRef, deps)
+  return useBodyCommon('Heightfield', fn, (args) => args, fwdRef, deps)
 }
 export function useParticle<O extends Object3D>(
   fn: GetByIndex<ParticleProps>,
   fwdRef?: Ref<O>,
   deps?: DependencyList,
 ) {
-  return useBody('Particle', fn, () => [], fwdRef, deps)
+  return useBodyCommon('Particle', fn, () => [], fwdRef, deps)
 }
 export function useSphere<O extends Object3D>(
   fn: GetByIndex<SphereProps>,
   fwdRef?: Ref<O>,
   deps?: DependencyList,
 ) {
-  return useBody(
+  return useBodyCommon(
     'Sphere',
     fn,
     (args: SphereArgs = [1]): SphereArgs => {
@@ -419,7 +442,7 @@ export function useTrimesh<O extends Object3D>(
   fwdRef?: Ref<O>,
   deps?: DependencyList,
 ) {
-  return useBody<TrimeshProps, O>('Trimesh', fn, (args) => args, fwdRef, deps)
+  return useBodyCommon<TrimeshProps, O>('Trimesh', fn, (args) => args, fwdRef, deps)
 }
 
 export function useConvexPolyhedron<O extends Object3D>(
@@ -427,7 +450,7 @@ export function useConvexPolyhedron<O extends Object3D>(
   fwdRef?: Ref<O>,
   deps?: DependencyList,
 ) {
-  return useBody<ConvexPolyhedronProps, O>(
+  return useBodyCommon<ConvexPolyhedronProps, O>(
     'ConvexPolyhedron',
     fn,
     ([vertices, faces, normals, axes, boundingSphereRadius] = []): ConvexPolyhedronArgs<Triplet> => [
@@ -446,7 +469,7 @@ export function useCompoundBody<O extends Object3D>(
   fwdRef?: Ref<O>,
   deps?: DependencyList,
 ) {
-  return useBody('Compound', fn, (args) => args as unknown[], fwdRef, deps)
+  return useBodyCommon('Compound', fn, (args) => args as unknown[], fwdRef, deps)
 }
 
 type ConstraintApi<A extends Object3D, B extends Object3D> = [

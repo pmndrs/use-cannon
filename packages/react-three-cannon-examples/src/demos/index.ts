@@ -12,6 +12,7 @@ const fileDemos = [
   'KinematicCube',
   'Paused',
   'SphereDebug',
+  'ShapeInference',
   'Triggers',
   'Trimesh',
 ] as const
