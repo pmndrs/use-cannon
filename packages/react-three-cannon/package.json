@@ -32,7 +32,8 @@
   "dependencies": {
     "@pmndrs/cannon-worker-api": "^2.1.0",
     "cannon-es": "^0.19.0",
-    "cannon-es-debugger": "^1.0.0"
+    "cannon-es-debugger": "^1.0.0",
+    "three-to-cannon": "^4.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.17.8",
