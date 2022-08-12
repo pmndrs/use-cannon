@@ -1,5 +1,5 @@
 import type { Body } from 'cannon-es'
-import { GSSolver, NaiveBroadphase, SAPBroadphase, SplitSolver } from 'cannon-es'
+import { GSSolver, NaiveBroadphase, SAPBroadphase, SplitSolver, Vec3 } from 'cannon-es'
 
 import type { CannonMessageProps } from '../../types'
 import type { DecoratedWorld } from '../state'
@@ -30,6 +30,7 @@ export const init = (
     broadphase,
     defaultContactMaterial,
     gravity,
+    frictionGravity,
     iterations,
     quatNormalizeFast,
     quatNormalizeSkip,
@@ -39,6 +40,9 @@ export const init = (
 ): void => {
   world.allowSleep = allowSleep
   world.gravity.set(...gravity)
+  if (frictionGravity) {
+    world.frictionGravity = new Vec3(...frictionGravity)
+  }
   world.quatNormalizeFast = quatNormalizeFast
   world.quatNormalizeSkip = quatNormalizeSkip
 

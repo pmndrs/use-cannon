@@ -42,6 +42,14 @@ export class CannonWorkerAPI extends EventEmitter {
     this.postMessage({ op: 'setGravity', props: value })
   }
 
+  get frictionGravity(): Triplet | undefined {
+    return this.config.frictionGravity;
+  }
+  set frictionGravity(value: Triplet | undefined) {
+    this.config.frictionGravity = value
+    this.postMessage({ op: 'setFrictionGravity', props: value })
+  }
+
   get iterations(): number {
     return this.config.iterations
   }
@@ -65,7 +73,7 @@ export class CannonWorkerAPI extends EventEmitter {
     quaternions: Float32Array
   }
 
-  private config: Required<CannonWorkerProps>
+  private config: Required<Omit<CannonWorkerProps, 'frictionGravity'>> & { frictionGravity?: WorldProps['frictionGravity'] }
   private messageQueue: CannonMessage[] = []
   private worker: CannonWebWorker | null = null
 
@@ -75,6 +83,7 @@ export class CannonWorkerAPI extends EventEmitter {
     broadphase = 'Naive',
     defaultContactMaterial = { contactEquationStiffness: 1e6 },
     gravity = [0, -9.81, 0],
+    frictionGravity,
     iterations = 5,
     quatNormalizeFast = false,
     quatNormalizeSkip = 0,
@@ -90,6 +99,7 @@ export class CannonWorkerAPI extends EventEmitter {
       broadphase,
       defaultContactMaterial,
       gravity,
+      frictionGravity,
       iterations,
       quatNormalizeFast,
       quatNormalizeSkip,
@@ -229,6 +239,7 @@ export class CannonWorkerAPI extends EventEmitter {
       broadphase,
       defaultContactMaterial,
       gravity,
+      frictionGravity,
       iterations,
       quatNormalizeFast,
       quatNormalizeSkip,
@@ -244,6 +255,7 @@ export class CannonWorkerAPI extends EventEmitter {
         broadphase,
         defaultContactMaterial,
         gravity,
+        frictionGravity,
         iterations,
         quatNormalizeFast,
         quatNormalizeSkip,
