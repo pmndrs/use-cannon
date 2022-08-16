@@ -33,6 +33,14 @@ export class CannonWorkerAPI extends EventEmitter {
     this.postMessage({ op: 'setBroadphase', props: value })
   }
 
+  get frictionGravity(): Triplet | undefined {
+    return this.config.frictionGravity;
+  }
+  set frictionGravity(value: Triplet | undefined) {
+    this.config.frictionGravity = value
+    this.postMessage({ op: 'setFrictionGravity', props: value })
+  }
+
   get gravity(): Triplet {
     return this.config.gravity
   }
@@ -40,14 +48,6 @@ export class CannonWorkerAPI extends EventEmitter {
   set gravity(value: Triplet) {
     this.config.gravity = value
     this.postMessage({ op: 'setGravity', props: value })
-  }
-
-  get frictionGravity(): Triplet | undefined {
-    return this.config.frictionGravity;
-  }
-  set frictionGravity(value: Triplet | undefined) {
-    this.config.frictionGravity = value
-    this.postMessage({ op: 'setFrictionGravity', props: value })
   }
 
   get iterations(): number {
@@ -82,8 +82,8 @@ export class CannonWorkerAPI extends EventEmitter {
     axisIndex = 0,
     broadphase = 'Naive',
     defaultContactMaterial = { contactEquationStiffness: 1e6 },
-    gravity = [0, -9.81, 0],
     frictionGravity,
+    gravity = [0, -9.81, 0],
     iterations = 5,
     quatNormalizeFast = false,
     quatNormalizeSkip = 0,
@@ -98,8 +98,8 @@ export class CannonWorkerAPI extends EventEmitter {
       axisIndex,
       broadphase,
       defaultContactMaterial,
-      gravity,
       frictionGravity,
+      gravity,
       iterations,
       quatNormalizeFast,
       quatNormalizeSkip,
@@ -238,8 +238,8 @@ export class CannonWorkerAPI extends EventEmitter {
       axisIndex,
       broadphase,
       defaultContactMaterial,
-      gravity,
       frictionGravity,
+      gravity,
       iterations,
       quatNormalizeFast,
       quatNormalizeSkip,
@@ -254,8 +254,8 @@ export class CannonWorkerAPI extends EventEmitter {
         axisIndex,
         broadphase,
         defaultContactMaterial,
-        gravity,
         frictionGravity,
+        gravity,
         iterations,
         quatNormalizeFast,
         quatNormalizeSkip,
