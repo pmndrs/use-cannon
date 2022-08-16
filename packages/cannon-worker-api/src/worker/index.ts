@@ -113,9 +113,6 @@ self.onmessage = ({ data }: { data: CannonMessage }) => {
     case 'setFixedRotation':
       state.bodies[data.uuid].fixedRotation = data.props
       break
-    case 'setIsTrigger':
-      state.bodies[data.uuid].isTrigger = data.props
-      break
     case 'setFrictionGravity':
       if (!data.props) {
         // The user may reset frictionGravity.
@@ -123,6 +120,9 @@ self.onmessage = ({ data }: { data: CannonMessage }) => {
         return;
       }
       state.world.frictionGravity = new Vec3(data.props[0], data.props[1], data.props[2])
+      break
+    case 'setIsTrigger':
+      state.bodies[data.uuid].isTrigger = data.props
       break
     case 'setGravity':
       state.world.gravity.set(data.props[0], data.props[1], data.props[2])
