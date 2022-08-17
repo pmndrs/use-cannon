@@ -82,7 +82,7 @@ export class CannonWorkerAPI extends EventEmitter {
     axisIndex = 0,
     broadphase = 'Naive',
     defaultContactMaterial = { contactEquationStiffness: 1e6 },
-    frictionGravity,
+    frictionGravity = undefined,
     gravity = [0, -9.81, 0],
     iterations = 5,
     quatNormalizeFast = false,
