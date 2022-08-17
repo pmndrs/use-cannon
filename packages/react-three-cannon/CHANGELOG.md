@@ -1,5 +1,9 @@
 # @react-three/cannon Changelog
 
+## v6.4.0 - 2022-08-18
+
+- Add support for `frictionGravity` on WorldProps (@chnicoloso)
+
 ## v6.3.0 - 2022-04-18
 
 - DebugProvider explicitly lists children as a prop (@bjornstar)

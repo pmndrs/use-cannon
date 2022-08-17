@@ -1,5 +1,9 @@
 # @pmndrs/cannon-worker-api Changelog
 
+## v2.2.0 - 2022-08-18
+
+- Add support for `frictionGravity` on WorldProps (@chnicoloso)
+
 ## v2.1.0 - 2022-04-02
 
 - New private method `postMessage` that queues the messages if there is no worker
