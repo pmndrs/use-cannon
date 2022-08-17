@@ -114,7 +114,7 @@ self.onmessage = ({ data }: { data: CannonMessage }) => {
       state.bodies[data.uuid].fixedRotation = data.props
       break
     case 'setFrictionGravity':
-      state.world.frictionGravity = data.props ? new Vec3(...data.props) : data.props
+      state.world.frictionGravity = data.props ? new Vec3(...data.props) : undefined
       break
     case 'setIsTrigger':
       state.bodies[data.uuid].isTrigger = data.props

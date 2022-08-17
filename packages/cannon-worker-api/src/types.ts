@@ -288,7 +288,13 @@ export type WorkerEventMessage =
 
 export type IncomingWorkerMessage = WorkerEventMessage | WorkerFrameMessage
 
-export type WorldPropName = 'axisIndex' | 'broadphase' | 'frictionGravity' | 'gravity' | 'iterations' | 'tolerance'
+export type WorldPropName =
+  | 'axisIndex'
+  | 'broadphase'
+  | 'frictionGravity'
+  | 'gravity'
+  | 'iterations'
+  | 'tolerance'
 
 export type StepProps = {
   maxSubSteps?: number
@@ -301,7 +307,7 @@ export type WorldProps = {
   axisIndex: 0 | 1 | 2
   broadphase: Broadphase
   defaultContactMaterial: ContactMaterialOptions
-  frictionGravity: Triplet | undefined
+  frictionGravity: Triplet | null
   gravity: Triplet
   iterations: number
   quatNormalizeFast: boolean

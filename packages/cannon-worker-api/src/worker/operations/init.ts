@@ -40,7 +40,7 @@ export const init = (
 ): void => {
   world.allowSleep = allowSleep
   world.gravity.set(...gravity)
-  world.frictionGravity = frictionGravity ? new Vec3(...frictionGravity) : frictionGravity
+  world.frictionGravity = frictionGravity ? new Vec3(...frictionGravity) : undefined
   world.quatNormalizeFast = quatNormalizeFast
   world.quatNormalizeSkip = quatNormalizeSkip
 
