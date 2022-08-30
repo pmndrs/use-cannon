@@ -17,7 +17,7 @@ React hooks for [cannon-es](https://github.com/pmndrs/cannon-es). Use this in co
 
 Check out all of our examples at https://cannon.pmnd.rs
 
-The code for the examples lives in [./examples](./examples)
+The code for the examples lives in [../react-three-cannon-examples](../react-three-cannon-examples)
 
 ## How it works
 
