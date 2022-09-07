@@ -35,7 +35,7 @@ export const step = (
 
     const { bodies, vehicles } = state
     
-    if(!bodes[uuid]) {
+    if(!bodies[uuid]) {
       delete state.subscriptions[id];
       continue;
     }
