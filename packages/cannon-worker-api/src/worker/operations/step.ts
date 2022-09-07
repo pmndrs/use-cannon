@@ -34,6 +34,11 @@ export const step = (
     const [uuid, type, target = 'bodies'] = state.subscriptions[id]
 
     const { bodies, vehicles } = state
+    
+    if(!bodes[uuid]) {
+      delete state.subscriptions[id];
+      continue;
+    }
 
     const value =
       target === 'vehicles'
