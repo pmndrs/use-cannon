@@ -45,6 +45,10 @@ self.onmessage = ({ data }: { data: CannonMessage }) => {
     case 'removeBodies': {
       for (let i = 0; i < data.uuid.length; i++) {
         state.world.removeBody(state.bodies[data.uuid[i]])
+        const key = Object.keys(state.subscriptions).find((k) => state.subscriptions[k][0] === data.uuid[i])
+        if (key) {
+          delete state.subscriptions[key]
+        }
       }
       syncBodies()
       break
@@ -236,6 +240,10 @@ self.onmessage = ({ data }: { data: CannonMessage }) => {
       state.world.removeEventListener('postStep', state.vehicles[data.uuid].postStep)
       state.vehicles[data.uuid].vehicle.world = null
       delete state.vehicles[data.uuid]
+      const key = Object.keys(state.subscriptions).find((k) => state.subscriptions[k][0] === data.uuid)
+      if (key) {
+        delete state.subscriptions[key]
+      }
       break
     }
     case 'setRaycastVehicleSteeringValue': {
