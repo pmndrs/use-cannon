@@ -34,18 +34,21 @@ export const step = (
     const [uuid, type, target = 'bodies'] = state.subscriptions[id]
 
     const { bodies, vehicles } = state
-    
-    if(!bodies[uuid]) {
-      delete state.subscriptions[id];
-      continue;
+
+    const body = bodies[uuid]
+    const vehicle = vehicles[uuid]
+
+    if ((target === 'vehicles' && !vehicle) || (target === 'bodies' && !body)) {
+      delete state.subscriptions[id]
+      continue
     }
 
     const value =
       target === 'vehicles'
         ? // @ts-expect-error TODO: Differentiate these "types"
-          vehicles[uuid].vehicle[type]
+          vehicle.vehicle[type]
         : // @ts-expect-error TODO: Differentiate these "types"
-          bodies[uuid][type]
+          body[type]
 
     const serializableValue: PropValue<typeof type> = isQorV(value) ? value.toArray() : value
 
