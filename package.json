@@ -1,6 +1,7 @@
 {
   "name": "@pmndrs/use-cannon",
-  "version": "2.4.0",
+  "version": "0.0.1",
+  "private": true,
   "description": "monorepo for @pmndrs/use-cannon",
   "keywords": [
     "cannon",
@@ -17,8 +18,8 @@
   ],
   "repository": "github:pmndrs/use-cannon",
   "license": "MIT",
-  "private": true,
   "devDependencies": {
+    "@changesets/cli": "^2.22.0",
     "husky": "^7.0.4",
     "lint-staged": "^12.1.2"
   },
@@ -34,6 +35,7 @@
     "build": "npm run build --workspaces",
     "clean": "npm run clean --workspaces",
     "dev": "npm run dev --workspaces",
+    "release": "npm run build && changeset publish",
     "eslint": "npm run eslint --workspaces",
     "eslint-fix": "npm run eslint-fix --workspaces",
     "prettier": "npm run prettier --workspaces",

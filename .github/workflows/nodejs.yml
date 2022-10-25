@@ -20,7 +20,7 @@ jobs:
     - uses: actions/setup-node@v2
       with:
         cache: 'yarn'
-        node-version: 14
+        node-version: 16.x
     - run: yarn install
     - run: npm i -g npm@latest
     - run: npm run build
@@ -34,7 +34,7 @@ jobs:
     - uses: actions/setup-node@v2
       with:
         cache: 'yarn'
-        node-version: 14
+        node-version: 16.x
     - run: yarn install
     - run: npm i -g npm@latest
     - run: npm run eslint
@@ -47,7 +47,7 @@ jobs:
     - uses: actions/setup-node@v2
       with:
         cache: 'yarn'
-        node-version: 14
+        node-version: 16.x
     - run: yarn install
 
   prettier:
@@ -59,7 +59,7 @@ jobs:
     - uses: actions/setup-node@v2
       with:
         cache: 'yarn'
-        node-version: 14
+        node-version: 16.x
     - run: yarn install
     - run: npm i -g npm@latest
     - run: npm run prettier
