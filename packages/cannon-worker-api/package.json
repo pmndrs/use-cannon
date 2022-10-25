@@ -1,6 +1,6 @@
 {
   "name": "@pmndrs/cannon-worker-api",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "description": "An API to use cannon-es in a web worker",
   "keywords": [
     "cannon",
