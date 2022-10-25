@@ -19,9 +19,9 @@
   "repository": "github:pmndrs/use-cannon",
   "license": "MIT",
   "devDependencies": {
+    "@changesets/cli": "^2.22.0",
     "husky": "^7.0.4",
-    "lint-staged": "^12.1.2",
-    "@changesets/cli": "^2.22.0"
+    "lint-staged": "^12.1.2"
   },
   "engines": {
     "node": ">=14",
