@@ -1,5 +1,4 @@
-import reactRefresh from '@vitejs/plugin-react-refresh'
+import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
-import reactJsx from 'vite-react-jsx'
 
-export default defineConfig({ plugins: [reactJsx(), reactRefresh()] })
+export default defineConfig({ plugins: [react()] })

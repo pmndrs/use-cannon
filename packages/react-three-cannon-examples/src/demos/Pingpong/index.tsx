@@ -3,7 +3,7 @@ import { Canvas, useFrame, useLoader } from '@react-three/fiber'
 import lerp from 'lerp'
 import clamp from 'lodash-es/clamp'
 import { Suspense, useRef } from 'react'
-import type { Group, Loader, Material, Mesh, Object3D, Skeleton } from 'three'
+import type { Group, Material, Mesh, Object3D, Skeleton } from 'three'
 import { TextureLoader } from 'three'
 import { DRACOLoader } from 'three-stdlib/loaders/DRACOLoader'
 import type { GLTF } from 'three-stdlib/loaders/GLTFLoader'
@@ -53,11 +53,7 @@ const extensions = (loader: GLTFLoader) => {
 }
 
 function Paddle() {
-  const { nodes, materials } = useLoader<PingPongGLTF, '/pingpong.glb'>(
-    GLTFLoader,
-    '/pingpong.glb',
-    extensions as (loader: Loader) => void,
-  ) as PingPongGLTF
+  const { nodes, materials } = useLoader(GLTFLoader, '/pingpong.glb', extensions) as PingPongGLTF
   const { pong } = useStore((state) => state.api)
   const welcome = useStore((state) => state.welcome)
   const count = useStore((state) => state.count)

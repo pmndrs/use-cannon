@@ -1,10 +1,8 @@
 # @pmndrs/cannon-worker-api Changelog
 
-## 2.2.1
+## v2.3.0 - 2022-11-03
 
-### Patch Changes
-
-- e0d4113: remove subscriptions when removing bodies and vehicles (@alex-shortt)
+- Remove subscriptions when removing bodies and vehicles (@alex-shortt)
 
 ## v2.2.0 - 2022-08-18
 

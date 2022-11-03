@@ -1,6 +1,6 @@
 {
   "name": "@pmndrs/use-cannon",
-  "version": "0.0.1",
+  "version": "2.5.0",
   "private": true,
   "description": "monorepo for @pmndrs/use-cannon",
   "keywords": [
@@ -24,7 +24,7 @@
     "lint-staged": "^12.1.2"
   },
   "engines": {
-    "node": ">=14",
+    "node": ">=16",
     "npm": ">=8"
   },
   "lint-staged": {

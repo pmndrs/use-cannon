@@ -2,11 +2,12 @@ import type { Triplet } from '@react-three/cannon'
 import { Physics, useHeightfield, useSphere } from '@react-three/cannon'
 import type { Node } from '@react-three/fiber'
 import { Canvas, extend, useFrame, useThree } from '@react-three/fiber'
-import niceColors from 'nice-color-palettes'
 import { useEffect, useLayoutEffect, useMemo, useRef } from 'react'
 import type { BufferGeometry, InstancedMesh, Mesh, PerspectiveCamera } from 'three'
 import { Color, Float32BufferAttribute } from 'three'
 import { OrbitControls } from 'three-stdlib/controls/OrbitControls'
+
+import niceColors from '../colors'
 
 extend({ OrbitControls })
 
@@ -128,7 +129,7 @@ function Heightfield({
 
   return (
     <mesh ref={ref} castShadow receiveShadow>
-      <meshPhongMaterial color={niceColors[17][4]} />
+      <meshPhongMaterial color={niceColors[4]} />
       <HeightmapGeometry heights={heights} elementSize={elementSize} />
     </mesh>
   )
@@ -153,7 +154,7 @@ function Spheres({ columns, rows, spread }: { columns: number; rows: number; spr
     const color = new Color()
     for (let i = 0; i < number; i++)
       color
-        .set(niceColors[17][Math.floor(Math.random() * 5)])
+        .set(niceColors[Math.floor(Math.random() * 5)])
         .convertSRGBToLinear()
         .toArray(array, i * 3)
     return array

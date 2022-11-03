@@ -1,10 +1,11 @@
 import type { PlaneProps, Triplet } from '@react-three/cannon'
 import { Physics, useBox, usePlane, useSphere } from '@react-three/cannon'
 import { Canvas, useFrame } from '@react-three/fiber'
-import niceColors from 'nice-color-palettes'
 import { useMemo, useRef, useState } from 'react'
 import type { InstancedMesh, Mesh } from 'three'
 import { Color } from 'three'
+
+import niceColors from '../colors'
 
 function Plane(props: PlaneProps) {
   const [ref] = usePlane(() => ({ ...props }), useRef<Mesh>(null))
@@ -78,7 +79,7 @@ export default () => {
     const color = new Color()
     for (let i = 0; i < number; i++)
       color
-        .set(niceColors[17][Math.floor(Math.random() * 5)])
+        .set(niceColors[Math.floor(Math.random() * 5)])
         .convertSRGBToLinear()
         .toArray(array, i * 3)
     return array

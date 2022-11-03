@@ -1,8 +1,16 @@
 # @pmndrs/use-cannon Changelog
 
+## v2.5.0 - 2022-11-03
+
+- [@pmndrs/cannon-worker-api] v2.3.0
+- [@react-three/cannon] v6.5.0
+- [@react-three/cannon-examples] v2.4.0
+- Setup changesets & publish workflow (@isaac-mason)
+- Do not attempt to publish on forks (@bjornstar)
+
 ## v2.4.0 - 2022-08-18
 
-- [@pmndrs/cannon-worker-api] v2.1.0
+- [@pmndrs/cannon-worker-api] v2.2.0
 - [@react-three/cannon] v6.4.0
 
 ## v2.3.0 - 2022-04-18

@@ -1,5 +1,9 @@
 # @react-three/cannon Changelog
 
+## v6.5.0 - 2022-11-03
+
+- Update `@pmndrs/cannon-worker-api` to v2.3.0 (@bjornstar)
+
 ## v6.4.0 - 2022-08-18
 
 - Add support for `frictionGravity` on WorldProps (@chnicoloso)

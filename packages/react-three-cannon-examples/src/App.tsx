@@ -70,7 +70,6 @@ function Demos() {
 export default function App() {
   return (
     <Router>
-      {/* @ts-expect-error Not sure how to fix the type here */}
       <GlobalStyle />
       <Intro />
     </Router>

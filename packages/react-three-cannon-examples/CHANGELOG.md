@@ -1,5 +1,16 @@
 # @react-three/cannon-examples Changelog
 
+## v2.4.0 - 2022-11-03
+
+- Remove some types & an expect-error that are no longer necessary (@bjornstar)
+- Inline the only niceColors that we use (@bjornstar)
+- Update `@react-three/cannon` to v6.5.0 (@bjornstar)
+- Update `three-stdlib` to v2.17.3 (@bjornstar)
+- Update `vite` to v3.2.2 (@bjornstar)
+- Replace `vite-react-jsx` with `@vitejs/plugin-react` (@bjornstar)
+- Remove `nice-color-palettes` (@bjornstar)
+- Remove `@vitejs/plugin-react-refresh` (@bjornstar)
+
 ## v2.3.0 - 2022-04-18
 
 - Use accurate ref types for all hooks (@bjornstar)

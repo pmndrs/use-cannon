@@ -2,10 +2,11 @@ import type { PlaneProps, Triplet } from '@react-three/cannon'
 import { Physics, useBox, usePlane, useSphere } from '@react-three/cannon'
 import type { MeshPhongMaterialProps } from '@react-three/fiber'
 import { Canvas, useFrame } from '@react-three/fiber'
-import niceColors from 'nice-color-palettes'
 import { useMemo, useRef } from 'react'
 import type { InstancedMesh, Mesh } from 'three'
 import { Color } from 'three'
+
+import niceColors from '../colors'
 
 type OurPlaneProps = Pick<MeshPhongMaterialProps, 'color'> & Pick<PlaneProps, 'position' | 'rotation'>
 
@@ -49,7 +50,7 @@ function InstancedSpheres({ number = 100 }) {
     const color = new Color()
     for (let i = 0; i < number; i++)
       color
-        .set(niceColors[17][Math.floor(Math.random() * 5)])
+        .set(niceColors[Math.floor(Math.random() * 5)])
         .convertSRGBToLinear()
         .toArray(array, i * 3)
     return array
@@ -79,11 +80,11 @@ export default () => (
     />
     <pointLight position={[-30, 0, -30]} intensity={0.5} />
     <Physics gravity={[0, 0, -30]}>
-      <Plane color={niceColors[17][4]} position={[0, 0, 0]} rotation={[0, 0, 0]} />
-      <Plane color={niceColors[17][1]} position={[-6, 0, 0]} rotation={[0, 0.9, 0]} />
-      <Plane color={niceColors[17][2]} position={[6, 0, 0]} rotation={[0, -0.9, 0]} />
-      <Plane color={niceColors[17][3]} position={[0, 6, 0]} rotation={[0.9, 0, 0]} />
-      <Plane color={niceColors[17][0]} position={[0, -6, 0]} rotation={[-0.9, 0, 0]} />
+      <Plane color={niceColors[4]} position={[0, 0, 0]} rotation={[0, 0, 0]} />
+      <Plane color={niceColors[1]} position={[-6, 0, 0]} rotation={[0, 0.9, 0]} />
+      <Plane color={niceColors[2]} position={[6, 0, 0]} rotation={[0, -0.9, 0]} />
+      <Plane color={niceColors[3]} position={[0, 6, 0]} rotation={[0.9, 0, 0]} />
+      <Plane color={niceColors[0]} position={[0, -6, 0]} rotation={[-0.9, 0, 0]} />
       <Box />
       <InstancedSpheres number={100} />
     </Physics>
