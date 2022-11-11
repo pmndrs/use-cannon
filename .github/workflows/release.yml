@@ -9,7 +9,7 @@ concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 jobs:
   release:
-    if: github.repository_owner == 'pmndrs'
+    if: ${{ github.repository_owner == 'pmndrs' && secrets.NPM_TOKEN }}
     name: Release
     runs-on: ubuntu-latest
     steps:

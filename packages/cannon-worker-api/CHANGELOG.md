@@ -1,5 +1,9 @@
 # @pmndrs/cannon-worker-api Changelog
 
+## v2.3.1 - 2022-11-11
+
+- Make sure to include dist in npm package (@bjornstar)
+
 ## v2.3.0 - 2022-11-03
 
 - Remove subscriptions when removing bodies and vehicles (@alex-shortt)

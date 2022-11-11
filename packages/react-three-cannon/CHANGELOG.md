@@ -1,5 +1,9 @@
 # @react-three/cannon Changelog
 
+## v6.5.1 - 2022-11-11
+
+- Make sure to include dist in npm package (@bjornstar)
+
 ## v6.5.0 - 2022-11-03
 
 - Update `@pmndrs/cannon-worker-api` to v2.3.0 (@bjornstar)

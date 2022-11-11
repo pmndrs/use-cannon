@@ -1,5 +1,12 @@
 # @pmndrs/use-cannon Changelog
 
+## v2.5.1 - 2022-11-11
+
+- [@pmndrs/cannon-worker-api] v2.3.1
+- [@react-three/cannon] v6.5.1
+- [changeset config] set updateInternalDependencies to minor (@bjornstar)
+- [github workflows] do not try to publish if we don't have an npm key (@bjornstar)
+
 ## v2.5.0 - 2022-11-03
 
 - [@pmndrs/cannon-worker-api] v2.3.0
