@@ -47,6 +47,11 @@ function apply(
   return m.identity()
 }
 
+const unique = () => {
+  const values: unknown[] = []
+  return (value: unknown) => (values.includes(value) ? false : !!values.push(value))
+}
+
 export function PhysicsProvider({
   allowSleep = false,
   axisIndex = 0,
@@ -177,25 +182,26 @@ export function PhysicsProvider({
       cb && cb(value as never)
     })
 
-    if (active) {
-      for (const ref of Object.values(refs)) {
-        if (ref instanceof InstancedMesh) {
-          for (let i = 0; i < ref.count; i++) {
-            const uuid = `${ref.uuid}/${i}`
-            const index = bodies[uuid]
-            if (index !== undefined) {
-              ref.setMatrixAt(i, apply(index, positions, quaternions, scaleOverrides[uuid]))
-              ref.instanceMatrix.needsUpdate = true
-            }
+    if (!active) return
+
+    for (const ref of Object.values(refs).filter(unique())) {
+      if (ref instanceof InstancedMesh) {
+        for (let i = 0; i < ref.count; i++) {
+          const uuid = `${ref.uuid}/${i}`
+          const index = bodies[uuid]
+          if (index !== undefined) {
+            ref.setMatrixAt(i, apply(index, positions, quaternions, scaleOverrides[uuid]))
+            ref.instanceMatrix.needsUpdate = true
           }
-        } else {
-          const scale = scaleOverrides[ref.uuid] || ref.scale
-          apply(bodies[ref.uuid], positions, quaternions, scale, ref)
         }
+      } else {
+        const scale = scaleOverrides[ref.uuid] || ref.scale
+        apply(bodies[ref.uuid], positions, quaternions, scale, ref)
       }
-      if (shouldInvalidate) {
-        invalidate()
-      }
+    }
+
+    if (shouldInvalidate) {
+      invalidate()
     }
   }
 
