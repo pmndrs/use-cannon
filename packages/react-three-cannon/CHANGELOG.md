@@ -1,5 +1,9 @@
 # @react-three/cannon Changelog
 
+## v6.5.2 - 2023-01-05
+
+- [`README.md`] Update shields badge to point to match their new route (@bjornstar)
+
 ## v6.5.1 - 2022-11-11
 
 - Make sure to include dist in npm package (@bjornstar)

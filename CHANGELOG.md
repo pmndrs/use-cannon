@@ -1,5 +1,12 @@
 # @pmndrs/use-cannon Changelog
 
+## v2.5.2 - 2023-01-05
+
+- [@pmndrs/cannon-worker-api] v2.3.2
+- [@react-three/cannon] v6.5.2
+- [@react-three/cannon-examples] v2.4.1
+- [`README.md`] Update shields badge to match their new routes (@bjornstar)
+
 ## v2.5.1 - 2022-11-11
 
 - [@pmndrs/cannon-worker-api] v2.3.1

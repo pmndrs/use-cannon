@@ -1,5 +1,9 @@
 # @pmndrs/cannon-worker-api Changelog
 
+## v2.3.2 - 2023-01-05
+
+- [`README.md`] Improve links to related packages (@bjornstar)
+
 ## v2.3.1 - 2022-11-11
 
 - Make sure to include dist in npm package (@bjornstar)

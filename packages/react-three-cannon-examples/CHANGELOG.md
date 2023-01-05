@@ -1,5 +1,9 @@
 # @react-three/cannon-examples Changelog
 
+## v2.4.1 - 2023-01-05
+
+- Update `@react-three/cannon` to v6.5.2 (@bjornstar)
+
 ## v2.4.0 - 2022-11-03
 
 - Remove some types & an expect-error that are no longer necessary (@bjornstar)
