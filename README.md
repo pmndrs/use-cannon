@@ -1,4 +1,4 @@
-[![Build Status](https://img.shields.io/github/workflow/status/pmndrs/use-cannon/Node.js%20CI/master?style=flat&colorA=000000&logo=github)](https://github.com/pmndrs/use-cannon/actions/workflows/nodejs.yml)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/pmndrs/use-cannon/nodejs.yml?branch=master&style=flat&colorA=000000&logo=github)](https://github.com/pmndrs/use-cannon/actions/workflows/nodejs.yml)
 [![Discord Shield](https://img.shields.io/discord/740090768164651008?style=flat&colorA=000000&colorB=000000&label=discord&logo=discord&logoColor=ffffff)](https://discord.gg/poimandres)
 
 ![Imgur](https://imgur.com/FpBsJPL.jpg)
