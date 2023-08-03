@@ -70,7 +70,7 @@ export const propsToBody = (options) => {
     material,
     onCollide,
     position = [0, 0, 0],
-    rotation = [0, 0, 0],
+    rotation = [0, 0, 0, 0],
     shapes,
     type: bodyType,
     velocity = [0, 0, 0],
@@ -94,7 +94,7 @@ export const propsToBody = (options) => {
       const shapeBody = body.addShape(
         createShape(type, args),
         position ? new Vec3(...position) : undefined,
-        rotation ? new Quaternion().setFromEuler(...rotation) : undefined,
+        rotation ? new Quaternion(...rotation) : undefined,
       )
       if (material) shapeBody.material = createMaterial(material)
       Object.assign(shapeBody, extra)
@@ -104,7 +104,7 @@ export const propsToBody = (options) => {
   }
 
   body.position.set(position[0], position[1], position[2])
-  body.quaternion.setFromEuler(rotation[0], rotation[1], rotation[2])
+  body.quaternion.set(rotation[0], rotation[1], rotation[2], rotation[3])
   body.velocity.set(velocity[0], velocity[1], velocity[2])
   body.angularVelocity.set(angularVelocity[0], angularVelocity[1], angularVelocity[2])
   body.linearFactor.set(linearFactor[0], linearFactor[1], linearFactor[2])
