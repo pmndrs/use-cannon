@@ -20,7 +20,7 @@
     "not op_mini all"
   ],
   "devDependencies": {
-    "@react-three/cannon": "^6.5.2",
+    "@react-three/cannon": "^6.6.0",
     "@react-three/drei": "^9.80.1",
     "@react-three/fiber": "^8.13.6",
     "@types/lodash-es": "^4.17.6",
