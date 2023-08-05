@@ -71,6 +71,7 @@ export const propsToBody = (options) => {
     onCollide,
     position = [0, 0, 0],
     rotation = [0, 0, 0],
+    quaternion = [0, 0, 0, 1],
     shapes,
     type: bodyType,
     velocity = [0, 0, 0],
@@ -90,11 +91,15 @@ export const propsToBody = (options) => {
   }
 
   if (type === 'Compound') {
-    shapes.forEach(({ type, args, position, rotation, material, ...extra }) => {
+    shapes.forEach(({ type, args, position, rotation, quaternion, material, ...extra }) => {
       const shapeBody = body.addShape(
         createShape(type, args),
         position ? new Vec3(...position) : undefined,
-        rotation ? new Quaternion().setFromEuler(...rotation) : undefined,
+        quaternion
+          ? new Quaternion.set(...quaternion)
+          : rotation
+          ? new Quaternion().setFromEuler(...rotation)
+          : undefined,
       )
       if (material) shapeBody.material = createMaterial(material)
       Object.assign(shapeBody, extra)
@@ -104,10 +109,13 @@ export const propsToBody = (options) => {
   }
 
   body.position.set(position[0], position[1], position[2])
-  body.quaternion.setFromEuler(rotation[0], rotation[1], rotation[2])
   body.velocity.set(velocity[0], velocity[1], velocity[2])
   body.angularVelocity.set(angularVelocity[0], angularVelocity[1], angularVelocity[2])
   body.linearFactor.set(linearFactor[0], linearFactor[1], linearFactor[2])
   body.angularFactor.set(angularFactor[0], angularFactor[1], angularFactor[2])
+
+  if (quaternion) body.quaternion.set(quaternion[0], quaternion[1], quaternion[2], quaternion[3])
+  else body.quaternion.setFromEuler(rotation[0], rotation[1], rotation[2])
+
   return body
 }
