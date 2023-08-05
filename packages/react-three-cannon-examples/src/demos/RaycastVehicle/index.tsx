@@ -35,7 +35,7 @@ function Pillar(props: CylinderProps) {
   )
   return (
     <mesh ref={ref} castShadow>
-      <cylinderBufferGeometry args={args} />
+      <cylinderGeometry args={args} />
       <meshNormalMaterial />
     </mesh>
   )
@@ -54,7 +54,14 @@ const VehicleScene = () => {
 
   return (
     <>
-      <Canvas shadows camera={{ fov: 50, position: [0, 5, 15] }}>
+      <Canvas
+        shadows
+        camera={{ fov: 50, position: [0, 5, 15] }}
+        gl={{
+          // todo: stop using legacy lights
+          useLegacyLights: true,
+        }}
+      >
         <fog attach="fog" args={['#171720', 10, 50]} />
         <color attach="background" args={['#171720']} />
         <ambientLight intensity={0.1} />

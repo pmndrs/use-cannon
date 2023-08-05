@@ -17,7 +17,7 @@ const Box = forwardRef<Mesh, BoxProps>((props, fwdRef) => {
   )
   return (
     <mesh ref={ref}>
-      <boxBufferGeometry args={args} />
+      <boxGeometry args={args} />
       <meshNormalMaterial />
     </mesh>
   )
@@ -30,7 +30,7 @@ const Ball = forwardRef<Mesh, SphereProps>((props, fwdRef) => {
   )
   return (
     <mesh ref={ref}>
-      <sphereBufferGeometry args={[0.5, 64, 64]} />
+      <sphereGeometry args={[0.5, 64, 64]} />
       <meshNormalMaterial />
     </mesh>
   )
@@ -65,7 +65,13 @@ const style = {
 export default () => {
   return (
     <>
-      <Canvas camera={{ fov: 50, position: [0, 0, 8] }}>
+      <Canvas
+        camera={{ fov: 50, position: [0, 0, 8] }}
+        gl={{
+          // todo: stop using legacy lights
+          useLegacyLights: true,
+        }}
+      >
         <color attach="background" args={['#171720']} />
         <Physics gravity={[0, -40, 0]} allowSleep={false}>
           <BoxAndBall />

@@ -60,7 +60,7 @@ function ChainLink({
   return (
     <>
       <mesh ref={ref}>
-        <cylinderBufferGeometry args={args} />
+        <cylinderGeometry args={args} />
         <meshStandardMaterial color={color} />
       </mesh>
       <parent.Provider value={{ position, ref }}>{children}</parent.Provider>
@@ -109,7 +109,7 @@ function PointerHandle({ children, size }: PropsWithChildren<{ size: number }>):
   return (
     <group>
       <mesh ref={ref}>
-        <boxBufferGeometry args={args} />
+        <boxGeometry args={args} />
         <meshStandardMaterial />
       </mesh>
       <parent.Provider value={{ position, ref }}>{children}</parent.Provider>
@@ -127,7 +127,7 @@ function StaticHandle({ children, position, radius }: PropsWithChildren<StaticHa
   return (
     <group>
       <mesh ref={ref}>
-        <sphereBufferGeometry args={[radius, 64, 64]} />
+        <sphereGeometry args={[radius, 64, 64]} />
         <meshStandardMaterial />
       </mesh>
       <parent.Provider value={{ position, ref }}>{children}</parent.Provider>
@@ -154,7 +154,15 @@ function ChainScene(): JSX.Element {
 
   return (
     <>
-      <Canvas shadows camera={{ fov: 50, position: [0, 5, 20] }} onPointerMissed={reset}>
+      <Canvas
+        shadows
+        camera={{ fov: 50, position: [0, 5, 20] }}
+        onPointerMissed={reset}
+        gl={{
+          // todo: stop using legacy lights
+          useLegacyLights: true,
+        }}
+      >
         <color attach="background" args={['#171720']} />
         <ambientLight intensity={0.5} />
         <pointLight position={[-10, -10, -10]} />

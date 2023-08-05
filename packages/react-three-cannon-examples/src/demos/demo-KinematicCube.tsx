@@ -14,7 +14,7 @@ function Plane({ color, ...props }: OurPlaneProps) {
   const [ref] = usePlane(() => ({ ...props }), useRef<Mesh>(null))
   return (
     <mesh ref={ref} receiveShadow>
-      <planeBufferGeometry args={[1000, 1000]} />
+      <planeGeometry args={[1000, 1000]} />
       <meshPhongMaterial color={color} />
     </mesh>
   )
@@ -30,7 +30,7 @@ function Box() {
   })
   return (
     <mesh ref={ref} castShadow receiveShadow>
-      <boxBufferGeometry args={boxSize} />
+      <boxGeometry args={boxSize} />
       <meshLambertMaterial color="white" />
     </mesh>
   )
@@ -58,16 +58,24 @@ function InstancedSpheres({ number = 100 }) {
 
   return (
     <instancedMesh ref={ref} castShadow receiveShadow args={[undefined, undefined, number]}>
-      <sphereBufferGeometry args={[1, 16, 16]}>
+      <sphereGeometry args={[1, 16, 16]}>
         <instancedBufferAttribute attach="attributes-color" args={[colors, 3]} />
-      </sphereBufferGeometry>
+      </sphereGeometry>
       <meshPhongMaterial vertexColors />
     </instancedMesh>
   )
 }
 
 export default () => (
-  <Canvas shadows gl={{ alpha: false }} camera={{ position: [0, -12, 16] }}>
+  <Canvas
+    shadows
+    camera={{ position: [0, -12, 16] }}
+    gl={{
+      alpha: false,
+      // todo: stop using legacy lights
+      useLegacyLights: true,
+    }}
+  >
     <hemisphereLight intensity={0.35} />
     <spotLight
       position={[30, 0, 30]}

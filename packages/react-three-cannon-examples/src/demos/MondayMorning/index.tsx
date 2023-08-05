@@ -9,12 +9,7 @@ import {
   usePointToPointConstraint,
   useSphere,
 } from '@react-three/cannon'
-import type {
-  BoxBufferGeometryProps,
-  MeshProps,
-  MeshStandardMaterialProps,
-  ThreeEvent,
-} from '@react-three/fiber'
+import type { BoxGeometryProps, MeshProps, MeshStandardMaterialProps, ThreeEvent } from '@react-three/fiber'
 import { Canvas, useFrame, useLoader } from '@react-three/fiber'
 import type { ReactNode, RefObject } from 'react'
 import {
@@ -56,14 +51,14 @@ function useDragConstraint(child: RefObject<Object3D>) {
 }
 
 type BoxProps = Omit<MeshProps, 'args'> &
-  Pick<BoxBufferGeometryProps, 'args'> &
+  Pick<BoxGeometryProps, 'args'> &
   Pick<MeshStandardMaterialProps, 'color' | 'opacity' | 'transparent'>
 
 const Box = forwardRef<Mesh, BoxProps>(
   ({ args = [1, 1, 1], children, color = 'white', opacity = 1, transparent = false, ...props }, ref) => {
     return (
       <mesh castShadow receiveShadow ref={ref} {...props}>
-        <boxBufferGeometry args={args} />
+        <boxGeometry args={args} />
         <meshStandardMaterial color={color} opacity={opacity} transparent={transparent} />
         {children}
       </mesh>
@@ -163,7 +158,7 @@ function Plane(props: PlaneProps) {
   const [ref] = usePlane(() => ({ ...props }), useRef<Mesh>(null))
   return (
     <mesh ref={ref} receiveShadow>
-      <planeBufferGeometry args={[1000, 1000]} />
+      <planeGeometry args={[1000, 1000]} />
       <meshStandardMaterial color="#171720" />
     </mesh>
   )
@@ -295,7 +290,7 @@ const Lamp = () => {
   return (
     <>
       <mesh ref={lamp} {...bind}>
-        <coneBufferGeometry attach="geometry" args={[2, 2.5, 32]} />
+        <coneGeometry attach="geometry" args={[2, 2.5, 32]} />
         <meshStandardMaterial attach="material" />
         <pointLight intensity={10} distance={5} />
         <spotLight ref={light} position={[0, 20, 0]} angle={0.4} penumbra={1} intensity={0.6} castShadow />
@@ -315,7 +310,7 @@ const Cursor = () => {
 
   return (
     <mesh ref={ref}>
-      <sphereBufferGeometry args={[0.5, 32, 32]} />
+      <sphereGeometry args={[0.5, 32, 32]} />
       <meshBasicMaterial fog={false} depthTest={false} transparent opacity={0.5} />
     </mesh>
   )
@@ -327,6 +322,10 @@ export default () => (
     orthographic
     shadows
     style={{ cursor: 'none' }}
+    gl={{
+      // todo: stop using legacy lights
+      useLegacyLights: true,
+    }}
   >
     <color attach="background" args={['#171720']} />
     <fog attach="fog" args={['#171720', 20, 70]} />

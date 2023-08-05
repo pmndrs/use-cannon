@@ -9,11 +9,11 @@ function Plane(props: PlaneProps): JSX.Element {
   return (
     <group ref={ref}>
       <mesh>
-        <planeBufferGeometry args={[8, 8]} />
+        <planeGeometry args={[8, 8]} />
         <meshBasicMaterial color="#ffb385" />
       </mesh>
       <mesh receiveShadow>
-        <planeBufferGeometry args={[8, 8]} />
+        <planeGeometry args={[8, 8]} />
         <shadowMaterial color="lightsalmon" />
       </mesh>
     </group>
@@ -64,11 +64,11 @@ function CompoundBody({
   return (
     <group ref={ref}>
       <mesh castShadow>
-        <boxBufferGeometry args={boxSize} />
+        <boxGeometry args={boxSize} />
         <meshNormalMaterial />
       </mesh>
       <mesh castShadow position={[1, 0, 0]}>
-        <sphereBufferGeometry args={[sphereRadius, 16, 16]} />
+        <sphereGeometry args={[sphereRadius, 16, 16]} />
         <meshNormalMaterial />
       </mesh>
     </group>
@@ -99,7 +99,15 @@ export default function (): JSX.Element {
   }
 
   return (
-    <Canvas shadows gl={{ alpha: false }} camera={{ fov: 50, position: [-2, 1, 7] }}>
+    <Canvas
+      shadows
+      camera={{ fov: 50, position: [-2, 1, 7] }}
+      gl={{
+        alpha: false,
+        // todo: stop using legacy lights
+        useLegacyLights: true,
+      }}
+    >
       <color attach="background" args={['#f6d186']} />
       <hemisphereLight intensity={0.35} />
       <spotLight
