@@ -1,5 +1,17 @@
 # @react-three/cannon Changelog
 
+## 6.6.0
+
+### Minor Changes
+
+- 22d49ef: chore: update @types/three dev dependency
+
+### Patch Changes
+
+- Updated dependencies [800a687]
+- Updated dependencies [22d49ef]
+  - @pmndrs/cannon-worker-api@2.4.0
+
 ## v6.5.2 - 2023-01-05
 
 - [`README.md`] Update shields badge to point to match their new route (@bjornstar)

@@ -1,5 +1,12 @@
 # @pmndrs/cannon-worker-api Changelog
 
+## 2.4.0
+
+### Minor Changes
+
+- 800a687: feat(props-to-body): support both quaternion and rotation props, prefer quaternion if both provided (@Soham1803)
+- 22d49ef: chore: update @types/three dev dependency
+
 ## v2.3.2 - 2023-01-05
 
 - [`README.md`] Improve links to related packages (@bjornstar)
