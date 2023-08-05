@@ -50,6 +50,21 @@ function createShape(type, args) {
 }
 
 /**
+ * @param {THREE.Quaternion} target
+ * @param {{ rotation?: THREE.Vector3Tuple quaternion?: THREE.Vector4Tuple }} props
+ * @returns {THREE.Quaternion}
+ */
+const setQuaternion = (target, { quaternion, rotation }) => {
+  if (quaternion) {
+    target.set(...quaternion)
+  } else if (rotation) {
+    target.setFromEuler(...rotation)
+  }
+
+  return target
+}
+
+/**
  * @function
  * @param {Object} options
  * @param {string} options.uuid
@@ -70,8 +85,8 @@ export const propsToBody = (options) => {
     material,
     onCollide,
     position = [0, 0, 0],
-    rotation = [0, 0, 0],
-    quaternion = [0, 0, 0, 1],
+    rotation,
+    quaternion,
     shapes,
     type: bodyType,
     velocity = [0, 0, 0],
@@ -95,11 +110,7 @@ export const propsToBody = (options) => {
       const shapeBody = body.addShape(
         createShape(type, args),
         position ? new Vec3(...position) : undefined,
-        quaternion
-          ? new Quaternion.set(...quaternion)
-          : rotation
-          ? new Quaternion().setFromEuler(...rotation)
-          : undefined,
+        setQuaternion(new Quaternion(0, 0, 0, 1), { quaternion, rotation }),
       )
       if (material) shapeBody.material = createMaterial(material)
       Object.assign(shapeBody, extra)
@@ -113,9 +124,7 @@ export const propsToBody = (options) => {
   body.angularVelocity.set(angularVelocity[0], angularVelocity[1], angularVelocity[2])
   body.linearFactor.set(linearFactor[0], linearFactor[1], linearFactor[2])
   body.angularFactor.set(angularFactor[0], angularFactor[1], angularFactor[2])
-
-  if (quaternion) body.quaternion.set(quaternion[0], quaternion[1], quaternion[2], quaternion[3])
-  else body.quaternion.setFromEuler(rotation[0], rotation[1], rotation[2])
+  setQuaternion(body.quaternion, { quaternion, rotation })
 
   return body
 }
