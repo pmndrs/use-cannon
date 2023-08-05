@@ -28,6 +28,9 @@ export type BodyProps<T extends any[] = unknown[]> = Partial<AtomicProps> &
     onCollide?: (e: CollideEvent) => void
     onCollideBegin?: (e: CollideBeginEvent) => void
     onCollideEnd?: (e: CollideEndEvent) => void
+    /**
+     * Quaternion is preferred over rotation if both are provided
+     */
     quaternion?: Quad
     rotation?: Triplet
     type?: 'Dynamic' | 'Static' | 'Kinematic'
