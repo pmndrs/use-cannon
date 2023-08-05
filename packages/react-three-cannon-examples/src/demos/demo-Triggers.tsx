@@ -9,7 +9,7 @@ function BoxTrigger({ args, onCollide, position }: BoxProps) {
   const [ref] = useBox(() => ({ args, isTrigger: true, onCollide, position }), useRef<Mesh>(null))
   return (
     <mesh {...{ position, ref }}>
-      <boxBufferGeometry args={args} />
+      <boxGeometry args={args} />
       <meshStandardMaterial wireframe color="green" />
     </mesh>
   )
@@ -26,7 +26,7 @@ function Ball() {
   )
   return (
     <mesh castShadow receiveShadow ref={ref}>
-      <sphereBufferGeometry args={[1, 16, 16]} />
+      <sphereGeometry args={[1, 16, 16]} />
       <meshLambertMaterial color="white" />
     </mesh>
   )
@@ -36,7 +36,7 @@ function Plane(props: PlaneProps) {
   const [ref] = usePlane(() => ({ type: 'Static', ...props }), useRef<Mesh>(null))
   return (
     <mesh ref={ref} receiveShadow>
-      <planeBufferGeometry args={[100, 100]} />
+      <planeGeometry args={[100, 100]} />
       <shadowMaterial color="#171717" />
     </mesh>
   )
@@ -45,7 +45,14 @@ function Plane(props: PlaneProps) {
 export default () => {
   const [bg, setbg] = useState('#171720')
   return (
-    <Canvas shadows camera={{ fov: 50, position: [-10, 15, 5] }}>
+    <Canvas
+      shadows
+      camera={{ fov: 50, position: [-10, 15, 5] }}
+      gl={{
+        // todo: stop using legacy lights
+        useLegacyLights: true,
+      }}
+    >
       <OrbitControls />
       <fog attach="fog" args={[bg, 10, 50]} />
       <color attach="background" args={[bg]} />

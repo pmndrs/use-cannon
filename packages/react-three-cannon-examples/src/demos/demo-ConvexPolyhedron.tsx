@@ -49,7 +49,7 @@ function Cone({ position, rotation, sides }: ConeProps) {
 
   return (
     <mesh castShadow {...{ geometry, position, ref, rotation }}>
-      <coneBufferGeometry args={[0.7, 0.7, sides, 1]} />
+      <coneGeometry args={[0.7, 0.7, sides, 1]} />
       <meshNormalMaterial />
     </mesh>
   )
@@ -66,7 +66,7 @@ function Cube({ position, rotation, size }: CubeProps) {
   const [ref] = useConvexPolyhedron(() => ({ args, mass: 100, position, rotation }), useRef<Mesh>(null))
   return (
     <mesh castShadow receiveShadow {...{ geometry, position, ref, rotation }}>
-      <boxBufferGeometry args={[size, size, size]} />
+      <boxGeometry args={[size, size, size]} />
       <meshPhysicalMaterial color="rebeccapurple" />
     </mesh>
   )
@@ -76,7 +76,7 @@ function Plane(props: PlaneProps) {
   const [ref] = usePlane(() => ({ type: 'Static', ...props }), useRef<Mesh>(null))
   return (
     <mesh ref={ref} receiveShadow>
-      <planeBufferGeometry args={[10, 10]} />
+      <planeGeometry args={[10, 10]} />
       <shadowMaterial color="#171717" />
     </mesh>
   )
@@ -95,7 +95,14 @@ function ConvexPolyhedron() {
 
   return (
     <>
-      <Canvas shadows camera={{ fov: 50, position: [-1, 1, 5] }}>
+      <Canvas
+        shadows
+        camera={{ fov: 50, position: [-1, 1, 5] }}
+        gl={{
+          // todo: stop using legacy lights
+          useLegacyLights: true,
+        }}
+      >
         <color attach="background" args={['lightpink']} />
         <spotLight
           position={[15, 15, 15]}

@@ -37,7 +37,7 @@ function Plane() {
   const [ref] = usePlane(() => ({ rotation: [-Math.PI / 2, 0, 0], type: 'Static' }), useRef<Mesh>(null))
   return (
     <mesh receiveShadow ref={ref}>
-      <planeBufferGeometry args={[20, 20]} />
+      <planeGeometry args={[20, 20]} />
       <shadowMaterial color="#171717" />
     </mesh>
   )

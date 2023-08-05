@@ -112,7 +112,7 @@ function Ball() {
   const [ref] = useSphere(() => ({ args: [0.5], mass: 1, position: [0, 5, 0] }), useRef<Mesh>(null))
   return (
     <mesh castShadow ref={ref}>
-      <sphereBufferGeometry args={[0.5, 64, 64]} />
+      <sphereGeometry args={[0.5, 64, 64]} />
       <meshStandardMaterial map={map} />
     </mesh>
   )
@@ -152,6 +152,10 @@ export default function () {
         shadows
         camera={{ fov: 50, position: [0, 5, 12] }}
         onPointerMissed={() => welcome && reset(false)}
+        gl={{
+          // todo: stop using legacy lights
+          useLegacyLights: true,
+        }}
       >
         <color attach="background" args={['#171720']} />
         <ambientLight intensity={0.5} />
@@ -181,7 +185,7 @@ export default function () {
           allowSleep={false}
         >
           <mesh position={[0, 0, -10]} receiveShadow>
-            <planeBufferGeometry args={[1000, 1000]} />
+            <planeGeometry args={[1000, 1000]} />
             <meshPhongMaterial color="#172017" />
           </mesh>
           <ContactGround />

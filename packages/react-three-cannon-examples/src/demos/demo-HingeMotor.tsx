@@ -1,7 +1,7 @@
 import type { BoxProps, HingeConstraintOpts, PlaneProps, Triplet } from '@react-three/cannon'
 import { Physics, useBox, useHingeConstraint, useLockConstraint, usePlane } from '@react-three/cannon'
 import { OrbitControls, PerspectiveCamera } from '@react-three/drei'
-import type { MeshStandardMaterialProps, PlaneBufferGeometryProps } from '@react-three/fiber'
+import type { MeshStandardMaterialProps, PlaneGeometryProps } from '@react-three/fiber'
 import { Canvas, useFrame } from '@react-three/fiber'
 import type { PropsWithChildren, RefObject } from 'react'
 import {
@@ -24,7 +24,7 @@ function normalizeSize([px = 0, py = 0, pz = 0]): (scale: Triplet) => Triplet {
 const GROUP_GROUND = 2 ** 0
 const GROUP_BODY = 2 ** 1
 
-type OurPlaneProps = Pick<PlaneBufferGeometryProps, 'args'> & Pick<PlaneProps, 'position' | 'rotation'>
+type OurPlaneProps = Pick<PlaneGeometryProps, 'args'> & Pick<PlaneProps, 'position' | 'rotation'>
 
 function Plane({ args, ...props }: OurPlaneProps) {
   const [ref] = usePlane(
@@ -34,11 +34,11 @@ function Plane({ args, ...props }: OurPlaneProps) {
   return (
     <group ref={ref}>
       <mesh>
-        <planeBufferGeometry args={args} />
+        <planeGeometry args={args} />
         <meshBasicMaterial color="#ffb385" />
       </mesh>
       <mesh receiveShadow>
-        <planeBufferGeometry args={args} />
+        <planeGeometry args={args} />
         <shadowMaterial color="lightsalmon" />
       </mesh>
     </group>
@@ -122,7 +122,7 @@ type BoxShapeProps = Pick<MeshStandardMaterialProps, 'color' | 'opacity' | 'tran
 const BoxShape = forwardRef<Mesh, PropsWithChildren<BoxShapeProps>>(
   ({ args = [1, 1, 1], children, color = 'white', opacity = 1, transparent = false, ...props }, ref) => (
     <mesh receiveShadow castShadow ref={ref} {...props}>
-      <boxBufferGeometry args={args} />
+      <boxGeometry args={args} />
       <meshStandardMaterial color={color} transparent={transparent} opacity={opacity} />
       {children}
     </mesh>
@@ -342,7 +342,14 @@ const style = {
 export default () => {
   return (
     <>
-      <Canvas shadows gl={{ alpha: false }}>
+      <Canvas
+        shadows
+        gl={{
+          alpha: false,
+          // todo: stop using legacy lights
+          useLegacyLights: true,
+        }}
+      >
         <OrbitControls />
         <Scene />
       </Canvas>

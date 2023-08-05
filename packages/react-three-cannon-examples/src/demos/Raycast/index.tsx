@@ -26,11 +26,11 @@ function Plane(props: GroupProps) {
   return (
     <group {...props}>
       <mesh>
-        <planeBufferGeometry args={[8, 8]} />
+        <planeGeometry args={[8, 8]} />
         <meshBasicMaterial color="#FFD3A5" />
       </mesh>
       <mesh receiveShadow>
-        <planeBufferGeometry args={[8, 8]} />
+        <planeGeometry args={[8, 8]} />
         <shadowMaterial color="#f8cd7e" />
       </mesh>
     </group>
@@ -49,7 +49,7 @@ function Sphere({ radius, position }: SphereProps) {
   })
   return (
     <mesh castShadow ref={ref}>
-      <sphereBufferGeometry args={[radius, 32, 32]} />
+      <sphereGeometry args={[radius, 32, 32]} />
       <meshNormalMaterial />
     </mesh>
   )
@@ -67,7 +67,7 @@ function Cube({ size, position }: CubeProps) {
   })
   return (
     <mesh castShadow ref={ref} position={position}>
-      <boxBufferGeometry args={size} />
+      <boxGeometry args={size} />
       <meshNormalMaterial />
     </mesh>
   )
@@ -155,7 +155,14 @@ const Camera = () => {
 }
 
 export default () => (
-  <Canvas shadows gl={{ alpha: false }}>
+  <Canvas
+    shadows
+    gl={{
+      alpha: false,
+      // todo: stop using legacy lights
+      useLegacyLights: true,
+    }}
+  >
     <Camera />
     <color attach="background" args={['#fcb89d']} />
     <hemisphereLight intensity={0.35} />

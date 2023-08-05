@@ -162,9 +162,9 @@ function Spheres({ columns, rows, spread }: { columns: number; rows: number; spr
 
   return (
     <instancedMesh ref={ref} castShadow receiveShadow args={[undefined, undefined, number]}>
-      <sphereBufferGeometry args={[0.2, 16, 16]}>
+      <sphereGeometry args={[0.2, 16, 16]}>
         <instancedBufferAttribute attach="attributes-color" args={[colors, 3]} />
-      </sphereBufferGeometry>
+      </sphereGeometry>
       <meshPhongMaterial vertexColors />
     </instancedMesh>
   )
@@ -211,7 +211,13 @@ function Camera(): JSX.Element {
 }
 
 export default ({ scale = 10 }) => (
-  <Canvas shadows>
+  <Canvas
+    shadows
+    gl={{
+      // todo: stop using legacy lights
+      useLegacyLights: true,
+    }}
+  >
     <color attach="background" args={['#171720']} />
     <Camera />
     <Physics>

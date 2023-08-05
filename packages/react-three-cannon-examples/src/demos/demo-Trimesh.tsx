@@ -100,7 +100,14 @@ const style = {
 
 export default () => (
   <>
-    <Canvas shadows frameloop="demand">
+    <Canvas
+      shadows
+      frameloop="demand"
+      gl={{
+        // todo: stop using legacy lights
+        useLegacyLights: true,
+      }}
+    >
       <color attach="background" args={['#171720']} />
       <ambientLight intensity={0.3} />
       <pointLight castShadow intensity={0.8} position={[100, 100, 100]} />

@@ -65,7 +65,7 @@ const Box = ({ args, color = 'white', ...props }: BoxProps & { color?: string })
   )
   return (
     <mesh ref={ref} castShadow receiveShadow>
-      <boxBufferGeometry args={args} />
+      <boxGeometry args={args} />
       <meshLambertMaterial color={color} />
     </mesh>
   )
@@ -75,7 +75,7 @@ const Plane = (props: PlaneProps) => {
   const [ref] = usePlane(() => ({ ...props }), useRef<Mesh>(null))
   return (
     <mesh ref={ref} receiveShadow>
-      <planeBufferGeometry args={[100, 100]} />
+      <planeGeometry args={[100, 100]} />
       <meshStandardMaterial color={materialColors.ground} />
     </mesh>
   )
@@ -177,7 +177,14 @@ function PhysicsContent() {
 
 export default () => (
   <>
-    <Canvas shadows camera={{ position: [-5, 3, 8] }}>
+    <Canvas
+      shadows
+      camera={{ position: [-5, 3, 8] }}
+      gl={{
+        // todo: stop using legacy lights
+        useLegacyLights: true,
+      }}
+    >
       <OrbitControls />
       <pointLight position={[1, 2, 3]} castShadow />
       <ambientLight intensity={0.2} />

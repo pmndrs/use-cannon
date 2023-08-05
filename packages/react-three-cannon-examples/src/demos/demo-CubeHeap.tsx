@@ -11,7 +11,7 @@ function Plane(props: PlaneProps) {
   const [ref] = usePlane(() => ({ ...props }), useRef<Mesh>(null))
   return (
     <mesh ref={ref} receiveShadow>
-      <planeBufferGeometry args={[5, 5]} />
+      <planeGeometry args={[5, 5]} />
       <shadowMaterial color="#171717" />
     </mesh>
   )
@@ -35,9 +35,9 @@ const Spheres = ({ colors, number, size }: InstancedGeometryProps) => {
   useFrame(() => at(Math.floor(Math.random() * number)).position.set(0, Math.random() * 2, 0))
   return (
     <instancedMesh receiveShadow castShadow ref={ref} args={[undefined, undefined, number]}>
-      <sphereBufferGeometry args={[size, 48]}>
+      <sphereGeometry args={[size, 48]}>
         <instancedBufferAttribute attach="attributes-color" args={[colors, 3]} />
-      </sphereBufferGeometry>
+      </sphereGeometry>
       <meshLambertMaterial vertexColors />
     </instancedMesh>
   )
@@ -56,9 +56,9 @@ const Boxes = ({ colors, number, size }: InstancedGeometryProps) => {
   useFrame(() => at(Math.floor(Math.random() * number)).position.set(0, Math.random() * 2, 0))
   return (
     <instancedMesh receiveShadow castShadow ref={ref} args={[undefined, undefined, number]}>
-      <boxBufferGeometry args={args}>
+      <boxGeometry args={args}>
         <instancedBufferAttribute attach="attributes-color" args={[colors, 3]} />
-      </boxBufferGeometry>
+      </boxGeometry>
       <meshLambertMaterial vertexColors />
     </instancedMesh>
   )
@@ -90,7 +90,11 @@ export default () => {
   return (
     <Canvas
       shadows
-      gl={{ alpha: false }}
+      gl={{
+        alpha: false,
+        // todo: stop using legacy lights
+        useLegacyLights: true,
+      }}
       camera={{ fov: 50, position: [-1, 1, 2.5] }}
       onPointerMissed={() => setGeometry((geometry) => (geometry === 'box' ? 'sphere' : 'box'))}
       onCreated={({ scene }) => (scene.background = new Color('lightblue'))}
