@@ -2060,9 +2060,9 @@ camera-controls@^2.4.2:
   integrity sha512-HONMoMYHieOCQOoweS639bdWHP/P/fvVGR08imnECGVUp04mqGfsX/zp1ZufLeiAA5hA6i1JhP6SrnOwh01C0w==
 
 caniuse-lite@^1.0.30001400:
-  version "1.0.30001429"
-  resolved "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001429.tgz"
-  integrity sha512-511ThLu1hF+5RRRt0zYCf2U2yRr9GPF6m5y90SBCWsvSoYoW7yAGlv/elyPaNfvGCkp6kj/KFZWU0BMA69Prsg==
+  version "1.0.30001585"
+  resolved "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001585.tgz"
+  integrity sha512-yr2BWR1yLXQ8fMpdS/4ZZXpseBgE7o4g41x3a6AJOqZuOi+iE/WdJYAuZ6Y95i4Ohd2Y+9MzIWRR+uGABH4s3Q==
 
 cannon-es-debugger@^1.0.0:
   version "1.0.0"
