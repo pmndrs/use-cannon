@@ -16,11 +16,11 @@ jobs:
     needs: install
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-node@v2
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
       with:
         cache: 'yarn'
-        node-version: 16.x
+        node-version: 20
     - run: yarn install
     - run: npm i -g npm@latest
     - run: npm run build
@@ -30,11 +30,11 @@ jobs:
     needs: install
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-node@v2
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
       with:
         cache: 'yarn'
-        node-version: 16.x
+        node-version: 20
     - run: yarn install
     - run: npm i -g npm@latest
     - run: npm run eslint
@@ -43,11 +43,11 @@ jobs:
     name: Install
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-node@v2
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
       with:
         cache: 'yarn'
-        node-version: 16.x
+        node-version: 20
     - run: yarn install
 
   prettier:
@@ -55,11 +55,11 @@ jobs:
     needs: install
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-node@v2
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
       with:
         cache: 'yarn'
-        node-version: 16.x
+        node-version: 20
     - run: yarn install
     - run: npm i -g npm@latest
     - run: npm run prettier

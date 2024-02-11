@@ -24,7 +24,7 @@
     "lint-staged": "^12.1.2"
   },
   "engines": {
-    "node": ">=16",
+    "node": "20",
     "npm": ">=8"
   },
   "lint-staged": {
@@ -47,5 +47,6 @@
     "packages/cannon-worker-api",
     "packages/react-three-cannon",
     "packages/react-three-cannon-examples"
-  ]
+  ],
+  "dependencies": {}
 }
