@@ -11,7 +11,7 @@ function Plane(props: PlaneProps) {
   const [ref] = usePlane(() => ({ ...props }), useRef<Mesh>(null))
   return (
     <mesh ref={ref} receiveShadow>
-      <planeGeometry args={[5, 5]} />
+      <planeGeometry args={[10, 10]} />
       <shadowMaterial color="#171717" />
     </mesh>
   )
@@ -89,25 +89,19 @@ export default () => {
 
   return (
     <Canvas
-      shadows
-      gl={{
-        alpha: false,
-        // todo: stop using legacy lights
-        useLegacyLights: true,
-      }}
       camera={{ fov: 50, position: [-1, 1, 2.5] }}
-      onPointerMissed={() => setGeometry((geometry) => (geometry === 'box' ? 'sphere' : 'box'))}
       onCreated={({ scene }) => (scene.background = new Color('lightblue'))}
+      onPointerMissed={() => setGeometry((geometry) => (geometry === 'box' ? 'sphere' : 'box'))}
+      shadows
     >
-      <hemisphereLight intensity={0.35} />
+      <hemisphereLight intensity={0.35 * Math.PI} />
       <spotLight
-        position={[5, 5, 5]}
         angle={0.3}
-        penumbra={1}
-        intensity={2}
         castShadow
-        shadow-mapSize-width={256}
-        shadow-mapSize-height={256}
+        decay={0}
+        intensity={2 * Math.PI}
+        penumbra={1}
+        position={[10, 10, 10]}
       />
       <Physics broadphase="SAP">
         <Plane rotation={[-Math.PI / 2, 0, 0]} />

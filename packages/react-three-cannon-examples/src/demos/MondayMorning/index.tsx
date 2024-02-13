@@ -9,8 +9,9 @@ import {
   usePointToPointConstraint,
   useSphere,
 } from '@react-three/cannon'
+import { useGLTF } from '@react-three/drei'
 import type { BoxGeometryProps, MeshProps, MeshStandardMaterialProps, ThreeEvent } from '@react-three/fiber'
-import { Canvas, useFrame, useLoader } from '@react-three/fiber'
+import { Canvas, useFrame } from '@react-three/fiber'
 import type { ReactNode, RefObject } from 'react'
 import {
   createContext,
@@ -25,7 +26,6 @@ import {
 } from 'react'
 import type { Group, Material, Mesh, Object3D, SpotLight } from 'three'
 import type { GLTF } from 'three-stdlib/loaders/GLTFLoader'
-import { GLTFLoader } from 'three-stdlib/loaders/GLTFLoader'
 
 import type { ShapeName } from './createConfig'
 import { createRagdoll } from './createConfig'
@@ -206,7 +206,7 @@ interface CupGLTF extends GLTF {
 }
 
 function Mug() {
-  const { nodes, materials } = useLoader(GLTFLoader, '/cup.glb') as CupGLTF
+  const { nodes, materials } = useGLTF('/cup.glb') as CupGLTF
   const [ref] = useCylinder(
     () => ({
       args: [0.6, 0.6, 1, 16],
@@ -292,8 +292,16 @@ const Lamp = () => {
       <mesh ref={lamp} {...bind}>
         <coneGeometry attach="geometry" args={[2, 2.5, 32]} />
         <meshStandardMaterial attach="material" />
-        <pointLight intensity={10} distance={5} />
-        <spotLight ref={light} position={[0, 20, 0]} angle={0.4} penumbra={1} intensity={0.6} castShadow />
+        <pointLight decay={5} intensity={10 * Math.PI} />
+        <spotLight
+          angle={0.4}
+          decay={0}
+          penumbra={1}
+          position={[0, 20, 0]}
+          ref={light}
+          intensity={0.6 * Math.PI}
+          castShadow
+        />
       </mesh>
     </>
   )
@@ -322,15 +330,11 @@ export default () => (
     orthographic
     shadows
     style={{ cursor: 'none' }}
-    gl={{
-      // todo: stop using legacy lights
-      useLegacyLights: true,
-    }}
   >
     <color attach="background" args={['#171720']} />
     <fog attach="fog" args={['#171720', 20, 70]} />
-    <ambientLight intensity={0.2} />
-    <pointLight position={[-10, -10, -10]} color="red" intensity={1.5} />
+    <ambientLight intensity={0.2 * Math.PI} />
+    <pointLight decay={0} position={[-10, -10, -10]} color="red" intensity={1.5 * Math.PI} />
     <Physics iterations={15} gravity={[0, -200, 0]} allowSleep={false}>
       <Cursor />
       <Ragdoll position={[0, 0, 0]} />

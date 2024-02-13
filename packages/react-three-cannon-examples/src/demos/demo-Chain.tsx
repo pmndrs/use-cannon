@@ -154,19 +154,18 @@ function ChainScene(): JSX.Element {
 
   return (
     <>
-      <Canvas
-        shadows
-        camera={{ fov: 50, position: [0, 5, 20] }}
-        onPointerMissed={reset}
-        gl={{
-          // todo: stop using legacy lights
-          useLegacyLights: true,
-        }}
-      >
+      <Canvas shadows camera={{ fov: 50, position: [0, 5, 20] }} onPointerMissed={reset}>
         <color attach="background" args={['#171720']} />
-        <ambientLight intensity={0.5} />
-        <pointLight position={[-10, -10, -10]} />
-        <spotLight position={[10, 10, 10]} angle={0.8} penumbra={1} intensity={1} castShadow />
+        <ambientLight intensity={0.5 * Math.PI} />
+        <pointLight position={[-10, -10, -10]} intensity={1 * Math.PI} decay={0} />
+        <spotLight
+          position={[10, 10, 10]}
+          angle={0.8}
+          penumbra={1}
+          intensity={1 * Math.PI}
+          decay={0}
+          castShadow
+        />
         <Physics gravity={[0, -40, 0]} allowSleep={false}>
           <PointerHandle size={1.5}>
             <Chain length={7} />

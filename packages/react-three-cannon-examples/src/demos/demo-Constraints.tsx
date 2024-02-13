@@ -65,13 +65,7 @@ const style = {
 export default () => {
   return (
     <>
-      <Canvas
-        camera={{ fov: 50, position: [0, 0, 8] }}
-        gl={{
-          // todo: stop using legacy lights
-          useLegacyLights: true,
-        }}
-      >
+      <Canvas camera={{ fov: 50, position: [0, 0, 8] }}>
         <color attach="background" args={['#171720']} />
         <Physics gravity={[0, -40, 0]} allowSleep={false}>
           <BoxAndBall />

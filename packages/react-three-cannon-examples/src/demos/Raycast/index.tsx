@@ -1,22 +1,20 @@
 import type { Triplet } from '@react-three/cannon'
 import { Physics, useBox, useRaycastAll, useSphere } from '@react-three/cannon'
 import { Html } from '@react-three/drei'
-import type { GroupProps, Node, Object3DNode } from '@react-three/fiber'
+import { OrbitControls } from '@react-three/drei'
+import type { GroupProps, Object3DNode } from '@react-three/fiber'
 import { Canvas, extend, useFrame, useThree } from '@react-three/fiber'
 import { Suspense, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import type { Mesh, PerspectiveCamera } from 'three'
 import { BufferGeometry, Line as ThreeLine, Vector3 } from 'three'
-import { OrbitControls } from 'three-stdlib/controls/OrbitControls'
 
 import { prettyPrint } from './prettyPrint'
 
-extend({ OrbitControls })
 extend({ ThreeLine })
 
 declare global {
   namespace JSX {
     interface IntrinsicElements {
-      orbitControls: Node<OrbitControls, typeof OrbitControls>
       threeLine: Object3DNode<ThreeLine, typeof ThreeLine>
     }
   }
@@ -114,7 +112,6 @@ function Raycast() {
 
 const Camera = () => {
   const cameraRef = useRef<PerspectiveCamera>(null)
-  const controlsRef = useRef<OrbitControls>(null)
   const { gl, camera } = useThree()
   const set = useThree((state) => state.set)
   const size = useThree((state) => state.size)
@@ -132,18 +129,16 @@ const Camera = () => {
   }, [])
 
   useFrame(() => {
-    if (!cameraRef.current || !controlsRef.current) return
+    if (!cameraRef.current) return
     cameraRef.current.updateMatrixWorld()
-    controlsRef.current.update()
   })
 
   return (
     <>
       <perspectiveCamera ref={cameraRef} position={[0, -10, 10]} />
-      <orbitControls
+      <OrbitControls
         autoRotate
         enableDamping
-        ref={controlsRef}
         args={[camera, gl.domElement]}
         dampingFactor={0.2}
         rotateSpeed={0.5}
@@ -155,14 +150,7 @@ const Camera = () => {
 }
 
 export default () => (
-  <Canvas
-    shadows
-    gl={{
-      alpha: false,
-      // todo: stop using legacy lights
-      useLegacyLights: true,
-    }}
-  >
+  <Canvas shadows>
     <Camera />
     <color attach="background" args={['#fcb89d']} />
     <hemisphereLight intensity={0.35} />

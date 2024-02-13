@@ -177,17 +177,10 @@ function PhysicsContent() {
 
 export default () => (
   <>
-    <Canvas
-      shadows
-      camera={{ position: [-5, 3, 8] }}
-      gl={{
-        // todo: stop using legacy lights
-        useLegacyLights: true,
-      }}
-    >
+    <Canvas camera={{ position: [-5, 3, 8] }} shadows>
       <OrbitControls />
-      <pointLight position={[1, 2, 3]} castShadow />
-      <ambientLight intensity={0.2} />
+      <pointLight castShadow decay={0} intensity={Math.PI} position={[1, 2, 3]} />
+      <ambientLight intensity={0.2 * Math.PI} />
       <Physics gravity={[3, -9.81, 0]}>
         <PhysicsContent />
       </Physics>

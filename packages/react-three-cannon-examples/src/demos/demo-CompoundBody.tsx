@@ -99,15 +99,7 @@ export default function (): JSX.Element {
   }
 
   return (
-    <Canvas
-      shadows
-      camera={{ fov: 50, position: [-2, 1, 7] }}
-      gl={{
-        alpha: false,
-        // todo: stop using legacy lights
-        useLegacyLights: true,
-      }}
-    >
+    <Canvas shadows camera={{ fov: 50, position: [-2, 1, 7] }}>
       <color attach="background" args={['#f6d186']} />
       <hemisphereLight intensity={0.35} />
       <spotLight

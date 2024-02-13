@@ -54,18 +54,18 @@ const VehicleScene = () => {
 
   return (
     <>
-      <Canvas
-        shadows
-        camera={{ fov: 50, position: [0, 5, 15] }}
-        gl={{
-          // todo: stop using legacy lights
-          useLegacyLights: true,
-        }}
-      >
+      <Canvas camera={{ fov: 50, position: [0, 5, 15] }} shadows>
         <fog attach="fog" args={['#171720', 10, 50]} />
         <color attach="background" args={['#171720']} />
-        <ambientLight intensity={0.1} />
-        <spotLight position={[10, 10, 10]} angle={0.5} intensity={1} castShadow penumbra={1} />
+        <ambientLight intensity={0.1 * Math.PI} />
+        <spotLight
+          angle={0.5}
+          castShadow
+          decay={0}
+          intensity={Math.PI}
+          penumbra={1}
+          position={[10, 10, 10]}
+        />
         <Physics
           broadphase="SAP"
           defaultContactMaterial={{ contactEquationRelaxation: 4, friction: 1e-3 }}

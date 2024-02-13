@@ -57,7 +57,7 @@ function Scene({ isPaused = false }): JSX.Element {
         </Debug>
       </Physics>
 
-      <ambientLight intensity={3} />
+      <ambientLight intensity={Math.PI} />
     </>
   )
 }
