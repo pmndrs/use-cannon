@@ -1,23 +1,12 @@
 import type { Triplet } from '@react-three/cannon'
 import { Physics, useHeightfield, useSphere } from '@react-three/cannon'
-import type { Node } from '@react-three/fiber'
-import { Canvas, extend, useFrame, useThree } from '@react-three/fiber'
+import { OrbitControls } from '@react-three/drei'
+import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { useEffect, useLayoutEffect, useMemo, useRef } from 'react'
 import type { BufferGeometry, InstancedMesh, Mesh, PerspectiveCamera } from 'three'
 import { Color, Float32BufferAttribute } from 'three'
-import { OrbitControls } from 'three-stdlib/controls/OrbitControls'
 
 import niceColors from '../colors'
-
-extend({ OrbitControls })
-
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      orbitControls: Node<OrbitControls, typeof OrbitControls>
-    }
-  }
-}
 
 type GenerateHeightmapArgs = {
   height: number
@@ -172,7 +161,6 @@ function Spheres({ columns, rows, spread }: { columns: number; rows: number; spr
 
 function Camera(): JSX.Element {
   const cameraRef = useRef<PerspectiveCamera>(null)
-  const controlsRef = useRef<OrbitControls>(null)
   const { gl, camera } = useThree()
   const set = useThree((state) => state.set)
   const size = useThree((state) => state.size)
@@ -190,17 +178,15 @@ function Camera(): JSX.Element {
   }, [])
 
   useFrame(() => {
-    if (!cameraRef.current || !controlsRef.current) return
+    if (!cameraRef.current) return
     cameraRef.current.updateMatrixWorld()
-    controlsRef.current.update()
   })
 
   return (
     <>
       <perspectiveCamera ref={cameraRef} position={[0, -10, 10]} />
-      <orbitControls
+      <OrbitControls
         enableDamping
-        ref={controlsRef}
         args={[camera, gl.domElement]}
         dampingFactor={0.2}
         minPolarAngle={Math.PI / 3}
@@ -211,18 +197,12 @@ function Camera(): JSX.Element {
 }
 
 export default ({ scale = 10 }) => (
-  <Canvas
-    shadows
-    gl={{
-      // todo: stop using legacy lights
-      useLegacyLights: true,
-    }}
-  >
+  <Canvas shadows>
     <color attach="background" args={['#171720']} />
     <Camera />
     <Physics>
-      <ambientLight intensity={0.5} />
-      <directionalLight position={[0, 3, 0]} castShadow />
+      <ambientLight intensity={0.5 * Math.PI} />
+      <directionalLight castShadow intensity={Math.PI} position={[0, 3, 0]} />
       <Heightfield
         elementSize={(scale * 1) / 128}
         heights={generateHeightmap({

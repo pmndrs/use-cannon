@@ -5,7 +5,7 @@ import { Canvas, invalidate } from '@react-three/fiber'
 import { useEffect, useRef, useState } from 'react'
 import type { BufferGeometry, Mesh } from 'three'
 import type { GLTF } from 'three-stdlib/loaders/GLTFLoader'
-import create from 'zustand'
+import { create } from 'zustand'
 
 type BowlGLTF = GLTF & {
   materials: {}
@@ -100,17 +100,10 @@ const style = {
 
 export default () => (
   <>
-    <Canvas
-      shadows
-      frameloop="demand"
-      gl={{
-        // todo: stop using legacy lights
-        useLegacyLights: true,
-      }}
-    >
+    <Canvas frameloop="demand" shadows>
       <color attach="background" args={['#171720']} />
-      <ambientLight intensity={0.3} />
-      <pointLight castShadow intensity={0.8} position={[100, 100, 100]} />
+      <ambientLight intensity={0.3 * Math.PI} />
+      <pointLight castShadow decay={0} intensity={0.8 * Math.PI} position={[100, 100, 100]} />
       <OrbitControls />
       <Physics shouldInvalidate={false}>
         <Bowl rotation={[0, 0, 0]} />

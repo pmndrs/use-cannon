@@ -1,20 +1,19 @@
-import type { ConvexPolyhedronProps, PlaneProps } from '@react-three/cannon'
+import type { ConvexPolyhedronProps, PlaneProps, Triplet } from '@react-three/cannon'
 import { Physics, useConvexPolyhedron, usePlane } from '@react-three/cannon'
-import { Canvas, useLoader } from '@react-three/fiber'
+import { useGLTF } from '@react-three/drei'
+import { Canvas } from '@react-three/fiber'
 import { Suspense, useMemo, useRef, useState } from 'react'
 import type { BufferGeometry, Mesh } from 'three'
 import { BoxGeometry, ConeGeometry } from 'three'
-import { Geometry } from 'three-stdlib/deprecated/Geometry'
+import { Geometry } from 'three-stdlib'
 import type { GLTF } from 'three-stdlib/loaders/GLTFLoader'
-import { GLTFLoader } from 'three-stdlib/loaders/GLTFLoader'
 
-// Returns legacy geometry vertices, faces for ConvP
-function toConvexProps(bufferGeometry: BufferGeometry): ConvexPolyhedronProps['args'] {
+function toConvexProps(bufferGeometry: BufferGeometry): [vertices: Triplet[], faces: Triplet[]] {
   const geo = new Geometry().fromBufferGeometry(bufferGeometry)
-  // Merge duplicate vertices resulting from glTF export.
-  // Cannon assumes contiguous, closed meshes to work
   geo.mergeVertices()
-  return [geo.vertices.map((v) => [v.x, v.y, v.z]), geo.faces.map((f) => [f.a, f.b, f.c]), []]
+  const vertices: Triplet[] = geo.vertices.map((v) => [v.x, v.y, v.z])
+  const faces: Triplet[] = geo.faces.map((f) => [f.a, f.b, f.c])
+  return [vertices, faces]
 }
 
 type DiamondGLTF = GLTF & {
@@ -27,7 +26,7 @@ function Diamond({ position, rotation }: ConvexPolyhedronProps) {
     nodes: {
       Cylinder: { geometry },
     },
-  } = useLoader(GLTFLoader, '/diamond.glb') as DiamondGLTF
+  } = useGLTF('/diamond.glb') as DiamondGLTF
   const args = useMemo(() => toConvexProps(geometry), [geometry])
   const [ref] = useConvexPolyhedron(() => ({ args, mass: 100, position, rotation }), useRef<Mesh>(null))
 
@@ -92,34 +91,25 @@ const style = {
 
 function ConvexPolyhedron() {
   const [invertGravity, setInvertGravity] = useState(false)
+  const toggleInvertGravity = () => setInvertGravity(!invertGravity)
 
   return (
     <>
-      <Canvas
-        shadows
-        camera={{ fov: 50, position: [-1, 1, 5] }}
-        gl={{
-          // todo: stop using legacy lights
-          useLegacyLights: true,
-        }}
-      >
+      <Canvas camera={{ fov: 50, position: [-1, 1, 5] }} shadows>
         <color attach="background" args={['lightpink']} />
         <spotLight
-          position={[15, 15, 15]}
           angle={0.3}
-          penumbra={1}
-          intensity={2}
           castShadow
+          decay={0}
+          intensity={2 * Math.PI}
+          penumbra={1}
+          position={[15, 15, 15]}
           shadow-mapSize-width={2048}
           shadow-mapSize-height={2048}
         />
         <Suspense fallback={null}>
           <Physics gravity={[0, invertGravity ? 5 : -10, 0]}>
-            <group
-              onPointerDown={() => {
-                setInvertGravity(!invertGravity)
-              }}
-            >
+            <group onPointerDown={toggleInvertGravity}>
               <Plane rotation={[-Math.PI / 2, 0, 0]} />
               <Diamond position={[1, 5, 0]} rotation={[0.4, 0.1, 0.1]} />
               <Cone position={[-1, 5, 0.5]} rotation={[0.1, 0.2, 0.1]} sides={6} />

@@ -307,14 +307,15 @@ function Scene() {
     <Suspense fallback={null}>
       <PerspectiveCamera ref={cameraRef} makeDefault position={[-40, 10, 20]} />
 
-      <hemisphereLight intensity={0.35} />
+      <hemisphereLight intensity={0.35 * Math.PI} />
       <spotLight
-        position={[20, 30, 10]}
         angle={Math.PI / 5}
-        penumbra={1}
-        intensity={1}
-        distance={180}
         castShadow
+        decay={0}
+        distance={180}
+        penumbra={1}
+        position={[20, 30, 10]}
+        intensity={Math.PI}
         shadow-mapSize-width={256}
         shadow-mapSize-height={256}
       />
@@ -342,14 +343,7 @@ const style = {
 export default () => {
   return (
     <>
-      <Canvas
-        shadows
-        gl={{
-          alpha: false,
-          // todo: stop using legacy lights
-          useLegacyLights: true,
-        }}
-      >
+      <Canvas shadows>
         <OrbitControls />
         <Scene />
       </Canvas>

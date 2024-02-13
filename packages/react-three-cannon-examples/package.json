@@ -21,8 +21,8 @@
   ],
   "devDependencies": {
     "@react-three/cannon": "^6.6.0",
-    "@react-three/drei": "^9.80.1",
-    "@react-three/fiber": "^8.13.6",
+    "@react-three/drei": "^9.97.5",
+    "@react-three/fiber": "^8.15.16",
     "@types/lodash-es": "^4.17.6",
     "@types/react": "^18.0.5",
     "@types/react-dom": "^17.0.14",
@@ -31,7 +31,6 @@
     "@types/three": "^0.155.0",
     "@typescript-eslint/eslint-plugin": "^5.17.0",
     "@typescript-eslint/parser": "^5.17.0",
-    "@vitejs/plugin-react": "^2.2.0",
     "eslint": "^8.12.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-es": "^4.1.0",
@@ -47,16 +46,17 @@
     "react-router-dom": "^6.2.2",
     "styled-components": "^5.3.5",
     "three": "^0.155.0",
-    "three-stdlib": "^2.24.1",
+    "three-stdlib": "^2.29.4",
     "typescript": "^4.6.3",
-    "vite": "^3.2.2",
+    "vite": "^5.1.1",
     "vite-react-jsx": "^1.1.2",
-    "zustand": "^3.7.1"
+    "zustand": "^4.5.0"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": "eslint --cache --fix",
     "*.{js,json,jsx,md,ts,tsx}": "prettier --write"
   },
   "license": "MIT",
-  "sideEffects": false
+  "sideEffects": false,
+  "type": "module"
 }

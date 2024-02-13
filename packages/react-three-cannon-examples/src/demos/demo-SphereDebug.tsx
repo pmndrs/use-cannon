@@ -47,8 +47,8 @@ export default function App() {
   return (
     <Canvas shadows camera={{ position: [-1, 2, 4] }}>
       <color attach="background" args={['#a6d1f6']} />
-      <hemisphereLight />
-      <directionalLight position={[5, 10, 5]} castShadow />
+      <hemisphereLight intensity={Math.PI} />
+      <directionalLight position={[5, 10, 5]} castShadow intensity={3 * Math.PI} />
       <Physics allowSleep>
         <Debug scale={1.1}>
           <Plane />

@@ -45,19 +45,12 @@ function Plane(props: PlaneProps) {
 export default () => {
   const [bg, setbg] = useState('#171720')
   return (
-    <Canvas
-      shadows
-      camera={{ fov: 50, position: [-10, 15, 5] }}
-      gl={{
-        // todo: stop using legacy lights
-        useLegacyLights: true,
-      }}
-    >
+    <Canvas camera={{ fov: 50, position: [-10, 15, 5] }} shadows>
       <OrbitControls />
       <fog attach="fog" args={[bg, 10, 50]} />
       <color attach="background" args={[bg]} />
-      <ambientLight intensity={0.1} />
-      <spotLight position={[10, 10, 10]} angle={0.5} intensity={1} castShadow penumbra={1} />
+      <ambientLight intensity={0.1 * Math.PI} />
+      <spotLight angle={0.5} castShadow decay={0} intensity={Math.PI} penumbra={1} position={[10, 10, 10]} />
       <Physics>
         <BoxTrigger
           args={[4, 1, 4]}

@@ -1,14 +1,13 @@
 import { Physics, useBox, usePlane, useSphere } from '@react-three/cannon'
+import { useGLTF } from '@react-three/drei'
 import { Canvas, useFrame, useLoader } from '@react-three/fiber'
 import lerp from 'lerp'
 import clamp from 'lodash-es/clamp'
 import { Suspense, useRef } from 'react'
 import type { Group, Material, Mesh, Object3D, Skeleton } from 'three'
 import { TextureLoader } from 'three'
-import { DRACOLoader } from 'three-stdlib/loaders/DRACOLoader'
 import type { GLTF } from 'three-stdlib/loaders/GLTFLoader'
-import { GLTFLoader } from 'three-stdlib/loaders/GLTFLoader'
-import create from 'zustand'
+import { create } from 'zustand'
 
 import earthImg from './resources/cross.jpg'
 import pingSound from './resources/ping.mp3'
@@ -46,14 +45,8 @@ type PingPongGLTF = GLTF & {
     }
 }
 
-const extensions = (loader: GLTFLoader) => {
-  const dracoLoader = new DRACOLoader()
-  dracoLoader.setDecoderPath('/draco-gltf/')
-  loader.setDRACOLoader(dracoLoader)
-}
-
 function Paddle() {
-  const { nodes, materials } = useLoader(GLTFLoader, '/pingpong.glb', extensions) as PingPongGLTF
+  const { nodes, materials } = useGLTF('/pingpong.glb', '/draco-gltf/') as PingPongGLTF
   const { pong } = useStore((state) => state.api)
   const welcome = useStore((state) => state.welcome)
   const count = useStore((state) => state.count)
@@ -149,23 +142,20 @@ export default function () {
   return (
     <>
       <Canvas
-        shadows
         camera={{ fov: 50, position: [0, 5, 12] }}
         onPointerMissed={() => welcome && reset(false)}
-        gl={{
-          // todo: stop using legacy lights
-          useLegacyLights: true,
-        }}
+        shadows
       >
         <color attach="background" args={['#171720']} />
-        <ambientLight intensity={0.5} />
-        <pointLight position={[-10, -10, -10]} />
+        <ambientLight intensity={0.5 * Math.PI} />
+        <pointLight decay={0} intensity={Math.PI} position={[-10, -10, -10]} />
         <spotLight
-          position={[10, 10, 10]}
           angle={0.3}
-          penumbra={1}
-          intensity={1}
           castShadow
+          decay={0}
+          intensity={Math.PI}
+          penumbra={1}
+          position={[10, 10, 10]}
           shadow-mapSize-width={2048}
           shadow-mapSize-height={2048}
           shadow-bias={-0.0001}

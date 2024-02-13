@@ -67,26 +67,19 @@ function InstancedSpheres({ number = 100 }) {
 }
 
 export default () => (
-  <Canvas
-    shadows
-    camera={{ position: [0, -12, 16] }}
-    gl={{
-      alpha: false,
-      // todo: stop using legacy lights
-      useLegacyLights: true,
-    }}
-  >
-    <hemisphereLight intensity={0.35} />
+  <Canvas camera={{ position: [0, -12, 16] }} shadows>
+    <hemisphereLight intensity={0.35 * Math.PI} />
     <spotLight
-      position={[30, 0, 30]}
       angle={0.3}
-      penumbra={1}
-      intensity={2}
       castShadow
+      decay={0}
+      intensity={2 * Math.PI}
+      penumbra={1}
+      position={[30, 0, 30]}
       shadow-mapSize-width={256}
       shadow-mapSize-height={256}
     />
-    <pointLight position={[-30, 0, -30]} intensity={0.5} />
+    <pointLight decay={0} intensity={0.5 * Math.PI} position={[-30, 0, -30]} />
     <Physics gravity={[0, 0, -30]}>
       <Plane color={niceColors[4]} position={[0, 0, 0]} rotation={[0, 0, 0]} />
       <Plane color={niceColors[1]} position={[-6, 0, 0]} rotation={[0, 0.9, 0]} />
